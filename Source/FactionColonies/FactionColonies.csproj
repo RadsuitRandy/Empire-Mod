@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1DB4AF06-C5A1-4B03-A479-6BF8791D121E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FactionColonies</RootNamespace>
+    <AssemblyName>FactionColonies</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\Empire\Assemblies\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.InputModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Android-Tiers-Patches.cs" />
+    <Compile Include="billFC.cs" />
+    <Compile Include="BiomeResourceDef.cs" />
+    <Compile Include="BuildingFC.cs" />
+    <Compile Include="descWindowFC.cs" />
+    <Compile Include="EmpireUI.cs" />
+    <Compile Include="factionCustomizeWindowFC.cs" />
+    <Compile Include="FactionFCDef.cs" />
+    <Compile Include="FactionRaceHarmonyPatches.cs" />
+    <Compile Include="FCBillWindow.cs" />
+    <Compile Include="FCBuildingWindow.cs" />
+    <Compile Include="FCEvent.cs" />
+    <Compile Include="createColonyWindowFC.cs" />
+    <Compile Include="FactionColonies.cs" />
+    <Compile Include="FactionFC.cs" />
+    <Compile Include="FCEventWindow.cs" />
+    <Compile Include="FCOption.cs" />
+    <Compile Include="FCPower.cs" />
+    <Compile Include="FCPrisoner.cs" />
+    <Compile Include="FCPrisonerMenu.cs" />
+    <Compile Include="FCRoadBuilder.cs" />
+    <Compile Include="FCTrader_Research.cs" />
+    <Compile Include="FCTraitEffectDef.cs" />
+    <Compile Include="FCWindow_Confirm_TaxBreak.cs" />
+    <Compile Include="FCWindow_Confirm.cs" />
+    <Compile Include="FCWindow_Overview.cs" />
+    <Compile Include="FCWindow_Pay_Silver.cs" />
+    <Compile Include="FCWindow_Pay_Silver_Loyalty.cs" />
+    <Compile Include="FC_Dialogue_Request.cs" />
+    <Compile Include="listThingFC.cs" />
+    <Compile Include="MainTabWindow_Colony.cs" />
+    <Compile Include="Mercenary.cs" />
+    <Compile Include="MilitaryAI.cs" />
+    <Compile Include="militaryCustomizationWindowFC.cs" />
+    <Compile Include="PaymentUtil.cs" />
+    <Compile Include="FCPolicy.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceFC.cs" />
+    <Compile Include="settlementCustomizeWindowFC.cs" />
+    <Compile Include="SettlementFC.cs" />
+    <Compile Include="settlementUpgradeWindowFC.cs" />
+    <Compile Include="settlementWindowFC.cs" />
+    <Compile Include="simulateBattleFC.cs" />
+    <Compile Include="SoS2HarmonyPatches.cs" />
+    <Compile Include="texLoad.cs" />
+    <Compile Include="traitUtilFC.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
