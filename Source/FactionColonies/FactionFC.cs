@@ -931,6 +931,44 @@ namespace FactionColonies
             }
         }
 
+        // Fix a crash related to a harmony bug on Linux
+        // This gets all patches Empire makes, gets the ones that would crash on Linux, and fixes them
+        static void FixLinuxHarmonyCrash(Harmony harmony)
+        {
+            bool WouldCrash(MethodInfo method)
+            {
+                if (method == null || !method.IsVirtual || method.IsAbstract || method.IsFinal)
+                {
+                    return false;
+                }
+
+                byte[] bytes = method.GetMethodBody()?.GetILAsByteArray();
+                if (bytes == null || bytes.Length == 0 || (bytes.Length == 1 && bytes.First() == 0x2A))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            var methods = typeof(FactionFC).Assembly.GetTypes()
+                .Where(t => t.IsClass && !typeof(Delegate).IsAssignableFrom(t))
+                .Where(t => t.GetCustomAttributes(typeof(HarmonyPatch)).Any())
+                .SelectMany(t => {
+                    HarmonyPatch patch = (HarmonyPatch)Attribute.GetCustomAttribute(t, typeof(HarmonyPatch));
+                    MethodInfo[] m = patch.info.declaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                    return m.Where(met => met.Name == patch.info.methodName);
+                })
+                .Where(WouldCrash)
+                ;
+
+            foreach (MethodInfo i in methods)
+            {
+                // Patching methods without any Prefixes/Postfixes before actually patching them fixes it. Idk why
+                harmony.Patch(i);
+            }
+        }
+
         //CallForAid
         //Remove ability to attack colony.
 
@@ -940,6 +978,11 @@ namespace FactionColonies
         public FactionFC(World world) : base(world)
         {
             var harmony = new Harmony("com.Saakra.Empire");
+
+            if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Linux)
+            {
+                FixLinuxHarmonyCrash(harmony);
+            }
 
             harmony.PatchAll();
 
