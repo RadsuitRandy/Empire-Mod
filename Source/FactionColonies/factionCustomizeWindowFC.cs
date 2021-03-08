@@ -199,13 +199,13 @@ namespace FactionColonies
 			if(Widgets.ButtonImage(buttonIcon, tempFactionIcon))
 			{
 				List<FloatMenuOption> list = new List<FloatMenuOption>();
-				foreach (KeyValuePair<string, Texture2D> pair in texLoad.factionIcons)
+				foreach (Texture2D texture in texLoad.factionIcons)
 				{
-					list.Add(new FloatMenuOption(pair.Key, delegate
+					list.Add(new FloatMenuOption(texture.name, delegate
 					{
-						tempFactionIcon = pair.Value;
-						tempFactionIconPath = pair.Key;
-					}, pair.Value, Color.white));
+						tempFactionIcon = texture;
+						tempFactionIconPath = texture.name;
+					}, texture, Color.white));
 				}
 				FloatMenu menu = new FloatMenu(list);
 				Find.WindowStack.Add(menu);

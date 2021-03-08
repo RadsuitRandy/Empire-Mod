@@ -8,8 +8,18 @@ using Verse;
 namespace FactionColonies
 {
     [StaticConstructorOnStartup]
-    internal static class texLoad
+    public static class texLoad
     {
+        static texLoad()
+        {
+            var icons = ContentFinder<Texture2D>.GetAllInFolder("FactionIcons");
+            factionIcons = icons.ToList();
+            if (factionIcons.NullOrEmpty())
+            {
+                Log.Error("Empire - No faction icons found, will probably result in Empire not working properly.");
+            }
+        }
+
         public static readonly Texture2D iconTest100 = ContentFinder<Texture2D>.Get("GUI/100x");
         public static readonly Texture2D questionmark = ContentFinder<Texture2D>.Get("GUI/questionmark");
         public static readonly Texture2D buildingLocked = ContentFinder<Texture2D>.Get("GUI/LockedBuildingSlot");
@@ -67,41 +77,6 @@ namespace FactionColonies
                new KeyValuePair<string, Texture2D>("research", ContentFinder<Texture2D>.Get("GUI/ProductionResearch"))
         };
 
-        public static readonly List<KeyValuePair<string, Texture2D>> factionIcons = new List<KeyValuePair<string, Texture2D>>()
-        {
-            new KeyValuePair<string, Texture2D>("Balance", ContentFinder<Texture2D>.Get("FactionIcons/Balance")),
-            new KeyValuePair<string, Texture2D>("Assassin", ContentFinder<Texture2D>.Get("FactionIcons/Assassin")),
-            new KeyValuePair<string, Texture2D>("Flame", ContentFinder<Texture2D>.Get("FactionIcons/Flame")),
-            new KeyValuePair<string, Texture2D>("Fox_Girl", ContentFinder<Texture2D>.Get("FactionIcons/Fox_Girl")),
-            new KeyValuePair<string, Texture2D>("Imperial", ContentFinder<Texture2D>.Get("FactionIcons/Imperial")),
-            new KeyValuePair<string, Texture2D>("Lifted", ContentFinder<Texture2D>.Get("FactionIcons/Lifted")),
-            new KeyValuePair<string, Texture2D>("Lion", ContentFinder<Texture2D>.Get("FactionIcons/Lion")),
-            new KeyValuePair<string, Texture2D>("Pirate", ContentFinder<Texture2D>.Get("FactionIcons/Pirate")),
-            new KeyValuePair<string, Texture2D>("Royalty", ContentFinder<Texture2D>.Get("FactionIcons/Royalty")),
-            new KeyValuePair<string, Texture2D>("Spartan", ContentFinder<Texture2D>.Get("FactionIcons/Spartan")),
-            new KeyValuePair<string, Texture2D>("Thrumbohorn", ContentFinder<Texture2D>.Get("FactionIcons/Thrumbohorn")),
-            new KeyValuePair<string, Texture2D>("Western", ContentFinder<Texture2D>.Get("FactionIcons/Western")),
-
-            new KeyValuePair<string, Texture2D>("Base", ContentFinder<Texture2D>.Get("FactionIcons/Base")),
-            new KeyValuePair<string, Texture2D>("Blue_Phoenix", ContentFinder<Texture2D>.Get("FactionIcons/Blue_Phoenix")),
-            new KeyValuePair<string, Texture2D>("Boomalope", ContentFinder<Texture2D>.Get("FactionIcons/Boomalope")),
-            new KeyValuePair<string, Texture2D>("Communists", ContentFinder<Texture2D>.Get("FactionIcons/Communists")),
-            new KeyValuePair<string, Texture2D>("Dragon", ContentFinder<Texture2D>.Get("FactionIcons/Dragon")),
-            new KeyValuePair<string, Texture2D>("Kilroy", ContentFinder<Texture2D>.Get("FactionIcons/Kilroy")),
-            new KeyValuePair<string, Texture2D>("New_Star", ContentFinder<Texture2D>.Get("FactionIcons/New_Star")),
-            new KeyValuePair<string, Texture2D>("Old_Star", ContentFinder<Texture2D>.Get("FactionIcons/Old_Star")),
-            new KeyValuePair<string, Texture2D>("Pattern_1", ContentFinder<Texture2D>.Get("FactionIcons/Pattern_1")),
-            new KeyValuePair<string, Texture2D>("Pattern_2", ContentFinder<Texture2D>.Get("FactionIcons/Pattern_2")),
-            new KeyValuePair<string, Texture2D>("Pattern_3", ContentFinder<Texture2D>.Get("FactionIcons/Pattern_3")),
-            new KeyValuePair<string, Texture2D>("Pattern_4", ContentFinder<Texture2D>.Get("FactionIcons/Pattern_4")),
-            new KeyValuePair<string, Texture2D>("Prisoner", ContentFinder<Texture2D>.Get("FactionIcons/Prisoner")),
-            new KeyValuePair<string, Texture2D>("Red_Phoenix", ContentFinder<Texture2D>.Get("FactionIcons/Red_Phoenix")),
-            new KeyValuePair<string, Texture2D>("Royal_Owl", ContentFinder<Texture2D>.Get("FactionIcons/Royal_Owl")),
-            new KeyValuePair<string, Texture2D>("Slightly_Less_Royal_Owl", ContentFinder<Texture2D>.Get("FactionIcons/Slightly_Less_Royal_Owl")),
-            new KeyValuePair<string, Texture2D>("Thrumbo", ContentFinder<Texture2D>.Get("FactionIcons/Thrumbo")),
-            new KeyValuePair<string, Texture2D>("Wolf", ContentFinder<Texture2D>.Get("FactionIcons/Wolf"))
-        };
-
-
+        public static List<Texture2D> factionIcons = new List<Texture2D>();
     }
 }
