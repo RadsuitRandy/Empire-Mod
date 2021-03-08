@@ -43,8 +43,8 @@ namespace FactionColonies
         public Map taxMap;
         public TechLevel techLevel = TechLevel.Undefined;
         private bool firstTick = true;
-        public string factionIconPath = texLoad.factionIcons.ElementAt(0).Key;
-        public Texture2D factionIcon = texLoad.factionIcons.ElementAt(0).Value;
+        public Texture2D factionIcon = texLoad.factionIcons.ElementAt(0);
+        public string factionIconPath = texLoad.factionIcons.ElementAt(0).name;
 
 
         //New Types of PRoductions
@@ -1042,8 +1042,9 @@ namespace FactionColonies
                 if (FCf != null)
                 {
                     FCf.def.techLevel = TechLevel.Undefined;
-                    factionIcon = texLoad.factionIcons.Where(obj => obj.Key == factionIconPath).First().Value;
-                    updateFactionIcon(ref FCf, "FactionIcons/" + factionIconPath);
+                    factionIcon = texLoad.factionIcons.FirstOrFallback(obj => obj.name == factionIconPath, texLoad.factionIcons.First());
+                    updateFactionIcon(ref FCf, "FactionIcons/" + factionIcon.name);
+                    factionIconPath = factionIcon.name;
                 }
                 factionBackup = FCf;
 

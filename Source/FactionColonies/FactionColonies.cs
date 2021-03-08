@@ -204,8 +204,8 @@ namespace FactionColonies
 			}
 			if (factionFC.updateVersion < 0.337)
 			{
-				factionFC.factionIcon = texLoad.factionIcons.First().Value;
-				factionFC.factionIconPath = texLoad.factionIcons.First().Key;
+				factionFC.factionIcon = texLoad.factionIcons.First();
+				factionFC.factionIconPath = texLoad.factionIcons.First().name;
 			}
 
 			if (factionFC.updateVersion < 0.339)
