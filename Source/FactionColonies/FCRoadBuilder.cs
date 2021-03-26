@@ -13,413 +13,438 @@ namespace FactionColonies
 {
     public class FCRoadBuilder : IExposable
     {
-
-        //Dictionary <
-        public List<FCRoadBuilderQueue> roadQueues = new List<FCRoadBuilderQueue>();
+        public List<FCPlanetRoadQueue> roadQueues = new List<FCPlanetRoadQueue>();
         public RoadDef roadDef;
-        public int techUpdateDueDate;
+
+        public int daysBetweenTicks = 3;
+        public bool roadBuildingEnabled = false;
+        public bool wasRoadBuildingDisabled = true;
+        bool roadBuilders;
 
         public FCRoadBuilder()
         {
-            this.techUpdateDueDate = Find.TickManager.TicksGame;
         }
 
         public void ExposeData()
         {
             Scribe_Defs.Look<RoadDef>(ref roadDef, "roadDef");
-            Scribe_Values.Look<int>(ref techUpdateDueDate, "techUpdateDueDate");
-            Scribe_Collections.Look<FCRoadBuilderQueue>(ref roadQueues, "roadQueues", LookMode.Deep, new object[] {Find.World.info.name, this.roadDef });
+            Scribe_Values.Look<int>(ref daysBetweenTicks, "daysBetweenTicks");
+            Scribe_Values.Look<bool>(ref roadBuildingEnabled, "roadBuildingEnabled");
+            Scribe_Values.Look<bool>(ref wasRoadBuildingDisabled, "wasRoadBuildingDisabled");
+            Scribe_Collections.Look<FCPlanetRoadQueue>(ref roadQueues, "roadQueues", LookMode.Deep, new object[] { Find.World.info.name, this.roadDef, this.daysBetweenTicks });
         }
 
+        public void RemoveInvalidQueues()
+        {
+            this.roadQueues.RemoveAll(rq => rq == null || rq.planetName.NullOrEmpty());
+        }
 
+        public void FirstTick()
+        {
+            this.RemoveInvalidQueues();
+            this.CheckForTechChanges();
+            this.CreateRoadQueue(Find.World.info.name, false);
+            this.FlagUpdateRoadQueues();
+
+            if (this.daysBetweenTicks == 0)
+            {
+                Log.Message("Empire - Resetting daysBetweenTicks");
+                int days = this.roadBuilders ? 1 : 3;
+                this.daysBetweenTicks = days;
+                foreach (FCPlanetRoadQueue queue in this.roadQueues)
+                {
+                    queue.daysBetweenTicks = days;
+                }
+            }
+        }
 
         public void RoadTick()
         {
-            FactionFC faction = Find.World.GetComponent<FactionFC>();
-            int days = 3;
-            if (faction.hasTrait(FCPolicyDefOf.roadBuilders))
-                days = 1;
-
-            if (this.techUpdateDueDate <= Find.TickManager.TicksGame)
+            if (this.roadDef == null || !this.roadBuildingEnabled)
             {
-                updateRoadTech();
-                this.techUpdateDueDate += 60000;
-            }
-
-            if (roadDef == null)
-            {
+                this.wasRoadBuildingDisabled = true;
                 return;
             }
-            foreach (FCRoadBuilderQueue queue in roadQueues.Where(x => x.planetName == Find.World.info.name))
+
+            // Every 20 ticks causes a slight stutter, but the game is still playable
+            // TODO: Make this a config option
+            if(Find.TickManager.TicksGame % 20 == 0)
             {
-                if (queue.nextRoadTick <= Find.TickManager.TicksGame)
+                FactionFC faction = Find.World.GetComponent<FactionFC>();
+                FCPlanetRoadQueue queue = this.GetRoadQueue(Find.World.info.name);
+
+                if (!roadBuilders && faction.hasTrait(FCPolicyDefOf.roadBuilders))
                 {
-                    //Calculate roads
-                    //if node already has piece of road, go to next.
-                    createNextSegment(queue);
-
-                    
-                    
-
-                    queue.nextRoadTick += GenDate.TicksPerDay * days;
-
-
-                    
+                    foreach (FCPlanetRoadQueue prq in this.roadQueues)
+                    {
+                        prq.shouldUpdateSettlementsToProcess = true;
+                        prq.daysBetweenTicks = 1;
+                    }
+                    this.roadBuilders = true;
+                    this.daysBetweenTicks = 1;
                 }
+
+                // If road building was disabled, then set the next tick to make a road
+                // to the correct time
+                if (this.wasRoadBuildingDisabled)
+                {
+                    this.wasRoadBuildingDisabled = false;
+                    foreach (FCPlanetRoadQueue prq in this.roadQueues)
+                    {
+                        prq.nextRoadTick = Find.TickManager.TicksGame + GenDate.TicksPerDay * prq.daysBetweenTicks;
+                    }
+                }
+
+                queue.ProcessOnePath();
+                queue.BuildRoadSegments();
             }
         }
 
-        public bool isNewRoadBetter(RoadDef old, RoadDef newroad)
+
+        /// <summary>
+        /// Gets the road queue specified by planetName.
+        /// </summary>
+        /// <returns>The road queue. May be null.</returns>
+        /// <param name="planetName">Planet name.</param>
+        public FCPlanetRoadQueue GetRoadQueue(string planetName)
         {
-            if (old == newroad)
+            return roadQueues.FirstOrFallback(rq => rq.planetName == planetName, null);
+        }
+
+        // Returns whether or not a settlement would be built to.
+        public static bool IsValidRoadTarget(Settlement settlement)
+        {
+            FactionFC fC = Find.World.GetComponent<FactionFC>();
+
+            // If faction exists and is either player or player has roadBuilders and the faction is an ally
+            if (settlement.Faction != null)
+                if (settlement.Faction.IsPlayer || (fC.hasTrait(FCPolicyDefOf.roadBuilders) && settlement.Faction.PlayerRelationKind == FactionRelationKind.Ally))
+                    return true;
+
+            foreach (SettlementFC settlementFC in fC.settlements)
             {
-                return false;
+                if (settlementFC.planetName == Find.World.info.name && settlementFC.mapLocation == settlement.Tile)
+                    return true;
             }
-            if (newroad == RoadDefOf.AncientAsphaltHighway)
-            {
-                return true;
-            }
-            if (newroad == RoadDefOf.AncientAsphaltRoad && old != RoadDefOf.AncientAsphaltHighway)
-            {
-                return true;
-            }
-            if (newroad == RoadDefOf.DirtRoad && old == DefDatabase<RoadDef>.GetNamed("DirtPath"))
-            {
-                return true;
-            }
+
             return false;
         }
-        public void createNextSegment(FCRoadBuilderQueue queue)
+
+        public FCPlanetRoadQueue CreateRoadQueue(string planetName, bool logFailure = true)
         {
-            WorldGrid grid = Find.WorldGrid;
-            int num = 1;
-            //Log.Message("Loop initiated =====");
-            List<int> tilesConstructed = new List<int>();
-            List<WorldPath> removeQueue = new List<WorldPath>();
-            foreach (WorldPath path in queue.ToBuild)
+            FCPlanetRoadQueue queue = GetRoadQueue(planetName);
+            if (queue != null) 
             {
-                //Log.Message(num + " - start");
-                num += 1;
-                List<int> nodeList = (List<int>)(typeof(WorldPath).GetField("nodes", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(path));
-                typeof(WorldPath).GetField("curNodeIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(path, nodeList.Count - 1, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, null, null);
-                //Log.Message("New Path - " + nodeList.Count());
-                WorldPath newPath = new WorldPath();
-                newPath = path;
-                int nodes = newPath.NodesLeftCount;
-                int prevtile = newPath.FirstNode;
-                int tile;
+                if(logFailure)
+                    Log.Message("Empire - Road queue for " + planetName + " already exists.");
 
-                //create segments
-                //check if segment already has road
-                //if not, create segment and return
-
-                //do same but backwards
-                for (int i = 0; i < nodes-1; i++)
-                {
-                    
-                    if (newPath.NodesLeftCount == 1)
-                    {
-                        tile = newPath.LastNode;
-                    }
-                    else
-                    {
-                        tile = newPath.ConsumeNextNode();
-                    }
-                    if (tilesConstructed.Contains(prevtile)) 
-                    {
-                        //Log.Message(num + " tried to make a road from an already constructed tile");
-                        goto Next;
-                    }
-
-                    //Log.Message(tile + "n - o" + prevtile);
-                    RoadDef def = grid.GetRoadDef(prevtile, tile);
-                    if (def == roadDef)
-                    {
-                        prevtile = tile;
-                        continue;
-                    }
-                    if (def != null && isNewRoadBetter(def, roadDef))
-                    {
-                        grid.tiles[prevtile].potentialRoads.RemoveAll((Tile.RoadLink rl) => rl.neighbor == tile);
-                        grid.tiles[tile].potentialRoads.RemoveAll((Tile.RoadLink rl) => rl.neighbor == prevtile);
-
-                        grid.tiles[prevtile].potentialRoads.Add(new Tile.RoadLink { neighbor = tile, road = roadDef });
-                        grid.tiles[tile].potentialRoads.Add(new Tile.RoadLink { neighbor = prevtile, road = roadDef });
-                        tilesConstructed.Add(tile);
-
-                    } else if (def == null)//if null
-                    {
-                        if (grid.tiles[prevtile].potentialRoads == null)
-                        {
-                            grid.tiles[prevtile].potentialRoads = new List<Tile.RoadLink>();
-                        }
-                        if (grid.tiles[tile].potentialRoads == null)
-                        {
-                            grid.tiles[tile].potentialRoads = new List<Tile.RoadLink>();
-                        }
-                        grid.tiles[prevtile].potentialRoads.Add(new Tile.RoadLink { neighbor = tile, road = roadDef });
-                        grid.tiles[tile].potentialRoads.Add(new Tile.RoadLink { neighbor = prevtile, road = roadDef });
-                        tilesConstructed.Add(tile);
-                        if (tile == newPath.LastNode)
-                        {
-                            //Log.Message("Removed " + num + " from queue");
-                            removeQueue.Add(path);
-                        }
-                    } else
-                    {
-                        prevtile = tile;
-                        continue;
-                    }
-
-                    //Regen worldmap
-                    try
-                    {
-                        Find.World.renderer.SetDirty<WorldLayer_Roads>();
-                        Find.World.renderer.SetDirty<WorldLayer_Paths>();
-                        Find.WorldPathGrid.RecalculatePerceivedMovementDifficultyAt(prevtile);
-                        Find.WorldPathGrid.RecalculatePerceivedMovementDifficultyAt(tile);
-                    }
-                    catch (Exception e)
-                    {
-                    }
-                    //Log.Message("Created road step");
-                    goto Next;
-                }
-                Next:
-                continue;
+                return queue;
             }
-
-            foreach (WorldPath queueRemove in removeQueue)
-            {
-                //Log.Message("Removing queue");
-                queue.ToBuild.Remove(queueRemove);
-            }
-
-        }
-        public void displayPaths()
-        {
-            foreach (FCRoadBuilderQueue queue in roadQueues)
-            {
-                foreach (WorldPath path in queue.ToBuild)
-                {
-                    path.DrawPath(null);
-                }
-            }
-        }
-
-        public void createRoadQueue(string planetName)
-        {
-            if (roadQueues.Where(x => x.planetName == planetName).Count() > 0) 
-            {
-                Log.Message("Empire - Road queue for " + planetName + " already exists.");
-                return;
-            }
-            FCRoadBuilderQueue queue = new FCRoadBuilderQueue(planetName, roadDef);
+            queue = new FCPlanetRoadQueue(planetName, this.roadDef, this.daysBetweenTicks);
             roadQueues.Add(queue);
+            return queue;
         }
 
-        public void calculateRoadPathForWorld()
-        {
-            foreach (FCRoadBuilderQueue queue in roadQueues.Where(x => x.planetName == Find.World.info.name))
-            {
-                //Log.Message("Empire - Calculating road paths for " + queue.planetName);
-                calculateRoadPath(queue);
-            }
-        }
-        public void calculateRoadPath(FCRoadBuilderQueue queue)
-        {
-            Log.Message("Empire - RoadBuilderQueue - Check for null roadDef");
-            if (roadDef == null)
-            {
-                //Log.Message("===== Road def Null =====");
-                return;
-            }
-            FactionFC faction = Find.World.GetComponent<FactionFC>();
-            List<WorldPath> buildQueue = new List<WorldPath>();
-
-            Log.Message("Empire - RoadBuilderQueue - Check for null faction");
-            if (faction == null)
-            {
-                Log.Message("Faction returned null - FCRoadBuilder.calculateRoadPath");
-                return;
-            }
-
-            List<int> settlementLocations = new List<int>();
-
-            if (queue.planetName == null)
-            {
-                Log.Message("PlanetName null - Reseting to current...");
-                queue.planetName = Find.World.info.name;
-            }
-            Log.Message("Empire - RoadBuilderQueue - Get Faction settlements");
-            //get list of settlements
-            foreach (SettlementFC settlement in faction.settlements)
-            {
-                if (settlement.planetName != null && settlement.planetName == queue.planetName)
-                {
-                    if (settlement.mapLocation == null || settlement.mapLocation == -1)
-                    {
-                        Log.Message("Could not find proper settlement for tile location");
-                        return;
-                    }
-                    settlementLocations.Add(settlement.mapLocation);
-                }
-            }
-            Log.Message("Empire - RoadBuilderQueue - Add player settlement locations");
-            //TO DO -- add player settlement locations here
-            foreach (Settlement settlement in Find.World.worldObjects.Settlements)
-            {
-                if (settlement.Faction != null && settlement.Faction.IsPlayer)
-                {
-                    settlementLocations.Add(settlement.Tile);
-                }
-                Log.Message("Empire - RoadBuilderQueue - Add allied settlement locations");
-
-                if (faction.hasTrait(FCPolicyDefOf.roadBuilders))
-                {
-                    if (settlement.Faction != null && settlement.Faction != Find.FactionManager.OfPlayer && settlement.Faction.PlayerRelationKind != null && settlement.Faction.PlayerRelationKind == FactionRelationKind.Ally && settlement.Tile !=  null)
-                    {
-                        settlementLocations.Add(settlement.Tile);
-                    }
-                }
-            }
-            Log.Message("Empire - RoadBuilderQueue - Pair with every other settlement");
-            //from each settlement location, pair up with every other settlement location
-            for (int i = settlementLocations.Count() - 1; i > 0; i--)
-            {
-                for (int k = 0; k < (settlementLocations.Count() - 1); k++)
-                {
-
-                    //Log.Message("3 - " + i + "i = k" + k);
-                    WorldPath path = Find.WorldPathFinder.FindPath(settlementLocations[i], settlementLocations[k], null, null);
-                    if (path != null && path != WorldPath.NotFound)
-                    {
-                        if (!testPath(path))
-                        {
-                            buildQueue.Add(path);
-                        }
-
-                    }
-                    
-                }
-                settlementLocations.RemoveAt(i);
-            }
-            queue.ToBuild = buildQueue;
-            //Log.Message(queue.ToBuild.Count().ToString() + " number of road paths calculated");
-        }
-
-        public bool testPath(WorldPath path)
-        {
-            WorldGrid grid = Find.WorldGrid;
-            WorldPath testpath = new WorldPath();
-            testpath = path;
-            List<int> nodeList = (List<int>)(typeof(WorldPath).GetField("nodes", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(testpath));
-            typeof(WorldPath).GetField("curNodeIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(testpath, nodeList.Count - 1, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, null, null);
-
-            int nodes = testpath.NodesLeftCount;
-            int prevtile = testpath.FirstNode;
-            int tile;
-            bool hasRoad = true;
-
-            for (int i = 0; i < nodes - 1; i++)
-            {
-                if (testpath.NodesLeftCount == 1)
-                {
-                    tile = testpath.LastNode;
-                }
-                else
-                {
-                    tile = testpath.ConsumeNextNode();
-                }
-
-                RoadDef def = grid.GetRoadDef(prevtile, tile);
-                if (def == roadDef)
-                {
-                    prevtile = tile;
-                    continue;
-                }
-                if (def != null && isNewRoadBetter(def, roadDef))
-                {
-                    return false; //road creatable
-                } else if (def == null)
-                {
-                    return false; //road creatable
-                } else //if road exists, but new road is not better
-                {
-                    //Make no changes
-                }
-
-
-
-
-                prevtile = tile;
-                continue;
-            }
-
-            return true;
-        }
-
-        public void updateRoadTech()
+        public void CheckForTechChanges()
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             RoadDef def = this.roadDef;
-            if (def == RoadDefOf.AncientAsphaltHighway)
-            {
-                return;
-            }
-            if (Find.ResearchManager.GetProgress(DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingHighway", false)) == DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingHighway", false).baseCost)
+
+            if (DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingHighway", false).IsFinished)
             {
                 def = RoadDefOf.AncientAsphaltHighway;
-                //Log.Message("Empire roadDef updated to " + def.ToString());
-
             }
-            else if (Find.ResearchManager.GetProgress(DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingRoad", false)) == DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingRoad", false).baseCost)
+            else if (DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingRoad", false).IsFinished)
             {
                 def = RoadDefOf.AncientAsphaltRoad;
-                //Log.Message("Empire roadDef updated to " + def.ToString());
 
             }
-            else if (def != RoadDefOf.AncientAsphaltHighway && Find.ResearchManager.GetProgress(DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingDirt", false)) == DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingDirt", false).baseCost)
+            else if (DefDatabase<ResearchProjectDef>.GetNamed("FCRoadBuildingDirt", false).IsFinished)
             {
                 def = RoadDefOf.DirtRoad;
-                //Log.Message("Empire roadDef updated to " + def.ToString());
             }
-            foreach (FCRoadBuilderQueue queue in roadQueues)
+
+            if (this.roadDef != def)
             {
-                queue.roadDef = def;
+                this.roadDef = def;
+
+                foreach (FCPlanetRoadQueue queue in this.roadQueues)
+                {
+                    queue.RoadDef = def;
+                }
             }
-            this.roadDef = def;
-            calculateRoadPathForWorld();
+        }
+
+        public void DrawPaths()
+        {
+            this.GetRoadQueue(Find.World.info.name).DrawPaths();
+        }
+
+        /// <summary>
+        /// Flags all road queues to update whenever they are able.
+        /// </summary>
+        public void FlagUpdateRoadQueues()
+        {
+            foreach (FCPlanetRoadQueue queue in this.roadQueues)
+            {
+                queue.shouldUpdateSettlementsToProcess = true;
+            }
         }
     }
 
-
-
-    public class FCRoadBuilderQueue: IExposable
+    public class FCPlanetRoadQueue : IExposable
     {
         public string planetName;
         public int nextRoadTick;
-        public RoadDef roadDef;
-        public List<WorldPath> ToBuild = new List<WorldPath>();
+        public int daysBetweenTicks;
+        protected RoadDef roadDef;
+
+        public bool shouldUpdateSettlementsToProcess = true;
+
+        public List<int> settlementsFromTiles = new List<int>();
+        public List<int> settlementsToTiles = new List<int>();
+        IEnumerator<FCRoadPath> roadPathIterator;
+
+        public RoadDef RoadDef {
+            get {
+                return roadDef;
+            }
+            set
+            {
+                roadDef = value;
+                ResetPaths();
+            }
+        }
+
+        public List<FCRoadPath> roadPaths = new List<FCRoadPath>();
 
         public void ExposeData()
         {
             Scribe_Values.Look<string>(ref planetName, "planetName");
             Scribe_Values.Look<int>(ref nextRoadTick, "nextRoadTick");
+            Scribe_Values.Look<int>(ref daysBetweenTicks, "daysBetweenTicks");
             Scribe_Defs.Look<RoadDef>(ref roadDef, "roadDef");
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            {
-                Find.World.GetComponent<FactionFC>().roadBuilder.calculateRoadPath(this);
-            }
-        }
-        public FCRoadBuilderQueue(string planetName, RoadDef roadDef)
-        {
-            this.planetName = planetName;
-            this.ToBuild = new List<WorldPath>();
-            this.roadDef = roadDef;
-            this.nextRoadTick = Find.TickManager.TicksGame + 60000;
         }
 
-       
+        public FCPlanetRoadQueue(string planetName, RoadDef roadDef, int daysBetweenTicks)
+        {
+            this.planetName = planetName ?? Find.World.info.name;
+            this.roadDef = roadDef;
+            this.daysBetweenTicks = daysBetweenTicks;
+            this.nextRoadTick = this.nextRoadTick == 0 ? Find.TickManager.TicksGame : this.nextRoadTick;
+        }
+
+        public void AddPath(FCRoadPath path)
+        {
+            this.roadPaths.Add(path);
+        }
+
+        /// <summary>
+        /// Updates processed settlements if needed, checks if the current planet is correct, 
+        /// and that it is time to build the segements, then builds the segments
+        /// </summary>
+        public bool BuildRoadSegments()
+        {
+            if (this.shouldUpdateSettlementsToProcess)
+            {
+                this.UpdateSettlementsToProcess();
+                this.shouldUpdateSettlementsToProcess = false;
+            }
+            if (Find.World.info.name != this.planetName || this.nextRoadTick > Find.TickManager.TicksGame)
+                return false;
+
+            this.nextRoadTick += GenDate.TicksPerDay * this.daysBetweenTicks;
+            return this.ForceBuildRoadSegments();
+        }
+
+        bool ForceBuildRoadSegments()
+        {
+            bool built = false;
+            foreach (FCRoadPath path in roadPaths)
+            {
+                built |= path.BuildSegment(this.roadDef);
+            }
+            if(built)
+            {
+                Find.World.renderer.SetDirty<WorldLayer_Roads>();
+                Find.World.renderer.SetDirty<WorldLayer_Paths>();
+            }
+            return built;
+        }
+
+        public void DrawPaths()
+        {
+            foreach (FCRoadPath path in roadPaths)
+            {
+                path.DrawPath();
+            }
+        }
+
+        IEnumerator<FCRoadPath> ProcessPath()
+        {
+            foreach (int from in this.settlementsFromTiles)
+            {
+                foreach (int to in this.settlementsToTiles)
+                {
+                    if (this.roadPaths.Any(path => path.From == from && path.To == to))
+                        continue;
+
+                    if (from != to)
+                        yield return new FCRoadPath(from, to);
+                }
+            }
+        }
+
+        public void UpdateSettlementsToProcess()
+        {
+            if (Find.World.info.name != this.planetName)
+            {
+                Log.Error("Empire - Attempt to UpdateSettlementsToProcess on wrong planet. Report this.");
+                return;
+            }
+
+            this.settlementsFromTiles.Clear();
+            this.settlementsToTiles.Clear();
+
+            FactionFC fC = Find.World.GetComponent<FactionFC>();
+            foreach (SettlementFC settlement in fC.settlements)
+            {
+                if(settlement.planetName == this.planetName)
+                    this.settlementsFromTiles.Add(settlement.mapLocation);
+            }
+            foreach (Settlement settlement in Find.World.worldObjects.Settlements)
+            {
+                if (FCRoadBuilder.IsValidRoadTarget(settlement))
+                {
+                    this.settlementsToTiles.Add(settlement.Tile);
+                }
+            }
+
+            this.roadPathIterator = ProcessPath();
+        }
+
+        public void ProcessOnePath()
+        {
+            if (this.roadPathIterator == null)
+                this.roadPathIterator = ProcessPath();
+
+            if (this.roadPathIterator.MoveNext())
+                this.roadPaths.Add(this.roadPathIterator.Current);
+        }
+
+        /// <summary>
+        /// Resets the paths progress. Does not recalculate the paths.
+        /// </summary>
+        public void ResetPaths()
+        {
+            foreach (FCRoadPath path in this.roadPaths)
+            {
+                path.ResetProgress();
+            }
+        }
+    }
+
+    public class FCRoadPath
+    {
+        public WorldPath Path { get; protected set; }
+        public int From { get; protected set; }
+        public int To { get; protected set; }
+
+        public FCRoadPath(Settlement from, Settlement to)
+        {
+            if (from.Tile == to.Tile)
+            {
+                Log.Error("Empire - Attempt to create road path to the same tile");
+            }
+            this.SetupPath(from.Tile, to.Tile);
+        }
+
+        public FCRoadPath(int from, int to)
+        {
+            if (from == to)
+            {
+                Log.Error("Empire - Attempt to create road path to the same tile");
+            }
+            this.SetupPath(from, to);
+        }
+
+        void SetupPath(int from, int to)
+        {
+            WorldPath path = Find.World.pathFinder.FindPath(from, to, null);
+
+            // path belongs to a WorldPathPool that gets very vocal in the error log
+            // when theres more WorldPaths than caravans. The workaround to this error
+            // is to copy the path to a new WorldPath object that is not a part of 
+            // the pool and Dispose of the one that is
+            this.Path = new WorldPath();
+            foreach (int node in path.NodesReversed)
+            {
+                this.Path.AddNodeAtStart(node);
+            }
+            this.Path.SetupFound(path.TotalCost);
+            this.Path.inUse = true;
+            path.Dispose();
+        }
+
+        /// <summary>
+        ///  Builds 1 segment of road. Returns if a segment was built
+        /// </summary>
+        /// <returns> this.IsCompleted </returns>
+        /// <param name="roadDef">Road def.</param>
+        public bool BuildSegment(RoadDef roadDef)
+        {
+            start:
+            if (!this.Path.Found || this.IsCompleted)
+                return false;
+
+            int tile = this.Path.ConsumeNextNode();
+            int lastTile = this.Path.Peek(-1);
+
+            WorldGrid grid = Find.WorldGrid;
+
+            RoadDef existingRoad = grid.GetRoadDef(lastTile, tile);
+            if (IsNewRoadBetter(existingRoad, roadDef))
+            {
+                // Replaces the road if this.Road.priority > the existing road's priority
+                grid.OverlayRoad(lastTile, tile, roadDef);
+                Find.WorldPathGrid.RecalculatePerceivedMovementDifficultyAt(lastTile);
+                Find.WorldPathGrid.RecalculatePerceivedMovementDifficultyAt(tile);
+            }
+            else
+            {
+                goto start;
+            }
+            return true;
+        }
+
+
+        public bool IsCompleted
+        {
+            get
+            {
+                return this.Path.NodesLeftCount == 1;
+            }
+        }
+
+        public static bool IsNewRoadBetter(RoadDef oldRoad, RoadDef newRoad)
+        {
+            if (newRoad == null)
+                return false;
+
+            if (oldRoad == null)
+                return true;
+
+            return newRoad.priority > oldRoad.priority;
+        }
+
+        public void DrawPath()
+        {
+            this.Path.DrawPath(null);
+        }
+
+        public void ResetProgress()
+        {
+            Traverse.Create(this.Path).Field("curNodeIndex").SetValue(this.Path.NodesReversed.Count - 1);
+        }
     }
 }

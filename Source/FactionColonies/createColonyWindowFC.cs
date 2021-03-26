@@ -47,7 +47,7 @@ namespace FactionColonies
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
 
-            faction.roadBuilder.displayPaths();
+            faction.roadBuilder.DrawPaths();
 
             if (Find.WorldSelector.selectedTile != -1 && Find.WorldSelector.selectedTile != currentTileSelected)
             {
