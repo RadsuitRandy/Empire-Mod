@@ -259,7 +259,7 @@ namespace FactionColonies
 			if (factionFC.updateVersion < 0.343)
 			{
 				factionFC.roadBuilder = new FCRoadBuilder();
-				factionFC.roadBuilder.createRoadQueue(Find.World.info.name);
+				factionFC.roadBuilder.CreateRoadQueue(Find.World.info.name);
 				if (FactionColonies.getPlayerColonyFaction() != null)
 				{
 					Log.Message("Faction created");
@@ -775,7 +775,7 @@ namespace FactionColonies
 			worldcomp.addSettlement(settlementfc);
 			if (createWorldObject)
 			{
-				worldcomp.roadBuilder.calculateRoadPathForWorld();
+				worldcomp.roadBuilder.FlagUpdateRoadQueues();
 			}
 			Find.LetterStack.ReceiveLetter("FCSettlementFormed".Translate(), "TheSettlement".Translate() + " " + settlementfc.name + "HasBeenFormed".Translate() + "!", LetterDefOf.PositiveEvent);
 
@@ -1024,7 +1024,7 @@ namespace FactionColonies
 		private static void testVariable()
 		{
 			Log.Message("Debug - Test Function - ");
-			Find.World.GetComponent<FactionFC>().roadBuilder.calculateRoadPathForWorld();
+			Find.World.GetComponent<FactionFC>().roadBuilder.FlagUpdateRoadQueues();
 		}
 
 		[DebugAction("Empire", "De-Level Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
@@ -1088,6 +1088,27 @@ namespace FactionColonies
 
 				Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
 				silver.stackCount = 500;
+				GenPlace.TryPlaceThing(silver, DropPosition, map, ThingPlaceMode.Near);
+			});
+			DebugTools.curTool = tool;
+		}
+
+		[DebugAction("Empire", "Place 50000 Silver", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+		private static void PlaceALotOfSilverFC()
+		{
+
+
+			DebugTool tool = null;
+			IntVec3 DropPosition;
+			Map map;
+			tool = new DebugTool("Select Drop Position", delegate ()
+			{
+				DropPosition = UI.MouseCell();
+				map = Find.CurrentMap;
+
+
+				Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
+				silver.stackCount = 50000;
 				GenPlace.TryPlaceThing(silver, DropPosition, map, ThingPlaceMode.Near);
 			});
 			DebugTools.curTool = tool;
