@@ -49,6 +49,9 @@ namespace FactionColonies
 		Rect trait_4 = new Rect(3, 325, 200, 50);
 		Rect trait_5 = new Rect(3, 380, 200, 50);
 
+		// Road Building
+		Rect roadBuilding = new Rect(3, 380 + 55, 100, 25);
+
 		//Settlements Box
 		Rect settlementsBoxLabels = new Rect(235, 110, 555, 30);
 		Rect settlementsBox = new Rect(235, 130, 555, 320);
@@ -143,8 +146,8 @@ namespace FactionColonies
 			Widgets.DrawShadowAround(progressBarLevelUp);
 			Text.Font = GameFont.Tiny;
 			Text.Anchor = TextAnchor.MiddleCenter;
-			Widgets.Label(progressBarLevelUp, Math.Round(faction.factionXPCurrent) + "/" + faction.factionXPGoal);                                    
-			Text.Anchor = TextAnchor.MiddleLeft;                                     
+			Widgets.Label(progressBarLevelUp, Math.Round(faction.factionXPCurrent) + "/" + faction.factionXPGoal);
+			Text.Anchor = TextAnchor.MiddleLeft;
 			Widgets.DrawBox(progressBarLevelUp);
 
 			Text.Font = GameFont.Small;
@@ -177,7 +180,7 @@ namespace FactionColonies
 			//Trait)
 
 			//TraitSlot
-			if (Widgets.ButtonTextSubtle(trait_1, returnTraitAvailibility(1, faction.factionTraits[0]) ))                                   //CHANGE THIS
+			if (Widgets.ButtonTextSubtle(trait_1, returnTraitAvailibility(1, faction.factionTraits[0]) )) //CHANGE THIS
 			{
 				if(canChangeTrait(1, faction.factionTraits[0]))
 				{
@@ -202,7 +205,7 @@ namespace FactionColonies
 			//End Trait Slot
 
 			//TraitSlot
-			if (Widgets.ButtonTextSubtle(trait_2, returnTraitAvailibility(2, faction.factionTraits[1])))                                   //CHANGE THIS
+			if (Widgets.ButtonTextSubtle(trait_2, returnTraitAvailibility(2, faction.factionTraits[1]))) //CHANGE THIS
 			{
 				if (canChangeTrait(2, faction.factionTraits[1]))
 				{
@@ -227,7 +230,7 @@ namespace FactionColonies
 			//End Trait Slot
 
 			//TraitSlot
-			if (Widgets.ButtonTextSubtle(trait_3, returnTraitAvailibility(3, faction.factionTraits[2])))                                   //CHANGE THIS
+			if (Widgets.ButtonTextSubtle(trait_3, returnTraitAvailibility(3, faction.factionTraits[2]))) //CHANGE THIS
 			{
 				if (canChangeTrait(3, faction.factionTraits[2]))
 				{
@@ -252,7 +255,7 @@ namespace FactionColonies
 			//End Trait Slot
 
 			//TraitSlot
-			if (Widgets.ButtonTextSubtle(trait_4, returnTraitAvailibility(4, faction.factionTraits[3])))                                   //CHANGE THIS
+			if (Widgets.ButtonTextSubtle(trait_4, returnTraitAvailibility(4, faction.factionTraits[3]))) //CHANGE THIS
 			{
 				if (canChangeTrait(4, faction.factionTraits[3]))
 				{
@@ -277,7 +280,7 @@ namespace FactionColonies
 			//End Trait Slot
 
 			//TraitSlot
-			if (Widgets.ButtonTextSubtle(trait_5, returnTraitAvailibility(5, faction.factionTraits[4])))                                   //CHANGE THIS
+			if (Widgets.ButtonTextSubtle(trait_5, returnTraitAvailibility(5, faction.factionTraits[4]))) //CHANGE THIS
 			{
 				if (canChangeTrait(5, faction.factionTraits[4]))
 				{
@@ -301,6 +304,9 @@ namespace FactionColonies
 			}
 			//End Trait Slot
 
+			FactionFC fc = Find.World.GetComponent<FactionFC>();
+			Widgets.Label(roadBuilding, "FCBuildRoads".Translate());
+			Widgets.Checkbox(roadBuilding.x + roadBuilding.width + 5, roadBuilding.y, ref fc.roadBuilder.roadBuildingEnabled);
 
 			//SettlementBox
 

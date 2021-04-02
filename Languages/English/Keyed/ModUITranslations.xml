@@ -226,4 +226,7 @@
 <FactionTraits>Faction Traits</FactionTraits>
 <AddTrait>Add Trait</AddTrait>
 
+<!-- overview -->
+<FCBuildRoads>Build Roads</FCBuildRoads>
+
 </LanguageData>

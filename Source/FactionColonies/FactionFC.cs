@@ -931,6 +931,16 @@ namespace FactionColonies
             }
         }
 
+        [HarmonyPatch(typeof(ResearchManager), "FinishProject")]
+        class ResearchCompleted
+        {
+            static void Postfix(ResearchProjectDef proj, bool doCompletionDialog = false, Pawn researcher = null)
+            {
+                FactionFC fc = Find.World.GetComponent<FactionFC>();
+                fc.roadBuilder.CheckForTechChanges();
+            }
+        }
+
         // Fix a crash related to a harmony bug on Linux
         // This gets all patches Empire makes, gets the ones that would crash on Linux, and fixes them
         static void FixLinuxHarmonyCrash(Harmony harmony)
@@ -1030,14 +1040,12 @@ namespace FactionColonies
             {
                 //Log.Message("First Tick");
                 FactionColonies.updateChanges();
-                if (planetName == null || planetName == ""){
+                if (planetName.NullOrEmpty()){
                     planetName = Find.World.info.name;
                 }
-                roadBuilder.updateRoadTech();
-                roadBuilder.createRoadQueue(Find.World.info.name);
-                roadBuilder.calculateRoadPathForWorld();
+
+                roadBuilder.FirstTick();
                 
-                firstTick = false;
                 Faction FCf = FactionColonies.getPlayerColonyFaction();
                 if (FCf != null)
                 {
@@ -1047,8 +1055,9 @@ namespace FactionColonies
                     factionIconPath = factionIcon.name;
                 }
                 factionBackup = FCf;
-
+                firstTick = false;
             }
+
             FCEventMaker.ProcessEvents(in events);
             billUtility.processBills();
 
@@ -1104,8 +1113,8 @@ namespace FactionColonies
 
                     }
                 }
-                roadBuilder.createRoadQueue(Find.World.info.name);
-                roadBuilder.calculateRoadPathForWorld();
+                roadBuilder.CreateRoadQueue(Find.World.info.name);
+                roadBuilder.FlagUpdateRoadQueues();
             Reset2:
                 foreach (SettlementSoS2Info entry in deleteSettlementQueue)
                 {
