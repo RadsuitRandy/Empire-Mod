@@ -316,6 +316,10 @@ namespace FactionColonies
                     else
                     if (temp.def.defName == "taxColony")
                     {
+                        if (faction.returnSettlementFCIDByLocation(temp.source, temp.planetName) == -1)
+                        {
+                            continue;
+                        }
                         Messages.Message("TaxesFrom".Translate() + " " + faction.getSettlementName(temp.source, temp.planetName) + " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
                         string str = "TaxesFrom".Translate() + " " + faction.getSettlementName(temp.source, temp.planetName) + " " + "HaveBeenDelivered".Translate() + "!";
                         

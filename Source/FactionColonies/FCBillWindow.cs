@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using RimWorld;
+using UnityEngine;
 using Verse;
-using RimWorld.Planet;
 
 namespace FactionColonies
 {
@@ -16,7 +13,7 @@ namespace FactionColonies
         public List<BillFC> bills;
         public FactionFC faction;
 
-        public int scroll = 0;
+        public int scroll;
         public int maxScroll;
         public int scrollBoxHeight = 210;
 
@@ -44,18 +41,18 @@ namespace FactionColonies
         public FCBillWindow()
         {
             //Window Information
-            this.faction = Find.World.GetComponent<FactionFC>();
-            this.bills = faction.Bills;
+            faction = Find.World.GetComponent<FactionFC>();
+            bills = faction.Bills;
 
-            this.scroll = 0;
-            this.maxScroll = (bills.Count() * billHeight) - scrollBoxHeight;
+            scroll = 0;
+            maxScroll = (bills.Count() * billHeight) - scrollBoxHeight;
 
 
             //Window Properties
-            this.forcePause = false;
-            this.draggable = true;
-            this.doCloseX = true;
-            this.preventCameraMotion = false;
+            forcePause = false;
+            draggable = true;
+            doCloseX = true;
+            preventCameraMotion = false;
 
 
 
@@ -81,7 +78,7 @@ namespace FactionColonies
         public override void WindowUpdate()
         {
             base.WindowUpdate();
-            this.maxScroll = (bills.Count() * billHeight) - scrollBoxHeight;
+            maxScroll = (bills.Count() * billHeight) - scrollBoxHeight;
         }
 
         public override void DoWindowContents(Rect inRect)
@@ -147,7 +144,7 @@ namespace FactionColonies
                 }
                 //
                 Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(date, GenDate.ToStringTicksToDays(bill.dueTick - Find.TickManager.TicksGame));
+                Widgets.Label(date, (bill.dueTick - Find.TickManager.TicksGame).ToStringTicksToDays());
 
                 //
                 Widgets.Label(amount, bill.taxes.silverAmount.ToString());
@@ -164,7 +161,7 @@ namespace FactionColonies
                         if (bill.taxes.researchCompleted != 0)
                         {
                             faction.researchPointPool += bill.taxes.researchCompleted;
-                            Messages.Message(TranslatorFormattedStringExtensions.Translate("PointsAddedToResearchPool", bill.taxes.researchCompleted), MessageTypeDefOf.PositiveEvent);
+                            Messages.Message("PointsAddedToResearchPool".Translate(bill.taxes.researchCompleted), MessageTypeDefOf.PositiveEvent);
                         }
                         if (bill.taxes.electricityAllotted != 0)
                         {
@@ -172,10 +169,8 @@ namespace FactionColonies
                         }
                         goto Reset;
                     }
-                    else
-                    {
-                        Messages.Message("NotEnoughSilverOnMapToPayBill".Translate() + "!", MessageTypeDefOf.RejectInput);
-                    }
+
+                    Messages.Message("NotEnoughSilverOnMapToPayBill".Translate() + "!", MessageTypeDefOf.RejectInput);
                 }
             }
 
