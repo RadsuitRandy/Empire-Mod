@@ -704,9 +704,14 @@ namespace FactionColonies
                         {
                             if (squad.settlement != null)
                             {
-                                squad.dead += 1;
+                                if (FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+                                {
+                                    squad.dead += 1;
+                                }
+
                                 squad.settlement.happiness -= 1;
                             }
+
                             squad.PassPawnToDeadMercenaries(merc);
                         }
 

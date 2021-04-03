@@ -1085,7 +1085,7 @@ namespace FactionColonies
                 cooldownReduction += 60000;
             }
 
-            if (militaryJob == "defendFriendlySettlement")
+            if (militaryJob == "defendFriendlySettlement" && FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
             {
                 cooldownReduction -= militarySquad.dead * 10000;
             }
