@@ -151,16 +151,16 @@ namespace FactionColonies
                         }
                         if (settlementString != "")
                         {
-                            Find.WindowStack.Add(new descWindowFC(evt.def.description + "\n This event is affecting the following settlements: " + settlementString));
+                            Find.WindowStack.Add(new DescWindowFc(evt.def.description + "\n This event is affecting the following settlements: " + settlementString));
                         }
                         else
                         {
-                            Find.WindowStack.Add(new descWindowFC(evt.def.description));
+                            Find.WindowStack.Add(new DescWindowFc(evt.def.description));
                         }
                     } else
                     {
                         //has custom description
-                        Find.WindowStack.Add(new descWindowFC(evt.customDescription));
+                        Find.WindowStack.Add(new DescWindowFc(evt.customDescription));
                     }
                 }
                 //
@@ -168,7 +168,7 @@ namespace FactionColonies
                 {
                     if(evt.hasDestination == true)
                     {
-                        Find.WindowStack.Add(new settlementWindowFC(faction.returnSettlementByLocation(evt.location, evt.planetName)));
+                        Find.WindowStack.Add(new SettlementWindowFc(faction.returnSettlementByLocation(evt.location, evt.planetName)));
                     } else
                     {
                         if (evt.settlementTraitLocations.Count() > 0)
@@ -179,7 +179,7 @@ namespace FactionColonies
                             {
                                 if (settlement != null)
                                 {
-                                    list.Add(new FloatMenuOption(settlement.name, delegate { Find.WindowStack.Add(new settlementWindowFC(settlement)); }));
+                                    list.Add(new FloatMenuOption(settlement.name, delegate { Find.WindowStack.Add(new SettlementWindowFc(settlement)); }));
                                 }
                             }
                             if (list.Count == 0) { list.Add(new FloatMenuOption("Null", null)); }
@@ -189,7 +189,7 @@ namespace FactionColonies
                         {
                            if (evt.def == FCEventDefOf.taxColony && evt.source != -1)
                             {
-                                Find.WindowStack.Add(new settlementWindowFC(faction.returnSettlementByLocation(evt.source, evt.planetName)));
+                                Find.WindowStack.Add(new SettlementWindowFc(faction.returnSettlementByLocation(evt.source, evt.planetName)));
                             }
                         }
                     }

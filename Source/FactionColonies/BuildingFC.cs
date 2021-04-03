@@ -50,7 +50,7 @@ namespace FactionColonies
                     } else
                     {
                         Log.Message("Failed to load icon");
-                        this.iconLoaded = texLoad.questionmark;
+                        this.iconLoaded = TexLoad.questionmark;
                     }
                 }
                 return this.iconLoaded;

@@ -94,21 +94,21 @@ namespace FactionColonies
                 switch (defName)
                 {
                     case "militaristic":
-                        return texLoad.traitMilitaristicLight;
+                        return TexLoad.traitMilitaristicLight;
                     case "pacifist":
-                        return texLoad.traitPacifistLight;
+                        return TexLoad.traitPacifistLight;
                     case "authoritarian":
-                        return texLoad.traitAuthoritarianLight;
+                        return TexLoad.traitAuthoritarianLight;
                     case "egalitarian":
-                        return texLoad.traitEgalitarianLight;
+                        return TexLoad.traitEgalitarianLight;
                     case "isolationist":
-                        return texLoad.traitIsolationistLight;
+                        return TexLoad.traitIsolationistLight;
                     case "expansionist":
-                        return texLoad.traitExpansionistLight;
+                        return TexLoad.traitExpansionistLight;
                     case "technocratic":
-                        return texLoad.traitTechnocraticLight;
+                        return TexLoad.traitTechnocraticLight;
                     case "feudal":
-                        return texLoad.traitFeudalLight;
+                        return TexLoad.traitFeudalLight;
                     default:
                         Log.Message("Could not find icon for " + defName);
                         return null;
@@ -123,21 +123,21 @@ namespace FactionColonies
                 switch (defName)
                 {
                     case "militaristic":
-                        return texLoad.traitMilitaristicDark;
+                        return TexLoad.traitMilitaristicDark;
                     case "pacifist":
-                        return texLoad.traitPacifistDark;
+                        return TexLoad.traitPacifistDark;
                     case "authoritarian":
-                        return texLoad.traitAuthoritarianDark;
+                        return TexLoad.traitAuthoritarianDark;
                     case "egalitarian":
-                        return texLoad.traitEgalitarianDark;
+                        return TexLoad.traitEgalitarianDark;
                     case "isolationist":
-                        return texLoad.traitIsolationistDark;
+                        return TexLoad.traitIsolationistDark;
                     case "expansionist":
-                        return texLoad.traitExpansionistDark;
+                        return TexLoad.traitExpansionistDark;
                     case "technocratic":
-                        return texLoad.traitTechnocraticDark;
+                        return TexLoad.traitTechnocraticDark;
                     case "feudal":
-                        return texLoad.traitFeudalDark;
+                        return TexLoad.traitFeudalDark;
                     default:
                         Log.Message("Could not find icon for " + defName);
                         return null;

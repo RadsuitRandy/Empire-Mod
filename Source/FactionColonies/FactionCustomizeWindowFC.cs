@@ -9,16 +9,10 @@ using RimWorld.Planet;
 
 namespace FactionColonies
 {
-	public class factionCustomizeWindowFC : Window
+	public class FactionCustomizeWindowFc : Window
 	{
 
-		public override Vector2 InitialSize
-		{
-			get
-			{
-				return new Vector2(838f, 538f);
-			}
-		}
+		public override Vector2 InitialSize => new Vector2(838f, 538f);
 
 		//declare variables
 
@@ -87,7 +81,7 @@ namespace FactionColonies
 		string policyText = "";
 
 
-		public factionCustomizeWindowFC(FactionFC faction)
+		public FactionCustomizeWindowFc(FactionFC faction)
 		{
 			this.forcePause = false;
 			this.draggable = true;
@@ -199,7 +193,7 @@ namespace FactionColonies
 			if(Widgets.ButtonImage(buttonIcon, tempFactionIcon))
 			{
 				List<FloatMenuOption> list = new List<FloatMenuOption>();
-				foreach (Texture2D texture in texLoad.factionIcons)
+				foreach (Texture2D texture in TexLoad.factionIcons)
 				{
 					list.Add(new FloatMenuOption(texture.name, delegate
 					{
@@ -318,7 +312,7 @@ namespace FactionColonies
 			Widgets.Label(labelPickTrait, alertText);
 
 
-			Texture2D icon = texLoad.iconLoyalty;
+			Texture2D icon = TexLoad.iconLoyalty;
 			if (boolMilitaristic)
 				icon = FCPolicyDefOf.militaristic.IconLight;
 			else

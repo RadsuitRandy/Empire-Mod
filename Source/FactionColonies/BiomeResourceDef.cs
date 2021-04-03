@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using RimWorld;
-using UnityEngine;
 using Verse;
-using System.Xml;
 
 namespace FactionColonies
 {
@@ -15,16 +10,11 @@ namespace FactionColonies
         public List<double> BaseProductionMultiplicative = new List<double>();
         public bool canSettle;
 
-        public BiomeResourceDef()
-        {
-
-        }
-
         public void ExposeData()
         {
-            Scribe_Collections.Look<double>(ref BaseProductionAdditive, "BaseProductionAdditive", LookMode.Value);
-            Scribe_Collections.Look<double>(ref BaseProductionAdditive, "BaseProductionMultiplicative", LookMode.Value);
-            Scribe_Values.Look<bool>(ref canSettle, "canSettle");
+            Scribe_Collections.Look(ref BaseProductionAdditive, "BaseProductionAdditive", LookMode.Value);
+            Scribe_Collections.Look(ref BaseProductionAdditive, "BaseProductionMultiplicative", LookMode.Value);
+            Scribe_Values.Look(ref canSettle, "canSettle");
         }
     }
 

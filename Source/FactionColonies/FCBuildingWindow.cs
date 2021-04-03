@@ -80,7 +80,7 @@ namespace FactionColonies
                         {
                             settlement.deconstructBuilding(buildingSlot);
                             Find.WindowStack.TryRemove(this);
-                            Find.WindowStack.WindowOfType<settlementWindowFC>().WindowUpdateFC();
+                            Find.WindowStack.WindowOfType<SettlementWindowFc>().windowUpdateFc();
                         }));
                     } else
                     {
@@ -109,7 +109,7 @@ namespace FactionColonies
                                 Messages.Message(building.label + " " + "WillBeConstructedIn".Translate() + " " + GenDate.ToStringTicksToDays(tmpEvt.timeTillTrigger - Find.TickManager.TicksGame), MessageTypeDefOf.PositiveEvent);
                                 settlement.buildings[buildingSlot] = BuildingFCDefOf.Construction;
                                 Find.WindowStack.TryRemove(this);
-                                Find.WindowStack.WindowOfType<settlementWindowFC>().WindowUpdateFC();
+                                Find.WindowStack.WindowOfType<SettlementWindowFc>().windowUpdateFc();
                             }
                         }));
                     }

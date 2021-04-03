@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace FactionColonies
 {
-	public class settlementUpgradeWindowFC : Window
+	public class SettlementUpgradeWindowFc : Window
 	{
 
 		public override Vector2 InitialSize
@@ -40,7 +40,7 @@ namespace FactionColonies
 		public string desc;
 		public string header;
 
-		public settlementUpgradeWindowFC(SettlementFC settlement)
+		public SettlementUpgradeWindowFc(SettlementFC settlement)
 		{
 			this.forcePause = false;
 			this.draggable = true;
@@ -126,7 +126,7 @@ namespace FactionColonies
 							//Log.Message(tmp.timeTillTrigger.ToString());
 							Find.World.GetComponent<FactionFC>().addEvent(tmp);
 							Find.WindowStack.TryRemove(this);
-							Find.WindowStack.WindowOfType<settlementWindowFC>().WindowUpdateFC();
+							Find.WindowStack.WindowOfType<SettlementWindowFc>().windowUpdateFc();
 							Messages.Message("StartUpgradeSettlement".Translate(), MessageTypeDefOf.NeutralEvent);
 							
 						} else

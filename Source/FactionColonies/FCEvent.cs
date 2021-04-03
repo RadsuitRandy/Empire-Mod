@@ -92,7 +92,7 @@ namespace FactionColonies
                                 if (cEvent.rangeSettlementsAffected.min == 0 && cEvent.rangeSettlementsAffected.max == 0 || Find.World.GetComponent<FactionFC>().settlements.Count() >= cEvent.rangeSettlementsAffected.min)
                                 {
                                     //if doesn't require resource or if required resource has more than 1 production
-                                    if (cEvent.requiredResource == null ? Find.World.GetComponent<FactionFC>().returnResource(cEvent.requiredResource).assignedWorkers > 0 : true || (cEvent.requiredResource == "research" && traitUtilsFC.returnResearchAmount() > 0))
+                                    if (cEvent.requiredResource == null ? Find.World.GetComponent<FactionFC>().returnResource(cEvent.requiredResource).assignedWorkers > 0 : true || (cEvent.requiredResource == "research" && TraitUtilsFC.returnResearchAmount() > 0))
                                     {
                                         //if event is not incompatible with any currently-running events
                                         foreach (FCEvent evt in Find.World.GetComponent<FactionFC>().events)
@@ -234,10 +234,6 @@ namespace FactionColonies
                             { //if have someone working on that resource
                                 tmp.Add(settlement);
                             }
-                            else
-                            {
-                                //don't add
-                            }
                         }
                         else
                         {
@@ -320,6 +316,10 @@ namespace FactionColonies
                     else
                     if (temp.def.defName == "taxColony")
                     {
+                        if (faction.returnSettlementFCIDByLocation(temp.source, temp.planetName) == -1)
+                        {
+                            continue;
+                        }
                         Messages.Message("TaxesFrom".Translate() + " " + faction.getSettlementName(temp.source, temp.planetName) + " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
                         string str = "TaxesFrom".Translate() + " " + faction.getSettlementName(temp.source, temp.planetName) + " " + "HaveBeenDelivered".Translate() + "!";
                         
@@ -375,7 +375,7 @@ namespace FactionColonies
                         temp.settlementFCDefending.isUnderAttack = false;
 
 
-                        int winner = simulateBattleFC.FightBattle(temp.militaryForceAttacking, temp.militaryForceDefending);
+                        int winner = SimulateBattleFc.FightBattle(temp.militaryForceAttacking, temp.militaryForceDefending);
                         if (winner == 1)
                         {
                             faction.addExperienceToFactionLevel(5f);
@@ -384,8 +384,8 @@ namespace FactionColonies
                         } else
                         {
                             //get multipliers
-                            double happinessLostMultiplier = (traitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", temp.settlementFCDefending.traits, "multiply") * traitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply"));
-                            double loyaltyLostMultiplier = (traitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", temp.settlementFCDefending.traits, "multiply") * traitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                            double happinessLostMultiplier = (TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", temp.settlementFCDefending.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                            double loyaltyLostMultiplier = (TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", temp.settlementFCDefending.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply"));
 
                             int trait_Muliplier = 1;
                             if (faction.hasPolicy(FCPolicyDefOf.feudal))

@@ -9,7 +9,7 @@ using RimWorld.Planet;
 
 namespace FactionColonies
 {
-	public class settlementCustomizeWindowFC : Window
+	public class SettlementCustomizeWindowFc : Window
 	{
 
 		public override Vector2 InitialSize
@@ -41,7 +41,7 @@ namespace FactionColonies
 
 
 
-		public settlementCustomizeWindowFC(SettlementFC settlement)
+		public SettlementCustomizeWindowFc(SettlementFC settlement)
 		{
 			this.forcePause = false;
 			this.draggable = true;
@@ -109,7 +109,7 @@ namespace FactionColonies
 
 					case 2: //faction icon
 						Widgets.Label(new Rect(xoffset + 3, yoffset + yspacing * i, length / 4, yspacing), "## Icon: ");
-						if (Widgets.ButtonImage(new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * i, 40, 40), texLoad.iconUnrest))  //change to faction icon
+						if (Widgets.ButtonImage(new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * i, 40, 40), TexLoad.iconUnrest))  //change to faction icon
 						{
 							//Log.Message("Faction icon select pressed");
 							//Open window to select new icon
