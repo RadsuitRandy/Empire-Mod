@@ -38,8 +38,8 @@ namespace FactionColonies
         public Map taxMap;
         public TechLevel techLevel = TechLevel.Undefined;
         private bool firstTick = true;
-        public Texture2D factionIcon = texLoad.factionIcons.ElementAt(0);
-        public string factionIconPath = texLoad.factionIcons.ElementAt(0).name;
+        public Texture2D factionIcon = TexLoad.factionIcons.ElementAt(0);
+        public string factionIconPath = TexLoad.factionIcons.ElementAt(0).name;
 
 
         //New Types of PRoductions
@@ -320,7 +320,7 @@ namespace FactionColonies
                             {
                                 defaultLabel = "SendToSettlement".Translate(),
                                 defaultDesc = "",
-                                icon = texLoad.iconMilitary,
+                                icon = TexLoad.iconMilitary,
                                 action = delegate
                                 {
                                     List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
@@ -415,7 +415,7 @@ namespace FactionColonies
                         {
                             defaultLabel = "AttackSettlement".Translate(),
                             defaultDesc = "",
-                            icon = texLoad.iconMilitary,
+                            icon = TexLoad.iconMilitary,
                             action = delegate
                             {
                                 List<FloatMenuOption> list = new List<FloatMenuOption>();
@@ -577,7 +577,7 @@ namespace FactionColonies
                         {
                             defaultLabel = "FCIncreaseRelations".Translate(),
                             defaultDesc = "",
-                            icon = texLoad.iconProsperity,
+                            icon = TexLoad.iconProsperity,
                             action = delegate { worldcomp.sendDiplomaticEnvoy(faction); }
                         };
 
@@ -614,7 +614,7 @@ namespace FactionColonies
                                     {
                                         defaultLabel = "DefendSettlement".Translate(),
                                         defaultDesc = "",
-                                        icon = texLoad.iconMilitary,
+                                        icon = TexLoad.iconMilitary,
                                         action = delegate
                                         {
                                             List<FloatMenuOption> list = new List<FloatMenuOption>();
@@ -840,14 +840,14 @@ namespace FactionColonies
                             foreach (SettlementFC settlement in faction.settlements)
                             {
                                 settlement.unrest += 5 *
-                                                     traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
                                                          settlement.traits, "multiply") *
-                                                     traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
                                                          faction.traits, "multiply");
                                 settlement.happiness -= 5 *
-                                                        traitUtilsFC.cycleTraits(new double(),
+                                                        TraitUtilsFC.cycleTraits(new double(),
                                                             "happinessLostMultiplier", settlement.traits, "multiply") *
-                                                        traitUtilsFC.cycleTraits(new double(),
+                                                        TraitUtilsFC.cycleTraits(new double(),
                                                             "happinessLostMultiplier", faction.traits, "multiply");
                             }
                         }
@@ -862,14 +862,14 @@ namespace FactionColonies
                                 foreach (SettlementFC settlement in faction.settlements)
                                 {
                                     settlement.unrest += 5 *
-                                                         traitUtilsFC.cycleTraits(new double(),
+                                                         TraitUtilsFC.cycleTraits(new double(),
                                                              "unrestGainedMultiplier", settlement.traits, "multiply") *
-                                                         traitUtilsFC.cycleTraits(new double(),
+                                                         TraitUtilsFC.cycleTraits(new double(),
                                                              "unrestGainedMultiplier", faction.traits, "multiply");
                                     settlement.happiness -= 5 *
-                                                            traitUtilsFC.cycleTraits(new double(),
+                                                            TraitUtilsFC.cycleTraits(new double(),
                                                                 "happinessLostMultiplier", settlement.traits,
-                                                                "multiply") * traitUtilsFC.cycleTraits(new double(),
+                                                                "multiply") * TraitUtilsFC.cycleTraits(new double(),
                                                                 "happinessLostMultiplier", faction.traits, "multiply");
                                 }
                             }
@@ -881,14 +881,14 @@ namespace FactionColonies
                             foreach (SettlementFC settlement in faction.settlements)
                             {
                                 settlement.unrest += 5 *
-                                                     traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
                                                          settlement.traits, "multiply") *
-                                                     traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
                                                          faction.traits, "multiply");
                                 settlement.happiness -= 5 *
-                                                        traitUtilsFC.cycleTraits(new double(),
+                                                        TraitUtilsFC.cycleTraits(new double(),
                                                             "happinessLostMultiplier", settlement.traits, "multiply") *
-                                                        traitUtilsFC.cycleTraits(new double(),
+                                                        TraitUtilsFC.cycleTraits(new double(),
                                                             "happinessLostMultiplier", faction.traits, "multiply");
                             }
                         }
@@ -961,14 +961,14 @@ namespace FactionColonies
                     foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
                     {
                         settlement.unrest += 15 *
-                                             traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                                 settlement.traits, "multiply") * traitUtilsFC.cycleTraits(new double(),
+                                             TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                                 settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(),
                                                  "unrestGainedMultiplier", Find.World.GetComponent<FactionFC>().traits,
                                                  "multiply");
                         settlement.happiness -= 10 *
-                                                traitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
+                                                TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
                                                     settlement.traits, "multiply") *
-                                                traitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
+                                                TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
                                                     Find.World.GetComponent<FactionFC>().traits, "multiply");
 
                         settlement.unrest = Math.Min(settlement.unrest, 100);
@@ -1101,8 +1101,8 @@ namespace FactionColonies
                 if (FCf != null)
                 {
                     FCf.def.techLevel = TechLevel.Undefined;
-                    factionIcon = texLoad.factionIcons.FirstOrFallback(obj => obj.name == factionIconPath,
-                        texLoad.factionIcons.First());
+                    factionIcon = TexLoad.factionIcons.FirstOrFallback(obj => obj.name == factionIconPath,
+                        TexLoad.factionIcons.First());
                     updateFactionIcon(ref FCf, "FactionIcons/" + factionIcon.name);
                     factionIconPath = factionIcon.name;
                 }

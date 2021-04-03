@@ -9,16 +9,10 @@ using RimWorld.Planet;
 
 namespace FactionColonies
 {
-	public class descWindowFC : Window
+	public class DescWindowFc : Window
 	{
 
-		public override Vector2 InitialSize
-		{
-			get
-			{
-				return new Vector2(400f, 320f);
-			}
-		}
+		public override Vector2 InitialSize => new Vector2(400f, 320f);
 
 		//declare variables
 
@@ -36,7 +30,7 @@ namespace FactionColonies
 		public string header;
 
 
-		public descWindowFC()
+		public DescWindowFc()
 		{
 			this.forcePause = false;
 			this.draggable = true;
@@ -44,7 +38,7 @@ namespace FactionColonies
 			this.preventCameraMotion = false;
 		}
 
-		public descWindowFC(string desc, string header)
+		public DescWindowFc(string desc, string header)
 		{
 			this.forcePause = false;
 			this.draggable = true;
@@ -54,7 +48,7 @@ namespace FactionColonies
 			this.header = header;
 		}
 
-		public descWindowFC(string desc)
+		public DescWindowFc(string desc)
 		{
 			this.forcePause = false;
 			this.draggable = true;

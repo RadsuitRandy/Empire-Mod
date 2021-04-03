@@ -11,7 +11,7 @@ using RimWorld.Planet;
 namespace FactionColonies
 {
 
-    class simulateBattleFC
+    class SimulateBattleFc
     {
 
         public static int FightBattle(militaryForce MFA, militaryForce MFB)
@@ -116,7 +116,7 @@ namespace FactionColonies
                 homeForceLevel = homeDefendingForce.militaryLevel;
 
             double militaryLevel = settlement.settlementMilitaryLevel + trait_MilitaryLevelBonus + homeForceLevel;
-            double efficiency = traitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", faction.traits, "multiply") * traitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", settlement.traits, "multiply");
+            double efficiency = TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", faction.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", settlement.traits, "multiply");
             if (isAttacking && faction.hasPolicy(FCPolicyDefOf.militaristic));
                 efficiency *= 1.2;
             militaryForce returnForce = new militaryForce(militaryLevel, efficiency, settlement, FactionColonies.getPlayerColonyFaction());

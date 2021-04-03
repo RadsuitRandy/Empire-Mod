@@ -53,17 +53,17 @@ namespace FactionColonies
                 minimum = Math.Min(thing.BaseMarketValue, minimum);
             }
             //Log.Message(minimum.ToString());
-            taxMinimumToTithe = minimum + LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().productionTitheMod + traitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, "add") + traitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, "add");
+            taxMinimumToTithe = minimum + LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().productionTitheMod + TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, "add") + TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, "add");
             return minimum;
         }
 
         public Texture2D getIcon()
         {
-            for(int i = 0; i < texLoad.textures.Count(); i++)
+            for(int i = 0; i < TexLoad.textures.Count(); i++)
             {
-                if (texLoad.textures[i].Key == name)
+                if (TexLoad.textures[i].Key == name)
                 {
-                    return texLoad.textures[i].Value;
+                    return TexLoad.textures[i].Value;
                 }
             }
             return null;

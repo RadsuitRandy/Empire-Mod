@@ -77,18 +77,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Android-Tiers-Patches.cs" />
-    <Compile Include="billFC.cs" />
+    <Compile Include="BillFC.cs" />
     <Compile Include="BiomeResourceDef.cs" />
     <Compile Include="BuildingFC.cs" />
-    <Compile Include="descWindowFC.cs" />
+    <Compile Include="DescWindowFC.cs" />
     <Compile Include="EmpireUI.cs" />
-    <Compile Include="factionCustomizeWindowFC.cs" />
+    <Compile Include="FactionCustomizeWindowFC.cs" />
     <Compile Include="FactionFCDef.cs" />
     <Compile Include="FactionRaceHarmonyPatches.cs" />
     <Compile Include="FCBillWindow.cs" />
     <Compile Include="FCBuildingWindow.cs" />
     <Compile Include="FCEvent.cs" />
-    <Compile Include="createColonyWindowFC.cs" />
+    <Compile Include="CreateColonyWindowFC.cs" />
     <Compile Include="FactionColonies.cs" />
     <Compile Include="FactionFC.cs" />
     <Compile Include="FCEventWindow.cs" />
@@ -105,24 +105,24 @@
     <Compile Include="FCWindow_Pay_Silver.cs" />
     <Compile Include="FCWindow_Pay_Silver_Loyalty.cs" />
     <Compile Include="FC_Dialogue_Request.cs" />
-    <Compile Include="listThingFC.cs" />
+    <Compile Include="ListThingFC.cs" />
     <Compile Include="MainTabWindow_Colony.cs" />
     <Compile Include="Mercenary.cs" />
     <Compile Include="MilitaryAI.cs" />
-    <Compile Include="militaryCustomizationWindowFC.cs" />
+    <Compile Include="MilitaryCustomizationWindowFC.cs" />
     <Compile Include="PaymentUtil.cs" />
     <Compile Include="FCPolicy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceFC.cs" />
-    <Compile Include="settlementCustomizeWindowFC.cs" />
+    <Compile Include="SettlementCustomizeWindowFC.cs" />
     <Compile Include="SettlementFC.cs" />
-    <Compile Include="settlementUpgradeWindowFC.cs" />
-    <Compile Include="settlementWindowFC.cs" />
-    <Compile Include="simulateBattleFC.cs" />
+    <Compile Include="SettlementUpgradeWindowFC.cs" />
+    <Compile Include="SettlementWindowFC.cs" />
+    <Compile Include="SimulateBattleFC.cs" />
     <Compile Include="SoS2HarmonyPatches.cs" />
-    <Compile Include="texLoad.cs" />
+    <Compile Include="TexLoad.cs" />
     <Compile Include="ResourceType.cs" />
-    <Compile Include="traitUtilFC.cs" />
+    <Compile Include="TraitUtilFC.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

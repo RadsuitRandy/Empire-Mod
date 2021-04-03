@@ -8,9 +8,9 @@ using Verse;
 namespace FactionColonies
 {
     [StaticConstructorOnStartup]
-    public static class texLoad
+    public static class TexLoad
     {
-        static texLoad()
+        static TexLoad()
         {
             var icons = ContentFinder<Texture2D>.GetAllInFolder("FactionIcons");
             factionIcons = icons.ToList();

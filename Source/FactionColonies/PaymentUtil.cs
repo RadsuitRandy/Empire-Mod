@@ -395,7 +395,10 @@ namespace FactionColonies
                     filter.SetAllow(DefDatabase<ThingDef>.GetNamedSilentFail("AA_SkySteel"), false);
                     ThingDef rawMagicyte = DefDatabase<ThingDef>.GetNamedSilentFail("RawMagicyte");
                     if (rawMagicyte != null)
+                    {
                         filter.SetAllow(rawMagicyte, true);
+                    }
+
                     filter.SetAllow(ThingDefOf.ComponentIndustrial, true);
                     filter.SetAllow(ThingCategoryDefOf.StoneBlocks, true);
                     break;
@@ -476,14 +479,15 @@ namespace FactionColonies
         public static List<ThingDef> debugGenerateTithe(ResourceType resourceType)
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            ThingSetMaker thingSetMaker = new ThingSetMaker_Count();
+            ThingSetMaker thingSetMaker = resourceType == ResourceType.Animals ? (ThingSetMaker) new ThingSetMaker_Animal() 
+                                        : new ThingSetMaker_Count();
             List<ThingDef> things = new List<ThingDef>();
 
             ThingSetMakerParams param = new ThingSetMakerParams();
             param.filter = new ThingFilter();
             param.techLevel = faction.techLevel;
             param.countRange = new IntRange(1, 1);
-
+            
             filterResource(param.filter, resourceType, faction.techLevel);
 
             things = thingSetMaker.AllGeneratableThingsDebug(param).ToList();

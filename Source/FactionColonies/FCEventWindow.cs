@@ -151,16 +151,16 @@ namespace FactionColonies
                         }
                         if (settlementString != "")
                         {
-                            Find.WindowStack.Add(new descWindowFC(evt.def.description + "\n This event is affecting the following settlements: " + settlementString));
+                            Find.WindowStack.Add(new DescWindowFc(evt.def.description + "\n This event is affecting the following settlements: " + settlementString));
                         }
                         else
                         {
-                            Find.WindowStack.Add(new descWindowFC(evt.def.description));
+                            Find.WindowStack.Add(new DescWindowFc(evt.def.description));
                         }
                     } else
                     {
                         //has custom description
-                        Find.WindowStack.Add(new descWindowFC(evt.customDescription));
+                        Find.WindowStack.Add(new DescWindowFc(evt.customDescription));
                     }
                 }
                 //

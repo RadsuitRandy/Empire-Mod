@@ -7,7 +7,7 @@ using Verse;
 
 namespace FactionColonies
 {
-    public class createColonyWindowFC : Window
+    public class CreateColonyWindowFc : Window
     {
         public sealed override Vector2 InitialSize => new Vector2(300f, 600f);
 
@@ -17,7 +17,7 @@ namespace FactionColonies
         public bool traitExpansionistReducedFee;
         public int timeToTravel = -1;
 
-        public createColonyWindowFC()
+        public CreateColonyWindowFc()
         {
             forcePause = false;
             draggable = false;
@@ -73,7 +73,7 @@ namespace FactionColonies
             TextAnchor anchorBefore = Text.Anchor;
 
 
-            int silverToCreateSettlement = (int)(traitUtilsFC.cycleTraits(new double(), "createSettlementMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply") * (FactionColonies.silverToCreateSettlement + (500 * (Find.World.GetComponent<FactionFC>().settlements.Count() + Find.World.GetComponent<FactionFC>().settlementCaravansList.Count())) + (traitUtilsFC.cycleTraits(new double(), "createSettlementBaseCost", Find.World.GetComponent<FactionFC>().traits, "add"))));
+            int silverToCreateSettlement = (int)(TraitUtilsFC.cycleTraits(new double(), "createSettlementMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply") * (FactionColonies.silverToCreateSettlement + (500 * (Find.World.GetComponent<FactionFC>().settlements.Count() + Find.World.GetComponent<FactionFC>().settlementCaravansList.Count())) + (TraitUtilsFC.cycleTraits(new double(), "createSettlementBaseCost", Find.World.GetComponent<FactionFC>().traits, "add"))));
             if (faction.hasPolicy(FCPolicyDefOf.isolationist))
                 silverToCreateSettlement *= 2;
 
@@ -139,7 +139,7 @@ namespace FactionColonies
                     if(Widgets.ButtonImage(new Rect(20, 335 + (int) titheType * (5 + height), height, height), 
                         faction.returnResource(titheType).getIcon()))
                     {
-                        Find.WindowStack.Add(new descWindowFC("SettlementProductionOf".Translate() + ": " 
+                        Find.WindowStack.Add(new DescWindowFc("SettlementProductionOf".Translate() + ": " 
                             + faction.returnResource(titheType).label, 
                             char.ToUpper(faction.returnResource(titheType).label[0]) 
                             + faction.returnResource(titheType).label.Substring(1)));

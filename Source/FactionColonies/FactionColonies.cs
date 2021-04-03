@@ -204,8 +204,8 @@ namespace FactionColonies
 			}
 			if (factionFC.updateVersion < 0.337)
 			{
-				factionFC.factionIcon = texLoad.factionIcons.First();
-				factionFC.factionIconPath = texLoad.factionIcons.First().name;
+				factionFC.factionIcon = TexLoad.factionIcons.First();
+				factionFC.factionIconPath = TexLoad.factionIcons.First().name;
 			}
 
 			if (factionFC.updateVersion < 0.339)
@@ -1806,10 +1806,7 @@ namespace FactionColonies
 		private static float plusOrMinusRandomAttackValue = 2;
 		public static double militaryAnimalCostMultiplier = 1.5;
 		public static double militaryRaceCostMultiplier = .15;
-
-
-
-
+		
 		public override void ExposeData()
 		{
 

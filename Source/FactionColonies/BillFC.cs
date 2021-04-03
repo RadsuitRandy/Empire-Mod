@@ -132,8 +132,8 @@ namespace FactionColonies
             else
             {
                 Messages.Message("NotEnoughSilverForBill".Translate() + " " + this.settlement.name + ". " + "ConfiscatedTithes".Translate() + "." + " " + "UnpaidTitheEffect".Translate(), MessageTypeDefOf.NegativeEvent);
-                this.settlement.unrest += 10 * traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", this.settlement.traits, "multiply") * traitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", factionfc.traits, "multiply");
-                this.settlement.happiness -= 10 * traitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", this.settlement.traits, "multiply") * traitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", factionfc.traits, "multiply");
+                this.settlement.unrest += 10 * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", this.settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", factionfc.traits, "multiply");
+                this.settlement.happiness -= 10 * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", this.settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", factionfc.traits, "multiply");
                 factionfc.Bills.Remove(this);
                 return false;
             }

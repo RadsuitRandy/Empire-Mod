@@ -8,7 +8,7 @@ using Verse;
 
 namespace FactionColonies
 {
-    class traitUtilsFC
+    class TraitUtilsFC
     {
         public static double returnVariable(double output, string field, FCTraitEffectDef def)
         {
@@ -59,12 +59,12 @@ namespace FactionColonies
             {
                 if (addOrMultiply == "add")
                 {
-                    tempTrait += traitUtilsFC.returnVariable(new double(), field, trait);
+                    tempTrait += TraitUtilsFC.returnVariable(new double(), field, trait);
                 }
                 else
                 if (addOrMultiply == "multiply")
                 {
-                    tempTrait *= traitUtilsFC.returnVariable(new double(), field, trait);
+                    tempTrait *= TraitUtilsFC.returnVariable(new double(), field, trait);
                 }
             }
             return tempTrait;

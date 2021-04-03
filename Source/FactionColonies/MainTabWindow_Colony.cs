@@ -213,7 +213,7 @@ namespace FactionColonies
 
 				if (Widgets.ButtonText(button, "CreateNewColony".Translate()))
 				{
-					Find.WindowStack.Add(new createColonyWindowFC());
+					Find.WindowStack.Add(new CreateColonyWindowFc());
 
 					//Move player to world map
 					Find.World.renderer.wantedMode = WorldRenderMode.Planet;
@@ -227,7 +227,7 @@ namespace FactionColonies
 				{ 
 					FactionColonies.createPlayerColonyFaction();
 					faction.factionCreated = true;
-					Find.WindowStack.Add(new factionCustomizeWindowFC(faction));
+					Find.WindowStack.Add(new FactionCustomizeWindowFc(faction));
 					//Initial release - Autocreate faction
 					if (Find.CurrentMap.Parent != null && Find.CurrentMap.Parent.Tile != null && Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile) != null)
 					{
@@ -408,11 +408,11 @@ namespace FactionColonies
 								xspacingUpdated = xspacing - 14;
 								break;
 							case 3:
-								varString = new GUIContent(settlement.unrest.ToString(), texLoad.iconUnrest);
+								varString = new GUIContent(settlement.unrest.ToString(), TexLoad.iconUnrest);
 								xspacingUpdated = xspacing + 4;
 								break;
 							case 4:
-								varString = new GUIContent(settlement.loyalty.ToString(), texLoad.iconLoyalty);
+								varString = new GUIContent(settlement.loyalty.ToString(), TexLoad.iconLoyalty);
 								xspacingUpdated = xspacing;
 								break;
 							case 5:
@@ -466,12 +466,12 @@ namespace FactionColonies
 			Text.Font = GameFont.Medium;
 			if (faction != null && faction.name != null)
 				Widgets.Label(new Rect(7,32,200,40),faction.name);
-			if(Widgets.ButtonImage(new Rect(210, 37, 20, 20), texLoad.iconCustomize))
+			if(Widgets.ButtonImage(new Rect(210, 37, 20, 20), TexLoad.iconCustomize))
 			{ //if click faction customize button
 			  //Log.Message("Faction customize clicked");
 				Faction fact = FactionColonies.getPlayerColonyFaction();
 				if (fact != null)
-					Find.WindowStack.Add(new factionCustomizeWindowFC(faction));
+					Find.WindowStack.Add(new FactionCustomizeWindowFc(faction));
 				else
 					Messages.Message("No faction created to customize", MessageTypeDefOf.RejectInput);
 			}
@@ -524,9 +524,9 @@ namespace FactionColonies
 				{
 					Widgets.DrawBox(new Rect(0, 105+ ((statSize + 15) * i), 125, statSize+10));
 					Widgets.DrawHighlight(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
-					if(Widgets.ButtonImage(new Rect(5-2, 110 + ((statSize + 15) * i)-2, statSize+4, statSize+4), texLoad.iconHappiness)) 
+					if(Widgets.ButtonImage(new Rect(5-2, 110 + ((statSize + 15) * i)-2, statSize+4, statSize+4), TexLoad.iconHappiness)) 
 					{
-						Find.WindowStack.Add(new descWindowFC("FactionHappinessDesc".Translate(), "FactionHappiness".Translate()));
+						Find.WindowStack.Add(new DescWindowFc("FactionHappinessDesc".Translate(), "FactionHappiness".Translate()));
 					};
 					Widgets.Label(new Rect(50, 110 + ((statSize + 15) * i), 80, statSize), Convert.ToInt32(faction.averageHappiness) + "%");
 				}
@@ -534,9 +534,9 @@ namespace FactionColonies
 				{
 					Widgets.DrawBox(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
 					Widgets.DrawHighlight(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize+10));
-					if(Widgets.ButtonImage(new Rect(5-2, 110 + ((statSize + 15) * i)-2, statSize+4, statSize+4), texLoad.iconLoyalty))
+					if(Widgets.ButtonImage(new Rect(5-2, 110 + ((statSize + 15) * i)-2, statSize+4, statSize+4), TexLoad.iconLoyalty))
 					{
-						Find.WindowStack.Add(new descWindowFC("FactionLoyaltyDesc".Translate(), "FactionLoyalty".Translate()));
+						Find.WindowStack.Add(new DescWindowFc("FactionLoyaltyDesc".Translate(), "FactionLoyalty".Translate()));
 					};
 					Widgets.Label(new Rect(50, 110 + ((statSize+15) * i), 80, statSize), Convert.ToInt32(faction.averageLoyalty) + "%");
 				}
@@ -544,9 +544,9 @@ namespace FactionColonies
 				{
 					Widgets.DrawBox(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
 					Widgets.DrawHighlight(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
-					if(Widgets.ButtonImage(new Rect(5 - 2, 110 + ((statSize + 15) * i) - 2, statSize + 4, statSize + 4), texLoad.iconUnrest))
+					if(Widgets.ButtonImage(new Rect(5 - 2, 110 + ((statSize + 15) * i) - 2, statSize + 4, statSize + 4), TexLoad.iconUnrest))
 					{
-						Find.WindowStack.Add(new descWindowFC("FactionUnrestDesc".Translate(), "FactionUnrest".Translate()));
+						Find.WindowStack.Add(new DescWindowFc("FactionUnrestDesc".Translate(), "FactionUnrest".Translate()));
 					};
 					Widgets.Label(new Rect(50, 110 + ((statSize + 15) * i), 80, statSize), Convert.ToInt32(faction.averageUnrest) + "%");
 				}
@@ -554,9 +554,9 @@ namespace FactionColonies
 				{
 					Widgets.DrawBox(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
 					Widgets.DrawHighlight(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
-					if(Widgets.ButtonImage(new Rect(5 - 2, 110 + ((statSize + 15) * i) - 2, statSize + 4, statSize + 4), texLoad.iconProsperity))
+					if(Widgets.ButtonImage(new Rect(5 - 2, 110 + ((statSize + 15) * i) - 2, statSize + 4, statSize + 4), TexLoad.iconProsperity))
 					{
-						Find.WindowStack.Add(new descWindowFC("FactionProsperityDesc", "FactionProsperity".Translate()));
+						Find.WindowStack.Add(new DescWindowFc("FactionProsperityDesc", "FactionProsperity".Translate()));
 					};
 					Widgets.Label(new Rect(50, 110 + ((statSize + 15) * i), 80, statSize), Convert.ToInt32(faction.averageProsperity) + "%");
 				}
@@ -752,7 +752,7 @@ namespace FactionColonies
 				if(Widgets.ButtonImage(new Rect(5 + x + (j * (resourceSize+5)), y-5 + ySpacing*k, resourceSize, 
 					resourceSize), resource.getIcon()))
 				{
-					Find.WindowStack.Add(new descWindowFC("TotalFactionProduction".Translate() + ": " + 
+					Find.WindowStack.Add(new DescWindowFc("TotalFactionProduction".Translate() + ": " + 
 					                                      resource.name, 
 						char.ToUpper(resource.name[0]) + 
 						resource.name.Substring(1)));

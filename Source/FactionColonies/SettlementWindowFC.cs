@@ -194,7 +194,7 @@ namespace FactionColonies
                         default:
                             if (Widgets.ButtonImage(new Rect(x - 15,
                                 scroll + y + 65 + (int) resourceType * (45 + spacing) + 8,
-                                20, 20), texLoad.iconCustomize))
+                                20, 20), TexLoad.iconCustomize))
                             {
                                 //if click faction customize button
                                 if (resource.filter == null)
@@ -217,8 +217,13 @@ namespace FactionColonies
                                         resource.returnLowestCost();
                                     }));
                                 List<ThingDef> things = PaymentUtil.debugGenerateTithe(resourceType);
+                                
                                 foreach (ThingDef thing in things)
                                 {
+                                    if (resourceType == ResourceType.Animals)
+                                    {
+                                        Log.Message("Found " + thing.defName);
+                                    }
                                     FloatMenuOption option;
                                     if (!FactionColonies.canCraftItem(thing))
                                     {
@@ -260,7 +265,7 @@ namespace FactionColonies
                     if (Widgets.ButtonImage(new Rect(x + 45, scroll + y + 75 + (int) resourceType * (45 + spacing),
                         30, 30), resource.getIcon()))
                     {
-                        Find.WindowStack.Add(new descWindowFC("SettlementProductionOf".Translate() + ": "
+                        Find.WindowStack.Add(new DescWindowFc("SettlementProductionOf".Translate() + ": "
                             + resource.label,
                             char.ToUpper(resource.label[0])
                             + resource.label.Substring(1)));
@@ -350,10 +355,10 @@ namespace FactionColonies
                 Find.WorldGrid.tiles[settlement.mapLocation].biome.LabelCap.ToLower()); //returnSettlement().title);
 
             //Draw header Settings button
-            if (Widgets.ButtonImage(new Rect(495, 5, 20, 20), texLoad.iconCustomize))
+            if (Widgets.ButtonImage(new Rect(495, 5, 20, 20), TexLoad.iconCustomize))
             {
                 //if click faction customize button
-                Find.WindowStack.Add(new settlementCustomizeWindowFC(settlement));
+                Find.WindowStack.Add(new SettlementCustomizeWindowFc(settlement));
                 //Log.Message("Settlement customize clicked");
             }
         }
@@ -371,9 +376,9 @@ namespace FactionColonies
                 {
                     if (Widgets.ButtonImage(
                         new Rect(x + 5 - 2, y + 5 + (statSize + 15) * i - 2, statSize + 4, statSize + 4),
-                        texLoad.iconMilitary))
+                        TexLoad.iconMilitary))
                     {
-                        Find.WindowStack.Add(new descWindowFC("SettlementMilitaryLevelDesc".Translate(),
+                        Find.WindowStack.Add(new DescWindowFc("SettlementMilitaryLevelDesc".Translate(),
                             "SettlementMilitaryLevel".Translate()));
                     }
 
@@ -385,9 +390,9 @@ namespace FactionColonies
                 {
                     if (Widgets.ButtonImage(
                         new Rect(x + 5 - 2, y + 5 + (statSize + 15) * i - 2, statSize + 4, statSize + 4),
-                        texLoad.iconHappiness))
+                        TexLoad.iconHappiness))
                     {
-                        Find.WindowStack.Add(new descWindowFC("SettlementHappinessDesc".Translate(),
+                        Find.WindowStack.Add(new DescWindowFc("SettlementHappinessDesc".Translate(),
                             "SettlementHappiness".Translate()));
                     }
 
@@ -399,9 +404,9 @@ namespace FactionColonies
                 {
                     if (Widgets.ButtonImage(
                         new Rect(x + 5 - 2, y + 5 + (statSize + 15) * i - 2, statSize + 4, statSize + 4),
-                        texLoad.iconLoyalty))
+                        TexLoad.iconLoyalty))
                     {
-                        Find.WindowStack.Add(new descWindowFC("SettlementLoyaltyDesc".Translate(),
+                        Find.WindowStack.Add(new DescWindowFc("SettlementLoyaltyDesc".Translate(),
                             "SettlementLoyalty".Translate()));
                     }
 
@@ -413,9 +418,9 @@ namespace FactionColonies
                 {
                     if (Widgets.ButtonImage(
                         new Rect(x + 5 - 2, y + 5 + (statSize + 15) * i - 2, statSize + 4, statSize + 4),
-                        texLoad.iconUnrest))
+                        TexLoad.iconUnrest))
                     {
-                        Find.WindowStack.Add(new descWindowFC("SettlementUnrestDesc".Translate(),
+                        Find.WindowStack.Add(new DescWindowFc("SettlementUnrestDesc".Translate(),
                             "SettlementUnrest".Translate()));
                     }
 
@@ -426,9 +431,9 @@ namespace FactionColonies
                 if (stats[i] != "prosperity") continue;
                 if (Widgets.ButtonImage(
                     new Rect(x + 5 - 2, y + 5 + (statSize + 15) * i - 2, statSize + 4, statSize + 4),
-                    texLoad.iconProsperity))
+                    TexLoad.iconProsperity))
                 {
-                    Find.WindowStack.Add(new descWindowFC("SettlementProsperityDesc".Translate(),
+                    Find.WindowStack.Add(new DescWindowFc("SettlementProsperityDesc".Translate(),
                         "SettlementProsperity".Translate()));
                 }
 
@@ -452,7 +457,7 @@ namespace FactionColonies
                         if (buttons[i] == "UpgradeTown".Translate())
                         {
                             //if click upgrade town button
-                            Find.WindowStack.Add(new settlementUpgradeWindowFC(settlement));
+                            Find.WindowStack.Add(new SettlementUpgradeWindowFc(settlement));
                             //Log.Message(buttons[i]);
                         }
 
@@ -652,7 +657,7 @@ namespace FactionColonies
                 }
                 else
                 {
-                    if (Widgets.ButtonImage(nBuilding, texLoad.buildingLocked))
+                    if (Widgets.ButtonImage(nBuilding, TexLoad.buildingLocked))
                     {
                         Messages.Message("That Building is locked", MessageTypeDefOf.RejectInput);
                     }
@@ -698,8 +703,8 @@ namespace FactionColonies
             Text.Anchor = TextAnchor.UpperLeft;
             Widgets.Label(new Rect(x + 5, y + 60, 150, 20),
                 "TaxBase".Translate() + ": " + (((100 + egalitarianTaxBoost + isolationistTaxBoost) +
-                                                 traitUtilsFC.cycleTraits(new double(), "taxBasePercentage",
-                                                     settlement.traits, "add") + traitUtilsFC.cycleTraits(new double(),
+                                                 TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage",
+                                                     settlement.traits, "add") + TraitUtilsFC.cycleTraits(new double(),
                                                      "taxBasePercentage", Find.World.GetComponent<FactionFC>().traits,
                                                      "add"))).ToString() + "%");
         }
