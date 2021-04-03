@@ -234,10 +234,6 @@ namespace FactionColonies
                             { //if have someone working on that resource
                                 tmp.Add(settlement);
                             }
-                            else
-                            {
-                                //don't add
-                            }
                         }
                         else
                         {

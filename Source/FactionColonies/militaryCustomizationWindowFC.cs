@@ -1590,7 +1590,7 @@ namespace FactionColonies
 					//click on settlement name
 					if(Widgets.ButtonTextSubtle(new Rect(SettlementName.x, SettlementName.y + (SettlementBox.height + settlementYSpacing) * count + scroll, SettlementName.width, SettlementName.height), settlement.name))
 					{
-						Find.WindowStack.Add(new settlementWindowFC(settlement));
+						Find.WindowStack.Add(new SettlementWindowFc(settlement));
 					}
 					Widgets.Label(new Rect(MilitaryLevel.x, MilitaryLevel.y + (SettlementBox.height + settlementYSpacing) * count + scroll, MilitaryLevel.width, MilitaryLevel.height*2), "Mil Level: " + settlement.settlementMilitaryLevel + " - Max Squad Cost: " + FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel));
 					if(settlement.militarySquad != null)

@@ -109,9 +109,9 @@ namespace FactionColonies
 
 				foreach (SettlementFC settlement in factionFC.settlements)
 				{
-					settlement.power = new ResourceFC("power", "Power", 0, settlement,7);
-					settlement.medicine = new ResourceFC("medicine", "Medicine", 0, settlement,8);
-					settlement.research = new ResourceFC("research", "Research", 0, settlement,6);
+					settlement.power = new ResourceFC(0, ResourceType.Power, settlement);
+					settlement.medicine = new ResourceFC(0, ResourceType.Medicine, settlement);
+					settlement.research = new ResourceFC(0, ResourceType.Research, settlement);
 					settlement.power.isTithe = true;
 					settlement.power.isTitheBool = true;
 					settlement.research.isTithe = true;
@@ -123,9 +123,9 @@ namespace FactionColonies
 					}
 				}
 
-				factionFC.power = new ResourceFC("power", "Power", 0);
-				factionFC.medicine = new ResourceFC("medicine", "Medicine", 0);
-				factionFC.research = new ResourceFC("research", "Research", 0);
+				factionFC.power = new ResourceFC(0, ResourceType.Power);
+				factionFC.medicine = new ResourceFC(0, ResourceType.Medicine);
+				factionFC.research = new ResourceFC(0, ResourceType.Research);
 				factionFC.power.isTithe = true;
 				factionFC.power.isTitheBool = true;
 				factionFC.research.isTithe = true;
@@ -187,15 +187,15 @@ namespace FactionColonies
 				foreach (SettlementFC settlement in factionFC.settlements)
 				{
 
-					for (int i = 0; i <= 8; i++)
+					foreach (ResourceType resourceType in ResourceUtils.resourceTypes)
 					{
-						ResourceFC resource = settlement.returnResourceByInt(i);
+						ResourceFC resource = settlement.getResource(resourceType);
 						resource.taxStock = 0;
 						resource.taxMinimumToTithe = 99999;
 						resource.taxPercentage = 0;
 						resource.settlement = settlement;
 						resource.filter = new ThingFilter();
-						PaymentUtil.resetThingFilter(settlement, i);
+						PaymentUtil.resetThingFilter(settlement, resourceType);
 						resource.returnLowestCost();
 
 					}
@@ -1741,197 +1741,33 @@ namespace FactionColonies
 		{
 			string title = "";
 			double highest = 0;
-			int resourceKey = -1;
-			int level = settlement.settlementLevel;
-
-			for (int i = 0; i < settlement.getNumberResource(); i++)
+			ResourceType? resourceKey = null;
+			int level;
+			if (settlement.settlementLevel <= 3)
 			{
-				ResourceFC resource = settlement.returnResourceByInt(i);
+				level = 1;
+			} else if (settlement.settlementLevel <= 6)
+			{
+				level = 2;
+			}
+			else
+			{
+				level = 3;
+			}
+
+			foreach (ResourceType resourceType in ResourceUtils.resourceTypes)
+			{
+				ResourceFC resource = settlement.getResource(resourceType);
 				if (resource.endProduction > highest)
 				{
 					highest = resource.endProduction;
-					resourceKey = i;
+					resourceKey = resourceType;
 				}
 			}
 
-			switch (resourceKey)
-			{
-				case 0: //food
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Food_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Food_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Food_3".Translate();
-							break;
-					}
-					break;
-				case 1: //weapons
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Weapons_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Weapons_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Weapons_3".Translate();
-							break;
-					}
-					break;
-				case 2: //apparel
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Apparel_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Apparel_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Apparel_3".Translate();
-							break;
-					}
-					break;
-				case 3: //animals
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Animals_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Animals_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Animals_3".Translate();
-							break;
-					}
-					break;
-				case 4: //Logging
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Logging_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Logging_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Logging_3".Translate();
-							break;
-					}
-					break;
-				case 5: //Mining
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Mining_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Mining_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Mining_3".Translate();
-							break;
-					}
-					break;
-				case 6: //research
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Research_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Research_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Research_3".Translate();
-							break;
-					}
-					break;
-				case 7: //Power
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Power_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Power_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Power_3".Translate();
-							break;
-					}
-					break;
-				case 8: //Medicine/Bionics
-					switch (level)
-					{
-						case 1:
-						case 2:
-						case 3:
-							title = "FCTitle_Medicine_1".Translate();
-							break;
-						case 4:
-						case 5:
-						case 6:
-							title = "FCTitle_Medicine_2".Translate();
-							break;
-						default:
-							title = "FCTitle_Medicine_3".Translate();
-							break;
-					}
-					break;
-				default:
-					title = "Bastion".Translate();
-					break;
-			}
-
-
-			return title;
+			return ("FCTitle_" + resourceKey + "_" + level).Translate();
 		}
-
-
-
-
-
-
+		
 		public int silverPerResource = 100;
 		public static double silverToCreateSettlement = 1000;
 		public int timeBetweenTaxes = GenDate.TicksPerTwelfth;

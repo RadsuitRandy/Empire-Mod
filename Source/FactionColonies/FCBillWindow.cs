@@ -142,7 +142,7 @@ namespace FactionColonies
                 {
                     if (bill.settlement != null)
                     {
-                        Find.WindowStack.Add(new settlementWindowFC(bill.settlement));
+                        Find.WindowStack.Add(new SettlementWindowFc(bill.settlement));
                     }
                 }
                 //

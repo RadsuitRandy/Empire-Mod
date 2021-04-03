@@ -429,7 +429,7 @@ namespace FactionColonies
 						{
 							if(Widgets.ButtonText(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), ""))
 							{  //When button of settlement name is pressed
-								Find.WindowStack.Add(new settlementWindowFC(settlement));
+								Find.WindowStack.Add(new SettlementWindowFc(settlement));
 
 							}
 							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), settlement.name);
@@ -744,15 +744,21 @@ namespace FactionColonies
 			float resourcesPerRow = 7;
 			int ySpacing = 30;
 
-			for (int i = 0; i < faction.returnNumberResource(); i++) 
+			foreach (ResourceType resourceType in ResourceUtils.resourceTypes)
 			{
-				k = (int)Math.Floor(i / resourcesPerRow);
-				j = (int)(i % resourcesPerRow);
-				if(Widgets.ButtonImage(new Rect(5 + x + (j * (resourceSize+5)), y-5 + ySpacing*k, resourceSize, resourceSize), faction.returnResourceByInt(i).getIcon()))
+				ResourceFC resource = faction.returnResource(resourceType);
+				k = (int)Math.Floor((int) resourceType / resourcesPerRow);
+				j = (int)((int) resourceType % resourcesPerRow);
+				if(Widgets.ButtonImage(new Rect(5 + x + (j * (resourceSize+5)), y-5 + ySpacing*k, resourceSize, 
+					resourceSize), resource.getIcon()))
 				{
-					Find.WindowStack.Add(new descWindowFC("TotalFactionProduction".Translate() + ": " + faction.returnResourceByInt(i).name, char.ToUpper(faction.returnResourceByInt(i).name[0]) + faction.returnResourceByInt(i).name.Substring(1)));
+					Find.WindowStack.Add(new descWindowFC("TotalFactionProduction".Translate() + ": " + 
+					                                      resource.name, 
+						char.ToUpper(resource.name[0]) + 
+						resource.name.Substring(1)));
 				}
-				Widgets.Label(new Rect(5 + x + (j * (resourceSize + 5)), y+resourceSize-10 + ySpacing * k, resourceSize, resourceSize), faction.returnResourceByInt(i).amount.ToString());
+				Widgets.Label(new Rect(5 + x + j * (resourceSize + 5), y+resourceSize-10 + ySpacing * k, 
+					resourceSize, resourceSize), resource.amount.ToString());
 			}
 		}
 
@@ -761,10 +767,10 @@ namespace FactionColonies
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Tiny;
 			Widgets.Label(new Rect(195, 270, 115, 30), "EstimatedProfit".Translate());
-			Widgets.Label(new Rect(195, 300, 115, 20), Convert.ToInt32(faction.profit).ToString() + " " + "Silver".Translate().ToLower());
+			Widgets.Label(new Rect(195, 300, 115, 20), Convert.ToInt32(faction.profit) + " " + "Silver".Translate().ToLower());
 
 			Widgets.Label(new Rect(195, 315, 115, 30), "TimeTillTax".Translate() + ":");
-			Widgets.Label(new Rect(195, 340, 115, 20), GenDate.ToStringTicksToDays(faction.taxTimeDue-Find.TickManager.TicksGame));
+			Widgets.Label(new Rect(195, 340, 115, 20), (faction.taxTimeDue-Find.TickManager.TicksGame).ToStringTicksToDays());
 		}
 	
 		private void scrollWindow(float num)

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RimWorld;
-using Verse;
 using UnityEngine;
+using Verse;
 
 namespace FactionColonies
 {
@@ -14,21 +12,21 @@ namespace FactionColonies
         {
         }
 
-        public ResourceFC(string name, string label, double baseProduction, SettlementFC settlement = null, int i = -1)
+        public ResourceFC(double baseProduction, ResourceType type, SettlementFC settlement = null)
         {
-            this.name = name;
-            this.label = label;
+            name = type.ToString().ToLower();
+            label = type.ToString();
             this.baseProduction = baseProduction;
-            this.endProduction = baseProduction;
-            this.amount = 0;
-            this.baseProductionMultiplier = 1;
-            this.baseProductionAdditives.Add(new ProductionAdditive("", 0, ""));
-            this.baseProductionMultipliers.Add(new ProductionMultiplier("", 0, ""));
+            endProduction = baseProduction;
+            amount = 0;
+            baseProductionMultiplier = 1;
+            baseProductionAdditives.Add(new ProductionAdditive("", 0, ""));
+            baseProductionMultipliers.Add(new ProductionMultiplier("", 0, ""));
             this.settlement = settlement;
-            this.filter = new ThingFilter();
+            filter = new ThingFilter();
             if (settlement != null)
             {
-                PaymentUtil.resetThingFilter(settlement, i);
+                PaymentUtil.resetThingFilter(settlement, type);
             }
         }
         
@@ -37,10 +35,9 @@ namespace FactionColonies
             if (taxStock >= taxMinimumToTithe)
             {
                 return true;
-            } else
-            {
-                return false;
             }
+
+            return false;
         }
         public double returnTaxPercentage()
         {
@@ -56,7 +53,7 @@ namespace FactionColonies
                 minimum = Math.Min(thing.BaseMarketValue, minimum);
             }
             //Log.Message(minimum.ToString());
-            taxMinimumToTithe = minimum + (double)LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().productionTitheMod + traitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, "add") + traitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, "add");
+            taxMinimumToTithe = minimum + LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().productionTitheMod + traitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, "add") + traitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, "add");
             return minimum;
         }
 
@@ -75,47 +72,47 @@ namespace FactionColonies
 
         public void ExposeData()
         {
-            Scribe_Values.Look<string>(ref name, "name");
-            Scribe_Values.Look<string>(ref label, "label");
-            Scribe_Values.Look<double>(ref baseProduction, "baseProduction");
-            Scribe_Values.Look<double>(ref endProduction, "endProduction");
-            Scribe_Values.Look<double>(ref baseProductionMultiplier, "baseProductionMultiplier");
-            Scribe_Values.Look<double>(ref endProductionMultiplier, "endProductionMultiplier");
-            Scribe_Values.Look<double>(ref amount, "amount");
-            Scribe_Collections.Look<ProductionAdditive>(ref baseProductionAdditives, "baseProductionAdditives", LookMode.Deep);
-            Scribe_Collections.Look<ProductionMultiplier>(ref baseProductionMultipliers, "baseProductionMultipliers", LookMode.Deep);
+            Scribe_Values.Look(ref name, "name");
+            Scribe_Values.Look(ref label, "label");
+            Scribe_Values.Look(ref baseProduction, "baseProduction");
+            Scribe_Values.Look(ref endProduction, "endProduction");
+            Scribe_Values.Look(ref baseProductionMultiplier, "baseProductionMultiplier");
+            Scribe_Values.Look(ref endProductionMultiplier, "endProductionMultiplier");
+            Scribe_Values.Look(ref amount, "amount");
+            Scribe_Collections.Look(ref baseProductionAdditives, "baseProductionAdditives", LookMode.Deep);
+            Scribe_Collections.Look(ref baseProductionMultipliers, "baseProductionMultipliers", LookMode.Deep);
 
             //tithe and income data
-            Scribe_Values.Look<bool>(ref isTithe, "isTithe");
-            Scribe_Values.Look<bool>(ref isTitheBool, "isTitheBool");
-            Scribe_Values.Look<int>(ref assignedWorkers, "assignedWorkers");
+            Scribe_Values.Look(ref isTithe, "isTithe");
+            Scribe_Values.Look(ref isTitheBool, "isTitheBool");
+            Scribe_Values.Look(ref assignedWorkers, "assignedWorkers");
 
-            Scribe_Deep.Look<ThingFilter>(ref filter, "filter");
+            Scribe_Deep.Look(ref filter, "filter");
             //Tax Stock
-            Scribe_Values.Look<double>(ref taxStock, "taxStock");
-            Scribe_Values.Look<double>(ref taxMinimumToTithe, "taxMinimumToTithe");
-            Scribe_Values.Look<double>(ref taxPercentage, "taxPercentage");
+            Scribe_Values.Look(ref taxStock, "taxStock");
+            Scribe_Values.Look(ref taxMinimumToTithe, "taxMinimumToTithe");
+            Scribe_Values.Look(ref taxPercentage, "taxPercentage");
 
-            Scribe_References.Look<SettlementFC>(ref settlement, "settlement");
+            Scribe_References.Look(ref settlement, "settlement");
         }
 
         public string name;
         public string label;
-        public double baseProduction = 0; //base production for resource
-        public double endProduction = 0;  //production after modifiers
+        public double baseProduction; //base production for resource
+        public double endProduction;  //production after modifiers
         public double baseProductionMultiplier = 1;  //base production modifier for resource
         public double endProductionMultiplier = 1;  //end production modifier for resource
         public List<ProductionAdditive> baseProductionAdditives = new List<ProductionAdditive>();    // {ID, Value, Desc}
         public List<ProductionMultiplier> baseProductionMultipliers = new List<ProductionMultiplier>();  // {ID, Value, Desc}
         public double amount;
-        public int assignedWorkers = 0;
-        public bool isTithe = false;
-        public bool isTitheBool = false; //used to track if isTithe is changed. AGHHH
+        public int assignedWorkers;
+        public bool isTithe;
+        public bool isTitheBool; //used to track if isTithe is changed. AGHHH
 
         public ThingFilter filter = new ThingFilter();
-        public double taxStock = 0;
+        public double taxStock;
         public double taxMinimumToTithe = 99999;
-        public double taxPercentage = 0;
+        public double taxPercentage;
         public SettlementFC settlement;
 
     }
@@ -136,9 +133,9 @@ namespace FactionColonies
 
         public void ExposeData()
         {
-            Scribe_Values.Look<string>(ref id, "id");
-            Scribe_Values.Look<double>(ref value, "value");
-            Scribe_Values.Look<string>(ref desc, "desc");
+            Scribe_Values.Look(ref id, "id");
+            Scribe_Values.Look(ref value, "value");
+            Scribe_Values.Look(ref desc, "desc");
         }
 
         public string id;
@@ -161,9 +158,9 @@ namespace FactionColonies
 
         public void ExposeData()
         {
-            Scribe_Values.Look<string>(ref id, "id");
-            Scribe_Values.Look<double>(ref value, "value");
-            Scribe_Values.Look<string>(ref desc, "desc");
+            Scribe_Values.Look(ref id, "id");
+            Scribe_Values.Look(ref value, "value");
+            Scribe_Values.Look(ref desc, "desc");
         }
 
         public string id;

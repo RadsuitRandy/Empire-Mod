@@ -372,7 +372,7 @@ namespace FactionColonies
 				//settlement name
 				if (Widgets.ButtonTextSubtle(AdjustRect(settlement_1,i) , settlement.name))
 				{
-					Find.WindowStack.Add(new settlementWindowFC(settlement));
+					Find.WindowStack.Add(new SettlementWindowFc(settlement));
 				}
 				Text.Font = GameFont.Tiny;
 				Text.Anchor = TextAnchor.MiddleCenter;
