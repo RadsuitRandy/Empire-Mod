@@ -405,11 +405,7 @@ namespace FactionColonies
                     if (__instance.Faction != fact && __instance.Faction != Find.FactionManager.OfPlayer)
                     {
                         //if a valid faction to target
-
                         Faction faction = __instance.Faction;
-
-                        string name = __instance.LabelCap;
-
 
                         Command_Action actionHostile = new Command_Action
                         {
@@ -598,12 +594,7 @@ namespace FactionColonies
                     {
                         if (__instance.Faction == fact)
                         {
-                            //Log.Message(__instance.Tile.ToString());
                             //is a colony of the player faction
-                            //Log.Message(Find.World.info.name);
-                            SettlementFC test =
-                                worldcomp.returnSettlementByLocation(__instance.Tile, Find.World.info.name);
-                            //Log.Message(((bool)(test != null)).ToString());
                             if (worldcomp.returnSettlementByLocation(__instance.Tile, Find.World.info.name)
                                 .isUnderAttack)
                             {
@@ -710,8 +701,15 @@ namespace FactionColonies
                         Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
                             .returnMercenaryFromUnit(__instance, squad);
                         if (merc != null)
+                        {
+                            if (squad.settlement != null)
+                            {
+                                squad.dead += 1;
+                                squad.settlement.happiness -= 1;
+                            }
                             squad.PassPawnToDeadMercenaries(merc);
-                        squad.hasDead = true;
+                        }
+
                         squad.removeDroppedEquipment();
                     }
                     else

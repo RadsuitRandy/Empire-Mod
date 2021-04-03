@@ -1085,6 +1085,10 @@ namespace FactionColonies
                 cooldownReduction += 60000;
             }
 
+            if (militaryJob == "defendFriendlySettlement")
+            {
+                cooldownReduction -= militarySquad.dead * 10000;
+            }
             militaryJob = "cooldown";
             militaryBusy = true;
             militaryLocation = mapLocation;

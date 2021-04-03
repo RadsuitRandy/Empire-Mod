@@ -84,7 +84,7 @@ namespace FactionColonies
                         }));
                     }
                 }
-                if (list.Count() == 0)
+                if (!list.Any())
                 {
                     list.Add(new FloatMenuOption("No squads available", null));
                 }
@@ -107,7 +107,7 @@ namespace FactionColonies
             {
                 if (selectedSquad != null)
                 {
-                    DebugTool tool = null;
+                    DebugTool tool;
                     IntVec3 Position;
                     tool = new DebugTool("Select Move Position", delegate ()
                     {
@@ -126,8 +126,9 @@ namespace FactionColonies
             {
                 if (selectedSquad != null)
                 {
-                    Messages.Message(selectedSquad.outfit.name + " are now leaving the map.", MessageTypeDefOf.NeutralEvent);
                     selectedSquad.order = MilitaryOrders.Leave;
+                    Messages.Message(selectedSquad.outfit.name + " are now leaving the map. " + selectedSquad.dead + " dead.", 
+                        MessageTypeDefOf.NeutralEvent);
                 }
             }
 

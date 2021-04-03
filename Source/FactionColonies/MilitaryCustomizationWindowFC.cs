@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using UnityEngine;
+using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI.Group;
-using RimWorld.Planet;
-using HarmonyLib;
 
 namespace FactionColonies
 {
@@ -42,18 +38,18 @@ namespace FactionColonies
 			this.map = map;
 			this.location = location;
 			this.startupTime = startupTime;
-			this.sourceLocation = CellFinder.RandomEdgeCell(map);
+			sourceLocation = CellFinder.RandomEdgeCell(map);
 			this.projectiles = projectiles;
 		}
 
 		public string GetUniqueLoadID()
 		{
-			return "MilitaryFireSupport_" + this.loadID;
+			return "MilitaryFireSupport_" + loadID;
 		}
 
 		public void setLoadID()
 		{
-			this.loadID = Find.World.GetComponent<FactionFC>().GetNextMilitaryFireSupportID();
+			loadID = Find.World.GetComponent<FactionFC>().GetNextMilitaryFireSupportID();
 		}
 
 		public float returnAccuracyCostPercentage()
@@ -68,8 +64,8 @@ namespace FactionColonies
 			{
 				cost += def.BaseMarketValue * 1.5f * (1+returnAccuracyCostPercentage()/100);
 			}
-			this.totalCost = (float)Math.Round(cost);
-			return this.totalCost;
+			totalCost = (float)Math.Round(cost);
+			return totalCost;
 		}
 
 		public void delete()
@@ -85,10 +81,8 @@ namespace FactionColonies
 				projectiles.RemoveAt(0);
 				return projectile;
 			}
-			else
-			{
-				return null;
-			}
+
+			return null;
 		}
 
 		public List<ThingDef> returnFireSupportOptions()
@@ -112,17 +106,17 @@ namespace FactionColonies
 
 		public void ExposeData()
 		{
-			Scribe_Values.Look<int>(ref loadID, "loadID");
-			Scribe_Values.Look<string>(ref name, "name");
-			Scribe_Values.Look<int>(ref timeRunning, "timeRunning");
-			Scribe_Values.Look<int>(ref ticksTillEnd, "ticksTillEnd");
-			Scribe_Values.Look<float>(ref accuracy, "accuracy");
-			Scribe_Values.Look<string>(ref fireSupportType, "fireSupportType");
-			Scribe_References.Look<Map>(ref map, "map");
-			Scribe_Values.Look<IntVec3>(ref location, "location");
-			Scribe_Values.Look<IntVec3>(ref location, "sourceLocation");
-			Scribe_Values.Look<int>(ref startupTime, "startupTime");
-			Scribe_Collections.Look<ThingDef>(ref projectiles, "projectiles", LookMode.Def);
+			Scribe_Values.Look(ref loadID, "loadID");
+			Scribe_Values.Look(ref name, "name");
+			Scribe_Values.Look(ref timeRunning, "timeRunning");
+			Scribe_Values.Look(ref ticksTillEnd, "ticksTillEnd");
+			Scribe_Values.Look(ref accuracy, "accuracy");
+			Scribe_Values.Look(ref fireSupportType, "fireSupportType");
+			Scribe_References.Look(ref map, "map");
+			Scribe_Values.Look(ref location, "location");
+			Scribe_Values.Look(ref location, "sourceLocation");
+			Scribe_Values.Look(ref startupTime, "startupTime");
+			Scribe_Collections.Look(ref projectiles, "projectiles", LookMode.Def);
 		}
 
 
@@ -137,9 +131,9 @@ namespace FactionColonies
 		public List<MercenarySquadFC> mercenarySquads = new List<MercenarySquadFC>();
 		public List<MilitaryFireSupport> fireSupport = new List<MilitaryFireSupport>();
 		public List<MilitaryFireSupport> fireSupportDefs = new List<MilitaryFireSupport>();
-		public MilUnitFC blankUnit = null;
+		public MilUnitFC blankUnit;
 		public List<Mercenary> deadPawns = new List<Mercenary>();
-		public int tickChanged = 0;
+		public int tickChanged;
 
 
 		public MilitaryCustomizationUtil()
@@ -305,7 +299,7 @@ namespace FactionColonies
 				List<MercenarySquadFC> list = new List<MercenarySquadFC>();
 				foreach(MercenarySquadFC squad in mercenarySquads)
 				{
-					if (squad.isDeployed == true)
+					if (squad.isDeployed)
 					{
 						list.Add(squad);
 					}
@@ -402,10 +396,8 @@ namespace FactionColonies
 			{
 				return true;
 			}
-			else
-			{
-				return false;
-			}
+
+			return false;
 		}
 
 		public void changeTick()
@@ -415,15 +407,15 @@ namespace FactionColonies
 
 		public void ExposeData()
 		{
-			Scribe_Collections.Look<MilUnitFC>(ref units, "units", LookMode.Deep);
-			Scribe_Collections.Look<MilSquadFC>(ref squads, "squads", LookMode.Deep);
-			Scribe_Collections.Look<MercenarySquadFC>(ref mercenarySquads, "mercenarySquads", LookMode.Deep);
-			Scribe_Collections.Look<MilitaryFireSupport>(ref fireSupport, "fireSupport", LookMode.Deep);
-			Scribe_Collections.Look<MilitaryFireSupport>(ref fireSupportDefs, "fireSupportDefs", LookMode.Deep);
-			Scribe_Collections.Look<Mercenary>(ref deadPawns, "deadPawns", LookMode.Deep);
+			Scribe_Collections.Look(ref units, "units", LookMode.Deep);
+			Scribe_Collections.Look(ref squads, "squads", LookMode.Deep);
+			Scribe_Collections.Look(ref mercenarySquads, "mercenarySquads", LookMode.Deep);
+			Scribe_Collections.Look(ref fireSupport, "fireSupport", LookMode.Deep);
+			Scribe_Collections.Look(ref fireSupportDefs, "fireSupportDefs", LookMode.Deep);
+			Scribe_Collections.Look(ref deadPawns, "deadPawns", LookMode.Deep);
 
-			Scribe_Deep.Look<MilUnitFC>(ref blankUnit, "blankUnit");
-			Scribe_Values.Look<int>(ref tickChanged, "tickChanged", 0);
+			Scribe_Deep.Look(ref blankUnit, "blankUnit");
+			Scribe_Values.Look(ref tickChanged, "tickChanged");
 		}
 	}
 
@@ -436,11 +428,11 @@ namespace FactionColonies
 	{
 		public int loadID;
 		public string name;
-		public Pawn defaultPawn = null;
+		public Pawn defaultPawn;
 		public bool isBlank;
 		public double equipmentTotalCost;
-		public bool isTrader = false;
-		public bool isCivilian = false;
+		public bool isTrader;
+		public bool isCivilian;
 		public int tickChanged = -1;
 		public PawnKindDef animal;
 		public PawnKindDef pawnKind;
@@ -452,29 +444,29 @@ namespace FactionColonies
 
 		public MilUnitFC(bool blank)
 		{
-			this.loadID = Find.World.GetComponent<FactionFC>().GetNextUnitID();
-			this.isBlank = blank;
-			this.equipmentTotalCost = 0;
-			this.pawnKind = PawnKindDefOf.Colonist;
+			loadID = Find.World.GetComponent<FactionFC>().GetNextUnitID();
+			isBlank = blank;
+			equipmentTotalCost = 0;
+			pawnKind = PawnKindDefOf.Colonist;
 			generateDefaultPawn();
 		}
 
 		public string GetUniqueLoadID()
 		{
-			return "MilUnitFC_" + this.loadID;
+			return "MilUnitFC_" + loadID;
 		}
 		public void ExposeData()
 		{
-			Scribe_Values.Look<int>(ref loadID, "loadID");
-			Scribe_Values.Look<string>(ref name, "name");
-			Scribe_Deep.Look<Pawn>(ref defaultPawn, "defaultPawn");
-			Scribe_Values.Look<bool>(ref isBlank, "blank");
-			Scribe_Values.Look<double>(ref equipmentTotalCost, "equipmentTotalCost", -1);
-			Scribe_Values.Look<bool>(ref isTrader, "isTrader", false);
-			Scribe_Values.Look<bool>(ref isCivilian, "isCivilian", false);
-			Scribe_Values.Look<int>(ref tickChanged, "tickChanged", 0);
-			Scribe_Defs.Look<PawnKindDef>(ref pawnKind, "PawnKind");
-			Scribe_Defs.Look<PawnKindDef>(ref animal, "animal");
+			Scribe_Values.Look(ref loadID, "loadID");
+			Scribe_Values.Look(ref name, "name");
+			Scribe_Deep.Look(ref defaultPawn, "defaultPawn");
+			Scribe_Values.Look(ref isBlank, "blank");
+			Scribe_Values.Look(ref equipmentTotalCost, "equipmentTotalCost", -1);
+			Scribe_Values.Look(ref isTrader, "isTrader");
+			Scribe_Values.Look(ref isCivilian, "isCivilian");
+			Scribe_Values.Look(ref tickChanged, "tickChanged");
+			Scribe_Defs.Look(ref pawnKind, "PawnKind");
+			Scribe_Defs.Look(ref animal, "animal");
 		}
 
 		public void generateDefaultPawn()
@@ -501,7 +493,7 @@ namespace FactionColonies
 				}
 				defaultPawn.Destroy();
 			}
-			defaultPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kindDef, FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, true, 0, false, false, false, false, false, false, false, false, 0, null, 0, null, null, null, null, null, null, null, null, null, null, null, null));
+			defaultPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kindDef, FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
 			defaultPawn.health.forceIncap = true;
 			defaultPawn.mindState.canFleeIndividual = false;
 			defaultPawn.apparel.DestroyAll();
@@ -554,7 +546,7 @@ namespace FactionColonies
 				{
 					foreach (Apparel apparel in defaultPawn.apparel.WornApparel)
 					{
-						if ((apparel.def.apparel.layers.Contains(layer) == true && apparel.def.apparel.bodyPartGroups.Contains(part)) || (Equipment.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead) && apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead)))
+						if ((apparel.def.apparel.layers.Contains(layer) && apparel.def.apparel.bodyPartGroups.Contains(part)) || (Equipment.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead) && apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead)))
 						{
 							defaultPawn.apparel.Remove(apparel);
 							goto Reset;
@@ -595,7 +587,7 @@ namespace FactionColonies
 
 		public void updateEquipmentTotalCost()
 		{
-			if (isBlank == true) 
+			if (isBlank) 
 			{ 
 				equipmentTotalCost = 0; 
 			}
@@ -674,49 +666,43 @@ namespace FactionColonies
 		public int timeDeployed;
 		public IntVec3 orderLocation;
 		public bool hitMap;
-		public bool hasDead;
+		public int dead;
 		public MilSquadFC outfit;
 		public List<ThingWithComps> UsedWeaponList;
 		public List<Apparel> UsedApparelList;
-		public int tickChanged = 0;
-		public bool hasLord = false;
+		public int tickChanged;
+		public bool hasLord;
 		public Map map;
 		public Lord lord;
 
 
-
 		public void ExposeData()
 		{
-			Scribe_Values.Look<int>(ref loadID, "loadID", -1);
-			Scribe_Values.Look<string>(ref name, "name");
-			Scribe_Collections.Look<Mercenary>(ref mercenaries, "mercenaries", LookMode.Deep);
-			Scribe_Collections.Look<Mercenary>(ref animals, "animals", LookMode.Deep);
-			Scribe_Values.Look<bool>(ref isTraderCaravan, "isTraderCaravan", false);
-			Scribe_Values.Look<bool>(ref isDeployed, "isDeployed", false);
-			Scribe_Values.Look<bool>(ref isExtraSquad, "isExtraSquad", false);
-			Scribe_Values.Look<bool>(ref hitMap, "hitMap", false);
-			Scribe_References.Look<MilSquadFC>(ref outfit, "outfit", false);
-			Scribe_Values.Look<bool>(ref hasDead, "hasDead", false);
-			Scribe_Collections.Look<ThingWithComps>(ref UsedWeaponList, "UsedWeaponList", LookMode.Reference);
-			Scribe_Collections.Look<Apparel>(ref UsedApparelList, "UsedApparelList", LookMode.Reference);
-			Scribe_References.Look<SettlementFC>(ref settlement, "Settlement");
-			Scribe_Values.Look<int>(ref tickChanged, "tickChanged");
-			Scribe_Values.Look<int>(ref order, "order", -1);
-			Scribe_Values.Look<int>(ref timeDeployed, "timeDeployed", -1);
-			Scribe_Values.Look<IntVec3>(ref orderLocation, "orderLocation");
-			Scribe_Values.Look<bool>(ref hasLord, "hasLord", false);
-			Scribe_References.Look<Map>(ref map, "map");
-			Scribe_References.Look<Lord>(ref lord, "lord");
+			Scribe_Values.Look(ref loadID, "loadID", -1);
+			Scribe_Values.Look(ref name, "name");
+			Scribe_Collections.Look(ref mercenaries, "mercenaries", LookMode.Deep);
+			Scribe_Collections.Look(ref animals, "animals", LookMode.Deep);
+			Scribe_Values.Look(ref isTraderCaravan, "isTraderCaravan");
+			Scribe_Values.Look(ref isDeployed, "isDeployed");
+			Scribe_Values.Look(ref isExtraSquad, "isExtraSquad");
+			Scribe_Values.Look(ref hitMap, "hitMap");
+			Scribe_References.Look(ref outfit, "outfit");
+			Scribe_Values.Look(ref dead, "dead");
+			Scribe_Collections.Look(ref UsedWeaponList, "UsedWeaponList", LookMode.Reference);
+			Scribe_Collections.Look(ref UsedApparelList, "UsedApparelList", LookMode.Reference);
+			Scribe_References.Look(ref settlement, "Settlement");
+			Scribe_Values.Look(ref tickChanged, "tickChanged");
+			Scribe_Values.Look(ref order, "order", -1);
+			Scribe_Values.Look(ref timeDeployed, "timeDeployed", -1);
+			Scribe_Values.Look(ref orderLocation, "orderLocation");
+			Scribe_Values.Look(ref hasLord, "hasLord");
+			Scribe_References.Look(ref map, "map");
+			Scribe_References.Look(ref lord, "lord");
 		}
 
 		public string GetUniqueLoadID()
 		{
-			return "MercenarySquadFC_" + this.loadID;
-		}
-
-		public MercenarySquadFC()
-		{
-
+			return "MercenarySquadFC_" + loadID;
 		}
 
 		public List<Mercenary> EquippedMercenaries
@@ -726,7 +712,7 @@ namespace FactionColonies
 				List<Mercenary> pawns = new List<Mercenary>();
 				foreach (Mercenary merc in mercenaries)
 				{
-					if ((merc.pawn.apparel.WornApparel.Count() > 0 || merc.pawn.equipment.AllEquipmentListForReading.Count() > 0 || merc.animal != null) && merc.deployable == true) {
+					if ((merc.pawn.apparel.WornApparel.Count() > 0 || merc.pawn.equipment.AllEquipmentListForReading.Count() > 0 || merc.animal != null) && merc.deployable) {
 						pawns.Add(merc);
 					}
 				}
@@ -831,19 +817,18 @@ namespace FactionColonies
 				if (settlement != null)
 				{
 					return settlement;
-				} else
-				{
-					foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-					{
-						if (settlement.militarySquad != null && settlement.militarySquad == this)
-						{
-							this.settlement = settlement;
-							return settlement;
-						}
-					}
-
-					return null;
 				}
+
+				foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
+				{
+					if (settlement.militarySquad != null && settlement.militarySquad == this)
+					{
+						this.settlement = settlement;
+						return settlement;
+					}
+				}
+
+				return null;
 			}
 		}
 
@@ -880,7 +865,7 @@ namespace FactionColonies
 			//this.debugMercenarySquad();
 			if (loadID == -1)
 			{
-				this.loadID = Find.World.GetComponent<FactionFC>().GetNextMercenarySquadID();
+				loadID = Find.World.GetComponent<FactionFC>().GetNextMercenarySquadID();
 			}
 
 			if (outfit != null)
@@ -943,7 +928,7 @@ namespace FactionColonies
 		public void createNewAnimal(ref Mercenary merc, PawnKindDef race)
 		{
 			Pawn newPawn;
-			newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race, FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false, false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0, null, null, null, null, null, null, null, null, null, null, null, null));
+			newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race, FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false, false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
 			//merc = (Mercenary)newPawn;
 			
 			merc.squad = this;
@@ -958,14 +943,10 @@ namespace FactionColonies
 			if (merc.pawn != null)
 			{
 				//pawn.ParentHolder.remov
-				if (merc.pawn.health != null && merc.pawn.health.Dead == true)
+				if (merc.pawn.health != null && merc.pawn.health.Dead)
 				{
 					//Log.Message("Passing old pawn to dead mercenaries");
 					//PassPawnToDeadMercenaries(pawn);
-				}
-				else
-				{
-
 				}
 			}
 
@@ -982,7 +963,7 @@ namespace FactionColonies
 
 
 			Pawn newPawn;
-			newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice, FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false, false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0, null, null, null, null, null, null, null, null, null, null, null, null));
+			newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice, FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false, false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
 			newPawn.apparel.DestroyAll();
 			newPawn.equipment.DestroyAllEquipment();
 			//merc = (Mercenary)newPawn;
@@ -1005,15 +986,15 @@ namespace FactionColonies
 		public void PassPawnToDeadMercenaries(Mercenary merc)
 		{
 			//If ever add past dead pawns, use this code
-			MilitaryCustomizationUtil util = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
+			/*MilitaryCustomizationUtil util = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
 			Mercenary pwn = new Mercenary(true);
 			if (merc.animal != null)
 			{
 				Mercenary animal = new Mercenary(true);
 				animal = merc.animal;
-				//util.deadPawns.Add(animal);
+				util.deadPawns.Add(animal);
 			}
-			pwn = merc;
+			pwn = merc;*/
 
 			//util.deadPawns.Add(pwn);
 			Mercenary pawn2 = new Mercenary(true);
@@ -1047,7 +1028,7 @@ namespace FactionColonies
 			animals = new List<Mercenary>();
 			foreach (MilUnitFC loadout in outfit.units)
 			{ 
-				if ( mercenaries[count].pawn.kindDef != loadout.pawnKind || mercenaries[count].pawn.Dead == true)
+				if ( mercenaries[count].pawn.kindDef != loadout.pawnKind || mercenaries[count].pawn.Dead)
 				{
 					Mercenary pawn = new Mercenary(true);
 					createNewPawn(ref pawn, loadout.pawnKind);
@@ -1073,8 +1054,6 @@ namespace FactionColonies
 						mercenaries[count].deployable = true;
 					else
 						mercenaries[count].deployable = false;
-				} else
-				{
 				}
 
 				if (mercenaries[count].pawn.equipment.AllEquipmentListForReading != null)
@@ -1141,10 +1120,10 @@ namespace FactionColonies
 
 							//Method not static, so create instance of object and define the parameters to the method.
 							var obj = Activator.CreateInstance(typ);
-							object[] paramArgu = new object[] { merc.pawn.equipment.Primary, comp, 1 };
+							object[] paramArgu = { merc.pawn.equipment.Primary, comp, 1 };
 
 							Traverse.Create(obj).Method("TryGenerateAmmoFor", paramArgu).GetValue();
-							Traverse.Create(obj).Method("LoadWeaponWithRandAmmo", new object[] { merc.pawn.equipment.Primary }).GetValue();
+							Traverse.Create(obj).Method("LoadWeaponWithRandAmmo", merc.pawn.equipment.Primary).GetValue();
 							
 
 						}
@@ -1165,7 +1144,9 @@ namespace FactionColonies
 				{
 					if (weapon.ParentHolder is Pawn_EquipmentTracker)
 					{
-						if ((((Pawn_EquipmentTracker)weapon.ParentHolder).pawn.Faction == FactionColonies.getPlayerColonyFaction() || ((Pawn_EquipmentTracker)weapon.ParentHolder).pawn.Faction == Find.FactionManager.OfPlayer)  && ((Pawn_EquipmentTracker)weapon.ParentHolder).pawn.Dead == false)
+						if ((((Pawn_EquipmentTracker)weapon.ParentHolder).pawn.Faction == FactionColonies.getPlayerColonyFaction() || 
+						     ((Pawn_EquipmentTracker)weapon.ParentHolder).pawn.Faction == Find.FactionManager.OfPlayer)  && 
+						    ((Pawn_EquipmentTracker)weapon.ParentHolder).pawn.Dead == false)
 						{
 
 						} else
@@ -1196,7 +1177,9 @@ namespace FactionColonies
 					//Log.Message(apparel.ParentHolder.ParentHolder.ToString());
 					if (apparel.ParentHolder is Pawn_ApparelTracker)
 					{
-						if ((((Pawn_ApparelTracker)apparel.ParentHolder).pawn.Faction == FactionColonies.getPlayerColonyFaction() || ((Pawn_ApparelTracker)apparel.ParentHolder).pawn.Faction == Find.FactionManager.OfPlayer) && ((Pawn_ApparelTracker)apparel.ParentHolder).pawn.Dead == false)
+						if ((((Pawn_ApparelTracker)apparel.ParentHolder).pawn.Faction == FactionColonies.getPlayerColonyFaction() || 
+						     ((Pawn_ApparelTracker)apparel.ParentHolder).pawn.Faction == Find.FactionManager.OfPlayer) && 
+						    ((Pawn_ApparelTracker)apparel.ParentHolder).pawn.Dead == false)
 						{
 
 						}
@@ -1255,7 +1238,7 @@ namespace FactionColonies
 		public double equipmentTotalCost;
 		public bool isTraderCaravan;
 		public bool isCivilian;
-		public int tickChanged = 0;
+		public int tickChanged;
 
 		public MilSquadFC()
 		{
@@ -1271,18 +1254,18 @@ namespace FactionColonies
 
 		public void ExposeData()
 		{
-			Scribe_Values.Look<int>(ref loadID, "loadID", -1);
-			Scribe_Values.Look<string>(ref name, "name");
-			Scribe_Collections.Look<MilUnitFC>(ref units, "units", LookMode.Reference);
-			Scribe_Values.Look<double>(ref equipmentTotalCost, "equipmentTotalCost", -1);
-			Scribe_Values.Look<bool>(ref isTraderCaravan, "isTraderCaravan", false);
-			Scribe_Values.Look<bool>(ref isCivilian, "isCivilian", false);
-			Scribe_Values.Look<int>(ref tickChanged, "tickChanged", 0);
+			Scribe_Values.Look(ref loadID, "loadID", -1);
+			Scribe_Values.Look(ref name, "name");
+			Scribe_Collections.Look(ref units, "units", LookMode.Reference);
+			Scribe_Values.Look(ref equipmentTotalCost, "equipmentTotalCost", -1);
+			Scribe_Values.Look(ref isTraderCaravan, "isTraderCaravan");
+			Scribe_Values.Look(ref isCivilian, "isCivilian");
+			Scribe_Values.Look(ref tickChanged, "tickChanged");
 		}
 
 		public void setLoadID()
 		{
-			this.loadID = Find.World.GetComponent<FactionFC>().GetNextSquadID();
+			loadID = Find.World.GetComponent<FactionFC>().GetNextSquadID();
 		}
 
 		public int updateEquipmentTotalCost()
@@ -1333,7 +1316,7 @@ namespace FactionColonies
 
 		public string GetUniqueLoadID()
 		{
-			return "MilSquadFC_" + this.loadID;
+			return "MilSquadFC_" + loadID;
 		}
 
 		public void setTraderCaravan(bool state)
@@ -1379,10 +1362,6 @@ namespace FactionColonies
 			if (state)
 			{
 			}
-			else
-			{
-			}
-
 		}
 	}
 	
@@ -1390,18 +1369,18 @@ namespace FactionColonies
     {
 		int tab = 1;
 		string selectedText = "";
-		MilUnitFC selectedUnit = null;
-		MilSquadFC selectedSquad = null;
-		MilitaryFireSupport selectedSupport = null;
-		SettlementFC settlementPointReference = null;
+		MilUnitFC selectedUnit;
+		MilSquadFC selectedSquad;
+		MilitaryFireSupport selectedSupport;
+		SettlementFC settlementPointReference;
 		FactionFC faction;
 		MilitaryCustomizationUtil util;
-		public float scroll = 0;
+		public float scroll;
 		//public int maxScroll = 0;
-		public float settlementMaxScroll = 0;
-		public float fireSupportMaxScroll = 0;
-		public int settlementHeight = 0;
-		public int settlementYSpacing = 0;
+		public float settlementMaxScroll;
+		public float fireSupportMaxScroll;
+		public int settlementHeight;
+		public int settlementYSpacing;
 		public int settlementWindowHeight = 500;
 
 
@@ -1416,17 +1395,17 @@ namespace FactionColonies
 
 		public militaryCustomizationWindowFC()
 		{
-			this.forcePause = false;
-			this.draggable = true;
-			this.doCloseX = true;
-			this.preventCameraMotion = false;
-			this.tab = 1;
-			this.selectedText = "";
+			forcePause = false;
+			draggable = true;
+			doCloseX = true;
+			preventCameraMotion = false;
+			tab = 1;
+			selectedText = "";
 
 			settlementHeight = 120;
 			settlementYSpacing = 5;
-			this.util = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
-			this.faction = Find.World.GetComponent<FactionFC>();
+			util = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
+			faction = Find.World.GetComponent<FactionFC>();
 
 		
 
@@ -1703,7 +1682,7 @@ namespace FactionColonies
 								Find.WindowStack.Add(new FloatMenu(options));
 							} else
 							{
-								Messages.Message(TranslatorFormattedStringExtensions.Translate("XDaysToRedeploy", Math.Round(GenDate.TicksToDays((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay*5) - Find.TickManager.TicksGame), 1)), MessageTypeDefOf.RejectInput);
+								Messages.Message("XDaysToRedeploy".Translate(Math.Round(((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay*5) - Find.TickManager.TicksGame).TicksToDays(), 1)), MessageTypeDefOf.RejectInput);
 							}
 						}
 
@@ -1760,7 +1739,7 @@ namespace FactionColonies
 										}
 										else
 										{
-											Messages.Message("That firesupport option is on cooldown for another " + GenDate.ToStringTicksToDays(settlement.artilleryTimer - Find.TickManager.TicksGame), MessageTypeDefOf.RejectInput);
+											Messages.Message("That firesupport option is on cooldown for another " + (settlement.artilleryTimer - Find.TickManager.TicksGame).ToStringTicksToDays(), MessageTypeDefOf.RejectInput);
 										}
 									}
 									else
@@ -1874,10 +1853,10 @@ namespace FactionColonies
 
 				if (settlementPointReference != null)
 				{
-					Widgets.Label(EquipmentTotalCost, "Total Squad Equipment Cost: " + selectedSquad.equipmentTotalCost.ToString() + " / " + FactionColonies.calculateMilitaryLevelPoints(settlementPointReference.settlementMilitaryLevel) + " (Max Cost)");
+					Widgets.Label(EquipmentTotalCost, "Total Squad Equipment Cost: " + selectedSquad.equipmentTotalCost + " / " + FactionColonies.calculateMilitaryLevelPoints(settlementPointReference.settlementMilitaryLevel) + " (Max Cost)");
 				} else
 				{
-					Widgets.Label(EquipmentTotalCost, "Total Squad Equipment Cost: " + selectedSquad.equipmentTotalCost.ToString() + " / " + "No Reference");
+					Widgets.Label(EquipmentTotalCost, "Total Squad Equipment Cost: " + selectedSquad.equipmentTotalCost + " / " + "No Reference");
 				}
 				Text.Font = GameFont.Tiny;
 				Text.Anchor = TextAnchor.UpperCenter;
@@ -2205,7 +2184,7 @@ namespace FactionColonies
 
 					foreach (PawnKindDef animal in DefDatabase<PawnKindDef>.AllDefs)
 					{
-						if (animal.RaceProps.IsFlesh == true && animal.race.race.Animal == true && animal.race.tradeTags != null && !animal.race.tradeTags.Contains("AnimalMonster") && !animal.race.tradeTags.Contains("AnimalGenetic") && !animal.race.tradeTags.Contains("AnimalAlpha"))
+						if (animal.RaceProps.IsFlesh && animal.race.race.Animal && animal.race.tradeTags != null && !animal.race.tradeTags.Contains("AnimalMonster") && !animal.race.tradeTags.Contains("AnimalGenetic") && !animal.race.tradeTags.Contains("AnimalAlpha"))
 						{
 							list.Add(new FloatMenuOption(animal.LabelCap + " - Cost: " + Math.Floor(animal.race.BaseMarketValue * FactionColonies.militaryAnimalCostMultiplier), delegate {
 								//Do add animal code here
@@ -2235,20 +2214,20 @@ namespace FactionColonies
 
 					foreach (ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsWeapon == true && thing.BaseMarketValue != 0 && FactionColonies.canCraftItem(thing))
+						if (thing.IsWeapon && thing.BaseMarketValue != 0 && FactionColonies.canCraftItem(thing))
 						{
 							if (true)                    //CHANGE THIS
 							{
 								list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)), delegate
 												{
@@ -2297,19 +2276,19 @@ namespace FactionColonies
 
 					foreach(ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsApparel == true) {
-							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Overhead) == true && FactionColonies.canCraftItem(thing))
+						if (thing.IsApparel) {
+							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Overhead) && FactionColonies.canCraftItem(thing))
 							{
 								headgearList.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate 
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true &&  thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff &&  thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,stuff)), delegate
 												{
@@ -2345,7 +2324,7 @@ namespace FactionColonies
 						//Remove old
 						foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 						{
-							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead) == true)
+							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead))
 							{
 								selectedUnit.defaultPawn.apparel.Remove(apparel);
 								break;
@@ -2368,20 +2347,20 @@ namespace FactionColonies
 
 					foreach (ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsApparel == true)
+						if (thing.IsApparel)
 						{
-							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Shell) == true && thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) == true && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
+							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Shell) && thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
 							{
 								list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)), delegate
 												{
@@ -2417,7 +2396,7 @@ namespace FactionColonies
 						//Remove old
 						foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 						{
-							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Shell) == true && apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) == true)                    //CHANGE THIS
+							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Shell) && apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso))                    //CHANGE THIS
 							{
 								selectedUnit.defaultPawn.apparel.Remove(apparel);
 								break;
@@ -2439,20 +2418,20 @@ namespace FactionColonies
 
 					foreach (ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsApparel == true)
+						if (thing.IsApparel)
 						{
-							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Middle) == true && thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) == true && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
+							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Middle) && thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
 							{
 								list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)), delegate
 												{
@@ -2488,7 +2467,7 @@ namespace FactionColonies
 						//Remove old
 						foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 						{
-							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Middle) == true && apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) == true)                    //CHANGE THIS
+							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Middle) && apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso))                    //CHANGE THIS
 							{
 								selectedUnit.defaultPawn.apparel.Remove(apparel);
 								break;
@@ -2510,20 +2489,20 @@ namespace FactionColonies
 
 					foreach (ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsApparel == true)
+						if (thing.IsApparel)
 						{
-							if (thing.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) == true && thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) == true && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
+							if (thing.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) && thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
 							{
 								list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)), delegate
 												{
@@ -2560,7 +2539,7 @@ namespace FactionColonies
 						//Remove old
 						foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 						{
-							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) == true && apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) == true)                    //CHANGE THIS
+							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) && apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso))                    //CHANGE THIS
 							{
 								selectedUnit.defaultPawn.apparel.Remove(apparel);
 								break;
@@ -2581,20 +2560,20 @@ namespace FactionColonies
 
 					foreach (ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsApparel == true)
+						if (thing.IsApparel)
 						{
-							if (thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Legs) == true && thing.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
+							if (thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Legs) && thing.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) && FactionColonies.canCraftItem(thing))                    //CHANGE THIS
 							{
 								list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)), delegate
 												{
@@ -2630,7 +2609,7 @@ namespace FactionColonies
 						//Remove old
 						foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 						{
-							if (apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Legs) == true && apparel.def.apparel.layers.Contains(ApparelLayerDefOf.OnSkin))                    //CHANGE THIS
+							if (apparel.def.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Legs) && apparel.def.apparel.layers.Contains(ApparelLayerDefOf.OnSkin))                    //CHANGE THIS
 							{
 								selectedUnit.defaultPawn.apparel.Remove(apparel);
 								break;
@@ -2651,20 +2630,20 @@ namespace FactionColonies
 
 					foreach (ThingDef thing in DefDatabase<ThingDef>.AllDefs)
 					{
-						if (thing.IsApparel == true)
+						if (thing.IsApparel)
 						{
-							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Belt) == true && FactionColonies.canCraftItem(thing))
+							if (thing.apparel.layers.Contains(ApparelLayerDefOf.Belt) && FactionColonies.canCraftItem(thing))
 							{
 								list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
 								{
 
-									if (thing.MadeFromStuff == true)
+									if (thing.MadeFromStuff)
 									{
 										//If made from stuff
 										List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
 										foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
 										{
-											if (stuff.IsStuff == true && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories) == true)
+											if (stuff.IsStuff && thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
 											{
 												stuffList.Add(new FloatMenuOption(stuff.LabelCap + " - Total Value: " + (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)), delegate
 												{
@@ -2687,7 +2666,7 @@ namespace FactionColonies
 										//Remove old equipment
 										foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 										{
-											if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Belt) == true)
+											if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
 											{
 												selectedUnit.defaultPawn.apparel.Remove(apparel);
 												break;
@@ -2711,7 +2690,7 @@ namespace FactionColonies
 						//Remove old
 						foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
 						{
-							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Belt) == true)
+							if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
 							{
 								selectedUnit.defaultPawn.apparel.Remove(apparel);
 								break;
@@ -2757,12 +2736,12 @@ namespace FactionColonies
 					//Log.Message(thing.Label);
 
 
-					if (thing.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead) == true)
+					if (thing.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead))
 					{
 						Widgets.ButtonImage(ApparelHead, thing.def.uiIcon);
 
 					} 
-					if (thing.def.apparel.layers.Contains(ApparelLayerDefOf.Belt) == true)
+					if (thing.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
 					{
 						Widgets.ButtonImage(ApparelBelt, thing.def.uiIcon);
 					} 
@@ -2888,8 +2867,8 @@ namespace FactionColonies
 				{
 					Widgets.Label(TotalCost, "Total Fire Support Silver Cost: " + selectedSupport.returnTotalCost() + " / " + "No Reference");
 				}
-				Widgets.Label(numberProjectiles, "Number of Projectiles: " + selectedSupport.projectiles.Count().ToString());
-				Widgets.Label(duration, "Duration of fire support: " + Math.Round((double)selectedSupport.projectiles.Count() * .25, 2).ToString() + " seconds");
+				Widgets.Label(numberProjectiles, "Number of Projectiles: " + selectedSupport.projectiles.Count());
+				Widgets.Label(duration, "Duration of fire support: " + Math.Round(selectedSupport.projectiles.Count() * .25, 2) + " seconds");
 				Widgets.Label(floatRangeAccuracyLabel, selectedSupport.accuracy + " = Accuracy of fire support (In tiles radius): Affecting cost by : " + selectedSupport.returnAccuracyCostPercentage() + "%"  );
 				selectedSupport.accuracy = Widgets.HorizontalSlider(floatRangeAccuracy, selectedSupport.accuracy, Math.Max(3, (15 - Find.World.GetComponent<FactionFC>().returnHighestMilitaryLevel())), 30, roundTo: 1);
 				Text.Font = GameFont.Tiny;
@@ -3081,7 +3060,7 @@ namespace FactionColonies
 						Find.WindowStack.Add(new FloatMenu(thingOptions));
 					}
 					Text.Anchor = TextAnchor.MiddleCenter;
-					Widgets.Label(cost, "$ " + (Math.Round(selectedSupport.projectiles[i].BaseMarketValue * 1.5, 2)).ToString());//ADD in future mod setting for firesupport cost
+					Widgets.Label(cost, "$ " + (Math.Round(selectedSupport.projectiles[i].BaseMarketValue * 1.5, 2)));//ADD in future mod setting for firesupport cost
 
 					Widgets.DefLabelWithIcon(icon, selectedSupport.projectiles[i]);
 					if (Widgets.ButtonTextSubtle(options, "Options"))
@@ -3095,7 +3074,7 @@ namespace FactionColonies
 							{
 								thingOptions.Add(new FloatMenuOption(def.LabelCap + " - " + Math.Round(def.BaseMarketValue*1.5, 2).ToString(), delegate
 								{
-									Log.Message("insert at " + k.ToString());
+									Log.Message("insert at " + k);
 									selectedSupport.projectiles.Insert(k, def);
 								}, def));
 							}

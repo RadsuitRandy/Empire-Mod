@@ -105,10 +105,6 @@ namespace FactionColonies
                                         {
                                             merc.pawn.jobs.StartJob(resultMove.Job, JobCondition.InterruptForced);
                                         }
-                                        else
-                                        {
-
-                                        }
                                     }
                                     else
                                     if (squad.order == MilitaryOrders.Leave)
@@ -257,10 +253,9 @@ namespace FactionColonies
                     militaryCustomizationUtil.mercenarySquads.Remove(squad);
                     //Log.Message("Squad deleted");
                     return;
-                } else 
-                { 
-                    squad.getSettlement.cooldownMilitary(); 
                 }
+
+                squad.getSettlement.cooldownMilitary();
 
                 //Log.Message("Reseting Squad");
                 militaryCustomizationUtil.checkMilitaryUtilForErrors();

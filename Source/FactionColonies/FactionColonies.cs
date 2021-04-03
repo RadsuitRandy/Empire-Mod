@@ -1192,7 +1192,7 @@ namespace FactionColonies
 			squad.resetNeeds();
 
 
-			DebugTool tool = null;
+			DebugTool tool;
 			IntVec3 DropPosition;
 			tool = new DebugTool("Select Deployment Position", delegate
 			{
@@ -1214,8 +1214,8 @@ namespace FactionColonies
 					{
 
 						merc.pawn.mindState.forcedGotoPosition = DropPosition;
-						JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-						ThinkResult resultStandby = jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
+						JobGiver_ForcedGoto jobGiverStandby = new JobGiver_ForcedGoto();
+						ThinkResult resultStandby = jobGiverStandby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
 						bool isValidStandby = resultStandby.IsValid;
 						if (isValidStandby)
 						{
