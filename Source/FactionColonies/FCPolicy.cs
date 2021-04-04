@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Verse;
+﻿using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
+using Verse;
 
 namespace FactionColonies
 {
@@ -27,7 +24,7 @@ namespace FactionColonies
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             this.def = def;
-            this.timeEnacted = Find.TickManager.TicksGame;
+            timeEnacted = Find.TickManager.TicksGame;
 
 
             //Road Builder Trait
@@ -55,8 +52,8 @@ namespace FactionColonies
 
         public void ExposeData()
         {
-            Scribe_Defs.Look<FCPolicyDef>(ref def, "def");
-            Scribe_Values.Look<int>(ref timeEnacted, "timeEnacted");
+            Scribe_Defs.Look(ref def, "def");
+            Scribe_Values.Look(ref timeEnacted, "timeEnacted");
             
         }
 
@@ -65,19 +62,14 @@ namespace FactionColonies
 
     public class FCPolicyDef : Def, IExposable
     {
-
-        public FCPolicyDef()
-        {
-        }
-
         public void ExposeData()
         {
-            Scribe_Values.Look<int>(ref factionLevelRequirement, "factionLevelRequirement");
-            Scribe_Values.Look<TechLevel>(ref techLevelRequirement, "techLevelRequirement");
-            Scribe_Values.Look<string>(ref desc, "desc");
-            Scribe_Values.Look<FCPolicyCategory>(ref category, "category");
-            Scribe_Collections.Look<string>(ref positiveEffects, "positiveEffects", LookMode.Value);
-            Scribe_Collections.Look<string>(ref negativeEffects, "negativeEffects", LookMode.Value);
+            Scribe_Values.Look(ref factionLevelRequirement, "factionLevelRequirement");
+            Scribe_Values.Look(ref techLevelRequirement, "techLevelRequirement");
+            Scribe_Values.Look(ref desc, "desc");
+            Scribe_Values.Look(ref category, "category");
+            Scribe_Collections.Look(ref positiveEffects, "positiveEffects", LookMode.Value);
+            Scribe_Collections.Look(ref negativeEffects, "negativeEffects", LookMode.Value);
         }
 
         public string desc;
