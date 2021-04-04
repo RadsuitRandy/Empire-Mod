@@ -998,7 +998,7 @@ namespace FactionColonies
                     else
                     {
                         FactionColonies.createPlayerColonySettlement(militaryLocation, false,
-                                militaryLocationPlanet);
+                            militaryLocationPlanet);
                         Find.World.GetComponent<FactionFC>().createSettlementQueue
                             .Add(new SettlementSoS2Info(militaryLocationPlanet, militaryLocation));
                     }
@@ -1034,7 +1034,7 @@ namespace FactionColonies
                     settlementFc.unrest = 20;
                     settlementFc.prosperity = 70;
 
-                    bool defeated = !Find.WorldObjects.Settlements.Any(settlement => settlement.Faction != null 
+                    bool defeated = !Find.WorldObjects.Settlements.Any(settlement => settlement.Faction != null
                         && settlement.Faction == tempFactionLink);
 
                     if (defeated)
@@ -1083,6 +1083,22 @@ namespace FactionColonies
                 (militaryJob == "raidEnemySettlement" || militaryJob == "enslaveEnemySettlement"))
             {
                 cooldownReduction += 60000;
+            }
+            else if ((militaryJob == "Deploy") &&
+                     FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+            {
+                List<String> policies = faction.policies.ConvertAll(policy => policy.def.defName);
+                bool militarist = policies.Contains("militaristic");
+                bool authoritarian = policies.Contains("authoritarian");
+                bool pacifist = policies.Contains("pacifist");
+
+                int deadMultiplier = militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000;
+                if (pacifist)
+                {
+                    deadMultiplier += 2000;
+                }
+
+                cooldownReduction -= militarySquad.dead * deadMultiplier;
             }
 
             militaryJob = "cooldown";
@@ -1614,12 +1630,12 @@ namespace FactionColonies
 
                     double production = resource.endProduction;
                     production *= industriousTaxPercentageBoost * ((100 +
-                                                                           TraitUtilsFC.cycleTraits(new double(),
-                                                                               "taxBasePercentage", traits, "add") +
-                                                                           TraitUtilsFC.cycleTraits(new double(),
-                                                                               "taxBasePercentage",
-                                                                               Find.World.GetComponent<FactionFC>()
-                                                                                   .traits, "add")) / 100);
+                                                                    TraitUtilsFC.cycleTraits(new double(),
+                                                                        "taxBasePercentage", traits, "add") +
+                                                                    TraitUtilsFC.cycleTraits(new double(),
+                                                                        "taxBasePercentage",
+                                                                        Find.World.GetComponent<FactionFC>()
+                                                                            .traits, "add")) / 100);
                     int assignedWorkers = resource.assignedWorkers;
 
                     //Create Temp Value

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
 using RimWorld;
+using UnityEngine;
 using Verse;
-using RimWorld.Planet;
 
 namespace FactionColonies
 {
@@ -68,36 +66,36 @@ namespace FactionColonies
 		Rect buttonExpansionist = new Rect((float)(600 + 60 * Math.Cos(1.5 * Math.PI)), (float)(100 + 60 * Math.Sin(1.5 * Math.PI)), 30, 30);
 		Rect buttonTechnocrat = new Rect((float)(600 + 60 * Math.Cos(1.75 * Math.PI)), (float)(100 + 60 * Math.Sin(1.75 * Math.PI)), 30, 30);
 
-		int numberTraitsSelected = 0;
-		bool boolMilitaristic = false;
-		bool boolPacifist = false;
-		bool boolAuthoritarian = false;
-		bool boolEgalitarian = false;
-		bool boolIsolationist = false;
-		bool boolExpansionist = false;
-		bool boolTechnocrat = false;
-		bool boolFeudal = false;
+		int numberTraitsSelected;
+		bool boolMilitaristic;
+		bool boolPacifist;
+		bool boolAuthoritarian;
+		bool boolEgalitarian;
+		bool boolIsolationist;
+		bool boolExpansionist;
+		bool boolTechnocrat;
+		bool boolFeudal;
 
 		string policyText = "";
 
 
 		public FactionCustomizeWindowFc(FactionFC faction)
 		{
-			this.forcePause = false;
-			this.draggable = true;
-			this.doCloseX = true;
-			this.preventCameraMotion = false;
+			forcePause = false;
+			draggable = true;
+			doCloseX = true;
+			preventCameraMotion = false;
 			this.faction = faction;
-			this.header = "CustomizeFaction".Translate();
-			this.name = faction.name;
-			this.title = faction.title;
+			header = "CustomizeFaction".Translate();
+			name = faction.name;
+			title = faction.title;
 
-			this.tempFactionIcon = faction.factionIcon;
-			this.tempFactionIconPath = faction.factionIconPath;
+			tempFactionIcon = faction.factionIcon;
+			tempFactionIconPath = faction.factionIconPath;
 
-			this.numberTraitsSelected = faction.policies.Count();
+			numberTraitsSelected = faction.policies.Count();
 
-			if (this.numberTraitsSelected != 0)
+			if (numberTraitsSelected != 0)
 			{
 				foreach (FCPolicy policy in faction.policies)
 				{
@@ -131,7 +129,7 @@ namespace FactionColonies
 				}
 			}
 
-			if (this.numberTraitsSelected == 2)
+			if (numberTraitsSelected == 2)
 			{
 				traitsChosen = true;
 			}
@@ -224,7 +222,7 @@ namespace FactionColonies
 							races.Add(def.race.label);
 							list.Add(new FloatMenuOption(def.race.label.CapitalizeFirst() + " - Allowed: " + faction.raceFilter.Allows(def.race), delegate
 							{
-								if (faction.raceFilter.AllowedThingDefs.Count() == 1 && faction.raceFilter.Allows(def.race) == true)
+								if (faction.raceFilter.AllowedThingDefs.Count() == 1 && faction.raceFilter.Allows(def.race))
 								{
 									Messages.Message("CannotHaveLessThanOneRace".Translate(), MessageTypeDefOf.RejectInput);
 								}
@@ -323,13 +321,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonMilitaristic, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolMilitaristic == true)
+				if (numberTraitsSelected <= 1 || boolMilitaristic)
 				{
 					//Continue
 					if (boolPacifist == false)
 					{
 						boolMilitaristic = !boolMilitaristic;
-						if (boolMilitaristic == true)
+						if (boolMilitaristic)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -359,13 +357,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonAuthoritarian, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolAuthoritarian == true)
+				if (numberTraitsSelected <= 1 || boolAuthoritarian)
 				{
 					//Continue
 					if (boolEgalitarian == false)
 					{
 						boolAuthoritarian = !boolAuthoritarian;
-						if (boolAuthoritarian == true)
+						if (boolAuthoritarian)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -399,13 +397,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonIsolationist, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolIsolationist == true)
+				if (numberTraitsSelected <= 1 || boolIsolationist)
 				{
 					//Continue
 					if (boolExpansionist == false)
 					{
 						boolIsolationist = !boolIsolationist;
-						if (boolIsolationist == true)
+						if (boolIsolationist)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -439,13 +437,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonFeudal, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolFeudal == true)
+				if (numberTraitsSelected <= 1 || boolFeudal)
 				{
 					//Continue
 					if (boolTechnocrat == false)
 					{
 						boolFeudal = !boolFeudal;
-						if (boolFeudal == true)
+						if (boolFeudal)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -478,13 +476,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonPacifist, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolPacifist == true)
+				if (numberTraitsSelected <= 1 || boolPacifist)
 				{
 					//Continue
 					if (boolMilitaristic == false)
 					{
 						boolPacifist = !boolPacifist;
-						if (boolPacifist == true)
+						if (boolPacifist)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -518,13 +516,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonEgalitarian, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolEgalitarian == true)
+				if (numberTraitsSelected <= 1 || boolEgalitarian)
 				{
 					//Continue
 					if (boolAuthoritarian == false)
 					{
 						boolEgalitarian = !boolEgalitarian;
-						if (boolEgalitarian == true)
+						if (boolEgalitarian)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -557,13 +555,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonExpansionist, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolExpansionist == true)
+				if (numberTraitsSelected <= 1 || boolExpansionist)
 				{
 					//Continue
 					if (boolIsolationist == false)
 					{
 						boolExpansionist = !boolExpansionist;
-						if (boolExpansionist == true)
+						if (boolExpansionist)
 						{
 							numberTraitsSelected += 1;
 						}
@@ -596,13 +594,13 @@ namespace FactionColonies
 			}
 			if (Widgets.ButtonImage(buttonTechnocrat, icon))
 			{
-				if (numberTraitsSelected <= 1 || boolTechnocrat == true)
+				if (numberTraitsSelected <= 1 || boolTechnocrat)
 				{
 					//Continue
 					if (boolFeudal == false)
 					{
 						boolTechnocrat = !boolTechnocrat;
-						if (boolTechnocrat == true)
+						if (boolTechnocrat)
 						{
 							numberTraitsSelected += 1;
 						} else
