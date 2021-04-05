@@ -21,7 +21,9 @@
 <ResolveBill>Resolve Bill</ResolveBill>
 <NotEnoughSilverOnMapToPayBill>You do not have enough silver on the current map to pay the bill</NotEnoughSilverOnMapToPayBill>
 
-
+<!-- Manual defense -->
+    <DefendColony>Defend</DefendColony>
+    <DefendColonyDesc>Defend your Colony manually</DefendColonyDesc>
 
 <!-- createColonyWindowFC -->
 <SettleANewColony>Settle A New Colony</SettleANewColony>
