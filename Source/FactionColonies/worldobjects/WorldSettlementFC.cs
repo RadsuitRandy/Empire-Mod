@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using RimWorld;
@@ -14,7 +15,9 @@ namespace FactionColonies
 
         public List<Pawn> Attackers { set; get; }
 
-        public militaryForce Defenders { set; get; }
+        public List<Pawn> Defenders { set; get; }
+
+        public militaryForce DefenderForce { set; get; }
 
         public militaryForce AttackerForce { set; get; }
 
@@ -38,12 +41,18 @@ namespace FactionColonies
                 {
                     if (Map == null)
                     {
-                        MapGenerator.GenerateMap(new IntVec3(100, 1, 100), this,
-                            MapGeneratorDef, ExtraGenStepDefs);
-                        Log.Message("Test 1");
+                        LongEventHandler.QueueLongEvent(() =>
+                            {
+                                MapGenerator.GenerateMap(new IntVec3(100, 1, 100), this,
+                                    MapGeneratorDef, ExtraGenStepDefs).mapDrawer.RegenerateEverythingNow();
+                                zoomIntoTile();
+                            },
+                            "GeneratingMap", false, GameAndMapInitExceptionHandlers.ErrorWhileGeneratingMap);
                     }
-
-                    zoomIntoTile();
+                    else
+                    {
+                        zoomIntoTile();
+                    }
                 };
                 gizmos.Add(defend);
             }
@@ -53,7 +62,6 @@ namespace FactionColonies
 
         private void zoomIntoTile()
         {
-            Log.Message("1");
             SoundDefOf.Tick_High.PlayOneShotOnCamera();
 
             FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(Tile);
@@ -72,7 +80,7 @@ namespace FactionColonies
                     FloodFillerFog.FloodUnfog(building.InteractionCell, Map);
                 }
 
-                List<Pawn> friendlies = generateFriendlies((float) Defenders.forceRemaining * 100);
+                List<Pawn> friendlies = generateFriendlies((float) DefenderForce.forceRemaining * 100);
 
                 if (friendlies.Any())
                 {
@@ -88,9 +96,9 @@ namespace FactionColonies
         private List<Pawn> generateFriendlies(float points)
         {
             List<Pawn> friendlies;
-            if (Defenders.homeSettlement.militarySquad != null)
+            if (DefenderForce.homeSettlement.militarySquad != null)
             {
-                friendlies = Defenders.homeSettlement.militarySquad.EquippedMercenaryPawns;
+                friendlies = DefenderForce.homeSettlement.militarySquad.EquippedMercenaryPawns;
                 foreach (Pawn friendly in friendlies)
                 {
                     Map.mapPawns.RegisterPawn(friendly);
@@ -133,13 +141,15 @@ namespace FactionColonies
                 }
             }
 
+            Defenders = friendlies;
+
             return friendlies;
         }
 
-        public void endAttack(bool defendersWin)
+        public void endAttack()
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            if (defendersWin)
+            if (Defenders.Any())
             {
                 faction.addExperienceToFactionLevel(5f);
                 //if winner is player
@@ -205,108 +215,91 @@ namespace FactionColonies
                     new LookTargets(Find.WorldObjects.SettlementAt(Settlement.mapLocation)));
             }
 
-            if (Defenders.homeSettlement != Settlement)
+            if (DefenderForce.homeSettlement != Settlement)
             {
-                int remaining = 0;
-                foreach (Pawn pawn in Map.mapPawns.FreeColonists)
-                {
-                    if (!pawn.Dead && !pawn.Downed)
-                    {
-                        remaining++;
-                    }
-                }
-
                 //if not the home settlement defending
-                if (remaining >= 7)
+                if (Defenders.Count >= 7)
                 {
                     Find.LetterStack.ReceiveLetter("OverwhelmingVictory".Translate(),
                         "OverwhelmingVictoryDesc".Translate(), LetterDefOf.PositiveEvent);
-                    Defenders.homeSettlement.returnMilitary(true);
+                    DefenderForce.homeSettlement.returnMilitary(true);
                 }
                 else
                 {
-                    Defenders.homeSettlement.cooldownMilitary();
+                    DefenderForce.homeSettlement.cooldownMilitary();
                 }
             }
 
+            Log.Message("Cleared lords");
             Map.lordManager.lords.Clear();
+            Log.Message("Cleared tick manager");
             Current.Game.tickManager.RemoveAllFromMap(Map);
             Settlement.isUnderAttack = false;
             Attackers = null;
+            Log.Message("Deiniting map");
             //Prevent player from zooming back into the settlement
             Current.Game.CurrentMap = Find.World.worldObjects.SettlementAt(
                 Find.World.GetComponent<FactionFC>().capitalLocation).Map;
             Current.Game.DeinitAndRemoveMap(Map);
         }
 
-        public override void Notify_MyMapRemoved(Map map) { }
-
-        public void checkWinners()
+        public bool checkDowned(Pawn downed)
         {
-            if (Attackers == null)
+            int index = Attackers.IndexOf(downed);
+            if (index > 0)
             {
-                return;
+                Attackers.RemoveAt(index);
+                if (!Attackers.Any())
+                {
+                    endAttack();
+                    return true;
+                }
+
+                return false;
             }
 
-            bool lost = true;
-            foreach (Pawn pawn in Map.mapPawns.FreeColonists)
+            index = Defenders.IndexOf(downed);
+            if (index > 0)
             {
-                if (!pawn.Dead && !pawn.Downed)
+                Defenders.RemoveAt(index);
+                if (!Defenders.Any())
                 {
-                    Log.Message(pawn.Name + " lives for defenders");
-                    lost = false;
+                    endAttack();
+                    return true;
                 }
             }
 
-            if (lost)
-            {
-                endAttack(false);
-            }
+            return false;
+        }
 
-            bool won = true;
-            foreach (Pawn pawn in Attackers)
-            {
-                if (!pawn.Dead && !pawn.Downed)
-                {
-                    Log.Message(pawn.Name + " lives for attackers");
-                    won = false;
-                }
-            }
-
-            if (won)
-            {
-                endAttack(true);
-            }
+        public override void Notify_MyMapRemoved(Map map)
+        {
         }
     }
 
     [HarmonyPatch(typeof(Pawn), "Kill")]
     class FighterDied
     {
-        static void Postfix(Pawn __instance)
+        static bool Prefix(Pawn __instance)
         {
+            Log.Message("Someone down!");
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             //Check if a settlement battle ended
             SettlementFC settlement = faction.getSettlement(__instance.Tile, Find.World.info.name);
-            if (settlement != null)
-            {
-                settlement.WorldSettlement.checkWinners();
-            }
+            return settlement?.WorldSettlement.checkDowned(__instance) ?? false;
         }
     }
 
     [HarmonyPatch(typeof(Pawn_HealthTracker), "MakeDowned")]
     class FighterDowned
     {
-        static void Postfix(Pawn_HealthTracker __instance)
+        static bool Prefix(Pawn_HealthTracker __instance)
         {
+            Log.Message("Someone down!");
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             //Check if a settlement battle ended
             SettlementFC settlement = faction.getSettlement(__instance.immunity.pawn.Tile, Find.World.info.name);
-            if (settlement != null)
-            {
-                settlement.WorldSettlement.checkWinners();
-            }
+            return settlement?.WorldSettlement.checkDowned(__instance.immunity.pawn) ?? false;
         }
     }
 }

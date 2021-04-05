@@ -272,7 +272,7 @@ namespace FactionColonies
                 changeDefendingMilitaryForce(tmp, highest);
             }
 
-            settlement.WorldSettlement.Defenders = tmp.militaryForceDefending;
+            settlement.WorldSettlement.DefenderForce = tmp.militaryForceDefending;
             settlement.WorldSettlement.AttackerForce = tmp.militaryForceAttacking;
             
             Find.World.GetComponent<FactionFC>().addEvent(tmp);
