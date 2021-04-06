@@ -290,7 +290,7 @@ namespace FactionColonies
         public static void ProcessEvents(in List<FCEvent> events)
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            for (int i = 0; i < events.Count(); i++)
+            for (int i = 0; i < events.Count; i++)
             {
                 //Log.Message(events[i].timeTillTrigger.ToString());
                 if (events[i].timeTillTrigger <= Find.TickManager.TicksGame) //if due time past game time, do stuff
@@ -387,33 +387,15 @@ namespace FactionColonies
 
                     if (temp.def.defName == "settlementBeingAttacked")
                     {
-                        WorldSettlementFC worldSettlement = temp.settlementFCDefending.WorldSettlement;
-                        IncidentParms parms = new IncidentParms();
-                        parms.target = worldSettlement.Map;
-                        parms.faction = temp.militaryForceAttackingFaction;
-                        parms.generateFightersOnly = true;
-                        parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-                        parms.points = IncidentWorker_Raid.AdjustedRaidPoints(
-                            (float) temp.militaryForceAttacking.forceRemaining * 100,
-                            PawnsArrivalModeDefOf.EdgeWalkIn, parms.raidStrategy,
-                            parms.faction, PawnGroupKindDefOf.Combat);
-                        ResolveRaidArriveMode(parms);
-                        parms.raidArrivalMode.Worker.TryResolveRaidSpawnCenter(parms);
-
-                        List<Pawn> attackers = PawnGroupMakerUtility.GeneratePawns(
-                            IncidentParmsUtility.GetDefaultPawnGroupMakerParms(
-                                PawnGroupKindDefOf.Combat, parms, true)).ToList();
-                        if (!attackers.Any())
+                        WorldSettlementFC worldSettlement = temp.settlementFCDefending.worldSettlement;
+                        if (worldSettlement.Map == null)
                         {
-                            Log.Error("Got no pawns spawning raid from parms " + parms);
+                            worldSettlement.startDefense(temp, () => setupAttack(worldSettlement, temp));
                         }
-
-                        parms.raidStrategy.arriveModes[0].Worker.Arrive(attackers, parms);
-
-                        worldSettlement.Attackers = attackers;
-                        LordMaker.MakeNewLord(
-                            parms.faction, new LordJob_AssaultColony(parms.faction, canTimeoutOrFlee: false, 
-                                canSteal: false, canKidnap: false), worldSettlement.Map, attackers);
+                        else
+                        {
+                            setupAttack(worldSettlement, temp);
+                        }
                     }
                     else //if undefined event
                     {
@@ -608,10 +590,39 @@ namespace FactionColonies
                             }
                         }
                     }
-
+                    
                     temp.runAction();
                 }
             }
+        }
+
+        private static void setupAttack(WorldSettlementFC worldSettlement, FCEvent temp)
+        {
+            IncidentParms parms = new IncidentParms();
+            parms.target = worldSettlement.Map;
+            parms.faction = temp.militaryForceAttackingFaction;
+            parms.generateFightersOnly = true;
+            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            parms.points = IncidentWorker_Raid.AdjustedRaidPoints(
+                (float) temp.militaryForceAttacking.forceRemaining * 100,
+                PawnsArrivalModeDefOf.EdgeWalkIn, parms.raidStrategy,
+                parms.faction, PawnGroupKindDefOf.Combat);
+            ResolveRaidArriveMode(parms);
+            parms.raidArrivalMode.Worker.TryResolveRaidSpawnCenter(parms);
+
+            List<Pawn> attackers = PawnGroupMakerUtility.GeneratePawns(
+                IncidentParmsUtility.GetDefaultPawnGroupMakerParms(
+                    PawnGroupKindDefOf.Combat, parms, true)).ToList();
+            if (!attackers.Any())
+            {
+                Log.Error("Got no pawns spawning raid from parms " + parms);
+            }
+
+            parms.raidStrategy.arriveModes[0].Worker.Arrive(attackers, parms);
+
+            worldSettlement.attackers = attackers;
+            LordMaker.MakeNewLord(
+                parms.faction, new LordJob_HuntColonists(), worldSettlement.Map, attackers);
         }
 
         private static void ResolveRaidArriveMode(IncidentParms parms)
@@ -865,17 +876,7 @@ namespace FactionColonies
                 }
 
                 var obj = Activator.CreateInstance(typ);
-                object[] paramArgu;
-                switch (passEventToClassMethodToRun)
-                {
-                    case true:
-                        paramArgu = new object[] {this};
-                        break;
-                    case false:
-                    default:
-                        paramArgu = new object[] { };
-                        break;
-                }
+                object[] paramArgu = passEventToClassMethodToRun ? new object[] {this} : new object[] {};
 
                 Traverse.Create(obj).Method(classMethodToRun, paramArgu).GetValue();
             }

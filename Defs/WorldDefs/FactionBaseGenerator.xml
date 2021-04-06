@@ -6,6 +6,9 @@
         <worldObjectClass>FactionColonies.WorldSettlementFC</worldObjectClass>
         <mapGenerator>Base_Colony</mapGenerator>
         <texture>World/WorldObjects/DefaultSettlement</texture>
+        <expandingIcon>true</expandingIcon>
+        <expandMore>true</expandMore>
+        <expandingIconPriority>1</expandingIconPriority>
     </WorldObjectDef>
     <MapGeneratorDef ParentName="MapCommonBase">
         <defName>Base_Colony</defName>

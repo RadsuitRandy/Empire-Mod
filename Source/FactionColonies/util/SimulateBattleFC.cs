@@ -100,14 +100,14 @@ namespace FactionColonies
         public static militaryForce createMilitaryForceFromSettlement(SettlementFC settlement, bool isAttacking = false, militaryForce homeDefendingForce = null)
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            int trait_MilitaryLevelBonus = 0;
+            int traitMilitaryLevelBonus = 0;
             if (faction.hasTrait(FCPolicyDefOf.defenseInDepth) && isAttacking == false)
-                trait_MilitaryLevelBonus += 2;
+                traitMilitaryLevelBonus += 2;
             double homeForceLevel = 0;
             if (homeDefendingForce != null)
                 homeForceLevel = homeDefendingForce.militaryLevel;
 
-            double militaryLevel = settlement.settlementMilitaryLevel + trait_MilitaryLevelBonus + homeForceLevel;
+            double militaryLevel = settlement.settlementMilitaryLevel + traitMilitaryLevelBonus + homeForceLevel;
             double efficiency = TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", faction.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", settlement.traits, "multiply");
             if (isAttacking && faction.hasPolicy(FCPolicyDefOf.militaristic));
                 efficiency *= 1.2;
@@ -166,12 +166,6 @@ namespace FactionColonies
             militaryForce returnForce = new militaryForce(militaryLevel, efficiency, null, settlement.Faction);
             return returnForce;
             
-        }
-
-        public static militaryForce createMilitaryForce(double strength, Faction faction)
-        {
-            militaryForce returnForce = new militaryForce(strength, 1, null, faction);
-            return returnForce;
         }
 
         public static militaryForce createMilitaryForceFromFaction(Faction faction, bool handicap)
@@ -252,7 +246,8 @@ namespace FactionColonies
             tmp.location = settlement.mapLocation;
             tmp.planetName = settlement.planetName;
             tmp.hasDestination = true;
-            tmp.customDescription = "settlementAboutToBeAttacked".Translate(settlement.name, enemyFaction.Name);// + 
+            tmp.customDescription = "settlementAboutToBeAttacked"
+                .Translate(settlement.name, enemyFaction.Name);
             tmp.militaryForceDefending = militaryForce.createMilitaryForceFromSettlement(settlement);
             tmp.militaryForceDefendingFaction = FactionColonies.getPlayerColonyFaction();
             tmp.militaryForceAttacking = attackingForce;
@@ -272,8 +267,8 @@ namespace FactionColonies
                 changeDefendingMilitaryForce(tmp, highest);
             }
 
-            settlement.WorldSettlement.DefenderForce = tmp.militaryForceDefending;
-            settlement.WorldSettlement.AttackerForce = tmp.militaryForceAttacking;
+            settlement.worldSettlement.defenderForce = tmp.militaryForceDefending;
+            settlement.worldSettlement.attackerForce = tmp.militaryForceAttacking;
             
             Find.World.GetComponent<FactionFC>().addEvent(tmp);
 

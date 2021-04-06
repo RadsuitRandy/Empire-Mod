@@ -9,11 +9,16 @@ namespace FactionColonies
 {
     public class SettlementFC : IExposable, ILoadReferenceable
     {
-        public WorldSettlementFC WorldSettlement { get; set; }
+        public WorldSettlementFC worldSettlement;
 
         public string GetUniqueLoadID()
         {
             return "SettlementFC_" + loadID;
+        }
+        
+        //Required for saving/loading
+        public SettlementFC()
+        {
         }
 
         public SettlementFC(string name, int location)
@@ -517,6 +522,7 @@ namespace FactionColonies
 
         public void ExposeData()
         {
+            Scribe_References.Look(ref worldSettlement, "worldSettlement");
             Scribe_Values.Look(ref mapLocation, "mapLocation");
             Scribe_Values.Look(ref planetName, "planetName");
             Scribe_Values.Look(ref name, "name");

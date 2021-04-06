@@ -18,13 +18,13 @@ namespace FactionColonies
             
             if (rp.faction.def.techLevel >= TechLevel.Industrial)
             {
-                BaseGen.symbolStack.Push("outdoorLighting", rp);
+                //BaseGen.symbolStack.Push("outdoorLighting", rp);
                 int num = Rand.Chance(0.75f) ? GenMath.RoundRandom(rp.rect.Area / 400f) : 0;
                 for (int index = 0; index < num; ++index)
                 {
                     ResolveParams resolveParams2 = rp;
                     resolveParams2.faction = rp.faction;
-                    BaseGen.symbolStack.Push("firefoamPopper", resolveParams2);
+                   //BaseGen.symbolStack.Push("firefoamPopper", resolveParams2);
                 }
             }
 
@@ -38,13 +38,13 @@ namespace FactionColonies
                 nullable1 = rp.edgeThingMustReachMapEdge;
                 bool? nullable2 = !nullable1.HasValue || nullable1.GetValueOrDefault();
                 local.edgeThingMustReachMapEdge = nullable2;
-                BaseGen.symbolStack.Push("edgeDefense", resolveParams2);
+                //BaseGen.symbolStack.Push("edgeDefense", resolveParams2);
             }
 
             ResolveParams resolveParams3 = rp;
             resolveParams3.rect = rp.rect.ContractedBy(dist);
             resolveParams3.faction = rp.faction;
-            BaseGen.symbolStack.Push("ensureCanReachMapEdge", resolveParams3);
+            //BaseGen.symbolStack.Push("ensureCanReachMapEdge", resolveParams3);
             ResolveParams resolveParams4 = rp;
             resolveParams4.rect = rp.rect.ContractedBy(dist);
             resolveParams4.faction = rp.faction;

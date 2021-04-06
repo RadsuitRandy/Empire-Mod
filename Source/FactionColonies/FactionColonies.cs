@@ -575,7 +575,7 @@ namespace FactionColonies
 
                 foreach (FCEvent evt in Find.World.GetComponent<FactionFC>().events)
                 {
-                    if (evt.settlementTraitLocations.Count() > 0)
+                    if (evt.settlementTraitLocations.Any())
                     {
                         //ignore
                         if (evt.settlementTraitLocations.Contains(settlement))
@@ -718,16 +718,36 @@ namespace FactionColonies
                 settlement = (WorldSettlementFC) WorldObjectMaker.MakeWorldObject(
                     DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
                 settlement.Tile = tile;
-                settlement.Settlement = settlementfc;
+
+                List<String> used = new List<string>();
+                List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects;
+                foreach (WorldObject found in worldObjects)
+                {
+                    switch (found)
+                    {
+                        case Settlement foundSettlement:
+                            used.Add(foundSettlement.Name);
+                            break;
+                        case WorldSettlementFC worldSettlement:
+                            used.Add(worldSettlement.Name);
+                            break;
+                    }
+                }
+                
+                settlement.settlement = settlementfc;
+                settlement.Name = 
+                    NameGenerator.GenerateName(faction.def.factionNameMaker, used, true);
+                
                 settlement.SetFaction(faction);
                 Find.WorldObjects.Add(settlement);
-                settlementfc.WorldSettlement = settlement;
+                settlementfc.worldSettlement = settlement;
             }
             else
             {
                 settlementfc = new SettlementFC("Settlement", tile);
             }
 
+            Log.Message("2");
             //create settlement data for world object
             settlementfc.power.isTithe = true;
             settlementfc.power.isTitheBool = true;
@@ -743,6 +763,8 @@ namespace FactionColonies
             if (worldcomp.hasPolicy(FCPolicyDefOf.expansionist) && settlementfc.settlementLevel == 1)
                 settlementfc.upgradeSettlement();
 
+            Log.Message("3");
+            
             worldcomp.addSettlement(settlementfc);
             if (createWorldObject)
             {

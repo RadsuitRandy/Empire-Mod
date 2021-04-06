@@ -36,8 +36,7 @@ namespace FactionColonies
                 FactionFC settlementFaction = Find.World.GetComponent<FactionFC>();
                 Settlement = settlementFaction.getSettlement(map.Tile, Find.World.info.name);
             }
-
-
+            
             int middle = 36 + Settlement.settlementLevel * 2;
             IntRange range = new IntRange(middle - 2, middle + 2);
             int randomInRange1 = range.RandomInRange;
@@ -47,6 +46,17 @@ namespace FactionColonies
             Faction faction = Faction.OfPlayer;
             cellRect.ClipInsideMap(map);
             ResolveParams resolveParams = new ResolveParams();
+            if (Settlement.settlementLevel >= 7)
+            {
+                resolveParams.filthDef = null;
+            }
+            else
+            {
+                resolveParams.filthDensity =
+                    new FloatRange(Settlement.settlementLevel / 10f, (Settlement.settlementLevel + 3) / 10f);
+            }
+
+            resolveParams.chanceToSkipFloor = Math.Min(0, 100 - Settlement.settlementLevel * 10);
             resolveParams.rect = cellRect;
             resolveParams.faction = faction;
             BaseGen.globalSettings.map = map;

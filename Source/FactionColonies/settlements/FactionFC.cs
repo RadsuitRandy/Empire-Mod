@@ -1622,6 +1622,10 @@ namespace FactionColonies
         {
             Log.Message("Updated Icon - " + iconPath);
             faction.def.factionIconPath = iconPath;
+            foreach (SettlementFC settlement in settlements)
+            {
+                settlement.worldSettlement.def.expandingIconTexture = iconPath;
+            }
         }
 
         public void updateFactionDef(TechLevel tech, ref Faction faction)
