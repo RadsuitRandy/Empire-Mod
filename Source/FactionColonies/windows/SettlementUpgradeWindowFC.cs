@@ -112,7 +112,7 @@ namespace FactionColonies
 
                             if (settlement.isUnderAttack)
                             {
-                                Messages.Message("SettlementUnderAttack", MessageTypeDefOf.RejectInput);
+                                Messages.Message("SettlementUnderAttack".Translate(), MessageTypeDefOf.RejectInput);
                                 return;
                             }
 

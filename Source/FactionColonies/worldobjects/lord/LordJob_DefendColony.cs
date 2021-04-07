@@ -20,21 +20,16 @@ namespace FactionColonies
             return stateGraph;
         }
 
-        public override void Notify_PawnAdded(Pawn pawn)
-        {
-            lord.CurLordToil.UpdateAllDuties();
-        }
-        
         public override void Notify_PawnLost(Pawn pawn, PawnLostCondition condition)
         {
-            if (condition == PawnLostCondition.ChangedFaction)
+            if (condition == PawnLostCondition.ChangedFaction || condition == PawnLostCondition.ExitedMap)
             {
+                lord.AddPawn(pawn);
                 return;
             }
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             //Check if a settlement battle ended
             SettlementFC settlement = faction.getSettlement(pawn.Tile, Find.World.info.name);
-            Log.Message("Removing " + pawn.Name + " for " + condition);
             settlement?.worldSettlement.removeDefender(pawn);
         }
     }

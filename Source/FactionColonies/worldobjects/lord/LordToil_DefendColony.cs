@@ -14,13 +14,13 @@ namespace FactionColonies
 
         public override void UpdateAllDuties()
         {
-            foreach (Pawn pawn in lord.ownedPawns.Where(pawn => pawn.mindState.duty != null && 
-                                                                pawn.mindState.duty.def.defName == "DefendColony"))
+            foreach (Pawn pawn in lord.ownedPawns.Where(pawn => pawn.Faction == lord.faction &&
+                                                                (pawn.mindState.duty == null ||
+                                                                 pawn.mindState.duty.def.defName != "DefendColony")))
             {
                 pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("DefendColony"),
                     pawn.Position);
                 pawn.mindState.canFleeIndividual = false;
-                pawn.jobs.ClearQueuedJobs();
                 if (pawn.equipment.Primary == null || pawn.equipment.Primary.def.IsMeleeWeapon)
                 {
                     pawn.jobs.StartJob(new Job(JobDefOf.AttackMelee), JobCondition.InterruptForced);
@@ -29,6 +29,8 @@ namespace FactionColonies
                 {
                     pawn.jobs.StartJob(new Job(JobDefOf.AttackStatic), JobCondition.InterruptForced);
                 }
+
+                pawn.jobs.curJob.failIfCantJoinOrCreateCaravan = true;
             }
         }
     }

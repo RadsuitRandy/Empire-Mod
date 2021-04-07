@@ -1,12 +1,17 @@
 ﻿using System;
 using RimWorld;
 using RimWorld.BaseGen;
+using UnityEngine;
 using Verse;
 
 namespace FactionColonies
 {
     public class GenStep_Colony : GenStep_Scatterer
     {
+        //The curve factor is used to curve the turret count depending on the guns production. Rewards
+        //basic investment into guns, even though there will be a profit hit.
+        private const double CurveFactor = 1.6;
+        
         private SettlementFC Settlement { get; set; }
         
         public override int SeedPart => 1806208471;
@@ -60,25 +65,12 @@ namespace FactionColonies
             resolveParams.rect = cellRect;
             resolveParams.faction = faction;
             BaseGen.globalSettings.map = map;
-            resolveParams.stockpileMarketValue = (float) Settlement.totalIncome;
-            double defenseBuildings = 0;
-            foreach (BuildingFCDef building in Settlement.buildings)
-            {
-                double baseIncrease = 0;
-                double multiplier = 1;
-                foreach(FCTraitEffectDef traitEffect in building.traits)
-                {
-                    baseIncrease += traitEffect.productionBaseWeapons;
-                    multiplier += traitEffect.productionMultiplierWeapons;
-                }
-
-                defenseBuildings += baseIncrease * multiplier;
-            }
-
-            int defenseCount = (int) Math.Round(defenseBuildings);
-            resolveParams.edgeDefenseMortarsCount = defenseCount;
+            resolveParams.stockpileMarketValue = (float) Settlement.totalProfit;
+            double defenseBuildings = Settlement.weapons.endProduction;
+            
+            int defenseCount = (int) (CurveFactor * Math.Log(defenseBuildings+1));
+            resolveParams.edgeDefenseMortarsCount = (int) Math.Ceiling(defenseCount/3f);
             resolveParams.edgeDefenseTurretsCount = defenseCount;
-            Log.Message("Settlement level: " + Settlement.settlementLevel + ", defense count: " + defenseCount);
             BaseGen.globalSettings.minBuildings = Settlement.settlementLevel;
             BaseGen.globalSettings.minBarracks = Settlement.settlementLevel;
             BaseGen.symbolStack.Push("colony", resolveParams);

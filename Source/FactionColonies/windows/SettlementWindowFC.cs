@@ -220,10 +220,6 @@ namespace FactionColonies
                                 
                                 foreach (ThingDef thing in things)
                                 {
-                                    if (resourceType == ResourceType.Animals)
-                                    {
-                                        Log.Message("Found " + thing.defName);
-                                    }
                                     FloatMenuOption option;
                                     if (!FactionColonies.canCraftItem(thing))
                                     {
@@ -283,6 +279,11 @@ namespace FactionColonies
                     if (Widgets.ButtonText(new Rect(x + 80, scroll + y + 90 + (int) resourceType * (45 + spacing),
                         20, 20), "<"))
                     {
+                        if (settlement.isUnderAttack)
+                        {
+                            Messages.Message("SettlementUnderAttack".Translate(), MessageTypeDefOf.RejectInput);
+                            return;
+                        }
                         //if clicked to lower amount of workers
                         settlement.increaseWorkers(resourceType, -1);
                         windowUpdateFc();
@@ -291,6 +292,11 @@ namespace FactionColonies
                     if (Widgets.ButtonText(new Rect(x + 160, scroll + y + 90 + (int) resourceType * (45 + spacing),
                         20, 20), ">"))
                     {
+                        if (settlement.isUnderAttack)
+                        {
+                            Messages.Message("SettlementUnderAttack".Translate(), MessageTypeDefOf.RejectInput);
+                            return;
+                        }
                         //if clicked to lower amount of workers
                         settlement.increaseWorkers(resourceType, 1);
                         windowUpdateFc();

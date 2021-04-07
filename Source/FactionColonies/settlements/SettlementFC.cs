@@ -1300,7 +1300,7 @@ namespace FactionColonies
                 if (isUnderAttack)
                 {
                     valid = false;
-                    Messages.Message("SettlementUnderAttack", MessageTypeDefOf.RejectInput);
+                    Messages.Message("SettlementUnderAttack".Translate(), MessageTypeDefOf.RejectInput);
                 }
                 if (event1.source == mapLocation && event1.building == building &&
                     event1.def.defName == "constructBuilding")

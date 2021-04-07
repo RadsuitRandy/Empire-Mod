@@ -7,6 +7,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 using Verse.AI.Group;
 using Verse.Sound;
 
@@ -23,7 +24,7 @@ namespace FactionColonies
 
         public List<Pawn> defenders;
 
-        public Lord defenderLord;
+        public List<IntVec2> defenderLocations;
 
         public List<CaravanSupporting> supporting = new List<CaravanSupporting>();
 
@@ -88,7 +89,6 @@ namespace FactionColonies
                                 1, 70 + settlement.settlementLevel * 10), this,
                             MapGeneratorDef, ExtraGenStepDefs).mapDrawer.RegenerateEverythingNow();
                     }
-
                     zoomIntoTile(evt);
                     after.Invoke();
                 },
@@ -101,8 +101,14 @@ namespace FactionColonies
             if (defenders.Any() && Map.mapPawns.ColonistsSpawnedCount == 0)
             {
                 Log.Warning("No colonists but still there are defenders!");
+                foreach (Pawn defender in defenders)
+                {
+                    defender?.Destroy();
+                }
+
                 defenders.Clear();
             }
+
             if (!defenders.Any())
             {
                 if (evt == null)
@@ -147,8 +153,6 @@ namespace FactionColonies
 
         public override void Notify_CaravanFormed(Caravan caravan)
         {
-            List<Pawn> toFind = caravan.pawns.InnerListForReading.ListFullCopy();
-
             List<CaravanSupporting> foundCaravan = new List<CaravanSupporting>();
             foreach (Pawn found in caravan.pawns)
             {
@@ -161,7 +165,6 @@ namespace FactionColonies
                     supporting.Where(caravanSupporting => caravanSupporting.pawns.Contains(found)))
                 {
                     foundCaravan.Add(caravanSupporting);
-                    toFind.Remove(found);
                     caravanSupporting.pawns.Remove(found);
                     break;
                 }
@@ -187,27 +190,13 @@ namespace FactionColonies
                 }*/
             }
 
-            caravan.pawns.RemoveAll(pawn => toFind.Contains(pawn));
-            IntVec3 enterCell = FindNearEdgeCell(Map);
-            foreach (Pawn pawn in toFind)
+            //Appears to not happen sometimes, no clue why
+            foreach (Pawn pawn in caravan.pawns)
             {
-                IntVec3 loc = CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
-                GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
+                Map.reservationManager.ReleaseAllClaimedBy(pawn);
             }
 
-            if (!caravan.pawns.Any)
-            {
-                caravan.Destroy();
-            }
-            else
-            {
-                foreach (Pawn pawn in caravan.pawns)
-                {
-                    Map.reservationManager.ReleaseAllClaimedBy(pawn);
-                }
-
-                base.Notify_CaravanFormed(caravan);
-            }
+            base.Notify_CaravanFormed(caravan);
         }
 
         public static IntVec3 FindNearEdgeCell(Map map)
@@ -242,12 +231,13 @@ namespace FactionColonies
             }
             else
             {
-                IncidentParms parms = new IncidentParms();
-                parms.target = Map;
-                parms.faction =
-                    FactionColonies.getPlayerColonyFaction();
-                parms.generateFightersOnly = true;
-                parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
+                IncidentParms parms = new IncidentParms
+                {
+                    target = Map,
+                    faction = FactionColonies.getPlayerColonyFaction(),
+                    generateFightersOnly = true,
+                    raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
+                };
                 parms.points = IncidentWorker_Raid.AdjustedRaidPoints(points,
                     PawnsArrivalModeDefOf.EdgeWalkIn, parms.raidStrategy,
                     parms.faction, PawnGroupKindDefOf.Combat);
@@ -260,7 +250,7 @@ namespace FactionColonies
                 }
             }
 
-            defenderLord = LordMaker.MakeNewLord(
+            LordMaker.MakeNewLord(
                 FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(), Map, friendlies);
 
             foreach (Pawn friendly in friendlies)
@@ -292,7 +282,7 @@ namespace FactionColonies
             return friendlies;
         }
 
-        public void endAttack()
+        private void endAttack()
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             if (defenders.Any())
@@ -379,7 +369,6 @@ namespace FactionColonies
             //Must be done before creating caravans and deiniting map to prevent AI bugging out or
             //caravans being removed mid-loop
             settlement.isUnderAttack = false;
-            defenderLord = null;
             Map.lordManager.lords.Clear();
 
             //Ignore any empty caravans
@@ -393,9 +382,10 @@ namespace FactionColonies
             supporting.Clear();
             defenders.Clear();
 
-            while (Map.mapPawns.AllPawnsSpawned.Any())
+            //Despawn removes them from AllPawnsSpawned, so we copy it
+            foreach (Pawn pawn in Map.mapPawns.AllPawnsSpawned.ListFullCopy())
             {
-                Map.mapPawns.AllPawnsSpawned[0].DeSpawn();
+                Map.mapPawns.DeRegisterPawn(pawn);
             }
 
             Current.Game.tickManager.RemoveAllFromMap(Map);
@@ -410,19 +400,21 @@ namespace FactionColonies
         public void removeAttacker(Pawn downed)
         {
             attackers.Remove(downed);
-            if (!attackers.Any())
-            {
-                endAttack();
-            }
+            if (attackers.Any()) return;
+            LongEventHandler.QueueLongEvent(endAttack,
+                "EndingAttack", false, error =>
+                    DelayedErrorWindowRequest.Add("ErrorEndingAttack".Translate(),
+                        "ErrorEndingAttackDescription".Translate()));
         }
 
         public void removeDefender(Pawn defender)
         {
             defenders.Remove(defender);
-            if (!defenders.Any())
-            {
-                endAttack();
-            }
+            if (!attackers.Any()) return;
+            LongEventHandler.QueueLongEvent(endAttack,
+                "EndingAttack", false, error =>
+                    DelayedErrorWindowRequest.Add("ErrorEndingAttack".Translate(),
+                        "ErrorEndingAttackDescription".Translate()));
         }
     }
 
@@ -484,7 +476,7 @@ namespace FactionColonies
                     action.toggleAction = () =>
                     {
                         __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
-                        settlementFc.worldSettlement.defenderLord.AddPawn(__instance);
+                        //settlementFc.worldSettlement.defenderLord.AddPawn(__instance);
                     };
                     output[index] = action;
                     break;
@@ -535,6 +527,22 @@ namespace FactionColonies
                 };
                 __result = __result.Append(defend);
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(JobDriver_Goto), "TryExitMap")]
+    class PreventColonyDefendersLeaving
+    {
+        static bool Prefix(JobDriver_Goto __instance)
+        {
+            FactionFC factionFc = Find.World.GetComponent<FactionFC>();
+            SettlementFC settlementFc = factionFc.getSettlement(__instance.pawn.Map.Tile, Find.World.info.name);
+            if (settlementFc == null)
+            {
+                return true;
+            }
+
+            return !settlementFc.worldSettlement.defenders.Contains(__instance.pawn);
         }
     }
 }

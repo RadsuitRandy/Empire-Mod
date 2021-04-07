@@ -381,7 +381,6 @@ namespace FactionColonies
             {
                 if (parms.faction == FactionColonies.getPlayerColonyFaction())
                 {
-                    Log.Message("Prevented");
                     parms.faction = null;
                     __result = false;
                 }
