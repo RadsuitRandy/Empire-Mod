@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-
 	<FactionDef ParentName="OutlanderFactionBase">
 		<defName>PColony</defName>
 		<label>Player Faction</label>
@@ -18,8 +17,4 @@
 		<factionIconPath>World/PColonyBaseIcon</factionIconPath>
 		<settlementTexturePath>World/WorldObjects/DefaultSettlement</settlementTexturePath>
 	</FactionDef>
-
-
-  
-
 </Defs>

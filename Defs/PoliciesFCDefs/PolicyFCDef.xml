@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-
 	<FactionColonies.PolicyFCDef>
 		<defName>Empty</defName> <!--Name of Def -->
 		<label>Empty Policy Slot</label> <!--Lable of Def -->
@@ -13,7 +12,6 @@
 		
 		</traits>
 	</FactionColonies.PolicyFCDef>
-	
 
 	<FactionColonies.PolicyFCDef>
 		<defName>Enacting</defName> <!--Name of Def -->
@@ -27,8 +25,4 @@
 		
 		</traits>
 	</FactionColonies.PolicyFCDef>
-	
-	
-	
-	
 </Defs>
