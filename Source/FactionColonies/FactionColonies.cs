@@ -504,37 +504,18 @@ namespace FactionColonies
 
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.350)
+            if (factionFC.updateVersion < 0.357)
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.350\n The following abbreviated changes have occurred:";
-                str += "\n\n- New 'Overview' window. Can be opened from the faction window.";
-                str += "\n\n- Can now directly control your faction's military units";
-                str += "\n\n- New Faction Trait system replacing the old policies system";
-                str +=
-                    "\n- 8 new starting traits. When creating your faction, you get to pick two but cannot change them";
-                str += "\n- 7 new unlockable traits";
-                str += "\n\n- New faction leveling system";
-                str += "\n- Unlock new slots to select traits by leveling your faction";
-                str += "\n- Gain XP from the following:";
-                str += "\n- + 10xp per settlement created";
-                str += "\n- + 5xp per successful raid/enslavement raid";
-                str += "\n- + 5xp per settlement captured";
-                str += "\n- + 1xp per settlement per tax period";
-                //str += "\n- Fixed some other minor bugs and changes";
-                //str += "\n- Fixed specific animals from the Witcher Mod, Alpha Animals, Genetic Rim animals from being animal tithes";
+                    "A new update for Empire has been released!  v.0.357\n The following abbreviated changes have occurred:";
+                str += "\n\n- Settlements can now be defended by your own colonists by sending a caravan on the world map";
+                str += "\n\n- Settlement's Defense Squad(s) can now be directly controlled for the defense like colonists";
+                str += "\n\n- All of the code for this update has been developed by Github Contributor Big_Bad_E";
+                str += "\n\n- Minor bugfixes";
+                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                //str += "\n- A bit more randomness added to enemy factions attacking. It is now possible for their attacking force to be 2 below or 2 above their standard attack force size. (This is before combat modifiers)";
-                //str += "\n- Bug Fixes";
-                //str += "\n";
-                str +=
-                    "\n\n Also, if you need help, go check out this video I made with this url: https://youtu.be/lvWb1rMMsq8";
-
-
-                str += "\n\nWant to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
-
-                factionFC.updateVersion = 0.354;
+                factionFC.updateVersion = 0.357;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
             }
         }
