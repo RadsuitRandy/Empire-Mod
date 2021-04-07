@@ -154,7 +154,7 @@
 <NotEnoughSilverConstructBuilding>You do not have enough silver on the current map to construct that building</NotEnoughSilverConstructBuilding>
 <BuildingBeingBuiltAlreadyType>There is already a building of that type being built</BuildingBeingBuiltAlreadyType>
 <BuildingAlreadyConstructed>There is already a building being constructed there</BuildingAlreadyConstructed>
-
+    <SettlementUnderAttack>That settlement is under attack</SettlementUnderAttack>
 
 <!-- SettlementUpgradeWindowFC -->
 <UpgradeSettlement>Upgrade Settlement</UpgradeSettlement>

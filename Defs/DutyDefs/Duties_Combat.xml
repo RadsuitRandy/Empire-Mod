@@ -14,4 +14,26 @@
             </subNodes>
         </thinkNode>
     </DutyDef>
+
+    <DutyDef>
+        <defName>DefendColony</defName>
+        <alwaysShowWeapon>true</alwaysShowWeapon>
+        <thinkNode Class="ThinkNode_Priority">
+            <subNodes>
+                <li Class="JobGiver_TakeCombatEnhancingDrug">
+                    <onlyIfInDanger>true</onlyIfInDanger>
+                </li>
+                <li Class="JobGiver_ManTurretsNearSelf">
+                    <maxDistFromPoint>25</maxDistFromPoint>
+                </li>
+                <li Class="JobGiver_AIFightEnemies">
+                    <chaseTarget>false</chaseTarget>
+                    <needLOSToAcquireNonPawnTargets>false</needLOSToAcquireNonPawnTargets>
+                    <targetAcquireRadius>120</targetAcquireRadius>
+                    <targetKeepRadius>150</targetKeepRadius>
+                </li>
+                <li Class="JobGiver_AIGotoNearestHostile"/>
+            </subNodes>
+        </thinkNode>
+    </DutyDef>
 </Defs>

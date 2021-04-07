@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using RimWorld;
+using UnityEngine;
 using Verse;
-using RimWorld.Planet;
 
 namespace FactionColonies
 {
@@ -87,30 +84,28 @@ namespace FactionColonies
                         //if not the same building
                         list.Add(new FloatMenuOption("Build".Translate(), delegate
                         {
-                            if( settlement.validConstructBuilding(building, buildingSlot, settlement))
-                            {
-                                FCEvent tmpEvt = new FCEvent(true);
-                                tmpEvt.def = FCEventDefOf.constructBuilding;
-                                tmpEvt.source = settlement.mapLocation;
-                                tmpEvt.planetName = settlement.planetName;
-                                tmpEvt.building = building;
-                                tmpEvt.buildingSlot = buildingSlot;
+                            if (!settlement.validConstructBuilding(building, buildingSlot, settlement)) return;
+                            FCEvent tmpEvt = new FCEvent(true);
+                            tmpEvt.def = FCEventDefOf.constructBuilding;
+                            tmpEvt.source = settlement.mapLocation;
+                            tmpEvt.planetName = settlement.planetName;
+                            tmpEvt.building = building;
+                            tmpEvt.buildingSlot = buildingSlot;
 
 
-                                int triggerTime = building.constructionDuration;
-                                if (factionfc.hasPolicy(FCPolicyDefOf.isolationist))
-                                    triggerTime /= 2;
+                            int triggerTime = building.constructionDuration;
+                            if (factionfc.hasPolicy(FCPolicyDefOf.isolationist))
+                                triggerTime /= 2;
 
-                                tmpEvt.timeTillTrigger = Find.TickManager.TicksGame + triggerTime;
-                                Find.World.GetComponent<FactionFC>().addEvent(tmpEvt);
+                            tmpEvt.timeTillTrigger = Find.TickManager.TicksGame + triggerTime;
+                            Find.World.GetComponent<FactionFC>().addEvent(tmpEvt);
 
-                                PaymentUtil.paySilver(Convert.ToInt32(building.cost));
-                                settlement.deconstructBuilding(buildingSlot);
-                                Messages.Message(building.label + " " + "WillBeConstructedIn".Translate() + " " + GenDate.ToStringTicksToDays(tmpEvt.timeTillTrigger - Find.TickManager.TicksGame), MessageTypeDefOf.PositiveEvent);
-                                settlement.buildings[buildingSlot] = BuildingFCDefOf.Construction;
-                                Find.WindowStack.TryRemove(this);
-                                Find.WindowStack.WindowOfType<SettlementWindowFc>().windowUpdateFc();
-                            }
+                            PaymentUtil.paySilver(Convert.ToInt32(building.cost));
+                            settlement.deconstructBuilding(buildingSlot);
+                            Messages.Message(building.label + " " + "WillBeConstructedIn".Translate() + " " + (tmpEvt.timeTillTrigger - Find.TickManager.TicksGame).ToStringTicksToDays(), MessageTypeDefOf.PositiveEvent);
+                            settlement.buildings[buildingSlot] = BuildingFCDefOf.Construction;
+                            Find.WindowStack.TryRemove(this);
+                            Find.WindowStack.WindowOfType<SettlementWindowFc>().windowUpdateFc();
                         }));
                     }
 
@@ -158,15 +153,7 @@ namespace FactionColonies
             Widgets.Label(TopDescription, buildingDef.desc);
 
             Widgets.DrawLineHorizontal(0, TopWindow.y + TopWindow.height, 400);
-
-
-
-
-
-
-
-
-
+            
             //reset anchor/font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
@@ -180,7 +167,7 @@ namespace FactionColonies
 
         public FCBuildingWindow(SettlementFC settlement, int buildingSlot)
         {
-            this.factionfc = Find.World.GetComponent<FactionFC>();
+            factionfc = Find.World.GetComponent<FactionFC>();
             buildingList = new List<BuildingFCDef>();
             foreach (BuildingFCDef building in DefDatabase<BuildingFCDef>.AllDefsListForReading)
             {
@@ -190,7 +177,8 @@ namespace FactionColonies
                     if (building.techLevel <= factionfc.techLevel)
                     {
                         //If building techlevel requirement is met
-                        if (building.applicableBiomes.Count() == 0 || (building.applicableBiomes.Count() > 0 && building.applicableBiomes.Contains(settlement.biome))){
+                        if (building.applicableBiomes.Count == 0 || building.applicableBiomes.Any() 
+                            && building.applicableBiomes.Contains(settlement.biome)){
                             //If building meets the biome requirements
                             buildingList.Add(building);
                         }
@@ -200,14 +188,14 @@ namespace FactionColonies
 
             buildingList.Sort(FactionColonies.CompareBuildingDef);
 
-            this.forcePause = false;
-            this.draggable = true;
-            this.doCloseX = true;
-            this.preventCameraMotion = false;
+            forcePause = false;
+            draggable = true;
+            doCloseX = true;
+            preventCameraMotion = false;
 
             this.settlement = settlement;
             this.buildingSlot = buildingSlot;
-            this.buildingDef = settlement.buildings[buildingSlot];
+            buildingDef = settlement.buildings[buildingSlot];
 
             
         }
@@ -216,7 +204,7 @@ namespace FactionColonies
         {
             base.PreOpen();
             scroll = 0;
-            maxScroll = (buildingList.Count() * rowHeight) - scrollHeight;
+            maxScroll = buildingList.Count * rowHeight - scrollHeight;
         }
 
 

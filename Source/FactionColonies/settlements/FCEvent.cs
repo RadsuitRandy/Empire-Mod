@@ -298,6 +298,11 @@ namespace FactionColonies
                     //Make custom event functions here
 
                     FCEvent temp = new FCEvent(true);
+                    if (temp.def.defName == "settlementBeingAttacked")
+                    {
+                        Log.Message("Found attacked FCEvent");
+                    }
+
                     temp = events[i];
                     //remove event (stop spam?)
                     faction.events.RemoveAt(i);
@@ -387,15 +392,14 @@ namespace FactionColonies
 
                     if (temp.def.defName == "settlementBeingAttacked")
                     {
+                        Log.Message("Recieved event, calling start");
                         WorldSettlementFC worldSettlement = temp.settlementFCDefending.worldSettlement;
-                        if (worldSettlement.Map == null)
+                        worldSettlement.startDefense(temp, () =>
                         {
-                            worldSettlement.startDefense(temp, () => setupAttack(worldSettlement, temp));
-                        }
-                        else
-                        {
+                            Log.Message("Attack starting");
                             setupAttack(worldSettlement, temp);
-                        }
+                            Log.Message("Attack started");
+                        });
                     }
                     else //if undefined event
                     {
@@ -590,7 +594,7 @@ namespace FactionColonies
                             }
                         }
                     }
-                    
+
                     temp.runAction();
                 }
             }
@@ -607,7 +611,7 @@ namespace FactionColonies
                 (float) temp.militaryForceAttacking.forceRemaining * 100,
                 PawnsArrivalModeDefOf.EdgeWalkIn, parms.raidStrategy,
                 parms.faction, PawnGroupKindDefOf.Combat);
-            ResolveRaidArriveMode(parms);
+            parms.raidArrivalMode = ResolveRaidArriveMode(parms) ?? PawnsArrivalModeDefOf.EdgeWalkIn;
             parms.raidArrivalMode.Worker.TryResolveRaidSpawnCenter(parms);
 
             List<Pawn> attackers = PawnGroupMakerUtility.GeneratePawns(
@@ -618,39 +622,22 @@ namespace FactionColonies
                 Log.Error("Got no pawns spawning raid from parms " + parms);
             }
 
-            parms.raidStrategy.arriveModes[0].Worker.Arrive(attackers, parms);
+            parms.raidArrivalMode.Worker.Arrive(attackers, parms);
 
             worldSettlement.attackers = attackers;
             LordMaker.MakeNewLord(
                 parms.faction, new LordJob_HuntColonists(), worldSettlement.Map, attackers);
+            Find.SignalManager.SendSignal(new Signal("startAssault"));
         }
 
-        private static void ResolveRaidArriveMode(IncidentParms parms)
+        private static PawnsArrivalModeDef ResolveRaidArriveMode(IncidentParms parms)
         {
-            if (parms.raidArrivalMode != null)
-                return;
-            if (parms.raidArrivalModeForQuickMilitaryAid && !DefDatabase<PawnsArrivalModeDef>.AllDefs
-                .Where(d => d.forQuickMilitaryAid).Any(d => (double) d.Worker.GetSelectionWeight(parms) > 0.0))
-            {
-                parms.raidArrivalMode = (double) Rand.Value < 0.600000023841858
-                    ? PawnsArrivalModeDefOf.EdgeDrop
-                    : PawnsArrivalModeDefOf.CenterDrop;
-            }
-            else
-            {
-                if (parms.raidStrategy == null)
-                {
-                    Log.Error("parms raidStrategy was null but shouldn't be. Defaulting to ImmediateAttack.");
-                    parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-                }
-
-                if (parms.raidStrategy.arriveModes.Where(x => x.Worker.CanUseWith(parms) 
-                                                              && x.minTechLevel <= parms.faction.def.techLevel)
-                    .TryRandomElementByWeight(x => x.Worker.GetSelectionWeight(parms), out parms.raidArrivalMode))
-                    return;
-                Log.Error("Could not resolve arrival mode for raid. Defaulting to EdgeWalkIn. parms=" + parms);
-                parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
-            }
+            return 
+                parms.raidStrategy.arriveModes.Where(testing => testing.Worker.CanUseWith(parms))
+                    .TryRandomElementByWeight(
+                        x => x.Worker.GetSelectionWeight(parms), out PawnsArrivalModeDef output)
+                    ? output
+                    : PawnsArrivalModeDefOf.EdgeWalkIn;
         }
 
         public static void createTaxEvent(BillFC bill)
@@ -876,7 +863,7 @@ namespace FactionColonies
                 }
 
                 var obj = Activator.CreateInstance(typ);
-                object[] paramArgu = passEventToClassMethodToRun ? new object[] {this} : new object[] {};
+                object[] paramArgu = passEventToClassMethodToRun ? new object[] {this} : new object[] { };
 
                 Traverse.Create(obj).Method(classMethodToRun, paramArgu).GetValue();
             }

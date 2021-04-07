@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using RimWorld.BaseGen;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -1622,9 +1623,15 @@ namespace FactionColonies
         {
             Log.Message("Updated Icon - " + iconPath);
             faction.def.factionIconPath = iconPath;
+            if (settlements.Any())
+            {
+                WorldSettlementFC.CachedIcon.SetValue(settlements[0].worldSettlement.def, 
+                    ContentFinder<Texture2D>.Get(iconPath));
+            }
             foreach (SettlementFC settlement in settlements)
             {
                 settlement.worldSettlement.def.expandingIconTexture = iconPath;
+                
             }
         }
 
@@ -2396,7 +2403,7 @@ namespace FactionColonies
 
                     //choose random
 
-                    if (settlements.Count() > 0)
+                    if (settlements.Any())
                     {
                         //if settlements exist
                         List<SettlementFC> targets = new List<SettlementFC>();
@@ -2434,12 +2441,15 @@ namespace FactionColonies
                             }
                         }
 
-                        //List created, pick from list
-                        Faction enemy = Find.FactionManager.RandomEnemyFaction();
-                        if (enemy != null)
-                            MilitaryUtilFC.attackPlayerSettlement(
-                                militaryForce.createMilitaryForceFromFaction(enemy, true), targets.RandomElement(),
-                                enemy);
+                        if (targets.Any())
+                        {
+                            //List created, pick from list
+                            Faction enemy = Find.FactionManager.RandomEnemyFaction();
+                            if (enemy != null)
+                                MilitaryUtilFC.attackPlayerSettlement(
+                                    militaryForce.createMilitaryForceFromFaction(enemy, true), 
+                                    targets.RandomElement(), enemy);
+                        }
                     }
                 }
 

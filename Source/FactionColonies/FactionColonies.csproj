@@ -129,7 +129,9 @@
     <Compile Include="worldobjects\generation\SymbolResolver_ColonyPart_Indoors.cs" />
     <Compile Include="worldobjects\generation\SymbolResolver_ColonyPart_Indoors_Division_Split.cs" />
     <Compile Include="worldobjects\generation\SymbolResolver_ColonyPart_Leaf.cs" />
+    <Compile Include="worldobjects\lord\LordJob_DefendColony.cs" />
     <Compile Include="worldobjects\lord\LordJob_HuntColonists.cs" />
+    <Compile Include="worldobjects\lord\LordToil_DefendColony.cs" />
     <Compile Include="worldobjects\lord\LordToil_HuntColonists.cs" />
     <Compile Include="worldobjects\WorldSettlementFC.cs" />
   </ItemGroup>

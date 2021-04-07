@@ -282,10 +282,6 @@ namespace FactionColonies
 						faction.policies.Add(new FCPolicy(FCPolicyDefOf.feudal));
 				}
 
-
-
-
-				Find.LetterStack.ReceiveLetter("Note on Faction Icon", "Note: The faction icon on the world map will only update after a full restart of your game. Or pure luck.", LetterDefOf.NeutralEvent);
 				Find.WindowStack.TryRemove(this);
 			}
 

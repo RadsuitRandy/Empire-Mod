@@ -1295,9 +1295,13 @@ namespace FactionColonies
                 Messages.Message("NotEnoughSilverConstructBuilding".Translate() + "!", MessageTypeDefOf.RejectInput);
             }
 
-            foreach (FCEvent event1 in Find.World.GetComponent<FactionFC>().events
-            ) //check if construction would match any already-occuring events
+            foreach (FCEvent event1 in Find.World.GetComponent<FactionFC>().events) //check if construction would match any already-occuring events
             {
+                if (isUnderAttack)
+                {
+                    valid = false;
+                    Messages.Message("SettlementUnderAttack", MessageTypeDefOf.RejectInput);
+                }
                 if (event1.source == mapLocation && event1.building == building &&
                     event1.def.defName == "constructBuilding")
                 {
@@ -1316,15 +1320,9 @@ namespace FactionColonies
                 }
             }
 
-            if (building.applicableBiomes.Count() != 0)
+            if (building.applicableBiomes.Count != 0)
             {
-                bool match = false;
-
-                if (building.applicableBiomes.Contains(settlement.biome))
-                {
-                    match = true;
-                }
-
+                bool match = building.applicableBiomes.Contains(settlement.biome);
 
                 //if found no matches
                 if (match == false)

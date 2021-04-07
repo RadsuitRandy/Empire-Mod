@@ -1022,11 +1022,10 @@ namespace FactionColonies
                 list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
                     {
                         Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
-                        settlement.upgradeSettlement();
-                        settlement.upgradeSettlement();
-                        settlement.upgradeSettlement();
-                        settlement.upgradeSettlement();
-                        settlement.upgradeSettlement();
+                        for (int i = 0; i < 5; i++)
+                        {
+                            settlement.upgradeSettlement();
+                        }
                     }
                 ));
             }
