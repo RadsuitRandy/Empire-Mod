@@ -301,6 +301,39 @@ namespace FactionColonies
             }
         }
 
+        [DebugAction("Empire", "Send Pawn To Settlement", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void sendPawnToSettlement()
+        {
+            List<Pawn> selected = Find.Selector.SelectedPawns;
+            if (!selected.Any())
+            {
+                Messages.Message("No prisoner selected!", MessageTypeDefOf.RejectInput);
+                return;
+            }
+            List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>()
+                .settlements.Select(settlement => new FloatMenuOption(settlement.name + " - Settlement Level : " + 
+                                                                      settlement.settlementLevel + " - Prisoners: " + 
+                                                                      settlement.prisonerList.Count(), delegate
+                {
+                    foreach (Pawn pawn in selected)
+                    {
+                        //disappear colonist
+                        FactionColonies.sendPrisoner(pawn, settlement);
+
+                        foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome).SelectMany(map => 
+                            map.listerBuildings.allBuildingsColonist).OfType<Building_Bed>())
+                        {
+                            if (!Enumerable.Any(bed.OwnersForReading, found => found == pawn)) continue;
+                            bed.ForPrisoners = false;
+                            bed.ForPrisoners = true;
+                        }
+                    }
+                }))
+                .ToList();
+
+            FloatMenu floatMenu2 = new FloatMenu(settlementList);
+            Find.WindowStack.Add(floatMenu2);
+        }
 
         [HarmonyPatch(typeof(Pawn), "GetGizmos")]
         class PawnGizmos
@@ -310,10 +343,10 @@ namespace FactionColonies
                 Pawn instance = __instance;
                 if (__instance.guest != null)
                 {
-                    if (__instance.guest.IsPrisoner && __instance.guest.PrisonerIsSecure)
+                    if (__instance.guest.IsPrisoner && __instance.guest.PrisonerIsSecure && 
+                        !Find.World.GetComponent<FactionFC>().settlements.Any())
                     {
                         Pawn prisoner = __instance;
-
 
                         __result = __result.Concat(new[]
                         {
@@ -1624,13 +1657,13 @@ namespace FactionColonies
             faction.def.factionIconPath = iconPath;
             if (settlements.Any())
             {
-                WorldSettlementFC.CachedIcon.SetValue(settlements[0].worldSettlement.def, 
+                WorldSettlementFC.CachedIcon.SetValue(settlements[0].worldSettlement.def,
                     ContentFinder<Texture2D>.Get(iconPath));
             }
+
             foreach (SettlementFC settlement in settlements)
             {
                 settlement.worldSettlement.def.expandingIconTexture = iconPath;
-                
             }
         }
 
@@ -2222,7 +2255,7 @@ namespace FactionColonies
                     return settlements[returnSettlementFCIDByLocation(location, planetName)].name;
             }
         }
-        
+
         public SettlementFC getSettlement(int location, string planetName)
         {
             int i = returnSettlementFCIDByLocation(location, planetName);
@@ -2446,7 +2479,7 @@ namespace FactionColonies
                             Faction enemy = Find.FactionManager.RandomEnemyFaction();
                             if (enemy != null)
                                 MilitaryUtilFC.attackPlayerSettlement(
-                                    militaryForce.createMilitaryForceFromFaction(enemy, true), 
+                                    militaryForce.createMilitaryForceFromFaction(enemy, true),
                                     targets.RandomElement(), enemy);
                         }
                     }

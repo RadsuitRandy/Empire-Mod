@@ -421,9 +421,15 @@ namespace FactionColonies
     [HarmonyPatch(typeof(Pawn), "GetGizmos")]
     class PawnGizmos
     {
-        static void Postfix(Pawn __instance, ref IEnumerable<Gizmo> __result)
+        static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
-            List<Gizmo> output = __result == null ? new List<Gizmo>() : __result.ToList();
+            if (__result == null || __instance == null || __instance.Faction == null || !__result.Any())
+            {
+                return;
+            }
+            Pawn found = __instance;
+            List<Gizmo> output = __result.ToList();
+            
             if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
             {
                 Pawn_DraftController pawnDraftController = __instance.drafter;
@@ -475,7 +481,7 @@ namespace FactionColonies
                     int index = output.IndexOf(action);
                     action.toggleAction = () =>
                     {
-                        __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
+                        found.SetFaction(FactionColonies.getPlayerColonyFaction());
                         //settlementFc.worldSettlement.defenderLord.AddPawn(__instance);
                     };
                     output[index] = action;
