@@ -528,6 +528,8 @@ namespace FactionColonies
                                 IntVec3 loc =
                                     CellFinder.RandomSpawnCellForPawnNear(enterCell, settlement.worldSettlement.Map);
                                 GenSpawn.Spawn(pawn, loc, settlement.worldSettlement.Map, Rot4.Random);
+                                settlement.worldSettlement.defenders.Add(pawn);
+                                settlement.worldSettlement.defenders[0].GetLord().AddPawn(pawn);
                             }
                         });
                 };
