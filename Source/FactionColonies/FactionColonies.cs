@@ -1109,30 +1109,37 @@ namespace FactionColonies
 
         public static void CallinAlliedForces(SettlementFC settlement, bool DropPod)
         {
-            IncidentParms parms = new IncidentParms();
-            parms.target = Find.CurrentMap;
-            parms.faction = getPlayerColonyFaction();
-            parms.podOpenDelay = 140;
-            parms.points = 999;
-            parms.raidArrivalModeForQuickMilitaryAid = true;
-            parms.raidNeverFleeIndividual = true;
-            parms.raidForceOneIncap = true;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
+            if (Find.CurrentMap.Parent is WorldSettlementFC)
+            {
+                Messages.Message("You cannot deploy your military to another settlement!", MessageTypeDefOf.RejectInput);
+                return;
+            }
+
+            IncidentParms parms = new IncidentParms
+            {
+                target = Find.CurrentMap,
+                faction = getPlayerColonyFaction(),
+                podOpenDelay = 140,
+                points = 999,
+                raidArrivalModeForQuickMilitaryAid = true,
+                raidNeverFleeIndividual = true,
+                raidForceOneIncap = true,
+                raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop,
+                raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
+            };
             parms.raidArrivalModeForQuickMilitaryAid = true;
 
             settlement.militarySquad.updateSquadStats(settlement.settlementMilitaryLevel);
             settlement.militarySquad.resetNeeds();
 
 
-            DebugTool tool = null;
-            IntVec3 DropPosition;
-            tool = new DebugTool("Select Deployment Position", delegate
+            IntVec3 dropPosition;
+            var tool = new DebugTool("Select Deployment Position", delegate
             {
-                DropPosition = UI.MouseCell();
+                dropPosition = UI.MouseCell();
                 if (DropPod)
                 {
-                    parms.spawnCenter = DropPosition;
+                    parms.spawnCenter = dropPosition;
                     PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,
                         settlement.militarySquad.AllEquippedMercenaryPawns);
                 }
@@ -1146,7 +1153,7 @@ namespace FactionColonies
 
                     foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries)
                     {
-                        merc.pawn.mindState.forcedGotoPosition = DropPosition;
+                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
                         JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
                         ThinkResult resultStandby =
                             jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
@@ -1160,7 +1167,7 @@ namespace FactionColonies
 
                     foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaryAnimals)
                     {
-                        merc.pawn.mindState.forcedGotoPosition = DropPosition;
+                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
                         JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
                         ThinkResult resultStandby =
                             jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
@@ -1175,7 +1182,7 @@ namespace FactionColonies
 
                 settlement.militarySquad.isDeployed = true;
                 settlement.militarySquad.order = MilitaryOrders.Standby;
-                settlement.militarySquad.orderLocation = DropPosition;
+                settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
                 Find.LetterStack.ReceiveLetter("Military Deployed",
                     "The Military forces of " + settlement.name + " have been deployed to " +

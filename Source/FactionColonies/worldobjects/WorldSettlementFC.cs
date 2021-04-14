@@ -403,8 +403,11 @@ namespace FactionColonies
             if (attackers.Any()) return;
             LongEventHandler.QueueLongEvent(endAttack,
                 "EndingAttack", false, error =>
+                {
                     DelayedErrorWindowRequest.Add("ErrorEndingAttack".Translate(),
-                        "ErrorEndingAttackDescription".Translate()));
+                        "ErrorEndingAttackDescription".Translate());
+                    Log.Error(error.Message);
+                });
         }
 
         public void removeDefender(Pawn defender)
@@ -413,8 +416,11 @@ namespace FactionColonies
             if (!attackers.Any()) return;
             LongEventHandler.QueueLongEvent(endAttack,
                 "EndingAttack", false, error =>
+                {
                     DelayedErrorWindowRequest.Add("ErrorEndingAttack".Translate(),
-                        "ErrorEndingAttackDescription".Translate()));
+                        "ErrorEndingAttackDescription".Translate());
+                    Log.Error(error.Message);
+                });
         }
     }
 
@@ -528,6 +534,8 @@ namespace FactionColonies
                                 IntVec3 loc =
                                     CellFinder.RandomSpawnCellForPawnNear(enterCell, settlement.worldSettlement.Map);
                                 GenSpawn.Spawn(pawn, loc, settlement.worldSettlement.Map, Rot4.Random);
+                                settlement.worldSettlement.defenders.Add(pawn);
+                                settlement.worldSettlement.defenders[0].GetLord().AddPawn(pawn);
                             }
                         });
                 };
