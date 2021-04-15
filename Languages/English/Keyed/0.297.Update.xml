@@ -35,7 +35,7 @@
 <FCAvailable>Available</FCAvailable>
 <ShortMilitary>Mil</ShortMilitary>
 <NoValidMilitaries>No valid militaries to use.</NoValidMilitaries>
-<DefendSettlement>Defend Settlement</DefendSettlement>
+<DefendSettlement>Set Defending Force</DefendSettlement>
 <SettlementDefendingInformation>Settlement Defending Information: {0}'s - Mil {1}</SettlementDefendingInformation>
 <ResetToHomeSettlement>Reset to home settlement's defense - Mil {0}</ResetToHomeSettlement>
 <ChangeDefendingForce>Change Defending Force</ChangeDefendingForce>

@@ -24,7 +24,7 @@
 
     <!-- Manual defense -->
     <DefendColony>Defend</DefendColony>
-    <DefendColonyDesc>Defend your Colony manually</DefendColonyDesc>
+    <DefendColonyDesc>Defend your Settlement manually</DefendColonyDesc>
 
     <!-- createColonyWindowFC -->
     <SettleANewColony>Settle A New Colony</SettleANewColony>
