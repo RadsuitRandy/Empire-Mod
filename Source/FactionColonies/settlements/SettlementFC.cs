@@ -1080,7 +1080,7 @@ namespace FactionColonies
             {
                 cooldownReduction += 60000;
             }
-            else if ((militaryJob == "Deploy") &&
+            else if (militaryJob == "Deploy" &&
                      FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
             {
                 List<String> policies = faction.policies.ConvertAll(policy => policy.def.defName);

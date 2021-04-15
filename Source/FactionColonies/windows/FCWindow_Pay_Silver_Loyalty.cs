@@ -11,8 +11,6 @@ namespace FactionColonies
 {
 	public class FCWindow_Pay_Silver_Loyalty : FCWindow_Pay_Silver
 	{
-
-
 		public FCWindow_Pay_Silver_Loyalty(SettlementFC settlement) : base(settlement)
 		{
 			this.forcePause = false;
@@ -28,9 +26,7 @@ namespace FactionColonies
 
 		public override float returnValue(int silver)
 		{
-			float loyalty;
-			loyalty = silver / 100;
-			return loyalty;
+			return silver / 100f;
 		}
 
 		public override void useValue(float value)

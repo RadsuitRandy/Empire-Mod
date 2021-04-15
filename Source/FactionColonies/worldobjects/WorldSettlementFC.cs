@@ -61,20 +61,85 @@ namespace FactionColonies
         public override IEnumerable<Gizmo> GetGizmos()
         {
             List<Gizmo> gizmos = new List<Gizmo>();
-            if (settlement.isUnderAttack)
+            if (!settlement.isUnderAttack) return gizmos;
+            gizmos.Add(new Command_Action
             {
-                Command_Action defend = new Command_Action();
-
-                defend.defaultLabel = "DefendColony".Translate();
-                defend.defaultDesc = "DefendColonyDesc".Translate();
-                defend.icon = TexLoad.iconMilitary;
-                defend.action = () =>
+                defaultLabel = "DefendColony".Translate(),
+                defaultDesc = "DefendColonyDesc".Translate(),
+                icon = TexLoad.iconMilitary,
+                action = () =>
                 {
                     startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(Tile),
                         () => { });
-                };
-                gizmos.Add(defend);
-            }
+                }
+            });
+
+            FactionFC faction = Find.World.GetComponent<FactionFC>();
+            
+            gizmos.Add(new Command_Action
+            {
+                defaultLabel = "DefendSettlement".Translate(),
+                defaultDesc = "",
+                icon = TexLoad.iconCustomize,
+                action = delegate
+                {
+                    List<FloatMenuOption> list = new List<FloatMenuOption>();
+
+                    FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation);
+                    list.Add(new FloatMenuOption(
+                        "SettlementDefendingInformation".Translate(
+                            evt.militaryForceDefending.homeSettlement.name,
+                            evt.militaryForceDefending.militaryLevel), null,
+                        MenuOptionPriority.High));
+                    list.Add(new FloatMenuOption("ChangeDefendingForce".Translate(), delegate
+                    {
+                        List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
+
+                        settlementList.Add(new FloatMenuOption(
+                            "ResetToHomeSettlement".Translate(settlement.settlementMilitaryLevel),
+                            delegate
+                            {
+                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement);
+                            }, MenuOptionPriority.High));
+
+                        settlementList.AddRange(from foundSettlement in faction.settlements
+                            where foundSettlement.isMilitaryValid() && foundSettlement != settlement
+                            select new FloatMenuOption(foundSettlement.name + " " + 
+                                                       "ShortMilitary".Translate() + " " + 
+                                                       foundSettlement.settlementMilitaryLevel + " - " + 
+                                                       "FCAvailable".Translate() + ": " + 
+                                                       (!foundSettlement.isMilitaryBusySilent()).ToString(), delegate
+                            {
+                                if (foundSettlement.isMilitaryBusy())
+                                {
+                                    //military is busy
+                                }
+                                else
+                                {
+                                    MilitaryUtilFC.changeDefendingMilitaryForce(evt, foundSettlement);
+                                }
+                            }));
+
+                        if (settlementList.Count == 0)
+                        {
+                            settlementList.Add(
+                                new FloatMenuOption("NoValidMilitaries".Translate(), null));
+                        }
+
+                        FloatMenu floatMenu2 = new FloatMenu(settlementList)
+                        {
+                            vanishIfMouseDistant = true
+                        };
+                        Find.WindowStack.Add(floatMenu2);
+                    }));
+
+                    FloatMenu floatMenu = new FloatMenu(list)
+                    {
+                        vanishIfMouseDistant = true
+                    };
+                    Find.WindowStack.Add(floatMenu);
+                }
+            });
 
             return gizmos;
         }
@@ -89,6 +154,7 @@ namespace FactionColonies
                                 1, 70 + settlement.settlementLevel * 10), this,
                             MapGeneratorDef, ExtraGenStepDefs).mapDrawer.RegenerateEverythingNow();
                     }
+
                     zoomIntoTile(evt);
                     after.Invoke();
                 },
@@ -433,9 +499,10 @@ namespace FactionColonies
             {
                 return;
             }
+
             Pawn found = __instance;
             List<Gizmo> output = __result.ToList();
-            
+
             if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
             {
                 Pawn_DraftController pawnDraftController = __instance.drafter;
