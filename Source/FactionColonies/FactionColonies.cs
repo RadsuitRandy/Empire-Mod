@@ -318,7 +318,7 @@ namespace FactionColonies
                 }
             }
 
-            if (factionFC.updateVersion < 0.357)
+            if (factionFC.updateVersion < 0.358)
             {
                 foreach (SettlementFC settlement in factionFC.settlements)
                 {
@@ -519,18 +519,18 @@ namespace FactionColonies
 
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.357)
+            if (factionFC.updateVersion < 0.358)
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.357\n The following abbreviated changes have occurred:";
+                    "A new update for Empire has been released!  v.0.358\n The following abbreviated changes have occurred:";
                 str += "\n\n- Settlements can now be defended by your own colonists by sending a caravan on the world map";
                 str += "\n\n- Settlement's Defense Squad(s) can now be directly controlled for the defense like colonists";
                 str += "\n\n- All of the code for this update has been developed by Github Contributor Big_Bad_E";
                 str += "\n\n- Minor bugfixes";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.357;
+                factionFC.updateVersion = 0.358;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
             }
         }
