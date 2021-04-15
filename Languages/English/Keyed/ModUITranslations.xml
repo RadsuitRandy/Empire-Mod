@@ -24,7 +24,7 @@
 
     <!-- Manual defense -->
     <DefendColony>Defend</DefendColony>
-    <DefendColonyDesc>Defend your Colony manually</DefendColonyDesc>
+    <DefendColonyDesc>Defend your Settlement manually</DefendColonyDesc>
 
     <!-- createColonyWindowFC -->
     <SettleANewColony>Settle A New Colony</SettleANewColony>
@@ -159,8 +159,6 @@
     <CustomizeSettlement>Customize Settlement</CustomizeSettlement>
     <SettlementName>Settlement Name</SettlementName>
 
-
-    <!-- SettlementFC -->
     <Hamlet>hamlet</Hamlet>
     <BuildingAlreadyType>There is already a building of that type</BuildingAlreadyType>
     <NotEnoughSilverConstructBuilding>You do not have enough silver on the current map to construct that building
@@ -233,6 +231,9 @@
     <Upkeep>Upkeep</Upkeep>
     <CostPerWorker>Cost Per Worker</CostPerWorker>
 
+    <!--MilitaryCustomizationWindowFC-->
+    <SavedUnit>Saved Unit</SavedUnit>
+    <SavedSquad>Saved Squad</SavedSquad>
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
     <Date>Date</Date>

@@ -8,10 +8,7 @@ namespace FactionColonies
 {
     public class ListThingFc : Window
     {
-        public override Vector2 InitialSize
-        {
-            get { return new Vector2(345f, 380f); }
-        }
+        public override Vector2 InitialSize => new Vector2(345f, 380f);
 
         //declare variables
         public int scroll;
