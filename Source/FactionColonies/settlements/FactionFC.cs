@@ -339,68 +339,44 @@ namespace FactionColonies
             static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
             {
                 Pawn instance = __instance;
-                if (__instance.guest != null)
+                if (__instance.guest == null || !__instance.guest.IsPrisoner || !__instance.guest.PrisonerIsSecure ||
+                    !Find.World.GetComponent<FactionFC>().settlements.Any()) return;
+
+                __result = __result.Concat(new[]
                 {
-                    if (__instance.guest.IsPrisoner && __instance.guest.PrisonerIsSecure && 
-                        !Find.World.GetComponent<FactionFC>().settlements.Any())
+                    new Command_Action
                     {
-                        Pawn prisoner = __instance;
-
-                        __result = __result.Concat(new[]
+                        defaultLabel = "SendToSettlement".Translate(),
+                        defaultDesc = "",
+                        icon = TexLoad.iconMilitary,
+                        action = delegate
                         {
-                            new Command_Action
-                            {
-                                defaultLabel = "SendToSettlement".Translate(),
-                                defaultDesc = "",
-                                icon = TexLoad.iconMilitary,
-                                action = delegate
+                            List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>()
+                                .settlements.Select(settlement => new FloatMenuOption(settlement.name + 
+                                    " - Settlement Level : " + settlement.settlementLevel + 
+                                    " - Prisoners: " + settlement.prisonerList.Count(), delegate
                                 {
-                                    List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
+                                    //disappear colonist
+                                    FactionColonies.sendPrisoner(instance, settlement);
 
-                                    foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements
-                                    )
+                                    foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome)
+                                        .SelectMany(map => map.listerBuildings.allBuildingsColonist)
+                                        .OfType<Building_Bed>())
                                     {
-                                        settlementList.Add(new FloatMenuOption(
-                                            settlement.name + " - Settlement Level : " + settlement.settlementLevel +
-                                            " - Prisoners: " + settlement.prisonerList.Count(), delegate
-                                            {
-                                                //disappear colonist
-                                                FactionColonies.sendPrisoner(prisoner, settlement);
-
-                                                foreach (Map map in Find.Maps)
-                                                {
-                                                    if (map.IsPlayerHome)
-                                                    {
-                                                        foreach (Building building in map.listerBuildings
-                                                            .allBuildingsColonist)
-                                                        {
-                                                            if (building is Building_Bed)
-                                                            {
-                                                                Building_Bed bed = (Building_Bed) building;
-                                                                foreach (Pawn pawn in bed.OwnersForReading)
-                                                                {
-                                                                    if (pawn == instance)
-                                                                    {
-                                                                        bed.ForPrisoners = false;
-                                                                        bed.ForPrisoners = true;
-                                                                        break;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }));
+                                        if (!Enumerable.Any(bed.OwnersForReading, pawn => pawn == instance)) continue;
+                                        bed.ForPrisoners = false;
+                                        bed.ForPrisoners = true;
                                     }
+                                })).ToList();
 
-                                    FloatMenu floatMenu2 = new FloatMenu(settlementList);
-                                    floatMenu2.vanishIfMouseDistant = true;
-                                    Find.WindowStack.Add(floatMenu2);
-                                }
-                            }
-                        });
+                            FloatMenu floatMenu2 = new FloatMenu(settlementList)
+                            {
+                                vanishIfMouseDistant = true
+                            };
+                            Find.WindowStack.Add(floatMenu2);
+                        }
                     }
-                }
+                });
             }
         }
 
