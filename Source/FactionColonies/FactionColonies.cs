@@ -318,7 +318,7 @@ namespace FactionColonies
                 }
             }
 
-            if (factionFC.updateVersion < 0.354)
+            if (factionFC.updateVersion < 0.357)
             {
                 foreach (SettlementFC settlement in factionFC.settlements)
                 {
@@ -338,23 +338,22 @@ namespace FactionColonies
                         if (!found)
                         {
                             Log.Message("Could not find proper settlement for tile location");
-                            return;
                         }
-
-                        Find.World.worldObjects.Settlements.Remove(
-                            Find.World.worldObjects.SettlementAt(settlement.mapLocation));
-                        
-                        WorldSettlementFC worldSettlementFc = (WorldSettlementFC) WorldObjectMaker.MakeWorldObject(
-                            DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
-                        worldSettlementFc.Tile = settlement.mapLocation;
-
-                        worldSettlementFc.settlement = settlement;
-                        worldSettlementFc.Name = settlement.name;
-                
-                        worldSettlementFc.SetFaction(getPlayerColonyFaction());
-                        Find.WorldObjects.Add(worldSettlementFc);
-                        settlement.worldSettlement = worldSettlementFc;
                     }
+
+                    Find.World.worldObjects.Settlements.Remove(
+                        Find.World.worldObjects.SettlementAt(settlement.mapLocation));
+                        
+                    WorldSettlementFC worldSettlementFc = (WorldSettlementFC) WorldObjectMaker.MakeWorldObject(
+                        DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
+                    worldSettlementFc.Tile = settlement.mapLocation;
+
+                    worldSettlementFc.settlement = settlement;
+                    worldSettlementFc.Name = settlement.name;
+                
+                    worldSettlementFc.SetFaction(getPlayerColonyFaction());
+                    Find.WorldObjects.Add(worldSettlementFc);
+                    settlement.worldSettlement = worldSettlementFc;
                 }
 
                 factionFC.militaryCustomizationUtil.deadPawns = new List<Mercenary>();
