@@ -895,6 +895,7 @@ namespace FactionColonies
         public void createNewAnimal(ref Mercenary merc, PawnKindDef race)
         {
             Pawn newPawn;
+            Log.Message("Found race " + race.race);
             newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
@@ -2105,6 +2106,7 @@ namespace FactionColonies
                 isCivilian.height);
 
             Rect unitIcon = new Rect(560, 235, 120, 120);
+            Rect animalIcon = new Rect(560, 335, 120, 120);
 
             Rect ApparelHead = new Rect(600, 140, 50, 50);
             Rect ApparelTorsoSkin = new Rect(700, 170, 50, 50);
@@ -2137,8 +2139,10 @@ namespace FactionColonies
                 //Option to create new unit
                 Units.Add(new FloatMenuOption("Create New Unit", delegate
                 {
-                    MilUnitFC newUnit = new MilUnitFC(false);
-                    newUnit.name = "New Unit " + (util.units.Count() + 1);
+                    MilUnitFC newUnit = new MilUnitFC(false)
+                    {
+                        name = "New Unit " + (util.units.Count() + 1)
+                    };
                     selectedText = newUnit.name;
                     selectedUnit = newUnit;
                     util.units.Add(newUnit);
@@ -2328,18 +2332,20 @@ namespace FactionColonies
             Widgets.CheckboxLabeled(isTrader, "is Trader", ref selectedUnit.isTrader);
             selectedUnit.setTrader(selectedUnit.isTrader);
             selectedUnit.setCivilian(selectedUnit.isCivilian);
-
-
+            
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
             //Draw Pawn
             if (selectedUnit.defaultPawn != null)
             {
+                if (selectedUnit.animal != null)
+                {
+                    //Widgets.DrawTextureFitted(animalIcon, selectedUnit.animal.race.graphicData.Graphic.MatNorth.mainTexture, 1);
+                }
                 Widgets.ThingIcon(unitIcon, selectedUnit.defaultPawn);
             }
-
-
+            
             //Animal Companion
             if (Widgets.ButtonInvisible(AnimalCompanion))
             {
@@ -2467,13 +2473,11 @@ namespace FactionColonies
                 headgearList.Insert(0, new FloatMenuOption("Unequip", delegate
                 {
                     //Remove old
-                    foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
+                    foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel
+                        .Where(apparel => apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead)))
                     {
-                        if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Overhead))
-                        {
-                            selectedUnit.defaultPawn.apparel.Remove(apparel);
-                            break;
-                        }
+                        selectedUnit.defaultPawn.apparel.Remove(apparel);
+                        break;
                     }
                 }));
 
