@@ -20,9 +20,9 @@ namespace FactionColonies
 
         public SettlementFC settlement;
 
-        public List<Pawn> attackers;
+        public List<Pawn> attackers = new List<Pawn>();
 
-        public List<Pawn> defenders;
+        public List<Pawn> defenders = new List<Pawn>();
 
         public List<IntVec2> defenderLocations;
 
@@ -287,7 +287,8 @@ namespace FactionColonies
         private List<Pawn> generateFriendlies(float points)
         {
             List<Pawn> friendlies;
-            if (defenderForce.homeSettlement.militarySquad != null)
+            if (defenderForce.homeSettlement.militarySquad != null &&
+                defenderForce.homeSettlement.militarySquad.AllEquippedMercenaryPawns.Any())
             {
                 friendlies = defenderForce.homeSettlement.militarySquad.EquippedMercenaryPawns;
                 foreach (Pawn friendly in friendlies)
