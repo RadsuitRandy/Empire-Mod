@@ -6,6 +6,7 @@ using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 using Verse;
 using Verse.AI;
 
@@ -322,7 +323,7 @@ namespace FactionColonies
             {
                 foreach (SettlementFC settlement in factionFC.settlements)
                 {
-                    if (settlement.mapLocation == null)
+                    if (settlement.mapLocation < 0)
                     {
                         bool found = false;
                         foreach (Settlement tile in Find.World.worldObjects.Settlements)
@@ -337,26 +338,72 @@ namespace FactionColonies
 
                         if (!found)
                         {
-                            Log.Message("Could not find proper settlement for tile location");
+                            Log.Error("Could not find proper settlement for tile location");
                         }
                     }
 
-                    Find.World.worldObjects.Settlements.Remove(
-                        Find.World.worldObjects.SettlementAt(settlement.mapLocation));
-                        
-                    WorldSettlementFC worldSettlementFc = (WorldSettlementFC) WorldObjectMaker.MakeWorldObject(
-                        DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
-                    worldSettlementFc.Tile = settlement.mapLocation;
+                    void ReplaceSettlement(SettlementFC settlementFc, WorldObjectsHolder holder)
+                    {
+                        Settlement worldSettlement = holder.SettlementAt(settlement.mapLocation);
+                        if (worldSettlement == null)
+                            Log.Error("Settlement is null");
 
-                    worldSettlementFc.settlement = settlement;
-                    worldSettlementFc.Name = settlement.name;
-                
-                    worldSettlementFc.SetFaction(getPlayerColonyFaction());
-                    Find.WorldObjects.Add(worldSettlementFc);
-                    settlement.worldSettlement = worldSettlementFc;
+                        holder.Remove(worldSettlement);
+
+                        WorldSettlementFC worldSettlementFc = (WorldSettlementFC) WorldObjectMaker.MakeWorldObject(
+                            DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
+                        worldSettlementFc.Tile = settlement.mapLocation;
+
+                        worldSettlementFc.settlement = settlement;
+                        worldSettlementFc.Name = settlement.name;
+
+                        worldSettlementFc.SetFaction(getPlayerColonyFaction());
+                        holder.Add(worldSettlementFc);
+                        settlement.worldSettlement = worldSettlementFc;
+                    }
+
+                    if (FactionColonies.checkForMod("kentington.saveourship2")
+                        && Find.World.info.name != settlement.planetName)
+                    {
+                        Traverse wsut = Traverse.CreateWithType("SaveOurShip2.WorldSwitchUtility");
+                        List<object> pastWorlds = (List<object>)wsut.Property("PastWorldTracker")
+                            .Field("PastWorlds").GetValue();
+                        foreach (object i in pastWorlds)
+                        {
+                            Traverse worldTraverse = Traverse.Create(i);
+                            WorldInfo info = (WorldInfo)worldTraverse.Field("info").GetValue();
+                            if (info.name == settlement.planetName)
+                            {
+                                WorldObjectsHolder worldObjectsHolder =
+                                    (WorldObjectsHolder)worldTraverse.Field("worldObjects").GetValue();
+                                ReplaceSettlement(settlement, worldObjectsHolder);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ReplaceSettlement(settlement, Find.World.worldObjects);
+                    }
                 }
 
                 factionFC.militaryCustomizationUtil.deadPawns = new List<Mercenary>();
+            }
+
+            if (Math.Abs(factionFC.updateVersion - 0.358) < Double.Epsilon)
+            {
+                List<Settlement> remove = new List<Settlement>();
+                foreach (Settlement settlement in Find.World.worldObjects.Settlements)
+                {
+                    foreach (SettlementFC settlementFc in factionFC.settlements)
+                    {
+                        if (settlement.Tile == settlementFc.mapLocation)
+                        {
+                            remove.Add(settlement);
+                        }
+                    }
+                }
+                remove.ForEach(settlement => Find.World.worldObjects.Remove(settlement));
             }
 
             //CHECK SAVE DATA
