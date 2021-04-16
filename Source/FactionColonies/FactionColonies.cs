@@ -390,7 +390,7 @@ namespace FactionColonies
                 factionFC.militaryCustomizationUtil.deadPawns = new List<Mercenary>();
             }
 
-            if (Math.Abs(factionFC.updateVersion - 0.358) < Double.Epsilon)
+            if (factionFC.updateVersion <= 0.358)
             {
                 List<Settlement> remove = new List<Settlement>();
                 foreach (Settlement settlement in Find.World.worldObjects.Settlements)
