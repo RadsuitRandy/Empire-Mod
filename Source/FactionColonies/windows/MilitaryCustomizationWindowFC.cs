@@ -2010,6 +2010,14 @@ namespace FactionColonies
                         savedSquads.Add(selectedSquad);
                     }
 
+                    foreach (MilUnitFC unit in selectedSquad.units)
+                    {
+                        List<MilUnitFC> saved = FactionColonies.SavedMilitary().savedUnits;
+                        if (!saved.Any(found => found.loadID == unit.loadID))
+                        {
+                            saved.Add(unit);
+                        }
+                    }
                     Messages.Message("SavedSquad".Translate(), MessageTypeDefOf.TaskCompletion);
                     FactionColonies.SavedMilitary().savedSquads = savedSquads;
                 }

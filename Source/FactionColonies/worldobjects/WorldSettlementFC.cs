@@ -503,7 +503,8 @@ namespace FactionColonies
             Pawn found = __instance;
             List<Gizmo> output = __result.ToList();
 
-            if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
+            if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()) || 
+                __instance.Map.Parent is WorldSettlementFC)
             {
                 Pawn_DraftController pawnDraftController = __instance.drafter;
                 if (pawnDraftController == null)
