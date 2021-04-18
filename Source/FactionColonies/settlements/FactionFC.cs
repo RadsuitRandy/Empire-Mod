@@ -2353,9 +2353,20 @@ namespace FactionColonies
                             //List created, pick from list
                             Faction enemy = Find.FactionManager.RandomEnemyFaction();
                             if (enemy != null)
-                                MilitaryUtilFC.attackPlayerSettlement(
-                                    militaryForce.createMilitaryForceFromFaction(enemy, true),
-                                    targets.RandomElement(), enemy);
+                            {
+                                // Limit to settlements on current planet
+                                // TODO: Make it compatible with settlements on different planets instead of excluding
+                                // them
+                                SettlementFC settlement = targets
+                                    .Where(s => s.planetName == Find.World.info.name)
+                                    .RandomElementWithFallback();
+                                
+                                if (settlement != null)
+                                    MilitaryUtilFC.attackPlayerSettlement(
+                                        militaryForce.createMilitaryForceFromFaction(enemy, true),
+                                        targets.RandomElement(), enemy);
+                            }
+                                    
                         }
                     }
                 }

@@ -397,7 +397,8 @@ namespace FactionColonies
                 {
                     foreach (SettlementFC settlementFc in factionFC.settlements)
                     {
-                        if (settlement.Tile == settlementFc.mapLocation)
+                        if (settlementFc.planetName == Find.World.info.name &&
+                            settlement.Tile == settlementFc.mapLocation)
                         {
                             remove.Add(settlement);
                         }
