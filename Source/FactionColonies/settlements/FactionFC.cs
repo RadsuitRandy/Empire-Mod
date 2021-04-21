@@ -1518,10 +1518,13 @@ namespace FactionColonies
             updateFaction();
 
             Faction playerColonyfaction = FactionColonies.getPlayerColonyFaction();
-            if (playerColonyfaction != null && playerColonyfaction.def.techLevel < techLevel)
+            if (playerColonyfaction == null || playerColonyfaction.def.techLevel >= techLevel) return;
+            Log.Message("Updating Tech Level");
+            updateFactionDef(techLevel, ref playerColonyfaction);
+
+            foreach (SettlementFC settlement in settlements)
             {
-                Log.Message("Updating Tech Level");
-                updateFactionDef(techLevel, ref playerColonyfaction);
+                settlement.worldSettlement.updateTechIcon();
             }
         }
 

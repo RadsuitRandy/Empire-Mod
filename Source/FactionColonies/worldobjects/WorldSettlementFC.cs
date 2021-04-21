@@ -18,6 +18,8 @@ namespace FactionColonies
     {
         public static readonly FieldInfo traitCachedIcon = typeof(WorldObjectDef).GetField("expandingIconTextureInt",
             BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly FieldInfo traitCachedMaterial = typeof(WorldObjectDef).GetField("material",
+            BindingFlags.NonPublic | BindingFlags.Instance);
 
         public SettlementFC settlement;
 
@@ -41,9 +43,26 @@ namespace FactionColonies
 
         public override void PostMake()
         {
+            updateTechIcon();
             def.expandingIconTexture = "FactionIcons/" + Find.World.GetComponent<FactionFC>().factionIconPath;
             traitCachedIcon.SetValue(def, ContentFinder<Texture2D>.Get(def.expandingIconTexture));
             base.PostMake();
+        }
+
+        public void updateTechIcon()
+        {
+            TechLevel techLevel = Find.World.GetComponent<FactionFC>().techLevel;
+            Log.Message("Got tech level " + techLevel);
+            if (techLevel == TechLevel.Animal || techLevel == TechLevel.Neolithic)
+            {
+                def.texture = "World/WorldObjects/TribalSettlement";
+            }
+            else
+            {
+                def.texture = "World/WorldObjects/DefaultSettlement";
+            }
+            traitCachedMaterial.SetValue(def, MaterialPool.MatFrom(def.texture, 
+                ShaderDatabase.WorldOverlayTransparentLit, WorldMaterials.WorldObjectRenderQueue));
         }
 
         public override void ExposeData()
