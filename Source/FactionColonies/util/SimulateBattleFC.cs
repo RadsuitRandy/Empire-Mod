@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -346,15 +347,8 @@ namespace FactionColonies
 
         public static FCEvent returnMilitaryEventByLocation(int location)
         {
-            foreach (FCEvent evt in Find.World.GetComponent<FactionFC>().events)
-            {
-                if (evt.def.isMilitaryEvent && evt.location == location)
-                {
-                    return evt;
-                }
-            }
-
-            return null;
+            return Find.World.GetComponent<FactionFC>().events
+                .FirstOrDefault(evt => evt.def.isMilitaryEvent && evt.location == location);
         }
     }
 

@@ -68,30 +68,17 @@ namespace FactionColonies
                 icon = TexLoad.iconMilitary,
                 action = () =>
                 {
-                    FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation);
-                    if (evt == null)
-                    {
-                        Log.Warning("Settlement event dropped, trying to fix state");
-                        settlement.isUnderAttack = false;
-                        
-                        if (Map != null)
-                        {
-                            deleteMap();
-                        }
-                        
-                        supporting.Clear();
-                        defenders.Clear();
-                        attackers = null;
-                        return;
-                    }
-                    startDefense(evt,
+                    startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
                         () => { });
-                    
                 }
             });
 
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            
+
+            if (attackers.Any())
+            {
+                return gizmos;
+            }
             gizmos.Add(new Command_Action
             {
                 defaultLabel = "DefendSettlement".Translate(),
@@ -102,21 +89,7 @@ namespace FactionColonies
                     List<FloatMenuOption> list = new List<FloatMenuOption>();
 
                     FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation);
-                    if (evt == null)
-                    {
-                        Log.Warning("Settlement event dropped, trying to fix state");
-                        settlement.isUnderAttack = false;
-                        
-                        if (Map != null)
-                        {
-                            deleteMap();
-                        }
-                        
-                        supporting.Clear();
-                        defenders.Clear();
-                        attackers = null;
-                        return;
-                    }
+                    if(evt == null) return;
                     list.Add(new FloatMenuOption(
                         "SettlementDefendingInformation".Translate(
                             evt.militaryForceDefending.homeSettlement.name,
@@ -193,23 +166,18 @@ namespace FactionColonies
                 pawn.DeSpawn();
             }
 
-            Current.Root.soundRoot.sustainerManager.EndAllInMap(Map);
             Current.Game.tickManager.RemoveAllFromMap(Map);
             CameraJumper.TryJump(settlement.mapLocation);
             //Prevent player from zooming back into the settlement
             Current.Game.CurrentMap = Find.World.worldObjects.SettlementAt(
                 Find.World.GetComponent<FactionFC>().capitalLocation).Map;
             
+            Current.Root.soundRoot.sustainerManager.EndAllInMap(Map);
             Current.Game.DeinitAndRemoveMap(Map);
         }
 
         public void startDefense(FCEvent evt, Action after)
         {
-            if (evt == null)
-            {
-                Log.Warning("Aborting defense, null FCEvent!");
-                return;
-            }
             LongEventHandler.QueueLongEvent(() =>
                 {
                     if (Map == null)
@@ -227,11 +195,14 @@ namespace FactionColonies
 
         private void zoomIntoTile(FCEvent evt)
         {
-            if(Current.Game.CurrentMap == Map) return;
-            
             SoundDefOf.Tick_High.PlayOneShotOnCamera();
-            if (!defenders.Any())
+            if (Current.Game.CurrentMap != Map && !defenders.Any())
             {
+                if (evt == null)
+                {
+                    Log.Warning("Aborting defense, null FCEvent!");
+                    return;
+                }
                 evt.timeTillTrigger = Find.TickManager.TicksGame;
                 militaryForce force = MilitaryUtilFC.returnDefendingMilitaryForce(evt);
                 if (force == null)
