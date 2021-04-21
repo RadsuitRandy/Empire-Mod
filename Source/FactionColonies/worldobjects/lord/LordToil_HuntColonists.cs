@@ -24,6 +24,7 @@ namespace FactionColonies
             foreach (Pawn pawn in lord.ownedPawns)
             {
                 pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("HuntColonists"));
+                pawn.mindState.canFleeIndividual = false;
             }
         }
     }

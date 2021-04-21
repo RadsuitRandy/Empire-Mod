@@ -599,46 +599,46 @@ namespace FactionColonies
         {
             static bool Prefix(Pawn __instance)
             {
+                if (__instance == null) return false;
                 FactionFC faction = Find.World.GetComponent<FactionFC>();
-                if (faction.militaryCustomizationUtil.AllMercenaryPawns
-                    .Contains(__instance))
-                {
+                if (!faction.militaryCustomizationUtil.AllMercenaryPawns
+                    .Contains(__instance)) return true;
+                if(__instance.Faction != FactionColonies.getPlayerColonyFaction()) {
                     __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
-                    MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
-                        .returnSquadFromUnit(__instance);
-                    if (squad != null)
+                }
+                MercenarySquadFC squad = faction.militaryCustomizationUtil
+                    .returnSquadFromUnit(__instance);
+                if (squad != null)
+                {
+                    Mercenary merc = faction.militaryCustomizationUtil
+                        .returnMercenaryFromUnit(__instance, squad);
+                    if (merc != null)
                     {
-                        Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
-                            .returnMercenaryFromUnit(__instance, squad);
-                        if (merc != null)
+                        if (squad.settlement != null)
                         {
-                            if (squad.settlement != null)
+                            if (FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
                             {
-                                if (FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
-                                {
-                                    squad.dead += 1;
-                                }
-
-                                squad.settlement.happiness -= 1;
+                                squad.dead += 1;
                             }
 
-                            squad.PassPawnToDeadMercenaries(merc);
+                            squad.settlement.happiness -= 1;
                         }
 
-                        squad.removeDroppedEquipment();
-                    }
-                    else
-                    {
-                        Log.Message("Mercenary Errored out. Did not find squad.");
+                        squad.PassPawnToDeadMercenaries(merc);
                     }
 
-                    __instance.equipment.DestroyAllEquipment();
-                    __instance.apparel.DestroyAll();
-                    //__instance.Destroy();
-                    return false;
+                    squad.removeDroppedEquipment();
+                }
+                else
+                {
+                    Log.Message("Mercenary Errored out. Did not find squad.");
                 }
 
-                return true;
+                __instance.equipment?.DestroyAllEquipment();
+                __instance.apparel?.DestroyAll();
+                //__instance.Destroy();
+                return false;
+
             }
         }
 
@@ -1531,7 +1531,7 @@ namespace FactionColonies
             faction.def.factionIconPath = iconPath;
             if (settlements.Any())
             {
-                WorldSettlementFC.CachedIcon.SetValue(settlements[0].worldSettlement.def,
+                WorldSettlementFC.traitCachedIcon.SetValue(settlements[0].worldSettlement.def,
                     ContentFinder<Texture2D>.Get(iconPath));
             }
 

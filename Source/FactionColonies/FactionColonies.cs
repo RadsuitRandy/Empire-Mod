@@ -763,7 +763,7 @@ namespace FactionColonies
                     DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
                 settlement.Tile = tile;
 
-                List<String> used = new List<string>();
+                List<string> used = new List<string>();
                 List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects;
                 foreach (WorldObject found in worldObjects)
                 {
@@ -791,7 +791,6 @@ namespace FactionColonies
                 settlementfc = new SettlementFC("Settlement", tile);
             }
 
-            Log.Message("2");
             //create settlement data for world object
             settlementfc.power.isTithe = true;
             settlementfc.power.isTitheBool = true;
@@ -807,8 +806,6 @@ namespace FactionColonies
             if (worldcomp.hasPolicy(FCPolicyDefOf.expansionist) && settlementfc.settlementLevel == 1)
                 settlementfc.upgradeSettlement();
 
-            Log.Message("3");
-            
             worldcomp.addSettlement(settlementfc);
             if (createWorldObject)
             {
@@ -1001,58 +998,40 @@ namespace FactionColonies
         {
             FactionFC worldcomp = Find.World.GetComponent<FactionFC>();
             List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (FCEvent evt in worldcomp.events)
+            foreach (FCEvent evt in worldcomp.events.Where(evt => evt.def == FCEventDefOf.settlementBeingAttacked))
             {
-                if (evt.def == FCEventDefOf.settlementBeingAttacked)
-                {
-                    list.Add(new DebugMenuOption(
-                        worldcomp.returnSettlementByLocation(evt.location, evt.planetName).name,
-                        DebugMenuOptionMode.Action, delegate
-                        {
-                            //when event is selected, select defending force to replace it with
+                list.Add(new DebugMenuOption(
+                    worldcomp.returnSettlementByLocation(evt.location, evt.planetName).name,
+                    DebugMenuOptionMode.Action, delegate
+                    {
+                        //when event is selected, select defending force to replace it with
 
-                            List<DebugMenuOption> list2 = new List<DebugMenuOption>();
-                            foreach (SettlementFC settlement in worldcomp.settlements)
+                        List<DebugMenuOption> list2 = (from settlement in worldcomp.settlements
+                            where settlement.isMilitaryValid() && settlement.name != evt.settlementFCDefending.name
+                            select new DebugMenuOption(settlement.name + " - " + settlement.settlementMilitaryLevel + " - Busy: " + settlement.isMilitaryBusySilent(), DebugMenuOptionMode.Action, delegate
                             {
-                                if (settlement.isMilitaryValid() && settlement.name != evt.settlementFCDefending.name)
-                                {
-                                    list2.Add(new DebugMenuOption(
-                                        settlement.name + " - " + settlement.settlementMilitaryLevel + " - Busy: " +
-                                        settlement.isMilitaryBusySilent(), DebugMenuOptionMode.Action, delegate
-                                        {
-                                            if (settlement.isMilitaryBusy() == false)
-                                            {
-                                                Log.Message("Debug - Change Player Settlement - " +
-                                                            evt.militaryForceDefending.homeSettlement.name + " to " +
-                                                            settlement.name);
-                                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement);
-                                            }
-                                        }
-                                    ));
-                                }
-                            }
+                                if (settlement.isMilitaryBusy()) return;
+                                Log.Message("Debug - Change Player Settlement - " + evt.militaryForceDefending.homeSettlement.name + " to " + settlement.name);
+                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement);
+                            })).ToList();
 
-                            Find.WindowStack.Add(new Dialog_DebugOptionListLister(list2));
-                        }
-                    ));
-                    Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
-                }
+                        Find.WindowStack.Add(new Dialog_DebugOptionListLister(list2));
+                    }
+                ));
+                Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
             }
         }
 
         [DebugAction("Empire", "Upgrade Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
         private static void UpgradePlayerSettlement()
         {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                    {
-                        Log.Message("Debug - Upgrade Player Settlement - " + settlement.name);
-                        settlement.upgradeSettlement();
-                    }
-                ));
-            }
+            List<DebugMenuOption> list = Find.World.GetComponent<FactionFC>()
+                .settlements.Select(settlement => new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                {
+                    Log.Message("Debug - Upgrade Player Settlement - " + settlement.name);
+                    settlement.upgradeSettlement();
+                }))
+                .ToList();
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
@@ -1060,19 +1039,16 @@ namespace FactionColonies
         [DebugAction("Empire", "Upgrade Player Settlement x5", allowedGameStates = AllowedGameStates.Playing)]
         private static void UpgradePlayerSettlementx5()
         {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+            List<DebugMenuOption> list = Find.World.GetComponent<FactionFC>()
+                .settlements.Select(settlement => new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                {
+                    Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
+                    for (int i = 0; i < 5; i++)
                     {
-                        Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
-                        for (int i = 0; i < 5; i++)
-                        {
-                            settlement.upgradeSettlement();
-                        }
+                        settlement.upgradeSettlement();
                     }
-                ));
-            }
+                }))
+                .ToList();
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
@@ -1088,16 +1064,13 @@ namespace FactionColonies
         [DebugAction("Empire", "De-Level Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
         private static void DelevelPlayerSettlement()
         {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                    {
-                        Log.Message("Debug - Delevel Player Settlement - " + settlement.name);
-                        settlement.delevelSettlement();
-                    }
-                ));
-            }
+            List<DebugMenuOption> list = Find.World.GetComponent<FactionFC>()
+                .settlements.Select(settlement => new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                {
+                    Log.Message("Debug - Delevel Player Settlement - " + settlement.name);
+                    settlement.delevelSettlement();
+                }))
+                .ToList();
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }

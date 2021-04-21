@@ -598,11 +598,14 @@ namespace FactionColonies
 
         private static void setupAttack(WorldSettlementFC worldSettlement, FCEvent temp)
         {
-            IncidentParms parms = new IncidentParms();
-            parms.target = worldSettlement.Map;
-            parms.faction = temp.militaryForceAttackingFaction;
-            parms.generateFightersOnly = true;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            IncidentParms parms = new IncidentParms
+            {
+                target = worldSettlement.Map,
+                faction = temp.militaryForceAttackingFaction,
+                generateFightersOnly = true,
+                raidStrategy = RaidStrategyDefOf.ImmediateAttack,
+                raidNeverFleeIndividual = true
+            };
             parms.points = IncidentWorker_Raid.AdjustedRaidPoints(
                 (float) temp.militaryForceAttacking.forceRemaining * 100,
                 PawnsArrivalModeDefOf.EdgeWalkIn, parms.raidStrategy,
@@ -622,7 +625,8 @@ namespace FactionColonies
 
             worldSettlement.attackers = attackers;
             LordMaker.MakeNewLord(
-                parms.faction, new LordJob_HuntColonists(), worldSettlement.Map, attackers);
+                parms.faction, new LordJob_HuntColonists(parms.raidArrivalMode != PawnsArrivalModeDefOf.CenterDrop), 
+                worldSettlement.Map, attackers);
         }
 
         private static PawnsArrivalModeDef ResolveRaidArriveMode(IncidentParms parms)

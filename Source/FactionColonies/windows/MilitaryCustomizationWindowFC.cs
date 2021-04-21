@@ -253,7 +253,7 @@ namespace FactionColonies
 
         public MercenarySquadFC returnSquadFromUnit(Pawn unit)
         {
-            foreach (var squad in mercenarySquads.Where(squad => squad.AllDeployedMercenaryPawns.Contains(unit)))
+            foreach (MercenarySquadFC squad in mercenarySquads.Where(squad => squad.AllDeployedMercenaryPawns.Contains(unit)))
             {
                 return squad;
             }

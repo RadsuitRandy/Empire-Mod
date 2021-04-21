@@ -16,7 +16,7 @@ namespace FactionColonies
 {
     public class WorldSettlementFC : MapParent
     {
-        public static readonly FieldInfo CachedIcon = typeof(WorldObjectDef).GetField("expandingIconTextureInt",
+        public static readonly FieldInfo traitCachedIcon = typeof(WorldObjectDef).GetField("expandingIconTextureInt",
             BindingFlags.NonPublic | BindingFlags.Instance);
 
         public SettlementFC settlement;
@@ -42,7 +42,7 @@ namespace FactionColonies
         public override void PostMake()
         {
             def.expandingIconTexture = "FactionIcons/" + Find.World.GetComponent<FactionFC>().factionIconPath;
-            CachedIcon.SetValue(def, ContentFinder<Texture2D>.Get(def.expandingIconTexture));
+            traitCachedIcon.SetValue(def, ContentFinder<Texture2D>.Get(def.expandingIconTexture));
             base.PostMake();
         }
 
@@ -67,8 +67,27 @@ namespace FactionColonies
                 defaultDesc = "DefendColonyDesc".Translate(),
                 icon = TexLoad.iconMilitary,
                 action = () =>
-                    startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(Tile),
-                        () => { })
+                {
+                    FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation);
+                    if (evt == null)
+                    {
+                        Log.Warning("Settlement event dropped, trying to fix state");
+                        settlement.isUnderAttack = false;
+                        
+                        if (Map != null)
+                        {
+                            deleteMap();
+                        }
+                        
+                        supporting.Clear();
+                        defenders.Clear();
+                        attackers = null;
+                        return;
+                    }
+                    startDefense(evt,
+                        () => { });
+                    
+                }
             });
 
             FactionFC faction = Find.World.GetComponent<FactionFC>();
@@ -105,14 +124,14 @@ namespace FactionColonies
                         MenuOptionPriority.High));
                     list.Add(new FloatMenuOption("ChangeDefendingForce".Translate(), delegate
                     {
-                        List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
+                        List<FloatMenuOption> settlementList = new List<FloatMenuOption>
+                        {
+                            new FloatMenuOption(
+                                "ResetToHomeSettlement".Translate(settlement.settlementMilitaryLevel),
+                                delegate { MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement); },
+                                MenuOptionPriority.High)
+                        };
 
-                        settlementList.Add(new FloatMenuOption(
-                            "ResetToHomeSettlement".Translate(settlement.settlementMilitaryLevel),
-                            delegate
-                            {
-                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement);
-                            }, MenuOptionPriority.High));
 
                         settlementList.AddRange(from foundSettlement in faction.settlements
                             where foundSettlement.isMilitaryValid() && foundSettlement != settlement
@@ -158,7 +177,6 @@ namespace FactionColonies
 
         private void deleteMap()
         {
-            
             Map.lordManager.lords.Clear();
 
             //Ignore any empty caravans
@@ -172,14 +190,16 @@ namespace FactionColonies
             //Despawn removes them from AllPawnsSpawned, so we copy it
             foreach (Pawn pawn in Map.mapPawns.AllPawnsSpawned.ListFullCopy())
             {
-                Map.mapPawns.DeRegisterPawn(pawn);
+                pawn.DeSpawn();
             }
 
+            Current.Root.soundRoot.sustainerManager.EndAllInMap(Map);
             Current.Game.tickManager.RemoveAllFromMap(Map);
             CameraJumper.TryJump(settlement.mapLocation);
             //Prevent player from zooming back into the settlement
             Current.Game.CurrentMap = Find.World.worldObjects.SettlementAt(
                 Find.World.GetComponent<FactionFC>().capitalLocation).Map;
+            
             Current.Game.DeinitAndRemoveMap(Map);
         }
 
@@ -219,12 +239,14 @@ namespace FactionColonies
                     return;
                 }
 
+                force.homeSettlement.militaryBusy = true;
+                
                 foreach (Building building in Map.listerBuildings.allBuildingsColonist)
                 {
                     FloodFillerFog.FloodUnfog(building.InteractionCell, Map);
                 }
 
-                List<Pawn> friendlies = generateFriendlies((float) defenderForce.forceRemaining * 100);
+                List<Pawn> friendlies = generateFriendlies(force);
 
                 if (friendlies.Any())
                 {
@@ -309,14 +331,15 @@ namespace FactionColonies
             return CellFinder.RandomCell(map);
         }
 
-        private List<Pawn> generateFriendlies(float points)
+        private List<Pawn> generateFriendlies(militaryForce force)
         {
+            float points = (float) (force.militaryLevel * force.militaryEfficiency * 100);
             List<Pawn> friendlies;
             Dictionary<Pawn, Pawn> riders = new Dictionary<Pawn, Pawn>();
-            if (defenderForce.homeSettlement.militarySquad != null &&
-                defenderForce.homeSettlement.militarySquad.mercenaries.Any())
+            if (force.homeSettlement.militarySquad != null &&
+                force.homeSettlement.militarySquad.mercenaries.Any())
             {
-                MercenarySquadFC squad = defenderForce.homeSettlement.militarySquad;
+                MercenarySquadFC squad = force.homeSettlement.militarySquad;
                 
                 squad.OutfitSquad(squad.settlement.militarySquad.outfit);
                 squad.updateSquadStats(squad.settlement.settlementMilitaryLevel);
@@ -422,21 +445,21 @@ namespace FactionColonies
                         "multiply") * TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier",
                         Find.World.GetComponent<FactionFC>().traits, "multiply"));
 
-                int traitMuliplier = 1;
+                int muliplier = 1;
                 if (faction.hasPolicy(FCPolicyDefOf.feudal))
-                    traitMuliplier = 2;
-                float traitProsperityMultiplier = 1;
-                bool traitCanDestroyBuildings = true;
+                    muliplier = 2;
+                float prosperityMultiplier = 1;
+                bool canDestroyBuildings = true;
                 if (faction.hasTrait(FCPolicyDefOf.resilient))
                 {
-                    traitProsperityMultiplier = .5f;
-                    traitCanDestroyBuildings = false;
+                    prosperityMultiplier = .5f;
+                    canDestroyBuildings = false;
                 }
 
                 //if winner are enemies
-                settlement.prosperity -= 20 * traitProsperityMultiplier;
+                settlement.prosperity -= 20 * prosperityMultiplier;
                 settlement.happiness -= 25 * happinessLostMultiplier;
-                settlement.loyalty -= 15 * loyaltyLostMultiplier * traitMuliplier;
+                settlement.loyalty -= 15 * loyaltyLostMultiplier * muliplier;
 
                 string str = "DefenseFailureFull".Translate(settlement.name, attackerForce.homeFaction);
 
@@ -445,14 +468,14 @@ namespace FactionColonies
                 {
                     int num = new IntRange(0, 10).RandomInRange;
                     if (num < 7 || settlement.buildings[k].defName == "Empty" ||
-                        settlement.buildings[k].defName == "Construction" || !traitCanDestroyBuildings) continue;
+                        settlement.buildings[k].defName == "Construction" || !canDestroyBuildings) continue;
                     str += "\n" +
                            "BulidingDestroyedInRaid".Translate(settlement.buildings[k].label);
                     settlement.deconstructBuilding(k);
                 }
 
                 //level remover checker
-                if (settlement.settlementLevel > 1 && traitCanDestroyBuildings)
+                if (settlement.settlementLevel > 1 && canDestroyBuildings)
                 {
                     int num = new IntRange(0, 10).RandomInRange;
                     if (num >= 7)
@@ -508,7 +531,7 @@ namespace FactionColonies
         public void removeDefender(Pawn defender)
         {
             defenders.Remove(defender);
-            if (!defenders.Any()) return;
+            if (defenders.Any()) return;
             LongEventHandler.QueueLongEvent(endAttack,
                 "EndingAttack", false, error =>
                 {
