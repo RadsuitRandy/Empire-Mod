@@ -21,7 +21,7 @@ namespace FactionColonies
                 pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("DefendColony"),
                     pawn.Position);
                 pawn.mindState.canFleeIndividual = false;
-                if (pawn.equipment.Primary == null || pawn.equipment.Primary.def.IsMeleeWeapon)
+                if (pawn.equipment?.Primary == null || pawn.equipment.Primary.def.IsMeleeWeapon)
                 {
                     pawn.jobs.StartJob(new Job(JobDefOf.AttackMelee), JobCondition.InterruptForced);
                 }
@@ -29,8 +29,11 @@ namespace FactionColonies
                 {
                     pawn.jobs.StartJob(new Job(JobDefOf.AttackStatic), JobCondition.InterruptForced);
                 }
-
-                pawn.jobs.curJob.failIfCantJoinOrCreateCaravan = true;
+                
+                if (pawn.jobs.curJob != null)
+                {
+                    pawn.jobs.curJob.failIfCantJoinOrCreateCaravan = true;
+                }
             }
         }
     }

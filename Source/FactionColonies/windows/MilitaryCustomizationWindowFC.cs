@@ -124,8 +124,27 @@ namespace FactionColonies
         public List<MilUnitFC> units = new List<MilUnitFC>();
         public List<MilSquadFC> squads = new List<MilSquadFC>();
 
-        public IEnumerable<MilUnitFC> uniqueUnits;
-        public IEnumerable<MilSquadFC> uniqueSquads;
+        private IEnumerable<MilUnitFC> cachedUniqueUnits;
+        private IEnumerable<MilSquadFC> cachedUniqueSquads;
+
+        //This mess is required because accessing the saved units in the constructor breaks stuff
+        //I tried using lazy, but couldn't reference units from in the value factory
+        public IEnumerable<MilUnitFC> UniqueUnits => cachedUniqueUnits ??
+                                                     (cachedUniqueUnits = FactionColonies.SavedMilitary().savedUnits?
+                                                                              .Where(unit =>
+                                                                                  !units.Any(testing =>
+                                                                                      unit.loadID == testing.loadID)) ??
+                                                                          new List<MilUnitFC>());
+
+        public IEnumerable<MilSquadFC> UniqueSquads => cachedUniqueSquads ??
+                                                       (cachedUniqueSquads =
+                                                           FactionColonies.SavedMilitary().savedSquads?
+                                                               .Where(squad =>
+                                                                   !squads.Any(testing =>
+                                                                       squad.loadID ==
+                                                                       testing.loadID)) ??
+                                                           new List<MilSquadFC>());
+
         public List<MercenarySquadFC> mercenarySquads = new List<MercenarySquadFC>();
         public List<MilitaryFireSupport> fireSupport = new List<MilitaryFireSupport>();
         public List<MilitaryFireSupport> fireSupportDefs = new List<MilitaryFireSupport>();
@@ -166,11 +185,6 @@ namespace FactionColonies
             {
                 fireSupportDefs = new List<MilitaryFireSupport>();
             }
-
-            uniqueSquads = FactionColonies.SavedMilitary().savedSquads?
-                .Where(squad => !squads.Any(testing => squad.loadID == testing.loadID)) ?? new List<MilSquadFC>();
-            uniqueUnits = FactionColonies.SavedMilitary().savedUnits?
-                .Where(unit => !units.Any(testing => unit.loadID == testing.loadID)) ?? new List<MilUnitFC>();
         }
 
         public void checkMilitaryUtilForErrors()
@@ -190,7 +204,8 @@ namespace FactionColonies
                 }
 
                 if (!changed) continue;
-                foreach (var squadMerc in mercenarySquads.Where(squadMerc => squadMerc.outfit != null && squadMerc.outfit == squad))
+                foreach (var squadMerc in mercenarySquads.Where(squadMerc =>
+                    squadMerc.outfit != null && squadMerc.outfit == squad))
                 {
                     squadMerc.OutfitSquad(squad);
                 }
@@ -233,10 +248,7 @@ namespace FactionColonies
 
         public int GETLatestChange
         {
-            get
-            {
-                return squads.Select(squadFC => squadFC.getLatestChanged).Prepend(0).Max();
-            }
+            get { return squads.Select(squadFC => squadFC.getLatestChanged).Prepend(0).Max(); }
         }
 
         public MercenarySquadFC returnSquadFromUnit(Pawn unit)
@@ -275,18 +287,12 @@ namespace FactionColonies
 
         public IEnumerable<MercenarySquadFC> DeployedSquads
         {
-            get
-            {
-                return mercenarySquads.Where(squad => squad.isDeployed).ToList();
-            }
+            get { return mercenarySquads.Where(squad => squad.isDeployed).ToList(); }
         }
 
         public List<Pawn> AllMercenaryPawns
         {
-            get
-            {
-                return AllMercenaries.Select(merc => merc.pawn).ToList();
-            }
+            get { return AllMercenaries.Select(merc => merc.pawn).ToList(); }
         }
 
         public void resetSquads()
@@ -301,7 +307,7 @@ namespace FactionColonies
                 unit.updateEquipmentTotalCost();
             }
         }
-        
+
         public void attemptToAssignSquad(SettlementFC settlement, MilSquadFC squad)
         {
             if (FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel) >=
@@ -560,11 +566,11 @@ namespace FactionColonies
                 Log.Message("Def: " + defaultPawn.def);
                 totalCost += Math.Floor(defaultPawn.def.BaseMarketValue * FactionColonies.militaryRaceCostMultiplier);
                 Log.Message("2");
-                totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost, 
+                totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost,
                     (current, thing) => current + thing.MarketValue);
 
                 Log.Message("3");
-                totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost, 
+                totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost,
                     (current, thing) => current + thing.MarketValue);
 
                 if (animal != null)
@@ -894,9 +900,7 @@ namespace FactionColonies
 
         public void createNewAnimal(ref Mercenary merc, PawnKindDef race)
         {
-            Pawn newPawn;
-            Log.Message("Found race " + race.race);
-            newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race,
+            var newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
             //merc = (Mercenary)newPawn;
@@ -1618,7 +1622,7 @@ namespace FactionColonies
                                 }));
                         }
 
-                        squads.AddRange(util.uniqueSquads
+                        squads.AddRange(util.UniqueSquads
                             .Select(squad => new FloatMenuOption(squad.name + " - Total Equipment Cost: " +
                                                                  squad.equipmentTotalCost, delegate
                             {
@@ -1894,11 +1898,11 @@ namespace FactionColonies
 
                 //Option to create new unit
 
-                if (util.uniqueSquads.Any())
+                if (util.UniqueSquads.Any())
                 {
                     squads.Add(new FloatMenuOption("Load Saved Squad", delegate
                     {
-                        List<FloatMenuOption> savedSquadsMenu = util.uniqueSquads
+                        List<FloatMenuOption> savedSquadsMenu = util.UniqueSquads
                             .Select(squad =>
                                 new FloatMenuOption(squad.name, delegate
                                 {
@@ -2018,6 +2022,7 @@ namespace FactionColonies
                             saved.Add(unit);
                         }
                     }
+
                     Messages.Message("SavedSquad".Translate(), MessageTypeDefOf.TaskCompletion);
                     FactionColonies.SavedMilitary().savedSquads = savedSquads;
                 }
@@ -2058,7 +2063,7 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        units.AddRange(util.uniqueUnits
+                        units.AddRange(util.UniqueUnits
                             .Select(unit => new FloatMenuOption(unit.name +
                                                                 " - Cost: " + unit.equipmentTotalCost, delegate
                             {
@@ -2156,12 +2161,12 @@ namespace FactionColonies
                     util.units.Add(newUnit);
                 }));
 
-                if (util.uniqueUnits.Any())
+                if (util.UniqueUnits.Any())
                 {
                     Units.Add(new FloatMenuOption("Load Saved Units", delegate
                     {
                         List<FloatMenuOption> savedUnitMenu = new List<FloatMenuOption>();
-                        foreach (MilUnitFC unit in util.uniqueUnits)
+                        foreach (MilUnitFC unit in util.UniqueUnits)
                         {
                             if (unit.defaultPawn.equipment.Primary != null)
                             {
@@ -2340,7 +2345,7 @@ namespace FactionColonies
             Widgets.CheckboxLabeled(isTrader, "is Trader", ref selectedUnit.isTrader);
             selectedUnit.setTrader(selectedUnit.isTrader);
             selectedUnit.setCivilian(selectedUnit.isCivilian);
-            
+
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
@@ -2351,9 +2356,10 @@ namespace FactionColonies
                 {
                     //Widgets.DrawTextureFitted(animalIcon, selectedUnit.animal.race.graphicData.Graphic.MatNorth.mainTexture, 1);
                 }
+
                 Widgets.ThingIcon(unitIcon, selectedUnit.defaultPawn);
             }
-            
+
             //Animal Companion
             if (Widgets.ButtonInvisible(AnimalCompanion))
             {

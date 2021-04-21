@@ -90,8 +90,9 @@ namespace FactionColonies
         public int nextPrisonerID = 1;
 
         //Military 
-        public int nextUnitID = FactionColonies.SavedMilitary().nextUnitId;
-        public int nextSquadID = FactionColonies.SavedMilitary().nextSquadId;
+        public int NextUnitID => FactionColonies.SavedMilitary().nextUnitId;
+        public int NextSquadID =>  FactionColonies.SavedMilitary().nextSquadId;
+        
         public int nextMilitaryFireSupportID = 1;
 
         //Military Customization
@@ -1334,18 +1335,16 @@ namespace FactionColonies
 
         public int GetNextUnitID()
         {
-            nextUnitID++;
             FactionColonies.SavedMilitary().nextUnitId++;
 
-            return nextUnitID;
+            return NextUnitID;
         }
 
         public int GetNextSquadID()
         {
-            nextSquadID++;
             FactionColonies.SavedMilitary().nextSquadId++;
 
-            return nextSquadID;
+            return NextSquadID;
         }
 
         public int GetNextMilitaryFireSupportID()

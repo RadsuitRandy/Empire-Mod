@@ -392,14 +392,10 @@ namespace FactionColonies
 
                     if (temp.def.defName == "settlementBeingAttacked")
                     {
-                        Log.Message("Recieved event, calling start");
+
                         WorldSettlementFC worldSettlement = temp.settlementFCDefending.worldSettlement;
-                        worldSettlement.startDefense(temp, () =>
-                        {
-                            Log.Message("Attack starting");
-                            setupAttack(worldSettlement, temp);
-                            Log.Message("Attack started");
-                        });
+
+                        worldSettlement.startDefense(temp, () => setupAttack(worldSettlement, temp));
                     }
                     else //if undefined event
                     {
@@ -627,7 +623,6 @@ namespace FactionColonies
             worldSettlement.attackers = attackers;
             LordMaker.MakeNewLord(
                 parms.faction, new LordJob_HuntColonists(), worldSettlement.Map, attackers);
-            Find.SignalManager.SendSignal(new Signal("startAssault"));
         }
 
         private static PawnsArrivalModeDef ResolveRaidArriveMode(IncidentParms parms)

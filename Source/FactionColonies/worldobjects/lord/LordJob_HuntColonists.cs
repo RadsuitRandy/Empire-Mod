@@ -10,8 +10,13 @@ namespace FactionColonies
         public override StateGraph CreateGraph()
         {
             StateGraph stateGraph = new StateGraph();
+            LordToil idleToil = new LordToil_IdleNearby();
+            stateGraph.AddToil(idleToil);
             LordToil lordToil = new LordToil_HuntColonists();
             stateGraph.AddToil(lordToil);
+            Transition startAssault = new Transition(idleToil, lordToil);
+            startAssault.AddTrigger(new Trigger_TicksPassed(500));
+            stateGraph.AddTransition(startAssault);
             return stateGraph;
         }
 

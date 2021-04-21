@@ -1,16 +1,24 @@
-﻿using Verse;
+﻿using System.Collections.Generic;
+using Verse;
 using Verse.AI.Group;
 
 namespace FactionColonies
 {
     public class LordJob_DefendColony : LordJob
     {
-        public override bool AddFleeToil { get; } = false;
+        private Dictionary<Pawn, Pawn> mounts;
+
+        public LordJob_DefendColony(Dictionary<Pawn, Pawn> mounts)
+        {
+            this.mounts = mounts;
+        }
         
+        public override bool AddFleeToil => false;
+
         public override StateGraph CreateGraph()
         {
             StateGraph stateGraph = new StateGraph();
-            LordToil_DefendSelf defendSelf = new LordToil_DefendSelf();
+            LordToil_DefendSelfAndMount defendSelf = new LordToil_DefendSelfAndMount(mounts);
             stateGraph.AddToil(defendSelf);
             LordToil defendColony = new LordToil_DefendColony();
             stateGraph.AddToil(defendColony);
