@@ -12,8 +12,6 @@
 		<canMakeRandomly>false</canMakeRandomly>
 		<techLevel>Neolithic</techLevel>
 		<generateNewLeaderFromMapMembersOnly>false</generateNewLeaderFromMapMembersOnly>
-
-		
 		<factionIconPath>World/PColonyBaseIcon</factionIconPath>
 		<settlementTexturePath>World/WorldObjects/DefaultSettlement</settlementTexturePath>
 	</FactionDef>

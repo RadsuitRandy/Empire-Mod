@@ -913,31 +913,16 @@ namespace FactionColonies
 
         public void createNewPawn(ref Mercenary merc, PawnKindDef race)
         {
-            if (merc.pawn != null)
+            //pawn.ParentHolder.remov
+            if (merc.pawn?.health != null && merc.pawn.health.Dead)
             {
-                //pawn.ParentHolder.remov
-                if (merc.pawn.health != null && merc.pawn.health.Dead)
-                {
-                    //Log.Message("Passing old pawn to dead mercenaries");
-                    //PassPawnToDeadMercenaries(pawn);
-                }
+                //Log.Message("Passing old pawn to dead mercenaries");
+                //PassPawnToDeadMercenaries(pawn);
             }
 
-            PawnKindDef raceChoice;
-
-
-            if (race == null)
-            {
-                raceChoice = PawnKindDefOf.Colonist;
-            }
-            else
-            {
-                raceChoice = race;
-            }
-
-
-            Pawn newPawn;
-            newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
+            PawnKindDef raceChoice = race ?? PawnKindDefOf.Colonist;
+            
+            Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
             newPawn.apparel.DestroyAll();

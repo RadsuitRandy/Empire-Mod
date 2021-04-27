@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -201,7 +202,6 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.339)
             {
-                factionFC.raceFilter = new ThingFilter();
                 factionFC.resetRaceFilter();
             }
 
@@ -1906,12 +1906,13 @@ namespace FactionColonies
         public List<MilSquadFC> savedSquads;
         public int nextSquadId;
 
+        //Band-aid fix to default to 10000 instead of 1 so local squads work fine.
         public override void ExposeData()
         {
             Scribe_Collections.Look(ref savedUnits, "savedUnits", LookMode.Deep);
-            Scribe_Values.Look(ref nextUnitId, "nextUnitID", 1);
+            Scribe_Values.Look(ref nextUnitId, "nextUnitID", 10000);
             Scribe_Collections.Look(ref savedSquads, "savedSquads", LookMode.Deep);
-            Scribe_Values.Look(ref nextSquadId, "nextSquadID", 1);
+            Scribe_Values.Look(ref nextSquadId, "nextSquadID", 10000);
         }
         
         public new void Write() => LoadedModManager.WriteModSettings(

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.BaseGen;
@@ -22,8 +23,7 @@ namespace FactionColonies
         public int militaryTimeDue;
         public int mercenaryTick;
         public bool factionCreated;
-
-
+        
         public List<SettlementFC> settlements = new List<SettlementFC>();
         public string name = "PlayerFaction".Translate();
         public string title = "Bastion".Translate();
@@ -41,8 +41,7 @@ namespace FactionColonies
         private bool firstTick = true;
         public Texture2D factionIcon = TexLoad.factionIcons.ElementAt(0);
         public string factionIconPath = TexLoad.factionIcons.ElementAt(0).name;
-
-
+        
         //New Types of PRoductions
         public float researchPointPool;
         public float powerPool;
@@ -59,9 +58,8 @@ namespace FactionColonies
         public List<FCPolicy> policies = new List<FCPolicy>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
         public List<int> militaryTargets = new List<int>();
-        public ThingFilter raceFilter = new ThingFilter();
-
-
+        public RaceThingFilter raceFilter = new RaceThingFilter();
+        
         //Faction resources
         public ResourceFC food = new ResourceFC(1, ResourceType.Food);
         public ResourceFC weapons = new ResourceFC(1, ResourceType.Weapons);
@@ -78,7 +76,7 @@ namespace FactionColonies
 
         //Faction Def
         public FactionFCDef factionDef = new FactionFCDef();
-
+        
         //Update
         public double updateVersion;
         public int nextSettlementFCID = 1;
@@ -137,17 +135,6 @@ namespace FactionColonies
 
         //Research Trading
         public float tradedAmount;
-
-        //Call for aid
-        // [HarmonyPatch(typeof(FactionDialogMaker), "CallForAid")]
-        // class WorldObjectGizmos
-        //{
-        //    static void Prefix(Map map, Faction faction)
-        //    {
-
-        //    }
-        // }
-
 
         public override void ExposeData()
         {
@@ -949,11 +936,9 @@ namespace FactionColonies
 
         //CallForAid
         //Remove ability to attack colony.
-
-
         public FactionFC(World world) : base(world)
         {
-            var harmony = new Harmony("com.Saakra.Empire");
+            Harmony harmony = new Harmony("com.Saakra.Empire");
 
             if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Linux)
             {
@@ -971,8 +956,7 @@ namespace FactionColonies
             {
                 //Android_Tiers_Patches.Patch(harmony);
             }
-
-
+            
             power.isTithe = true;
             power.isTitheBool = true;
             research.isTithe = true;
@@ -1679,23 +1663,20 @@ namespace FactionColonies
 
         public void resetRaceFilter()
         {
-            raceFilter = new ThingFilter();
+            raceFilter = new RaceThingFilter(true);
 
             List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading)
+            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading
+                .Where(def => def.race.race.intelligence == Intelligence.Humanlike && 
+                              races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
             {
-                if (def.race.race.intelligence == Intelligence.Humanlike & races.Contains(def.race.label) == false &&
-                    def.race.BaseMarketValue != 0)
+                if (def.race.label == "Human" && def.LabelCap != "Colonist")
                 {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist")
-                    {
-                    }
-                    else
-                    {
-                        races.Add(def.race.label);
-                        raceFilter.SetAllow(def.race, true);
-                    }
+                    continue;
                 }
+
+                races.Add(def.race.label);
+                raceFilter.SetAllow(def.race, true);
             }
         }
 

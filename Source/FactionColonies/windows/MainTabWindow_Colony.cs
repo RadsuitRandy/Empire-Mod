@@ -48,13 +48,7 @@ namespace FactionColonies
 		private readonly List<string> statsTab0 = new List<string> {"happiness", "loyalty", "unrest", "prosperity"};
 
 		private readonly List<string> buttonsTab0 = new List<string> { "FCOverview".Translate(), "Military".Translate(), "Actions".Translate()};
-
-
-		public override void PostOpen()
-		{
-			base.PostOpen();
-		}
-
+		
 		public override void PreOpen()
 		{
 			base.PreOpen();

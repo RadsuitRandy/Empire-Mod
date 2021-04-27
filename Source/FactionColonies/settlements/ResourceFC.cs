@@ -47,26 +47,18 @@ namespace FactionColonies
 
         public double returnLowestCost()
         {
-            double minimum = 999999;
-            foreach (ThingDef thing in filter.AllowedThingDefs) 
-            {
-                minimum = Math.Min(thing.BaseMarketValue, minimum);
-            }
+            double minimum = filter.AllowedThingDefs.Aggregate<ThingDef, double>(999999, 
+                (current, thing) => Math.Min(thing?.BaseMarketValue ?? 100, current));
             //Log.Message(minimum.ToString());
-            taxMinimumToTithe = minimum + LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().productionTitheMod + TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, "add") + TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, "add");
+            taxMinimumToTithe = minimum + FactionColonies.Settings().productionTitheMod + 
+            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, "add") + 
+            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, "add");
             return minimum;
         }
 
         public Texture2D getIcon()
         {
-            for(int i = 0; i < TexLoad.textures.Count(); i++)
-            {
-                if (TexLoad.textures[i].Key == name)
-                {
-                    return TexLoad.textures[i].Value;
-                }
-            }
-            return null;
+            return (from texture in TexLoad.textures where texture.Key == name select texture.Value).FirstOrDefault();
         }
 
 
