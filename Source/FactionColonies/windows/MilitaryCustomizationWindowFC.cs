@@ -116,8 +116,7 @@ namespace FactionColonies
             Scribe_Collections.Look(ref projectiles, "projectiles", LookMode.Def);
         }
     }
-
-
+    
     //Mil customization class
     public class MilitaryCustomizationUtil : IExposable
     {
