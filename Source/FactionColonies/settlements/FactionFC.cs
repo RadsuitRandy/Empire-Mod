@@ -23,6 +23,12 @@ namespace FactionColonies
         public int mercenaryTick;
         public bool factionCreated;
 
+        private int nextUnitId;
+        private int nextSquadId;
+
+        public int NextUnitID => ++nextUnitId;
+        public int NextSquadID => ++nextSquadId;
+
 
         public List<SettlementFC> settlements = new List<SettlementFC>();
         public string name = "PlayerFaction".Translate();
@@ -90,8 +96,6 @@ namespace FactionColonies
         public int nextPrisonerID = 1;
 
         //Military 
-        public int nextUnitID = FactionColonies.SavedMilitary().nextUnitId;
-        public int nextSquadID = FactionColonies.SavedMilitary().nextSquadId;
         public int nextMilitaryFireSupportID = 1;
 
         //Military Customization
@@ -1330,22 +1334,6 @@ namespace FactionColonies
             nextMercenaryID++;
             //Log.Message("Returning next mercenary ID " + nextMercenaryID);
             return nextMercenaryID;
-        }
-
-        public int GetNextUnitID()
-        {
-            nextUnitID++;
-            FactionColonies.SavedMilitary().nextUnitId++;
-
-            return nextUnitID;
-        }
-
-        public int GetNextSquadID()
-        {
-            nextSquadID++;
-            FactionColonies.SavedMilitary().nextSquadId++;
-
-            return nextSquadID;
         }
 
         public int GetNextMilitaryFireSupportID()
