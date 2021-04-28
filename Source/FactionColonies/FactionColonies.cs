@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -15,8 +15,6 @@ namespace FactionColonies
 {
     public class FactionColonies : ModSettings
     {
-        private static FactionColoniesMilitary savedMilitary;
-        
         public static void updateChanges()
         {
             FactionFC factionFC = Find.World.GetComponent<FactionFC>();
@@ -202,6 +200,7 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.339)
             {
+                factionFC.raceFilter = new ThingFilter();
                 factionFC.resetRaceFilter();
             }
 
@@ -763,7 +762,7 @@ namespace FactionColonies
                     DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
                 settlement.Tile = tile;
 
-                List<string> used = new List<string>();
+                List<String> used = new List<string>();
                 List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects;
                 foreach (WorldObject found in worldObjects)
                 {
@@ -791,6 +790,7 @@ namespace FactionColonies
                 settlementfc = new SettlementFC("Settlement", tile);
             }
 
+            Log.Message("2");
             //create settlement data for world object
             settlementfc.power.isTithe = true;
             settlementfc.power.isTitheBool = true;
@@ -806,6 +806,8 @@ namespace FactionColonies
             if (worldcomp.hasPolicy(FCPolicyDefOf.expansionist) && settlementfc.settlementLevel == 1)
                 settlementfc.upgradeSettlement();
 
+            Log.Message("3");
+            
             worldcomp.addSettlement(settlementfc);
             if (createWorldObject)
             {
@@ -998,40 +1000,58 @@ namespace FactionColonies
         {
             FactionFC worldcomp = Find.World.GetComponent<FactionFC>();
             List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (FCEvent evt in worldcomp.events.Where(evt => evt.def == FCEventDefOf.settlementBeingAttacked))
+            foreach (FCEvent evt in worldcomp.events)
             {
-                list.Add(new DebugMenuOption(
-                    worldcomp.returnSettlementByLocation(evt.location, evt.planetName).name,
-                    DebugMenuOptionMode.Action, delegate
-                    {
-                        //when event is selected, select defending force to replace it with
+                if (evt.def == FCEventDefOf.settlementBeingAttacked)
+                {
+                    list.Add(new DebugMenuOption(
+                        worldcomp.returnSettlementByLocation(evt.location, evt.planetName).name,
+                        DebugMenuOptionMode.Action, delegate
+                        {
+                            //when event is selected, select defending force to replace it with
 
-                        List<DebugMenuOption> list2 = (from settlement in worldcomp.settlements
-                            where settlement.isMilitaryValid() && settlement.name != evt.settlementFCDefending.name
-                            select new DebugMenuOption(settlement.name + " - " + settlement.settlementMilitaryLevel + " - Busy: " + settlement.isMilitaryBusySilent(), DebugMenuOptionMode.Action, delegate
+                            List<DebugMenuOption> list2 = new List<DebugMenuOption>();
+                            foreach (SettlementFC settlement in worldcomp.settlements)
                             {
-                                if (settlement.isMilitaryBusy()) return;
-                                Log.Message("Debug - Change Player Settlement - " + evt.militaryForceDefending.homeSettlement.name + " to " + settlement.name);
-                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement);
-                            })).ToList();
+                                if (settlement.isMilitaryValid() && settlement.name != evt.settlementFCDefending.name)
+                                {
+                                    list2.Add(new DebugMenuOption(
+                                        settlement.name + " - " + settlement.settlementMilitaryLevel + " - Busy: " +
+                                        settlement.isMilitaryBusySilent(), DebugMenuOptionMode.Action, delegate
+                                        {
+                                            if (settlement.isMilitaryBusy() == false)
+                                            {
+                                                Log.Message("Debug - Change Player Settlement - " +
+                                                            evt.militaryForceDefending.homeSettlement.name + " to " +
+                                                            settlement.name);
+                                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement);
+                                            }
+                                        }
+                                    ));
+                                }
+                            }
 
-                        Find.WindowStack.Add(new Dialog_DebugOptionListLister(list2));
-                    }
-                ));
-                Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
+                            Find.WindowStack.Add(new Dialog_DebugOptionListLister(list2));
+                        }
+                    ));
+                    Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
+                }
             }
         }
 
         [DebugAction("Empire", "Upgrade Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
         private static void UpgradePlayerSettlement()
         {
-            List<DebugMenuOption> list = Find.World.GetComponent<FactionFC>()
-                .settlements.Select(settlement => new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                {
-                    Log.Message("Debug - Upgrade Player Settlement - " + settlement.name);
-                    settlement.upgradeSettlement();
-                }))
-                .ToList();
+            List<DebugMenuOption> list = new List<DebugMenuOption>();
+            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
+            {
+                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                    {
+                        Log.Message("Debug - Upgrade Player Settlement - " + settlement.name);
+                        settlement.upgradeSettlement();
+                    }
+                ));
+            }
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
@@ -1039,16 +1059,19 @@ namespace FactionColonies
         [DebugAction("Empire", "Upgrade Player Settlement x5", allowedGameStates = AllowedGameStates.Playing)]
         private static void UpgradePlayerSettlementx5()
         {
-            List<DebugMenuOption> list = Find.World.GetComponent<FactionFC>()
-                .settlements.Select(settlement => new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                {
-                    Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
-                    for (int i = 0; i < 5; i++)
+            List<DebugMenuOption> list = new List<DebugMenuOption>();
+            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
+            {
+                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
                     {
-                        settlement.upgradeSettlement();
+                        Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
+                        for (int i = 0; i < 5; i++)
+                        {
+                            settlement.upgradeSettlement();
+                        }
                     }
-                }))
-                .ToList();
+                ));
+            }
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
@@ -1064,13 +1087,16 @@ namespace FactionColonies
         [DebugAction("Empire", "De-Level Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
         private static void DelevelPlayerSettlement()
         {
-            List<DebugMenuOption> list = Find.World.GetComponent<FactionFC>()
-                .settlements.Select(settlement => new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                {
-                    Log.Message("Debug - Delevel Player Settlement - " + settlement.name);
-                    settlement.delevelSettlement();
-                }))
-                .ToList();
+            List<DebugMenuOption> list = new List<DebugMenuOption>();
+            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
+            {
+                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                    {
+                        Log.Message("Debug - Delevel Player Settlement - " + settlement.name);
+                        settlement.delevelSettlement();
+                    }
+                ));
+            }
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
@@ -1802,13 +1828,6 @@ namespace FactionColonies
             return LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>();
         }
         
-        public static FactionColoniesMilitary SavedMilitary()
-        {
-            return savedMilitary ?? (savedMilitary = LoadedModManager.ReadModSettings<FactionColoniesMilitary>(
-                LoadedModManager.GetMod<FactionColoniesMod>().Content.FolderName,
-                "EmpireMilitary"));
-        }
-
         public static string getTownTitle(SettlementFC settlement)
         {
             string title = "";
@@ -1899,26 +1918,6 @@ namespace FactionColonies
         }
     }
 
-    public class FactionColoniesMilitary : ModSettings
-    {
-        public List<MilUnitFC> savedUnits;
-        public int nextUnitId;
-        public List<MilSquadFC> savedSquads;
-        public int nextSquadId;
-
-        //Band-aid fix to default to 10000 instead of 1 so local squads work fine.
-        public override void ExposeData()
-        {
-            Scribe_Collections.Look(ref savedUnits, "savedUnits", LookMode.Deep);
-            Scribe_Values.Look(ref nextUnitId, "nextUnitID", 10000);
-            Scribe_Collections.Look(ref savedSquads, "savedSquads", LookMode.Deep);
-            Scribe_Values.Look(ref nextSquadId, "nextSquadID", 10000);
-        }
-        
-        public new void Write() => LoadedModManager.WriteModSettings(
-            LoadedModManager.GetMod<FactionColoniesMod>().Content.FolderName, 
-            "EmpireMilitary", this);
-    }
     
     public class FactionColoniesMod : Mod
     {
@@ -1944,12 +1943,6 @@ namespace FactionColonies
         int maxDaysTillMilitaryAction;
         IntRange minMaxDaysTillMilitaryAction;
         
-        public List<MilUnitFC> savedUnits;
-        public int nextUnitId;
-        public List<MilSquadFC> savedSquads;
-        public int nextSquadId;
-
-
         public override void DoSettingsWindowContents(Rect inRect)
         {
             silverPerResource = settings.silverPerResource.ToString();
@@ -2026,7 +2019,6 @@ namespace FactionColonies
             LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillMilitaryAction =
                 LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                     .minMaxDaysTillMilitaryAction.max;
-            FactionColonies.SavedMilitary().Write();
             base.WriteSettings();
         }
     }

@@ -327,7 +327,7 @@ namespace FactionColonies
             List<Pawn> friendlies;
             Dictionary<Pawn, Pawn> riders = new Dictionary<Pawn, Pawn>();
             if (force.homeSettlement.militarySquad != null &&
-                force.homeSettlement.militarySquad.mercenaries.Any())
+                force.homeSettlement.militarySquad.EquippedMercenaries.Any())
             {
                 MercenarySquadFC squad = force.homeSettlement.militarySquad;
 
@@ -363,9 +363,6 @@ namespace FactionColonies
                 }
             }
 
-            //Sort animals last so their owners are placed
-            friendlies.Sort((first, second) =>
-                first.AnimalOrWildMan() ? second.AnimalOrWildMan() ? 0 : 1 : second.AnimalOrWildMan() ? 0 : -1);
             foreach (Pawn friendly in friendlies)
             {
                 IntVec3 loc;

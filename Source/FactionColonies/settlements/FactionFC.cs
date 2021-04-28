@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.BaseGen;
@@ -23,7 +22,14 @@ namespace FactionColonies
         public int militaryTimeDue;
         public int mercenaryTick;
         public bool factionCreated;
-        
+
+        private int nextUnitId;
+        private int nextSquadId;
+
+        public int NextUnitID => ++nextUnitId;
+        public int NextSquadID => ++nextSquadId;
+
+
         public List<SettlementFC> settlements = new List<SettlementFC>();
         public string name = "PlayerFaction".Translate();
         public string title = "Bastion".Translate();
@@ -41,7 +47,8 @@ namespace FactionColonies
         private bool firstTick = true;
         public Texture2D factionIcon = TexLoad.factionIcons.ElementAt(0);
         public string factionIconPath = TexLoad.factionIcons.ElementAt(0).name;
-        
+
+
         //New Types of PRoductions
         public float researchPointPool;
         public float powerPool;
@@ -58,8 +65,9 @@ namespace FactionColonies
         public List<FCPolicy> policies = new List<FCPolicy>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
         public List<int> militaryTargets = new List<int>();
-        public RaceThingFilter raceFilter = new RaceThingFilter();
-        
+        public ThingFilter raceFilter = new ThingFilter();
+
+
         //Faction resources
         public ResourceFC food = new ResourceFC(1, ResourceType.Food);
         public ResourceFC weapons = new ResourceFC(1, ResourceType.Weapons);
@@ -76,7 +84,7 @@ namespace FactionColonies
 
         //Faction Def
         public FactionFCDef factionDef = new FactionFCDef();
-        
+
         //Update
         public double updateVersion;
         public int nextSettlementFCID = 1;
@@ -88,9 +96,6 @@ namespace FactionColonies
         public int nextPrisonerID = 1;
 
         //Military 
-        public int NextUnitID => FactionColonies.SavedMilitary().nextUnitId;
-        public int NextSquadID =>  FactionColonies.SavedMilitary().nextSquadId;
-        
         public int nextMilitaryFireSupportID = 1;
 
         //Military Customization
@@ -135,6 +140,17 @@ namespace FactionColonies
 
         //Research Trading
         public float tradedAmount;
+
+        //Call for aid
+        // [HarmonyPatch(typeof(FactionDialogMaker), "CallForAid")]
+        // class WorldObjectGizmos
+        //{
+        //    static void Prefix(Map map, Faction faction)
+        //    {
+
+        //    }
+        // }
+
 
         public override void ExposeData()
         {
@@ -586,46 +602,46 @@ namespace FactionColonies
         {
             static bool Prefix(Pawn __instance)
             {
-                if (__instance == null) return false;
                 FactionFC faction = Find.World.GetComponent<FactionFC>();
-                if (!faction.militaryCustomizationUtil.AllMercenaryPawns
-                    .Contains(__instance)) return true;
-                if(__instance.Faction != FactionColonies.getPlayerColonyFaction()) {
-                    __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
-                }
-                MercenarySquadFC squad = faction.militaryCustomizationUtil
-                    .returnSquadFromUnit(__instance);
-                if (squad != null)
+                if (faction.militaryCustomizationUtil.AllMercenaryPawns
+                    .Contains(__instance))
                 {
-                    Mercenary merc = faction.militaryCustomizationUtil
-                        .returnMercenaryFromUnit(__instance, squad);
-                    if (merc != null)
+                    __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
+                    MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
+                        .returnSquadFromUnit(__instance);
+                    if (squad != null)
                     {
-                        if (squad.settlement != null)
+                        Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
+                            .returnMercenaryFromUnit(__instance, squad);
+                        if (merc != null)
                         {
-                            if (FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+                            if (squad.settlement != null)
                             {
-                                squad.dead += 1;
+                                if (FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+                                {
+                                    squad.dead += 1;
+                                }
+
+                                squad.settlement.happiness -= 1;
                             }
 
-                            squad.settlement.happiness -= 1;
+                            squad.PassPawnToDeadMercenaries(merc);
                         }
 
-                        squad.PassPawnToDeadMercenaries(merc);
+                        squad.removeDroppedEquipment();
+                    }
+                    else
+                    {
+                        Log.Message("Mercenary Errored out. Did not find squad.");
                     }
 
-                    squad.removeDroppedEquipment();
-                }
-                else
-                {
-                    Log.Message("Mercenary Errored out. Did not find squad.");
+                    __instance.equipment.DestroyAllEquipment();
+                    __instance.apparel.DestroyAll();
+                    //__instance.Destroy();
+                    return false;
                 }
 
-                __instance.equipment?.DestroyAllEquipment();
-                __instance.apparel?.DestroyAll();
-                //__instance.Destroy();
-                return false;
-
+                return true;
             }
         }
 
@@ -936,9 +952,11 @@ namespace FactionColonies
 
         //CallForAid
         //Remove ability to attack colony.
+
+
         public FactionFC(World world) : base(world)
         {
-            Harmony harmony = new Harmony("com.Saakra.Empire");
+            var harmony = new Harmony("com.Saakra.Empire");
 
             if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Linux)
             {
@@ -956,7 +974,8 @@ namespace FactionColonies
             {
                 //Android_Tiers_Patches.Patch(harmony);
             }
-            
+
+
             power.isTithe = true;
             power.isTitheBool = true;
             research.isTithe = true;
@@ -1317,20 +1336,6 @@ namespace FactionColonies
             return nextMercenaryID;
         }
 
-        public int GetNextUnitID()
-        {
-            FactionColonies.SavedMilitary().nextUnitId++;
-
-            return NextUnitID;
-        }
-
-        public int GetNextSquadID()
-        {
-            FactionColonies.SavedMilitary().nextSquadId++;
-
-            return NextSquadID;
-        }
-
         public int GetNextMilitaryFireSupportID()
         {
             nextMilitaryFireSupportID++;
@@ -1502,13 +1507,10 @@ namespace FactionColonies
             updateFaction();
 
             Faction playerColonyfaction = FactionColonies.getPlayerColonyFaction();
-            if (playerColonyfaction == null || playerColonyfaction.def.techLevel >= techLevel) return;
-            Log.Message("Updating Tech Level");
-            updateFactionDef(techLevel, ref playerColonyfaction);
-
-            foreach (SettlementFC settlement in settlements)
+            if (playerColonyfaction != null && playerColonyfaction.def.techLevel < techLevel)
             {
-                settlement.worldSettlement.updateTechIcon();
+                Log.Message("Updating Tech Level");
+                updateFactionDef(techLevel, ref playerColonyfaction);
             }
         }
 
@@ -1663,20 +1665,23 @@ namespace FactionColonies
 
         public void resetRaceFilter()
         {
-            raceFilter = new RaceThingFilter(true);
+            raceFilter = new ThingFilter();
 
             List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading
-                .Where(def => def.race.race.intelligence == Intelligence.Humanlike && 
-                              races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
+            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading)
             {
-                if (def.race.label == "Human" && def.LabelCap != "Colonist")
+                if (def.race.race.intelligence == Intelligence.Humanlike & races.Contains(def.race.label) == false &&
+                    def.race.BaseMarketValue != 0)
                 {
-                    continue;
+                    if (def.race.label == "Human" && def.LabelCap != "Colonist")
+                    {
+                    }
+                    else
+                    {
+                        races.Add(def.race.label);
+                        raceFilter.SetAllow(def.race, true);
+                    }
                 }
-
-                races.Add(def.race.label);
-                raceFilter.SetAllow(def.race, true);
             }
         }
 

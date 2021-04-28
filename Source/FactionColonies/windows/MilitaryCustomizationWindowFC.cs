@@ -75,14 +75,11 @@ namespace FactionColonies
 
         public ThingDef expendProjectile()
         {
-            if (projectiles.Count() > 0)
-            {
-                ThingDef projectile = projectiles[0];
-                projectiles.RemoveAt(0);
-                return projectile;
-            }
+            if (!projectiles.Any()) return null;
+            ThingDef projectile = projectiles[0];
+            projectiles.RemoveAt(0);
+            return projectile;
 
-            return null;
         }
 
         public List<ThingDef> returnFireSupportOptions()
@@ -116,33 +113,13 @@ namespace FactionColonies
             Scribe_Collections.Look(ref projectiles, "projectiles", LookMode.Def);
         }
     }
-    
+
+
     //Mil customization class
     public class MilitaryCustomizationUtil : IExposable
     {
         public List<MilUnitFC> units = new List<MilUnitFC>();
         public List<MilSquadFC> squads = new List<MilSquadFC>();
-
-        private IEnumerable<MilUnitFC> cachedUniqueUnits;
-        private IEnumerable<MilSquadFC> cachedUniqueSquads;
-
-        //This mess is required because accessing the saved units in the constructor breaks stuff
-        //I tried using lazy, but couldn't reference units from in the value factory
-        public IEnumerable<MilUnitFC> UniqueUnits => cachedUniqueUnits ??
-                                                     (cachedUniqueUnits = FactionColonies.SavedMilitary().savedUnits?
-                                                                              .Where(unit =>
-                                                                                  !units.Any(testing =>
-                                                                                      unit.loadID == testing.loadID)) ??
-                                                                          new List<MilUnitFC>());
-
-        public IEnumerable<MilSquadFC> UniqueSquads => cachedUniqueSquads ??
-                                                       (cachedUniqueSquads =
-                                                           FactionColonies.SavedMilitary().savedSquads?
-                                                               .Where(squad =>
-                                                                   !squads.Any(testing =>
-                                                                       squad.loadID ==
-                                                                       testing.loadID)) ??
-                                                           new List<MilSquadFC>());
 
         public List<MercenarySquadFC> mercenarySquads = new List<MercenarySquadFC>();
         public List<MilitaryFireSupport> fireSupport = new List<MilitaryFireSupport>();
@@ -150,8 +127,7 @@ namespace FactionColonies
         public MilUnitFC blankUnit;
         public List<Mercenary> deadPawns = new List<Mercenary>();
         public int tickChanged;
-
-
+        
         public MilitaryCustomizationUtil()
         {
             //set load stuff here
@@ -203,8 +179,7 @@ namespace FactionColonies
                 }
 
                 if (!changed) continue;
-                foreach (var squadMerc in mercenarySquads.Where(squadMerc =>
-                    squadMerc.outfit != null && squadMerc.outfit == squad))
+                foreach (var squadMerc in mercenarySquads.Where(squadMerc => squadMerc.outfit != null && squadMerc.outfit == squad))
                 {
                     squadMerc.OutfitSquad(squad);
                 }
@@ -247,12 +222,15 @@ namespace FactionColonies
 
         public int GETLatestChange
         {
-            get { return squads.Select(squadFC => squadFC.getLatestChanged).Prepend(0).Max(); }
+            get
+            {
+                return squads.Select(squadFC => squadFC.getLatestChanged).Prepend(0).Max();
+            }
         }
 
         public MercenarySquadFC returnSquadFromUnit(Pawn unit)
         {
-            foreach (MercenarySquadFC squad in mercenarySquads.Where(squad => squad.AllDeployedMercenaryPawns.Contains(unit)))
+            foreach (var squad in mercenarySquads.Where(squad => squad.AllDeployedMercenaryPawns.Contains(unit)))
             {
                 return squad;
             }
@@ -286,12 +264,18 @@ namespace FactionColonies
 
         public IEnumerable<MercenarySquadFC> DeployedSquads
         {
-            get { return mercenarySquads.Where(squad => squad.isDeployed).ToList(); }
+            get
+            {
+                return mercenarySquads.Where(squad => squad.isDeployed).ToList();
+            }
         }
 
         public List<Pawn> AllMercenaryPawns
         {
-            get { return AllMercenaries.Select(merc => merc.pawn).ToList(); }
+            get
+            {
+                return AllMercenaries.Select(merc => merc.pawn).ToList();
+            }
         }
 
         public void resetSquads()
@@ -306,7 +290,7 @@ namespace FactionColonies
                 unit.updateEquipmentTotalCost();
             }
         }
-
+        
         public void attemptToAssignSquad(SettlementFC settlement, MilSquadFC squad)
         {
             if (FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel) >=
@@ -400,7 +384,7 @@ namespace FactionColonies
 
         public MilUnitFC(bool blank)
         {
-            loadID = Find.World.GetComponent<FactionFC>().GetNextUnitID();
+            loadID = Find.World.GetComponent<FactionFC>().NextUnitID;
             isBlank = blank;
             equipmentTotalCost = 0;
             pawnKind = PawnKindDefOf.Colonist;
@@ -415,8 +399,8 @@ namespace FactionColonies
         public void ExposeData()
         {
             Scribe_Values.Look(ref loadID, "loadID");
-            Scribe_Values.Look(ref name, "name");
             Scribe_Deep.Look(ref defaultPawn, "defaultPawn");
+            Scribe_Values.Look(ref name, "name");
             Scribe_Values.Look(ref isBlank, "blank");
             Scribe_Values.Look(ref equipmentTotalCost, "equipmentTotalCost", -1);
             Scribe_Values.Look(ref isTrader, "isTrader");
@@ -560,21 +544,16 @@ namespace FactionColonies
             else
             {
                 double totalCost = 0;
-
-                Log.Message("1: " + defaultPawn);
-                Log.Message("Def: " + defaultPawn.def);
+                
                 totalCost += Math.Floor(defaultPawn.def.BaseMarketValue * FactionColonies.militaryRaceCostMultiplier);
-                Log.Message("2");
-                totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost,
+                totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost, 
                     (current, thing) => current + thing.MarketValue);
 
-                Log.Message("3");
-                totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost,
+                totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost, 
                     (current, thing) => current + thing.MarketValue);
 
                 if (animal != null)
                 {
-                    Log.Message("4");
                     totalCost += Math.Floor(animal.race.BaseMarketValue * FactionColonies.militaryAnimalCostMultiplier);
                 }
 
@@ -899,7 +878,9 @@ namespace FactionColonies
 
         public void createNewAnimal(ref Mercenary merc, PawnKindDef race)
         {
-            var newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race,
+            Pawn newPawn;
+            Log.Message("Found race " + race.race);
+            newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
             //merc = (Mercenary)newPawn;
@@ -912,16 +893,31 @@ namespace FactionColonies
 
         public void createNewPawn(ref Mercenary merc, PawnKindDef race)
         {
-            //pawn.ParentHolder.remov
-            if (merc.pawn?.health != null && merc.pawn.health.Dead)
+            if (merc.pawn != null)
             {
-                //Log.Message("Passing old pawn to dead mercenaries");
-                //PassPawnToDeadMercenaries(pawn);
+                //pawn.ParentHolder.remov
+                if (merc.pawn.health != null && merc.pawn.health.Dead)
+                {
+                    //Log.Message("Passing old pawn to dead mercenaries");
+                    //PassPawnToDeadMercenaries(pawn);
+                }
             }
 
-            PawnKindDef raceChoice = race ?? PawnKindDefOf.Colonist;
-            
-            Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
+            PawnKindDef raceChoice;
+
+
+            if (race == null)
+            {
+                raceChoice = PawnKindDefOf.Colonist;
+            }
+            else
+            {
+                raceChoice = race;
+            }
+
+
+            Pawn newPawn;
+            newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
             newPawn.apparel.DestroyAll();
@@ -1222,7 +1218,7 @@ namespace FactionColonies
 
         public void setLoadID()
         {
-            loadID = Find.World.GetComponent<FactionFC>().GetNextSquadID();
+            loadID = Find.World.GetComponent<FactionFC>().NextSquadID;
         }
 
         public int updateEquipmentTotalCost()
@@ -1606,7 +1602,7 @@ namespace FactionColonies
                                 }));
                         }
 
-                        squads.AddRange(util.UniqueSquads
+                        squads.AddRange(util.squads
                             .Select(squad => new FloatMenuOption(squad.name + " - Total Equipment Cost: " +
                                                                  squad.equipmentTotalCost, delegate
                             {
@@ -1853,8 +1849,6 @@ namespace FactionColonies
             Rect SaveSquadButton = new Rect(DeleteButton.x, PointRefButton.y + DeleteButton.height + 5,
                 DeleteButton.width, DeleteButton.height);
 
-            List<MilSquadFC> savedSquads = FactionColonies.SavedMilitary()
-                .savedSquads ?? new List<MilSquadFC>();
 
             //If squad is not selected
             if (Widgets.CustomButtonText(ref SelectionBar, selectedText, Color.gray, Color.white, Color.black))
@@ -1871,7 +1865,7 @@ namespace FactionColonies
                     {
                         MilSquadFC newSquad = new MilSquadFC(true)
                         {
-                            name = "New Squad " + (util.squads.Count + savedSquads.Count + 1)
+                            name = "New Squad " + (util.squads.Count + 1)
                         };
                         selectedText = newSquad.name;
                         selectedSquad = newSquad;
@@ -1882,18 +1876,22 @@ namespace FactionColonies
 
                 //Option to create new unit
 
-                if (util.UniqueSquads.Any())
+                if (FactionColoniesMilitary.getSavedSquads().Any())
                 {
                     squads.Add(new FloatMenuOption("Load Saved Squad", delegate
                     {
-                        List<FloatMenuOption> savedSquadsMenu = util.UniqueSquads
-                            .Select(squad =>
+                        List<FloatMenuOption> savedSquadsMenu = FactionColoniesMilitary.getSavedSquads().Select(squad =>
                                 new FloatMenuOption(squad.name, delegate
                                 {
                                     //Unit is selected
                                     selectedText = squad.name;
-                                    selectedSquad = squad;
+                                    if (util.squads.Exists(found => squad.name == found.name))
+                                    {
+                                        selectedText += "-1";
+                                    }
+                                    selectedSquad = squad.CreateMilSquad();
                                     selectedSquad.updateEquipmentTotalCost();
+                                    util.squads.Add(selectedSquad);
                                 })).ToList();
                         FloatMenu savedSelection = new FloatMenu(savedSquadsMenu);
                         Find.WindowStack.Add(savedSelection);
@@ -1987,28 +1985,8 @@ namespace FactionColonies
 
                 if (Widgets.ButtonText(SaveSquadButton, "Save Squad"))
                 {
-                    int index = savedSquads.FindIndex(squad => squad.loadID == selectedSquad.loadID);
-                    if (index >= 0)
-                    {
-                        savedSquads.RemoveAt(index);
-                        savedSquads.Insert(index, selectedSquad);
-                    }
-                    else
-                    {
-                        savedSquads.Add(selectedSquad);
-                    }
-
-                    foreach (MilUnitFC unit in selectedSquad.units)
-                    {
-                        List<MilUnitFC> saved = FactionColonies.SavedMilitary().savedUnits;
-                        if (!saved.Any(found => found.loadID == unit.loadID))
-                        {
-                            saved.Add(unit);
-                        }
-                    }
-
                     Messages.Message("SavedSquad".Translate(), MessageTypeDefOf.TaskCompletion);
-                    FactionColonies.SavedMilitary().savedSquads = savedSquads;
+                    FactionColoniesMilitary.SaveSquad(new SavedSquadFC(selectedSquad));
                 }
 
                 //for (int k = 0; k < 30; k++)
@@ -2047,15 +2025,6 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        units.AddRange(util.UniqueUnits
-                            .Select(unit => new FloatMenuOption(unit.name +
-                                                                " - Cost: " + unit.equipmentTotalCost, delegate
-                            {
-                                //Unit is selected
-                                selectedSquad.units[click] = unit;
-                                selectedSquad.updateEquipmentTotalCost();
-                                selectedSquad.ChangeTick();
-                            })));
                         FloatMenu selection = new FloatMenu(units);
                         Find.WindowStack.Add(selection);
                     }
@@ -2126,7 +2095,6 @@ namespace FactionColonies
             Rect ChangeRace = new Rect(325, ResetButton.y, SavePawn.width, SavePawn.height);
             Rect RollNewPawn = new Rect(325, ResetButton.y + SavePawn.height + 5, SavePawn.width, SavePawn.height);
 
-            List<MilUnitFC> savedUnits = FactionColonies.SavedMilitary().savedUnits ?? new List<MilUnitFC>();
             //Rect ApparelTorso
             //If unit is not selected
             if (Widgets.CustomButtonText(ref SelectionBar, selectedText, Color.gray, Color.white, Color.black))
@@ -2145,21 +2113,27 @@ namespace FactionColonies
                     util.units.Add(newUnit);
                 }));
 
-                if (util.UniqueUnits.Any())
+                if (FactionColoniesMilitary.getSavedUnits().Any())
                 {
                     Units.Add(new FloatMenuOption("Load Saved Units", delegate
                     {
                         List<FloatMenuOption> savedUnitMenu = new List<FloatMenuOption>();
-                        foreach (MilUnitFC unit in util.UniqueUnits)
+                        foreach (SavedUnitFC unit in FactionColoniesMilitary.getSavedUnits())
                         {
-                            if (unit.defaultPawn.equipment.Primary != null)
+                            if (unit.weapon != null)
                             {
                                 savedUnitMenu.Add(new FloatMenuOption(unit.name, delegate
                                 {
                                     //Unit is selected
                                     selectedText = unit.name;
-                                    selectedUnit = unit;
-                                }, unit.defaultPawn.equipment.Primary.def));
+                                    
+                                    if (util.units.Exists(found => unit.name == found.name))
+                                    {
+                                        selectedText += "-1";
+                                    }
+                                    selectedUnit = unit.CreateMilUnit();
+                                    util.units.Add(selectedUnit);
+                                }, unit.weapon));
                             }
                             else
                             {
@@ -2167,7 +2141,7 @@ namespace FactionColonies
                                 {
                                     //Unit is selected
                                     selectedText = unit.name;
-                                    selectedUnit = unit;
+                                    selectedUnit = unit.CreateMilUnit();
                                 }));
                             }
                         }
@@ -2307,18 +2281,7 @@ namespace FactionColonies
 
             if (Widgets.ButtonText(SavePawn, "Save Unit"))
             {
-                int index = savedUnits.FindIndex(unit => unit.loadID == selectedUnit.loadID);
-                if (index >= 0)
-                {
-                    savedUnits.RemoveAt(index);
-                    savedUnits.Insert(index, selectedUnit);
-                }
-                else
-                {
-                    savedUnits.Add(selectedUnit);
-                }
-
-                FactionColonies.SavedMilitary().savedUnits = savedUnits;
+                FactionColoniesMilitary.SaveUnit(new SavedUnitFC(selectedUnit));
                 Messages.Message("SavedUnit".Translate(), MessageTypeDefOf.TaskCompletion);
             }
 
@@ -2329,7 +2292,7 @@ namespace FactionColonies
             Widgets.CheckboxLabeled(isTrader, "is Trader", ref selectedUnit.isTrader);
             selectedUnit.setTrader(selectedUnit.isTrader);
             selectedUnit.setCivilian(selectedUnit.isCivilian);
-
+            
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
@@ -2340,10 +2303,9 @@ namespace FactionColonies
                 {
                     //Widgets.DrawTextureFitted(animalIcon, selectedUnit.animal.race.graphicData.Graphic.MatNorth.mainTexture, 1);
                 }
-
                 Widgets.ThingIcon(unitIcon, selectedUnit.defaultPawn);
             }
-
+            
             //Animal Companion
             if (Widgets.ButtonInvisible(AnimalCompanion))
             {
