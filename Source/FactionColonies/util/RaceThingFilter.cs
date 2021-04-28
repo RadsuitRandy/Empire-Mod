@@ -17,7 +17,6 @@ namespace FactionColonies.util
         public RaceThingFilter(bool reset)
         {
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
-            Log.Message("Def: " + faction);
             faction.pawnGroupMakers = new List<PawnGroupMaker>();
         }
         
