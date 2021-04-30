@@ -1517,303 +1517,287 @@ namespace FactionColonies
             int count = 0;
             foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
             {
-                if (
-                    true) //count * (settlementYSpacing+settlementHeight) + scroll >= 0 && count * (settlementYSpacing + settlementHeight) + scroll <= settlementWindowHeight)
+                Text.Font = GameFont.Small;
+
+                Widgets.DrawMenuSection(new Rect(SettlementBox.x,
+                    SettlementBox.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                    SettlementBox.width, SettlementBox.height));
+
+                //click on settlement name
+                if (Widgets.ButtonTextSubtle(
+                    new Rect(SettlementName.x,
+                        SettlementName.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        SettlementName.width, SettlementName.height), settlement.name))
                 {
-                    Text.Font = GameFont.Small;
+                    Find.WindowStack.Add(new SettlementWindowFc(settlement));
+                }
 
-                    Widgets.DrawMenuSection(new Rect(SettlementBox.x,
-                        SettlementBox.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                        SettlementBox.width, SettlementBox.height));
-
-                    //click on settlement name
-                    if (Widgets.ButtonTextSubtle(
-                        new Rect(SettlementName.x,
-                            SettlementName.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            SettlementName.width, SettlementName.height), settlement.name))
+                Widgets.Label(
+                    new Rect(MilitaryLevel.x,
+                        MilitaryLevel.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        MilitaryLevel.width, MilitaryLevel.height * 2),
+                    "Mil Level: " + settlement.settlementMilitaryLevel + " - Max Squad Cost: " +
+                    FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel));
+                if (settlement.militarySquad != null)
+                {
+                    if (settlement.militarySquad.outfit != null)
                     {
-                        Find.WindowStack.Add(new SettlementWindowFc(settlement));
-                    }
-
-                    Widgets.Label(
-                        new Rect(MilitaryLevel.x,
-                            MilitaryLevel.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            MilitaryLevel.width, MilitaryLevel.height * 2),
-                        "Mil Level: " + settlement.settlementMilitaryLevel + " - Max Squad Cost: " +
-                        FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel));
-                    if (settlement.militarySquad != null)
-                    {
-                        if (settlement.militarySquad.outfit != null)
-                        {
-                            Widgets.Label(
-                                new Rect(AssignedSquad.x,
-                                    AssignedSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                                    AssignedSquad.width, AssignedSquad.height),
-                                "Assigned Squad: " +
-                                settlement.militarySquad.outfit.name); //settlement.militarySquad.name);
-                        }
-                        else
-                        {
-                            Widgets.Label(
-                                new Rect(AssignedSquad.x,
-                                    AssignedSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                                    AssignedSquad.width, AssignedSquad.height),
-                                "No assigned Squad"); //settlement.militarySquad.name);
-                        }
+                        Widgets.Label(
+                            new Rect(AssignedSquad.x,
+                                AssignedSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                                AssignedSquad.width, AssignedSquad.height),
+                            "Assigned Squad: " +
+                            settlement.militarySquad.outfit.name); //settlement.militarySquad.name);
                     }
                     else
                     {
                         Widgets.Label(
                             new Rect(AssignedSquad.x,
                                 AssignedSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                                AssignedSquad.width, AssignedSquad.height), "No assigned Squad");
+                                AssignedSquad.width, AssignedSquad.height),
+                            "No assigned Squad"); //settlement.militarySquad.name);
                     }
-
-
+                }
+                else
+                {
                     Widgets.Label(
-                        new Rect(isBusy.x, isBusy.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            isBusy.width, isBusy.height), "Available: " + (!settlement.isMilitaryBusySilent()));
+                        new Rect(AssignedSquad.x,
+                            AssignedSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                            AssignedSquad.width, AssignedSquad.height), "No assigned Squad");
+                }
 
-                    Text.Font = GameFont.Tiny;
 
-                    //Set Squad Button
-                    if (Widgets.ButtonText(
-                        new Rect(buttonSetSquad.x,
-                            buttonSetSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            buttonSetSquad.width, buttonSetSquad.height), "Set Squad"))
+                Widgets.Label(
+                    new Rect(isBusy.x, isBusy.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        isBusy.width, isBusy.height), "Available: " + (!settlement.isMilitaryBusySilent()));
+
+                Text.Font = GameFont.Tiny;
+
+                //Set Squad Button
+                if (Widgets.ButtonText(
+                    new Rect(buttonSetSquad.x,
+                        buttonSetSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        buttonSetSquad.width, buttonSetSquad.height), "Set Squad"))
+                {
+                    //check null
+                    if (util.squads == null)
                     {
-                        //check null
-                        if (util.squads == null)
-                        {
-                            util.resetSquads();
-                        }
-
-                        List<FloatMenuOption> squads = new List<FloatMenuOption>();
-
-
-                        //Create list of selectable units
-                        foreach (MilSquadFC squad in util.squads)
-                        {
-                            squads.Add(new FloatMenuOption(
-                                squad.name + " - Total Equipment Cost: " + squad.equipmentTotalCost, delegate
-                                {
-                                    //Unit is selected
-                                    util.attemptToAssignSquad(settlement, squad);
-                                }));
-                        }
-
-                        squads.AddRange(util.squads
-                            .Select(squad => new FloatMenuOption(squad.name + " - Total Equipment Cost: " +
-                                                                 squad.equipmentTotalCost, delegate
-                            {
-                                //Unit is selected
-                                util.attemptToAssignSquad(settlement, squad);
-                            })));
-
-                        if (squads.Count == 0)
-                        {
-                            squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
-                        }
-
-                        FloatMenu selection = new FloatMenu(squads);
-                        Find.WindowStack.Add(selection);
+                        util.resetSquads();
                     }
 
-                    //View Squad
-                    if (Widgets.ButtonText(
-                        new Rect(buttonViewSquad.x,
-                            buttonViewSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            buttonViewSquad.width, buttonViewSquad.height), "View Squad"))
+                    List<FloatMenuOption> squads = new List<FloatMenuOption>();
+
+                    squads.AddRange(util.squads
+                        .Select(squad => new FloatMenuOption(squad.name + " - Total Equipment Cost: " +
+                                                             squad.equipmentTotalCost, delegate
+                        {
+                            //Unit is selected
+                            util.attemptToAssignSquad(settlement, squad);
+                        })));
+
+                    if (squads.Count == 0)
                     {
-                        Messages.Message("This is currently not implemented.", MessageTypeDefOf.RejectInput);
+                        squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
                     }
 
+                    FloatMenu selection = new FloatMenu(squads);
+                    Find.WindowStack.Add(selection);
+                }
 
-                    //Deploy Squad
-                    if (Widgets.ButtonText(
-                        new Rect(buttonDeploySquad.x,
-                            buttonDeploySquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            buttonDeploySquad.width, buttonDeploySquad.height), "Deploy Squad"))
+                //View Squad
+                if (Widgets.ButtonText(
+                    new Rect(buttonViewSquad.x,
+                        buttonViewSquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        buttonViewSquad.width, buttonViewSquad.height), "View Squad"))
+                {
+                    Messages.Message("This is currently not implemented.", MessageTypeDefOf.RejectInput);
+                }
+
+
+                //Deploy Squad
+                if (Widgets.ButtonText(
+                    new Rect(buttonDeploySquad.x,
+                        buttonDeploySquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        buttonDeploySquad.width, buttonDeploySquad.height), "Deploy Squad"))
+                {
+                    if (!(settlement.isMilitaryBusy()) && settlement.isMilitarySquadValid())
                     {
-                        if (!(settlement.isMilitaryBusy()) && settlement.isMilitarySquadValid())
+                        List<FloatMenuOption> options = new List<FloatMenuOption>();
+                        options.Add(new FloatMenuOption("Walk into map", delegate
                         {
-                            List<FloatMenuOption> options = new List<FloatMenuOption>();
-                            options.Add(new FloatMenuOption("Walk into map", delegate
+                            FactionColonies.CallinAlliedForces(settlement, false);
+                            Find.WindowStack.currentlyDrawnWindow.Close();
+                        }));
+                        //check if medieval only
+                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
+                            .GetSettings<FactionColonies>().medievalTechOnly;
+                        if (!medievalOnly &&
+                            Find.ResearchManager.GetProgress(
+                                DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)) ==
+                            DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false).baseCost)
+                        {
+                            options.Add(new FloatMenuOption("Drop-Pod", delegate
                             {
-                                FactionColonies.CallinAlliedForces(settlement, false);
+                                FactionColonies.CallinAlliedForces(settlement, true);
                                 Find.WindowStack.currentlyDrawnWindow.Close();
                             }));
-                            //check if medieval only
-                            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
-                                .GetSettings<FactionColonies>().medievalTechOnly;
-                            if (!medievalOnly &&
-                                Find.ResearchManager.GetProgress(
-                                    DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)) ==
-                                DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false).baseCost)
-                            {
-                                options.Add(new FloatMenuOption("Drop-Pod", delegate
+                        }
+
+                        Find.WindowStack.Add(new FloatMenu(options));
+                    }
+                    else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() &&
+                             faction.hasPolicy(FCPolicyDefOf.militaristic))
+                    {
+                        if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <=
+                            Find.TickManager.TicksGame)
+                        {
+                            int cost = (int) Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *
+                                                        .2);
+                            List<FloatMenuOption> options = new List<FloatMenuOption>();
+
+                            options.Add(new FloatMenuOption("Deploy Secondary Squad - $" + cost + " silver",
+                                delegate
                                 {
-                                    FactionColonies.CallinAlliedForces(settlement, true);
-                                    Find.WindowStack.currentlyDrawnWindow.Close();
+                                    if (PaymentUtil.getSilver() >= cost)
+                                    {
+                                        List<FloatMenuOption> deployment = new List<FloatMenuOption>();
+
+                                        deployment.Add(new FloatMenuOption("Walk into map", delegate
+                                        {
+                                            FactionColonies.CallinAlliedForces(settlement, false, cost);
+                                            Find.WindowStack.currentlyDrawnWindow.Close();
+                                        }));
+                                        //check if medieval only
+                                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
+                                            .GetSettings<FactionColonies>().medievalTechOnly;
+                                        if (!medievalOnly &&
+                                            Find.ResearchManager.GetProgress(
+                                                DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)) ==
+                                            DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)
+                                                .baseCost)
+                                        {
+                                            deployment.Add(new FloatMenuOption("Drop-Pod", delegate
+                                            {
+                                                FactionColonies.CallinAlliedForces(settlement, true, cost);
+                                                Find.WindowStack.currentlyDrawnWindow.Close();
+                                            }));
+                                        }
+
+                                        Find.WindowStack.Add(new FloatMenu(deployment));
+                                    }
+                                    else
+                                    {
+                                        Messages.Message("NotEnoughSilverToDeploySquad".Translate(),
+                                            MessageTypeDefOf.RejectInput);
+                                    }
                                 }));
-                            }
 
                             Find.WindowStack.Add(new FloatMenu(options));
                         }
-                        else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() &&
-                                 faction.hasPolicy(FCPolicyDefOf.militaristic))
+                        else
                         {
-                            if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <=
-                                Find.TickManager.TicksGame)
-                            {
-                                int cost = (int) Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *
-                                                            .2);
-                                List<FloatMenuOption> options = new List<FloatMenuOption>();
+                            Messages.Message(
+                                "XDaysToRedeploy".Translate(Math.Round(
+                                    ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) -
+                                     Find.TickManager.TicksGame).TicksToDays(), 1)), MessageTypeDefOf.RejectInput);
+                        }
+                    }
+                }
 
-                                options.Add(new FloatMenuOption("Deploy Secondary Squad - $" + cost + " silver",
-                                    delegate
+                //Reset Squad
+                if (Widgets.ButtonText(
+                    new Rect(buttonResetPawns.x,
+                        buttonResetPawns.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        buttonResetPawns.width, buttonResetPawns.height), "Reset Pawns"))
+                {
+                    FloatMenuOption confirm = new FloatMenuOption("Are you sure? Click to confirm", delegate
+                    {
+                        if (settlement.militarySquad != null)
+                        {
+                            Messages.Message("Pawns have been regenerated for the squad",
+                                MessageTypeDefOf.NeutralEvent);
+                            settlement.militarySquad.initiateSquad();
+                        }
+                        else
+                        {
+                            Messages.Message("There is no pawns to reset. Assign a squad first.",
+                                MessageTypeDefOf.RejectInput);
+                        }
+                    });
+
+                    List<FloatMenuOption> list = new List<FloatMenuOption>();
+                    list.Add(confirm);
+                    Find.WindowStack.Add(new FloatMenu(list));
+                }
+
+                //Order Fire Support
+                if (Widgets.ButtonText(
+                    new Rect(buttonOrderFireSupport.x,
+                        buttonOrderFireSupport.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
+                        buttonOrderFireSupport.width, buttonOrderFireSupport.height), "Order Fire Support"))
+                {
+                    List<FloatMenuOption> list = new List<FloatMenuOption>();
+
+
+                    foreach (MilitaryFireSupport support in util.fireSupportDefs)
+                    {
+                        float cost = support.returnTotalCost();
+                        FloatMenuOption option = new FloatMenuOption(support.name + " - $" + cost, delegate
+                        {
+                            if (support.returnTotalCost() <=
+                                FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel))
+                            {
+                                if (settlement.buildings.Contains(BuildingFCDefOf.artilleryOutpost))
+                                {
+                                    if (settlement.artilleryTimer <= Find.TickManager.TicksGame)
                                     {
                                         if (PaymentUtil.getSilver() >= cost)
                                         {
-                                            List<FloatMenuOption> deployment = new List<FloatMenuOption>();
-
-                                            deployment.Add(new FloatMenuOption("Walk into map", delegate
-                                            {
-                                                FactionColonies.CallinAlliedForces(settlement, false, cost);
-                                                Find.WindowStack.currentlyDrawnWindow.Close();
-                                            }));
-                                            //check if medieval only
-                                            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
-                                                .GetSettings<FactionColonies>().medievalTechOnly;
-                                            if (!medievalOnly &&
-                                                Find.ResearchManager.GetProgress(
-                                                    DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)) ==
-                                                DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)
-                                                    .baseCost)
-                                            {
-                                                deployment.Add(new FloatMenuOption("Drop-Pod", delegate
-                                                {
-                                                    FactionColonies.CallinAlliedForces(settlement, true, cost);
-                                                    Find.WindowStack.currentlyDrawnWindow.Close();
-                                                }));
-                                            }
-
-                                            Find.WindowStack.Add(new FloatMenu(deployment));
-                                        }
-                                        else
-                                        {
-                                            Messages.Message("NotEnoughSilverToDeploySquad".Translate(),
-                                                MessageTypeDefOf.RejectInput);
-                                        }
-                                    }));
-
-                                Find.WindowStack.Add(new FloatMenu(options));
-                            }
-                            else
-                            {
-                                Messages.Message(
-                                    "XDaysToRedeploy".Translate(Math.Round(
-                                        ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) -
-                                         Find.TickManager.TicksGame).TicksToDays(), 1)), MessageTypeDefOf.RejectInput);
-                            }
-                        }
-                    }
-
-                    //Reset Squad
-                    if (Widgets.ButtonText(
-                        new Rect(buttonResetPawns.x,
-                            buttonResetPawns.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            buttonResetPawns.width, buttonResetPawns.height), "Reset Pawns"))
-                    {
-                        FloatMenuOption confirm = new FloatMenuOption("Are you sure? Click to confirm", delegate
-                        {
-                            if (settlement.militarySquad != null)
-                            {
-                                Messages.Message("Pawns have been regenerated for the squad",
-                                    MessageTypeDefOf.NeutralEvent);
-                                settlement.militarySquad.initiateSquad();
-                            }
-                            else
-                            {
-                                Messages.Message("There is no pawns to reset. Assign a squad first.",
-                                    MessageTypeDefOf.RejectInput);
-                            }
-                        });
-
-                        List<FloatMenuOption> list = new List<FloatMenuOption>();
-                        list.Add(confirm);
-                        Find.WindowStack.Add(new FloatMenu(list));
-                    }
-
-                    //Order Fire Support
-                    if (Widgets.ButtonText(
-                        new Rect(buttonOrderFireSupport.x,
-                            buttonOrderFireSupport.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
-                            buttonOrderFireSupport.width, buttonOrderFireSupport.height), "Order Fire Support"))
-                    {
-                        List<FloatMenuOption> list = new List<FloatMenuOption>();
-
-
-                        foreach (MilitaryFireSupport support in util.fireSupportDefs)
-                        {
-                            float cost = support.returnTotalCost();
-                            FloatMenuOption option = new FloatMenuOption(support.name + " - $" + cost, delegate
-                            {
-                                if (support.returnTotalCost() <=
-                                    FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel))
-                                {
-                                    if (settlement.buildings.Contains(BuildingFCDefOf.artilleryOutpost))
-                                    {
-                                        if (settlement.artilleryTimer <= Find.TickManager.TicksGame)
-                                        {
-                                            if (PaymentUtil.getSilver() >= cost)
-                                            {
-                                                FactionColonies.FireSupport(settlement, support);
-                                                Find.WindowStack.TryRemove(typeof(militaryCustomizationWindowFC));
-                                            }
-                                            else
-                                            {
-                                                Messages.Message(
-                                                    "You lack the required amount of silver to use that firesupport option!",
-                                                    MessageTypeDefOf.RejectInput);
-                                            }
+                                            FactionColonies.FireSupport(settlement, support);
+                                            Find.WindowStack.TryRemove(typeof(militaryCustomizationWindowFC));
                                         }
                                         else
                                         {
                                             Messages.Message(
-                                                "That firesupport option is on cooldown for another " +
-                                                (settlement.artilleryTimer - Find.TickManager.TicksGame)
-                                                .ToStringTicksToDays(), MessageTypeDefOf.RejectInput);
+                                                "You lack the required amount of silver to use that firesupport option!",
+                                                MessageTypeDefOf.RejectInput);
                                         }
                                     }
                                     else
                                     {
                                         Messages.Message(
-                                            "The settlement requires an artillery outpost to be built to use that firesupport option",
-                                            MessageTypeDefOf.RejectInput);
+                                            "That firesupport option is on cooldown for another " +
+                                            (settlement.artilleryTimer - Find.TickManager.TicksGame)
+                                            .ToStringTicksToDays(), MessageTypeDefOf.RejectInput);
                                     }
                                 }
                                 else
                                 {
                                     Messages.Message(
-                                        "The settlement requires a higher military level to use that fire support!",
+                                        "The settlement requires an artillery outpost to be built to use that firesupport option",
                                         MessageTypeDefOf.RejectInput);
                                 }
-                            });
-                            list.Add(option);
-                        }
-
-                        if (!list.Any())
-                        {
-                            list.Add(new FloatMenuOption("No fire supports currently made. Make one", delegate { }));
-                        }
-
-                        FloatMenu menu = new FloatMenu(list);
-                        Find.WindowStack.Add(menu);
+                            }
+                            else
+                            {
+                                Messages.Message(
+                                    "The settlement requires a higher military level to use that fire support!",
+                                    MessageTypeDefOf.RejectInput);
+                            }
+                        });
+                        list.Add(option);
                     }
 
-                    count++;
+                    if (!list.Any())
+                    {
+                        list.Add(new FloatMenuOption("No fire supports currently made. Make one", delegate { }));
+                    }
+
+                    FloatMenu menu = new FloatMenu(list);
+                    Find.WindowStack.Add(menu);
                 }
+
+                count++;
             }
 
 
@@ -2106,7 +2090,7 @@ namespace FactionColonies
                 {
                     MilUnitFC newUnit = new MilUnitFC(false)
                     {
-                        name = "New Unit " + (util.units.Count() + 1)
+                        name = "New Unit " + (util.units.Count + 1)
                     };
                     selectedText = newUnit.name;
                     selectedUnit = newUnit;
@@ -2142,6 +2126,7 @@ namespace FactionColonies
                                     //Unit is selected
                                     selectedText = unit.name;
                                     selectedUnit = unit.CreateMilUnit();
+                                    util.units.Add(selectedUnit);
                                 }));
                             }
                         }

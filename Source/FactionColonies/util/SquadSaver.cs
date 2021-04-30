@@ -245,7 +245,7 @@ namespace FactionColonies
     {
         public string name;
         public List<SavedUnitFC> unitTemplates = new List<SavedUnitFC>();
-        public int[] units = new int[30];
+        public List<int> units = new List<int>(30);
         public bool isTraderCaravan;
         public bool isCivilian;
         public double equipmentTotalCost;
@@ -259,20 +259,11 @@ namespace FactionColonies
             name = squad.name;
             isTraderCaravan = squad.isTraderCaravan;
             isCivilian = squad.isCivilian;
-            var squadTemplates = squad.units.Distinct().ToList();
-            unitTemplates = squadTemplates.Select(unit => new SavedUnitFC(unit)).ToList();
+            IEnumerable<MilUnitFC> squadTemplates = squad.units.Distinct();
+            MilUnitFC[] milUnitFcs = squadTemplates as MilUnitFC[] ?? squadTemplates.ToArray();
+            units = milUnitFcs.Select(unit => squad.units.IndexOf(unit)).ToList();
+            unitTemplates = milUnitFcs.Select(unit => new SavedUnitFC(unit)).ToList();
             equipmentTotalCost = squad.equipmentTotalCost;
-
-            for (int template = 0; template < squadTemplates.Count(); template++)
-            {
-                for (int i = 0; i < 30; i++)
-                {
-                    if (squad.units[i] == squadTemplates[template])
-                    {
-                        units[i] = template;
-                    }
-                }
-            }
         }
 
         public MilSquadFC CreateMilSquad()
@@ -285,9 +276,10 @@ namespace FactionColonies
                 units = new List<MilUnitFC> {Capacity = 30},
                 equipmentTotalCost = equipmentTotalCost
             };
+
             foreach (int i in units)
             {
-                squad.units.Add(unitTemplates[i].CreateMilUnit());
+                squad.units.Add(unitTemplates[i]?.CreateMilUnit());
             }
 
             return squad;

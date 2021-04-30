@@ -327,7 +327,7 @@ namespace FactionColonies
             List<Pawn> friendlies;
             Dictionary<Pawn, Pawn> riders = new Dictionary<Pawn, Pawn>();
             if (force.homeSettlement.militarySquad != null &&
-                force.homeSettlement.militarySquad.EquippedMercenaries.Any())
+                force.homeSettlement.militarySquad.mercenaries.Any())
             {
                 MercenarySquadFC squad = force.homeSettlement.militarySquad;
 
