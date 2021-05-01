@@ -293,7 +293,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref isCivilian, "isCivilian");
             Scribe_Values.Look(ref isTraderCaravan, "isTraderCaravan");
             Scribe_Collections.Look(ref unitTemplates, "unitTemplates", LookMode.Deep);
-            Scribe_Values.Look(ref units, "units");
+            Scribe_Collections.Look(ref units, "units", LookMode.Value);
             if (Scribe.mode == LoadSaveMode.LoadingVars && !IsValid) ;
             {
                 string message = $"Failed to load squad {name}. You are probably missing a mod for this squad.";
