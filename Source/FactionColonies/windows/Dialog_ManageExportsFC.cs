@@ -6,6 +6,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
+using Object = System.Object;
 
 namespace FactionColonies
 {
@@ -28,6 +29,15 @@ namespace FactionColonies
         #endregion
 
         protected Vector2 scrollPos;
+        public override Vector2 InitialSize => new Vector2(620f, 700f);
+
+        public Dialog_ManageExportsFC()
+        {
+            this.doCloseX = true;
+            this.draggable = true;
+            this.resizeable = true;
+            this.doCloseButton = true;
+        }
 
         public override void DoWindowContents(Rect inRect)
         {
@@ -106,7 +116,13 @@ namespace FactionColonies
         protected override void OnImport(string name)
         {
             FactionFC fc = Find.World.GetComponent<FactionFC>();
-            FactionColoniesMilitary.GetSquad(name).Import();
+            MilSquadFC squad = FactionColoniesMilitary.GetSquad(name).Import();
+            
+            militaryCustomizationWindowFC mil = (militaryCustomizationWindowFC)Find.WindowStack.Windows.FirstOrFallback(
+                window => window.GetType() == typeof(militaryCustomizationWindowFC));
+            
+            mil.SetActive(squad);
+            
             MessageTypeDefOf.PositiveEvent.sound.PlayOneShotOnCamera();
             Messages.Message("FCImported".Translate((NamedArgument) name), MessageTypeDefOf.PositiveEvent);
             this.Close();
@@ -135,7 +151,13 @@ namespace FactionColonies
         protected override void OnImport(string name)
         {
             FactionFC fc = Find.World.GetComponent<FactionFC>();
-            FactionColoniesMilitary.GetUnit(name).Import();
+            MilUnitFC unit = FactionColoniesMilitary.GetUnit(name).Import();
+            
+            militaryCustomizationWindowFC mil = (militaryCustomizationWindowFC)Find.WindowStack.Windows.FirstOrFallback(
+                window => window.GetType() == typeof(militaryCustomizationWindowFC));
+            
+            mil.SetActive(unit);
+            
             MessageTypeDefOf.PositiveEvent.sound.PlayOneShotOnCamera();
             Messages.Message("FCImported".Translate((NamedArgument) name), MessageTypeDefOf.PositiveEvent);
             this.Close();

@@ -207,7 +207,9 @@ namespace FactionColonies
             unit.pawnKind = pawnKind;
             unit.generateDefaultPawn();
 
-            unit.equipWeapon((ThingWithComps)this.weapon.CreateThing());
+            if (this.weapon.thing != null)
+                unit.equipWeapon((ThingWithComps)this.weapon.CreateThing());
+
             apparel.ForEach(a => unit.wearEquipment((Apparel)a.CreateThing(), true));
 
             unit.changeTick();
@@ -216,10 +218,12 @@ namespace FactionColonies
             return unit;
         }
 
-        public void Import()
+        public MilUnitFC Import()
         {
             FactionFC fc = Find.World.GetComponent<FactionFC>();
-            fc.militaryCustomizationUtil.units.Add(this.CreateMilUnit());
+            MilUnitFC unit = this.CreateMilUnit();
+            fc.militaryCustomizationUtil.units.Add(unit);
+            return unit;
         }
 
         public void ExposeData()
@@ -277,7 +281,7 @@ namespace FactionColonies
 
             return squad;
         }
-        public void Import()
+        public MilSquadFC Import()
         {
             FactionFC fc = Find.World.GetComponent<FactionFC>();
             MilSquadFC squad = this.CreateMilSquad();
@@ -286,6 +290,7 @@ namespace FactionColonies
                 fc.militaryCustomizationUtil.units.Add(unit);
             }
             fc.militaryCustomizationUtil.squads.Add(squad);
+            return squad;
         }
 
         public void ExposeData()

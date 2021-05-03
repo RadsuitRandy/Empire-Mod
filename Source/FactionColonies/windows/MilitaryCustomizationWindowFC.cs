@@ -1388,6 +1388,13 @@ namespace FactionColonies
         public override void PostClose()
         {
             base.PostClose();
+            IEnumerable<Window> exports = 
+                Find.WindowStack.Windows.Where(window => window is Dialog_ManageExportsFC);
+            
+            foreach (Window exportWindow in exports)
+            {
+                exportWindow.Close();
+            }
             util.checkMilitaryUtilForErrors();
         }
 
@@ -1601,18 +1608,6 @@ namespace FactionColonies
 
                         List<FloatMenuOption> squads = new List<FloatMenuOption>();
 
-
-                        //Create list of selectable units
-                        foreach (MilSquadFC squad in util.squads)
-                        {
-                            squads.Add(new FloatMenuOption(
-                                squad.name + " - Total Equipment Cost: " + squad.equipmentTotalCost, delegate
-                                {
-                                    //Unit is selected
-                                    util.attemptToAssignSquad(settlement, squad);
-                                }));
-                        }
-
                         squads.AddRange(util.squads
                             .Select(squad => new FloatMenuOption(squad.name + " - Total Equipment Cost: " +
                                                                  squad.equipmentTotalCost, delegate
@@ -1621,7 +1616,7 @@ namespace FactionColonies
                                 util.attemptToAssignSquad(settlement, squad);
                             })));
 
-                        if (squads.Count == 0)
+                        if (!squads.Any())
                         {
                             squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
                         }
@@ -2019,15 +2014,6 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        units.AddRange(util.units
-                            .Select(unit => new FloatMenuOption(unit.name +
-                                                                " - Cost: " + unit.equipmentTotalCost, delegate
-                            {
-                                //Unit is selected
-                                selectedSquad.units[click] = unit;
-                                selectedSquad.updateEquipmentTotalCost();
-                                selectedSquad.ChangeTick();
-                            })));
                         FloatMenu selection = new FloatMenu(units);
                         Find.WindowStack.Add(selection);
                     }
@@ -3310,6 +3296,18 @@ namespace FactionColonies
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
+        }
+
+        public void SetActive(MilSquadFC squad)
+        {
+            selectedSquad = squad;
+            selectedText = squad.name;
+        }
+        
+        public void SetActive(MilUnitFC unit)
+        {
+            selectedUnit = unit;
+            selectedText = unit.name;
         }
     }
 }
