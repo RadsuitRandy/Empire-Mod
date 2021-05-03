@@ -1976,11 +1976,11 @@ namespace FactionColonies
                     Find.WindowStack.Add(floatMenu);
                 }
 
-                if (Widgets.ButtonText(SaveSquadButton, "Save Squad"))
+                if (Widgets.ButtonText(SaveSquadButton, "Export Squad"))
                 {
                     // TODO: Confirm if squad with name already exists
                     FactionColoniesMilitary.SaveSquad(new SavedSquadFC(selectedSquad));
-                    Messages.Message("SavedSquad".Translate(), MessageTypeDefOf.TaskCompletion);
+                    Messages.Message("ExportSquad".Translate(), MessageTypeDefOf.TaskCompletion);
                 }
 
                 //for (int k = 0; k < 30; k++)
@@ -2255,7 +2255,7 @@ namespace FactionColonies
             {
                 // TODO: confirm
                 FactionColoniesMilitary.SaveUnit(new SavedUnitFC(selectedUnit));
-                Messages.Message("SavedUnit".Translate(), MessageTypeDefOf.TaskCompletion);
+                Messages.Message("ExportUnit".Translate(), MessageTypeDefOf.TaskCompletion);
             }
 
             //Unit Name
