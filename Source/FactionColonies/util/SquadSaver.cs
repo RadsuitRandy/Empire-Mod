@@ -15,6 +15,8 @@ namespace FactionColonies
     {
         private static List<SavedUnitFC> savedUnits = new List<SavedUnitFC>();
         private static List<SavedSquadFC> savedSquads = new List<SavedSquadFC>();
+        public static IEnumerable<SavedSquadFC> SavedSquads => savedSquads;
+        public static IEnumerable<SavedUnitFC> SavedUnits => savedUnits;
 
         public static string EmpireConfigFolderPath;
         public static string EmpireMilitaryUnitFolder;
@@ -37,12 +39,27 @@ namespace FactionColonies
             Read();
         }
 
+        public static SavedSquadFC GetSquad(string name) => savedSquads.FirstOrFallback(s => s.name == name);
+        public static SavedUnitFC GetUnit(string name) => savedUnits.FirstOrFallback(u => u.name == name);
+
+        public static void RemoveSquad(string name)
+        {
+            savedSquads.RemoveAll(squad => squad.name == name);
+            File.Delete(GetSquadPath(name));
+        }
+        
         public static void RemoveSquad(SavedSquadFC squad)
         {
             savedSquads.Remove(squad);
             File.Delete(GetSquadPath(squad.name));
         }
 
+        public static void RemoveUnit(string name)
+        {
+            savedSquads.RemoveAll(unit => unit.name == name);
+            File.Delete(GetUnitPath(name));
+        }
+        
         public static void RemoveUnit(SavedUnitFC unit)
         {
             savedUnits.Remove(unit);
@@ -54,7 +71,9 @@ namespace FactionColonies
         {
             if (Scribe.mode != LoadSaveMode.Inactive)
                 throw new Exception("Empire - Attempt to load saved military while scribe is active");
-
+            
+            savedSquads.Clear();
+            savedUnits.Clear();
             foreach (string path in Directory.EnumerateFiles(EmpireMilitarySquadFolder))
             {
                 try
@@ -94,8 +113,8 @@ namespace FactionColonies
             }
         }
 
-        public static string GetUnitPath(string name) => Path.Combine(EmpireMilitaryUnitFolder, name);
-        public static string GetSquadPath(string name) => Path.Combine(EmpireMilitarySquadFolder, name);
+        public static string GetUnitPath(string name) => Path.Combine(EmpireMilitaryUnitFolder, $"{name}.xml");
+        public static string GetSquadPath(string name) => Path.Combine(EmpireMilitarySquadFolder, $"{name}.xml");
 
         public static void SaveSquad(SavedSquadFC squad)
         {
@@ -112,12 +131,15 @@ namespace FactionColonies
             }
             catch (Exception e)
             {
-                Log.Error("Failed to save squad " + squad.name + " " + e);
+                Log.Error($"Failed to save squad {squad.name} {e}");
             }
             finally
             {
                 Scribe.saver.FinalizeSaving();
             }
+
+            savedSquads.RemoveAll(s => s.name == squad.name);
+            savedSquads.Add(squad);
         }
 
         public static void SaveUnit(SavedUnitFC unit)
@@ -135,12 +157,14 @@ namespace FactionColonies
             }
             catch (Exception e)
             {
-                Log.Error("Failed to save unit " + unit.name + " " + e);
+                Log.Error($"Failed to save unit {unit.name} {e}");
             }
             finally
             {
                 Scribe.saver.FinalizeSaving();
             }
+            savedUnits.RemoveAll(u => u.name == unit.name);
+            savedUnits.Add(unit);
         }
 
         public static void SaveAllUnits() => savedUnits.ForEach(SaveUnit);
@@ -154,8 +178,8 @@ namespace FactionColonies
         public bool isCivilian;
         public PawnKindDef animal;
         public PawnKindDef pawnKind;
-        public ThingDef weapon;
-        public List<ThingDef> apparel;
+        public SavedThing weapon;
+        public List<SavedThing> apparel;
 
         public SavedUnitFC() {}
 
@@ -163,8 +187,10 @@ namespace FactionColonies
         {
             Pawn pawn = unit.defaultPawn;
             name = unit.name;
-            weapon = pawn.equipment.Primary.def;
-            apparel = pawn.apparel.WornApparel.Select(a => a.def).ToList();
+            if (pawn.equipment?.Primary != null)
+                weapon = new SavedThing(pawn.equipment.Primary);
+            
+            apparel = pawn.apparel.WornApparel.Select(a => new SavedThing(a)).ToList();
             isTrader = unit.isTrader;
             isCivilian = unit.isCivilian;
             animal = unit.animal;
@@ -173,7 +199,7 @@ namespace FactionColonies
 
         public MilUnitFC CreateMilUnit()
         {
-            MilUnitFC unit = new MilUnitFC();
+            MilUnitFC unit = new MilUnitFC(false);
             unit.name = name;
             unit.isCivilian = isCivilian;
             unit.isTrader = isTrader;
@@ -181,8 +207,8 @@ namespace FactionColonies
             unit.pawnKind = pawnKind;
             unit.generateDefaultPawn();
 
-            unit.equipWeapon((ThingWithComps)ThingMaker.MakeThing(weapon));
-            apparel.ForEach(a => unit.wearEquipment((Apparel)ThingMaker.MakeThing(a), true));
+            unit.equipWeapon((ThingWithComps)this.weapon.CreateThing());
+            apparel.ForEach(a => unit.wearEquipment((Apparel)a.CreateThing(), true));
 
             unit.changeTick();
             unit.updateEquipmentTotalCost();
@@ -190,7 +216,12 @@ namespace FactionColonies
             return unit;
         }
 
-        public bool IsValid => !(animal == null || pawnKind == null || weapon == null || apparel.Any(null));
+        public void Import()
+        {
+            FactionFC fc = Find.World.GetComponent<FactionFC>();
+            fc.militaryCustomizationUtil.units.Add(this.CreateMilUnit());
+        }
+
         public void ExposeData()
         {
             Scribe_Values.Look(ref name, "name");
@@ -198,13 +229,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref isCivilian, "isCivilian");
             Scribe_Defs.Look(ref animal, "animal");
             Scribe_Defs.Look(ref pawnKind, "pawnKind");
-            Scribe_Defs.Look(ref weapon, "weapon");
-            Scribe_Collections.Look(ref apparel, "apparel", LookMode.Def);
-            if (Scribe.mode == LoadSaveMode.LoadingVars && !this.IsValid)
-            {
-                string message = $"Failed to load unit {name}. You are probably missing a mod for this unit.";
-                Log.Message(message);
-            }
+            Scribe_Deep.Look(ref weapon, "weapon");
+            Scribe_Collections.Look(ref apparel, "apparel", LookMode.Deep);
         }
     }
 
@@ -212,7 +238,7 @@ namespace FactionColonies
     {
         public string name;
         public List<SavedUnitFC> unitTemplates = new List<SavedUnitFC>();
-        public int[] units = new int[30];
+        public List<int> units = new List<int>(30);
         public bool isTraderCaravan;
         public bool isCivilian;
         public SavedSquadFC() {}
@@ -222,19 +248,12 @@ namespace FactionColonies
             name = squad.name;
             isTraderCaravan = squad.isTraderCaravan;
             isCivilian = squad.isCivilian;
-            var squadTemplates = squad.units.Distinct().ToList();
-            unitTemplates = squadTemplates.Select(unit => new SavedUnitFC(unit)).ToList();
 
-            for(int template = 0; template < squadTemplates.Count(); template++)
-            {
-                for (int i = 0; i < 30; i++)
-                {
-                    if (squad.units[i] == squadTemplates[template])
-                    {
-                        units[i] = template;
-                    }
-                }
-            }
+            // Dont store blank units
+            var squadTemplates = squad.units.Distinct().Where(u => !u.isBlank).ToList();
+            
+            unitTemplates = squadTemplates.Select(unit => new SavedUnitFC(unit)).ToList();
+            units = squad.units.Select(unit => squadTemplates.IndexOf(unit)).ToList();
         }
 
         public MilSquadFC CreateMilSquad()
@@ -243,29 +262,57 @@ namespace FactionColonies
             squad.name = name;
             squad.isCivilian = isCivilian;
             squad.isTraderCaravan = isTraderCaravan;
-            squad.units = new List<MilUnitFC>();
-            squad.units.Capacity = 30;
+
+            FactionFC fc = Find.World.GetComponent<FactionFC>();
+
+            var milUnits = unitTemplates.Select(unit => unit.CreateMilUnit()).ToList();
+
             foreach (int i in units)
             {
-                squad.units.Add(unitTemplates[i].CreateMilUnit());
+                if(i == -1)
+                    squad.units.Add(fc.militaryCustomizationUtil.blankUnit);
+                else
+                    squad.units.Add(milUnits[i]);
             }
 
             return squad;
         }
+        public void Import()
+        {
+            FactionFC fc = Find.World.GetComponent<FactionFC>();
+            MilSquadFC squad = this.CreateMilSquad();
+            foreach (MilUnitFC unit in squad.units.Distinct().Where(unit => !unit.isBlank))
+            {
+                fc.militaryCustomizationUtil.units.Add(unit);
+            }
+            fc.militaryCustomizationUtil.squads.Add(squad);
+        }
 
-        public bool IsValid => unitTemplates.All(u => u.IsValid);
         public void ExposeData()
         {
             Scribe_Values.Look(ref name, "name");
             Scribe_Values.Look(ref isCivilian, "isCivilian");
             Scribe_Values.Look(ref isTraderCaravan, "isTraderCaravan");
             Scribe_Collections.Look(ref unitTemplates, "unitTemplates", LookMode.Deep);
-            Scribe_Values.Look(ref units, "units");
-            if(Scribe.mode == LoadSaveMode.LoadingVars && !this.IsValid);
-            {
-                string message = $"Failed to load squad {name}. You are probably missing a mod for this squad.";
-                Log.Message(message);
-            }
+            Scribe_Collections.Look(ref units, "units", LookMode.Value);
+        }
+    }
+    
+    public struct SavedThing : IExposable
+    {
+        public ThingDef thing;
+        public ThingDef stuff;
+
+        public SavedThing(Thing thing)
+        {
+            this.thing = thing.def;
+            this.stuff = thing.Stuff;
+        }
+        public Thing CreateThing() => ThingMaker.MakeThing(this.thing, this.stuff);
+        public void ExposeData()
+        {
+            Scribe_Defs.Look(ref thing, "thing");
+            Scribe_Defs.Look(ref stuff, "stuff");
         }
     }
 }

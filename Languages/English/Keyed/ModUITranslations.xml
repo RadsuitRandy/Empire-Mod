@@ -266,4 +266,9 @@
     <!-- overview -->
     <FCBuildRoads>Build Roads</FCBuildRoads>
 
+	<!-- ManageExports -->
+	<FCImport>Import</FCImport>
+	<FCImported>Imported {0}</FCImported>
+	<FCDeleted>Deleted {0}</FCDeleted>
+
 </LanguageData>

@@ -24,6 +24,9 @@ namespace FactionColonies
         public static readonly Texture2D questionmark = ContentFinder<Texture2D>.Get("GUI/questionmark");
         public static readonly Texture2D buildingLocked = ContentFinder<Texture2D>.Get("GUI/LockedBuildingSlot");
 
+        // Tynan made the definitions in Verse internal so we gotta get them here
+        public static readonly Texture2D deleteX = ContentFinder<Texture2D>.Get("UI/Buttons/Delete");
+        
         //test icons
         public static readonly Texture2D iconHappiness = ContentFinder<Texture2D>.Get("GUI/Happiness");
         public static readonly Texture2D iconLoyalty = ContentFinder<Texture2D>.Get("GUI/Loyalty");
