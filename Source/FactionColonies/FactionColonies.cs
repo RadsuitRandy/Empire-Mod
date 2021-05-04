@@ -790,7 +790,6 @@ namespace FactionColonies
                 settlementfc = new SettlementFC("Settlement", tile);
             }
 
-            Log.Message("2");
             //create settlement data for world object
             settlementfc.power.isTithe = true;
             settlementfc.power.isTitheBool = true;
@@ -806,8 +805,6 @@ namespace FactionColonies
             if (worldcomp.hasPolicy(FCPolicyDefOf.expansionist) && settlementfc.settlementLevel == 1)
                 settlementfc.upgradeSettlement();
 
-            Log.Message("3");
-            
             worldcomp.addSettlement(settlementfc);
             if (createWorldObject)
             {
