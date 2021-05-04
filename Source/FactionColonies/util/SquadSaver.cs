@@ -216,7 +216,7 @@ namespace FactionColonies
             if (weapon.thing != null)
                 unit.equipWeapon((ThingWithComps) weapon.CreateThing());
 
-            apparel.ForEach(a => unit.wearEquipment((Apparel)a.CreateThing(), true));
+            apparel.ForEach(a => unit.wearEquipment((Apparel) a.CreateThing(), true));
 
             unit.changeTick();
             unit.updateEquipmentTotalCost();
@@ -319,7 +319,7 @@ namespace FactionColonies
             this.thing = thing.def;
             this.stuff = thing.Stuff;
         }
-        public Thing CreateThing() => ThingMaker.MakeThing(this.thing, this.stuff);
+        public Thing CreateThing() => ThingMaker.MakeThing(thing, stuff);
         public void ExposeData()
         {
             Scribe_Defs.Look(ref thing, "thing");
