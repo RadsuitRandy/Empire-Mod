@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
@@ -14,8 +15,6 @@ namespace FactionColonies
 {
     public class FactionColonies : ModSettings
     {
-        private static FactionColoniesMilitary savedMilitary;
-        
         public static void updateChanges()
         {
             FactionFC factionFC = Find.World.GetComponent<FactionFC>();
@@ -1829,13 +1828,6 @@ namespace FactionColonies
             return LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>();
         }
         
-        public static FactionColoniesMilitary SavedMilitary()
-        {
-            return savedMilitary ?? (savedMilitary = LoadedModManager.ReadModSettings<FactionColoniesMilitary>(
-                LoadedModManager.GetMod<FactionColoniesMod>().Content.FolderName,
-                "EmpireMilitary"));
-        }
-
         public static string getTownTitle(SettlementFC settlement)
         {
             string title = "";
@@ -1926,25 +1918,6 @@ namespace FactionColonies
         }
     }
 
-    public class FactionColoniesMilitary : ModSettings
-    {
-        public List<MilUnitFC> savedUnits;
-        public int nextUnitId;
-        public List<MilSquadFC> savedSquads;
-        public int nextSquadId;
-
-        public override void ExposeData()
-        {
-            Scribe_Collections.Look(ref savedUnits, "savedUnits", LookMode.Deep);
-            Scribe_Values.Look(ref nextUnitId, "nextUnitID", 1);
-            Scribe_Collections.Look(ref savedSquads, "savedSquads", LookMode.Deep);
-            Scribe_Values.Look(ref nextSquadId, "nextSquadID", 1);
-        }
-        
-        public new void Write() => LoadedModManager.WriteModSettings(
-            LoadedModManager.GetMod<FactionColoniesMod>().Content.FolderName, 
-            "EmpireMilitary", this);
-    }
     
     public class FactionColoniesMod : Mod
     {
@@ -1970,12 +1943,6 @@ namespace FactionColonies
         int maxDaysTillMilitaryAction;
         IntRange minMaxDaysTillMilitaryAction;
         
-        public List<MilUnitFC> savedUnits;
-        public int nextUnitId;
-        public List<MilSquadFC> savedSquads;
-        public int nextSquadId;
-
-
         public override void DoSettingsWindowContents(Rect inRect)
         {
             silverPerResource = settings.silverPerResource.ToString();
@@ -2052,7 +2019,6 @@ namespace FactionColonies
             LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillMilitaryAction =
                 LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                     .minMaxDaysTillMilitaryAction.max;
-            FactionColonies.SavedMilitary().Write();
             base.WriteSettings();
         }
     }

@@ -124,8 +124,6 @@ namespace FactionColonies
         public List<MilUnitFC> units = new List<MilUnitFC>();
         public List<MilSquadFC> squads = new List<MilSquadFC>();
 
-        public IEnumerable<MilUnitFC> uniqueUnits;
-        public IEnumerable<MilSquadFC> uniqueSquads;
         public List<MercenarySquadFC> mercenarySquads = new List<MercenarySquadFC>();
         public List<MilitaryFireSupport> fireSupport = new List<MilitaryFireSupport>();
         public List<MilitaryFireSupport> fireSupportDefs = new List<MilitaryFireSupport>();
@@ -166,11 +164,6 @@ namespace FactionColonies
             {
                 fireSupportDefs = new List<MilitaryFireSupport>();
             }
-
-            uniqueSquads = FactionColonies.SavedMilitary().savedSquads?
-                .Where(squad => !squads.Any(testing => squad.loadID == testing.loadID)) ?? new List<MilSquadFC>();
-            uniqueUnits = FactionColonies.SavedMilitary().savedUnits?
-                .Where(unit => !units.Any(testing => unit.loadID == testing.loadID)) ?? new List<MilUnitFC>();
         }
 
         public void checkMilitaryUtilForErrors()
@@ -395,7 +388,7 @@ namespace FactionColonies
 
         public MilUnitFC(bool blank)
         {
-            loadID = Find.World.GetComponent<FactionFC>().GetNextUnitID();
+            loadID = Find.World.GetComponent<FactionFC>().NextUnitID;
             isBlank = blank;
             equipmentTotalCost = 0;
             pawnKind = PawnKindDefOf.Colonist;
@@ -404,14 +397,14 @@ namespace FactionColonies
 
         public string GetUniqueLoadID()
         {
-            return "MilUnitFC_" + loadID;
+            return $"MilUnitFC_{loadID}";
         }
 
         public void ExposeData()
         {
             Scribe_Values.Look(ref loadID, "loadID");
-            Scribe_Values.Look(ref name, "name");
             Scribe_Deep.Look(ref defaultPawn, "defaultPawn");
+            Scribe_Values.Look(ref name, "name");
             Scribe_Values.Look(ref isBlank, "blank");
             Scribe_Values.Look(ref equipmentTotalCost, "equipmentTotalCost", -1);
             Scribe_Values.Look(ref isTrader, "isTrader");
@@ -1234,7 +1227,7 @@ namespace FactionColonies
 
         public void setLoadID()
         {
-            loadID = Find.World.GetComponent<FactionFC>().GetNextSquadID();
+            loadID = Find.World.GetComponent<FactionFC>().NextSquadID;
         }
 
         public int updateEquipmentTotalCost()
@@ -1395,6 +1388,13 @@ namespace FactionColonies
         public override void PostClose()
         {
             base.PostClose();
+            IEnumerable<Window> exports = 
+                Find.WindowStack.Windows.Where(window => window is Dialog_ManageExportsFC);
+            
+            foreach (Window exportWindow in exports)
+            {
+                exportWindow.Close();
+            }
             util.checkMilitaryUtilForErrors();
         }
 
@@ -1440,6 +1440,8 @@ namespace FactionColonies
             Rect milCreateUnit = new Rect(milCreateSquad.x + milCreateSquad.width, milDesigination.y, 187,
                 milDesigination.height);
             Rect milCreateFiresupport = new Rect(milCreateUnit.x + milCreateUnit.width, milDesigination.y, 187,
+                milDesigination.height);
+            Rect milManageExports = new Rect(milCreateFiresupport.x + milCreateFiresupport.width, milDesigination.y, 187,
                 milDesigination.height);
             Rect helpButton = new Rect(760, 0, 30, 30);
 
@@ -1606,19 +1608,7 @@ namespace FactionColonies
 
                         List<FloatMenuOption> squads = new List<FloatMenuOption>();
 
-
-                        //Create list of selectable units
-                        foreach (MilSquadFC squad in util.squads)
-                        {
-                            squads.Add(new FloatMenuOption(
-                                squad.name + " - Total Equipment Cost: " + squad.equipmentTotalCost, delegate
-                                {
-                                    //Unit is selected
-                                    util.attemptToAssignSquad(settlement, squad);
-                                }));
-                        }
-
-                        squads.AddRange(util.uniqueSquads
+                        squads.AddRange(util.squads
                             .Select(squad => new FloatMenuOption(squad.name + " - Total Equipment Cost: " +
                                                                  squad.equipmentTotalCost, delegate
                             {
@@ -1626,7 +1616,7 @@ namespace FactionColonies
                                 util.attemptToAssignSquad(settlement, squad);
                             })));
 
-                        if (squads.Count == 0)
+                        if (!squads.Any())
                         {
                             squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
                         }
@@ -1852,10 +1842,11 @@ namespace FactionColonies
 
 
             Rect SelectionBar = new Rect(5, 45, 200, 30);
-            Rect nameTextField = new Rect(5, 90, 250, 30);
-            Rect isTrader = new Rect(5, 130, 130, 30);
+            Rect importButton = new Rect(5, SelectionBar.y + SelectionBar.height + 10, 200, 30);
+            Rect nameTextField = new Rect(5, importButton.y + importButton.height + 10, 250, 30);
+            Rect isTrader = new Rect(5, nameTextField.y + nameTextField.height + 10, 130, 30);
 
-            Rect UnitStandBase = new Rect(140, 200, 50, 30);
+            Rect UnitStandBase = new Rect(170, 220, 50, 30);
             Rect EquipmentTotalCost = new Rect(350, 50, 450, 40);
             Rect ResetButton = new Rect(700, 100, 100, 30);
             Rect DeleteButton = new Rect(ResetButton.x, ResetButton.y + ResetButton.height + 5, ResetButton.width,
@@ -1864,9 +1855,6 @@ namespace FactionColonies
                 DeleteButton.height);
             Rect SaveSquadButton = new Rect(DeleteButton.x, PointRefButton.y + DeleteButton.height + 5,
                 DeleteButton.width, DeleteButton.height);
-
-            List<MilSquadFC> savedSquads = FactionColonies.SavedMilitary()
-                .savedSquads ?? new List<MilSquadFC>();
 
             //If squad is not selected
             if (Widgets.CustomButtonText(ref SelectionBar, selectedText, Color.gray, Color.white, Color.black))
@@ -1883,7 +1871,7 @@ namespace FactionColonies
                     {
                         MilSquadFC newSquad = new MilSquadFC(true)
                         {
-                            name = "New Squad " + (util.squads.Count + savedSquads.Count + 1)
+                            name = $"New Squad {(util.squads.Count + 1).ToString()}"
                         };
                         selectedText = newSquad.name;
                         selectedSquad = newSquad;
@@ -1891,26 +1879,6 @@ namespace FactionColonies
                         util.squads.Add(newSquad);
                     })
                 };
-
-                //Option to create new unit
-
-                if (util.uniqueSquads.Any())
-                {
-                    squads.Add(new FloatMenuOption("Load Saved Squad", delegate
-                    {
-                        List<FloatMenuOption> savedSquadsMenu = util.uniqueSquads
-                            .Select(squad =>
-                                new FloatMenuOption(squad.name, delegate
-                                {
-                                    //Unit is selected
-                                    selectedText = squad.name;
-                                    selectedSquad = squad;
-                                    selectedSquad.updateEquipmentTotalCost();
-                                })).ToList();
-                        FloatMenu savedSelection = new FloatMenu(savedSquadsMenu);
-                        Find.WindowStack.Add(savedSelection);
-                    }));
-                }
 
                 //Create list of selectable units
                 squads.AddRange(util.squads.Select(squad => new FloatMenuOption(squad.name, delegate
@@ -1922,6 +1890,12 @@ namespace FactionColonies
                 })));
                 FloatMenu selection = new FloatMenu(squads);
                 Find.WindowStack.Add(selection);
+            }
+
+            if (Widgets.ButtonText(importButton, "Import Squad"))
+            {
+                Find.WindowStack.Add(new Dialog_ManageSquadExportsFC(
+                    FactionColoniesMilitary.SavedSquads.ToList()));
             }
 
 
@@ -1997,21 +1971,11 @@ namespace FactionColonies
                     Find.WindowStack.Add(floatMenu);
                 }
 
-                if (Widgets.ButtonText(SaveSquadButton, "Save Squad"))
+                if (Widgets.ButtonText(SaveSquadButton, "Export Squad"))
                 {
-                    int index = savedSquads.FindIndex(squad => squad.loadID == selectedSquad.loadID);
-                    if (index >= 0)
-                    {
-                        savedSquads.RemoveAt(index);
-                        savedSquads.Insert(index, selectedSquad);
-                    }
-                    else
-                    {
-                        savedSquads.Add(selectedSquad);
-                    }
-
-                    Messages.Message("SavedSquad".Translate(), MessageTypeDefOf.TaskCompletion);
-                    FactionColonies.SavedMilitary().savedSquads = savedSquads;
+                    // TODO: Confirm if squad with name already exists
+                    FactionColoniesMilitary.SaveSquad(new SavedSquadFC(selectedSquad));
+                    Messages.Message("ExportSquad".Translate(), MessageTypeDefOf.TaskCompletion);
                 }
 
                 //for (int k = 0; k < 30; k++)
@@ -2050,15 +2014,6 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        units.AddRange(util.uniqueUnits
-                            .Select(unit => new FloatMenuOption(unit.name +
-                                                                " - Cost: " + unit.equipmentTotalCost, delegate
-                            {
-                                //Unit is selected
-                                selectedSquad.units[click] = unit;
-                                selectedSquad.updateEquipmentTotalCost();
-                                selectedSquad.ChangeTick();
-                            })));
                         FloatMenu selection = new FloatMenu(units);
                         Find.WindowStack.Add(selection);
                     }
@@ -2129,7 +2084,6 @@ namespace FactionColonies
             Rect ChangeRace = new Rect(325, ResetButton.y, SavePawn.width, SavePawn.height);
             Rect RollNewPawn = new Rect(325, ResetButton.y + SavePawn.height + 5, SavePawn.width, SavePawn.height);
 
-            List<MilUnitFC> savedUnits = FactionColonies.SavedMilitary().savedUnits ?? new List<MilUnitFC>();
             //Rect ApparelTorso
             //If unit is not selected
             if (Widgets.CustomButtonText(ref SelectionBar, selectedText, Color.gray, Color.white, Color.black))
@@ -2141,43 +2095,18 @@ namespace FactionColonies
                 {
                     MilUnitFC newUnit = new MilUnitFC(false)
                     {
-                        name = "New Unit " + (util.units.Count() + 1)
+                        name = $"New Unit {(util.units.Count() + 1).ToString()}"
                     };
                     selectedText = newUnit.name;
                     selectedUnit = newUnit;
                     util.units.Add(newUnit);
                 }));
 
-                if (util.uniqueUnits.Any())
+                if (FactionColoniesMilitary.SavedUnits.Any())
                 {
-                    Units.Add(new FloatMenuOption("Load Saved Units", delegate
-                    {
-                        List<FloatMenuOption> savedUnitMenu = new List<FloatMenuOption>();
-                        foreach (MilUnitFC unit in util.uniqueUnits)
-                        {
-                            if (unit.defaultPawn.equipment.Primary != null)
-                            {
-                                savedUnitMenu.Add(new FloatMenuOption(unit.name, delegate
-                                {
-                                    //Unit is selected
-                                    selectedText = unit.name;
-                                    selectedUnit = unit;
-                                }, unit.defaultPawn.equipment.Primary.def));
-                            }
-                            else
-                            {
-                                savedUnitMenu.Add(new FloatMenuOption(unit.name, delegate
-                                {
-                                    //Unit is selected
-                                    selectedText = unit.name;
-                                    selectedUnit = unit;
-                                }));
-                            }
-                        }
-
-                        FloatMenu savedSelection = new FloatMenu(savedUnitMenu);
-                        Find.WindowStack.Add(savedSelection);
-                    }));
+                    Units.Add(new FloatMenuOption("Import Unit", () =>
+                        Find.WindowStack.Add(new Dialog_ManageUnitExportsFC(
+                            FactionColoniesMilitary.SavedUnits.ToList()))));
                 }
 
                 //Create list of selectable units
@@ -2308,21 +2237,11 @@ namespace FactionColonies
                 Find.WindowStack.Add(menu);
             }
 
-            if (Widgets.ButtonText(SavePawn, "Save Unit"))
+            if (Widgets.ButtonText(SavePawn, "Export Unit"))
             {
-                int index = savedUnits.FindIndex(unit => unit.loadID == selectedUnit.loadID);
-                if (index >= 0)
-                {
-                    savedUnits.RemoveAt(index);
-                    savedUnits.Insert(index, selectedUnit);
-                }
-                else
-                {
-                    savedUnits.Add(selectedUnit);
-                }
-
-                FactionColonies.SavedMilitary().savedUnits = savedUnits;
-                Messages.Message("SavedUnit".Translate(), MessageTypeDefOf.TaskCompletion);
+                // TODO: confirm
+                FactionColoniesMilitary.SaveUnit(new SavedUnitFC(selectedUnit));
+                Messages.Message("ExportUnit".Translate(), MessageTypeDefOf.TaskCompletion);
             }
 
             //Unit Name
@@ -3377,6 +3296,18 @@ namespace FactionColonies
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
+        }
+
+        public void SetActive(MilSquadFC squad)
+        {
+            selectedSquad = squad;
+            selectedText = squad.name;
+        }
+        
+        public void SetActive(MilUnitFC unit)
+        {
+            selectedUnit = unit;
+            selectedText = unit.name;
         }
     }
 }

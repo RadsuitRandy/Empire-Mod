@@ -232,8 +232,8 @@
     <CostPerWorker>Cost Per Worker</CostPerWorker>
 
     <!--MilitaryCustomizationWindowFC-->
-    <SavedUnit>Saved Unit</SavedUnit>
-    <SavedSquad>Saved Squad</SavedSquad>
+    <ExportedUnit>Exported Unit</ExportedUnit>
+    <ExportedSquad>Exported Squad</ExportedSquad>
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
     <Date>Date</Date>
@@ -265,5 +265,10 @@
 
     <!-- overview -->
     <FCBuildRoads>Build Roads</FCBuildRoads>
+
+	<!-- ManageExports -->
+	<FCImport>Import</FCImport>
+	<FCImported>Imported {0}</FCImported>
+	<FCDeleted>Deleted {0}</FCDeleted>
 
 </LanguageData>
