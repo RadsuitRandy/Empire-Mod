@@ -43,7 +43,7 @@ namespace FactionColonies
 
         public string GetUniqueLoadID()
         {
-            return "MilitaryFireSupport_" + loadID;
+            return $"MilitaryFireSupport_{loadID}";
         }
 
         public void setLoadID()
@@ -79,7 +79,6 @@ namespace FactionColonies
             ThingDef projectile = projectiles[0];
             projectiles.RemoveAt(0);
             return projectile;
-
         }
 
         public List<ThingDef> returnFireSupportOptions()
@@ -127,7 +126,8 @@ namespace FactionColonies
         public MilUnitFC blankUnit;
         public List<Mercenary> deadPawns = new List<Mercenary>();
         public int tickChanged;
-        
+
+
         public MilitaryCustomizationUtil()
         {
             //set load stuff here
@@ -179,7 +179,8 @@ namespace FactionColonies
                 }
 
                 if (!changed) continue;
-                foreach (var squadMerc in mercenarySquads.Where(squadMerc => squadMerc.outfit != null && squadMerc.outfit == squad))
+                foreach (var squadMerc in mercenarySquads.Where(squadMerc =>
+                    squadMerc.outfit != null && squadMerc.outfit == squad))
                 {
                     squadMerc.OutfitSquad(squad);
                 }
@@ -222,10 +223,7 @@ namespace FactionColonies
 
         public int GETLatestChange
         {
-            get
-            {
-                return squads.Select(squadFC => squadFC.getLatestChanged).Prepend(0).Max();
-            }
+            get { return squads.Select(squadFC => squadFC.getLatestChanged).Prepend(0).Max(); }
         }
 
         public MercenarySquadFC returnSquadFromUnit(Pawn unit)
@@ -264,18 +262,12 @@ namespace FactionColonies
 
         public IEnumerable<MercenarySquadFC> DeployedSquads
         {
-            get
-            {
-                return mercenarySquads.Where(squad => squad.isDeployed).ToList();
-            }
+            get { return mercenarySquads.Where(squad => squad.isDeployed).ToList(); }
         }
 
         public List<Pawn> AllMercenaryPawns
         {
-            get
-            {
-                return AllMercenaries.Select(merc => merc.pawn).ToList();
-            }
+            get { return AllMercenaries.Select(merc => merc.pawn).ToList(); }
         }
 
         public void resetSquads()
@@ -290,7 +282,7 @@ namespace FactionColonies
                 unit.updateEquipmentTotalCost();
             }
         }
-        
+
         public void attemptToAssignSquad(SettlementFC settlement, MilSquadFC squad)
         {
             if (FactionColonies.calculateMilitaryLevelPoints(settlement.settlementMilitaryLevel) >=
@@ -393,7 +385,7 @@ namespace FactionColonies
 
         public string GetUniqueLoadID()
         {
-            return "MilUnitFC_" + loadID;
+            return $"MilUnitFC_{loadID}";
         }
 
         public void ExposeData()
@@ -544,16 +536,21 @@ namespace FactionColonies
             else
             {
                 double totalCost = 0;
-                
+
+                Log.Message("1: " + defaultPawn);
+                Log.Message("Def: " + defaultPawn.def);
                 totalCost += Math.Floor(defaultPawn.def.BaseMarketValue * FactionColonies.militaryRaceCostMultiplier);
-                totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost, 
+                Log.Message("2");
+                totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost,
                     (current, thing) => current + thing.MarketValue);
 
-                totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost, 
+                Log.Message("3");
+                totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost,
                     (current, thing) => current + thing.MarketValue);
 
                 if (animal != null)
                 {
+                    Log.Message("4");
                     totalCost += Math.Floor(animal.race.BaseMarketValue * FactionColonies.militaryAnimalCostMultiplier);
                 }
 
@@ -645,7 +642,7 @@ namespace FactionColonies
 
         public string GetUniqueLoadID()
         {
-            return "MercenarySquadFC_" + loadID;
+            return $"MercenarySquadFC_{loadID}";
         }
 
         public List<Mercenary> EquippedMercenaries
@@ -1170,7 +1167,15 @@ namespace FactionColonies
 
         public Mercenary returnPawn(Pawn pawn)
         {
-            return mercenaries.FirstOrDefault(merc => merc.pawn == pawn);
+            foreach (Mercenary merc in mercenaries)
+            {
+                if (merc.pawn == pawn)
+                {
+                    return merc;
+                }
+            }
+
+            return null;
         }
     }
 
@@ -1263,42 +1268,39 @@ namespace FactionColonies
 
         public string GetUniqueLoadID()
         {
-            return "MilSquadFC_" + loadID;
+            return $"MilSquadFC_{loadID}";
         }
 
         public void setTraderCaravan(bool state)
         {
-            while (true)
+            ChangeTick();
+
+            if (state)
             {
-                ChangeTick();
-                isTraderCaravan = state;
-                if (state)
+                int hasTraderCount = units.Count(unit => unit.isTrader);
+
+                if (hasTraderCount == 0)
                 {
-                    int hasTraderCount = units.Count(unit => unit.isTrader);
-
-                    if (hasTraderCount == 0)
-                    {
-                        Messages.Message("There must be a trader in the squad to be a trader caravan!", MessageTypeDefOf.RejectInput);
-                        state = false;
-                        continue;
-                    }
-
-                    if (hasTraderCount > 1)
-                    {
-                        Messages.Message("There cannot be more than one trader in the caravan!", MessageTypeDefOf.RejectInput);
-                        state = false;
-                        continue;
-                    }
-
-                    setCivilian(true);
-                }
-                else
-                {
-                    setCivilian(false);
+                    Messages.Message("There must be a trader in the squad to be a trader caravan!",
+                        MessageTypeDefOf.RejectInput);
+                    return;
                 }
 
-                break;
+                if (hasTraderCount > 1)
+                {
+                    Messages.Message("There cannot be more than one trader in the caravan!",
+                        MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
+                setCivilian(true);
             }
+            else
+            {
+                setCivilian(false);
+            }
+
+            isTraderCaravan = state;
         }
 
         public void setCivilian(bool state)
@@ -1358,7 +1360,7 @@ namespace FactionColonies
             base.PreOpen();
             scroll = 0;
             settlementMaxScroll =
-                (Find.World.GetComponent<FactionFC>().settlements.Count() * (settlementYSpacing + settlementHeight) -
+                (Find.World.GetComponent<FactionFC>().settlements.Count * (settlementYSpacing + settlementHeight) -
                  settlementWindowHeight);
         }
 
@@ -1367,12 +1369,6 @@ namespace FactionColonies
             base.PostClose();
             util.checkMilitaryUtilForErrors();
         }
-
-        public override void WindowUpdate()
-        {
-            base.WindowUpdate();
-        }
-
 
         public override void DoWindowContents(Rect inRect)
         {
@@ -1581,7 +1577,7 @@ namespace FactionColonies
                             util.attemptToAssignSquad(settlement, squad);
                         })));
 
-                    if (squads.Count == 0)
+                    if (!squads.Any())
                     {
                         squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
                     }
@@ -1786,7 +1782,6 @@ namespace FactionColonies
                 count++;
             }
 
-
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
@@ -1806,10 +1801,11 @@ namespace FactionColonies
 
 
             Rect SelectionBar = new Rect(5, 45, 200, 30);
-            Rect nameTextField = new Rect(5, 90, 250, 30);
-            Rect isTrader = new Rect(5, 130, 130, 30);
+            Rect importButton = new Rect(5, SelectionBar.y + SelectionBar.height + 10, 200, 30);
+            Rect nameTextField = new Rect(5, importButton.y + importButton.height + 10, 250, 30);
+            Rect isTrader = new Rect(5, nameTextField.y + nameTextField.height + 10, 130, 30);
 
-            Rect UnitStandBase = new Rect(140, 200, 50, 30);
+            Rect UnitStandBase = new Rect(170, 220, 50, 30);
             Rect EquipmentTotalCost = new Rect(350, 50, 450, 40);
             Rect ResetButton = new Rect(700, 100, 100, 30);
             Rect DeleteButton = new Rect(ResetButton.x, ResetButton.y + ResetButton.height + 5, ResetButton.width,
@@ -1818,7 +1814,6 @@ namespace FactionColonies
                 DeleteButton.height);
             Rect SaveSquadButton = new Rect(DeleteButton.x, PointRefButton.y + DeleteButton.height + 5,
                 DeleteButton.width, DeleteButton.height);
-
 
             //If squad is not selected
             if (Widgets.CustomButtonText(ref SelectionBar, selectedText, Color.gray, Color.white, Color.black))
@@ -1835,7 +1830,7 @@ namespace FactionColonies
                     {
                         MilSquadFC newSquad = new MilSquadFC(true)
                         {
-                            name = "New Squad " + (util.squads.Count + 1)
+                            name = $"New Squad {(util.squads.Count + 1).ToString()}"
                         };
                         selectedText = newSquad.name;
                         selectedSquad = newSquad;
@@ -1843,30 +1838,6 @@ namespace FactionColonies
                         util.squads.Add(newSquad);
                     })
                 };
-
-                //Option to create new unit
-
-                if (FactionColoniesMilitary.getSavedSquads().Any())
-                {
-                    squads.Add(new FloatMenuOption("Load Saved Squad", delegate
-                    {
-                        List<FloatMenuOption> savedSquadsMenu = FactionColoniesMilitary.getSavedSquads().Select(squad =>
-                                new FloatMenuOption(squad.name, delegate
-                                {
-                                    //Unit is selected
-                                    selectedText = squad.name;
-                                    if (util.squads.Exists(found => squad.name == found.name))
-                                    {
-                                        selectedText += "-1";
-                                    }
-                                    selectedSquad = squad.CreateMilSquad();
-                                    selectedSquad.updateEquipmentTotalCost();
-                                    util.squads.Add(selectedSquad);
-                                })).ToList();
-                        FloatMenu savedSelection = new FloatMenu(savedSquadsMenu);
-                        Find.WindowStack.Add(savedSelection);
-                    }));
-                }
 
                 //Create list of selectable units
                 squads.AddRange(util.squads.Select(squad => new FloatMenuOption(squad.name, delegate
@@ -1878,6 +1849,12 @@ namespace FactionColonies
                 })));
                 FloatMenu selection = new FloatMenu(squads);
                 Find.WindowStack.Add(selection);
+            }
+
+            if (Widgets.ButtonText(importButton, "Import Squad"))
+            {
+                Find.WindowStack.Add(new Dialog_ManageSquadExportsFC(
+                    FactionColoniesMilitary.SavedSquads.ToList()));
             }
 
 
@@ -1953,10 +1930,11 @@ namespace FactionColonies
                     Find.WindowStack.Add(floatMenu);
                 }
 
-                if (Widgets.ButtonText(SaveSquadButton, "Save Squad"))
+                if (Widgets.ButtonText(SaveSquadButton, "Export Squad"))
                 {
-                    Messages.Message("SavedSquad".Translate(), MessageTypeDefOf.TaskCompletion);
+                    // TODO: Confirm if squad with name already exists
                     FactionColoniesMilitary.SaveSquad(new SavedSquadFC(selectedSquad));
+                    Messages.Message("ExportSquad".Translate(), MessageTypeDefOf.TaskCompletion);
                 }
 
                 //for (int k = 0; k < 30; k++)
@@ -2058,12 +2036,15 @@ namespace FactionColonies
             Rect EquipmentTotalCost = new Rect(450, 50, 350, 40);
 
             Rect ResetButton = new Rect(700, 50, 100, 30);
-            Rect DeleteButton = new Rect(ResetButton.x, ResetButton.y + ResetButton.height + 5, ResetButton.width,
+            Rect DeleteButton = new Rect(ResetButton.x, ResetButton.y + ResetButton.height + 5,
+                ResetButton.width,
                 ResetButton.height);
-            Rect SavePawn = new Rect(DeleteButton.x, DeleteButton.y + DeleteButton.height + 5, DeleteButton.width,
+            Rect SavePawn = new Rect(DeleteButton.x, DeleteButton.y + DeleteButton.height + 5,
+                DeleteButton.width,
                 DeleteButton.height);
             Rect ChangeRace = new Rect(325, ResetButton.y, SavePawn.width, SavePawn.height);
-            Rect RollNewPawn = new Rect(325, ResetButton.y + SavePawn.height + 5, SavePawn.width, SavePawn.height);
+            Rect RollNewPawn = new Rect(325, ResetButton.y + SavePawn.height + 5, SavePawn.width,
+                SavePawn.height);
 
             //Rect ApparelTorso
             //If unit is not selected
@@ -2076,50 +2057,18 @@ namespace FactionColonies
                 {
                     MilUnitFC newUnit = new MilUnitFC(false)
                     {
-                        name = "New Unit " + (util.units.Count + 1)
+                        name = $"New Unit {(util.units.Count() + 1).ToString()}"
                     };
                     selectedText = newUnit.name;
                     selectedUnit = newUnit;
                     util.units.Add(newUnit);
                 }));
 
-                if (FactionColoniesMilitary.getSavedUnits().Any())
+                if (FactionColoniesMilitary.SavedUnits.Any())
                 {
-                    Units.Add(new FloatMenuOption("Load Saved Units", delegate
-                    {
-                        List<FloatMenuOption> savedUnitMenu = new List<FloatMenuOption>();
-                        foreach (SavedUnitFC unit in FactionColoniesMilitary.getSavedUnits())
-                        {
-                            if (unit.weapon != null)
-                            {
-                                savedUnitMenu.Add(new FloatMenuOption(unit.name, delegate
-                                {
-                                    //Unit is selected
-                                    selectedText = unit.name;
-                                    
-                                    if (util.units.Exists(found => unit.name == found.name))
-                                    {
-                                        selectedText += "-1";
-                                    }
-                                    selectedUnit = unit.CreateMilUnit();
-                                    util.units.Add(selectedUnit);
-                                }, unit.weapon));
-                            }
-                            else
-                            {
-                                savedUnitMenu.Add(new FloatMenuOption(unit.name, delegate
-                                {
-                                    //Unit is selected
-                                    selectedText = unit.name;
-                                    selectedUnit = unit.CreateMilUnit();
-                                    util.units.Add(selectedUnit);
-                                }));
-                            }
-                        }
-
-                        FloatMenu savedSelection = new FloatMenu(savedUnitMenu);
-                        Find.WindowStack.Add(savedSelection);
-                    }));
+                    Units.Add(new FloatMenuOption("Import Unit", () =>
+                        Find.WindowStack.Add(new Dialog_ManageUnitExportsFC(
+                            FactionColoniesMilitary.SavedUnits.ToList()))));
                 }
 
                 //Create list of selectable units
@@ -2162,24 +2111,28 @@ namespace FactionColonies
             //if unit is not selected
             Widgets.Label(new Rect(new Vector2(ApparelHead.x, ApparelHead.y - 15), ApparelHead.size), "Head");
             Widgets.DrawMenuSection(ApparelHead);
-            Widgets.Label(new Rect(new Vector2(ApparelTorsoSkin.x, ApparelTorsoSkin.y - 15), ApparelTorsoSkin.size),
+            Widgets.Label(
+                new Rect(new Vector2(ApparelTorsoSkin.x, ApparelTorsoSkin.y - 15), ApparelTorsoSkin.size),
                 "Shirt");
             Widgets.DrawMenuSection(ApparelTorsoSkin);
             Widgets.Label(
                 new Rect(new Vector2(ApparelTorsoMiddle.x, ApparelTorsoMiddle.y - 15), ApparelTorsoMiddle.size),
                 "Chest");
             Widgets.DrawMenuSection(ApparelTorsoMiddle);
-            Widgets.Label(new Rect(new Vector2(ApparelTorsoShell.x, ApparelTorsoShell.y - 15), ApparelTorsoShell.size),
+            Widgets.Label(
+                new Rect(new Vector2(ApparelTorsoShell.x, ApparelTorsoShell.y - 15), ApparelTorsoShell.size),
                 "Over");
             Widgets.DrawMenuSection(ApparelTorsoShell);
             Widgets.Label(new Rect(new Vector2(ApparelBelt.x, ApparelBelt.y - 15), ApparelBelt.size), "Belt");
             Widgets.DrawMenuSection(ApparelBelt);
             Widgets.Label(new Rect(new Vector2(ApparelLegs.x, ApparelLegs.y - 15), ApparelLegs.size), "Pants");
             Widgets.DrawMenuSection(ApparelLegs);
-            Widgets.Label(new Rect(new Vector2(EquipmentWeapon.x, EquipmentWeapon.y - 15), EquipmentWeapon.size),
+            Widgets.Label(
+                new Rect(new Vector2(EquipmentWeapon.x, EquipmentWeapon.y - 15), EquipmentWeapon.size),
                 "Weapon");
             Widgets.DrawMenuSection(EquipmentWeapon);
-            Widgets.Label(new Rect(new Vector2(AnimalCompanion.x, AnimalCompanion.y - 15), AnimalCompanion.size),
+            Widgets.Label(
+                new Rect(new Vector2(AnimalCompanion.x, AnimalCompanion.y - 15), AnimalCompanion.size),
                 "Animal");
             Widgets.DrawMenuSection(AnimalCompanion);
 
@@ -2250,10 +2203,11 @@ namespace FactionColonies
                 Find.WindowStack.Add(menu);
             }
 
-            if (Widgets.ButtonText(SavePawn, "Save Unit"))
+            if (Widgets.ButtonText(SavePawn, "Export Unit"))
             {
+                // TODO: confirm
                 FactionColoniesMilitary.SaveUnit(new SavedUnitFC(selectedUnit));
-                Messages.Message("SavedUnit".Translate(), MessageTypeDefOf.TaskCompletion);
+                Messages.Message("ExportUnit".Translate(), MessageTypeDefOf.TaskCompletion);
             }
 
             //Unit Name
@@ -2263,7 +2217,7 @@ namespace FactionColonies
             Widgets.CheckboxLabeled(isTrader, "is Trader", ref selectedUnit.isTrader);
             selectedUnit.setTrader(selectedUnit.isTrader);
             selectedUnit.setCivilian(selectedUnit.isCivilian);
-            
+
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
@@ -2274,24 +2228,27 @@ namespace FactionColonies
                 {
                     //Widgets.DrawTextureFitted(animalIcon, selectedUnit.animal.race.graphicData.Graphic.MatNorth.mainTexture, 1);
                 }
+
                 Widgets.ThingIcon(unitIcon, selectedUnit.defaultPawn);
             }
-            
+
             //Animal Companion
             if (Widgets.ButtonInvisible(AnimalCompanion))
             {
                 List<FloatMenuOption> list = (from animal in DefDatabase<PawnKindDef>.AllDefs
-                    where animal.RaceProps.IsFlesh && animal.race.race.Animal && animal.race.tradeTags != null &&
+                    where animal.RaceProps.IsFlesh && animal.race.race.Animal &&
+                          animal.race.tradeTags != null &&
                           !animal.race.tradeTags.Contains("AnimalMonster") &&
                           !animal.race.tradeTags.Contains("AnimalGenetic") &&
                           !animal.race.tradeTags.Contains("AnimalAlpha")
                     select new FloatMenuOption(animal.LabelCap + " - Cost: " +
                                                Math.Floor(animal.race.BaseMarketValue *
-                                                          FactionColonies.militaryAnimalCostMultiplier), delegate
-                    {
-                        //Do add animal code here
-                        selectedUnit.animal = animal;
-                    }, animal.race.uiIcon, Color.white)).ToList();
+                                                          FactionColonies.militaryAnimalCostMultiplier),
+                        delegate
+                        {
+                            //Do add animal code here
+                            selectedUnit.animal = animal;
+                        }, animal.race.uiIcon, Color.white)).ToList();
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
@@ -2319,11 +2276,13 @@ namespace FactionColonies
                                 where stuff.IsStuff &&
                                       thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories)
                                 select new FloatMenuOption(stuff.LabelCap + " - Total Value: " +
-                                                           StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                           StatWorker_MarketValue.CalculatedBaseMarketValue(
+                                                               thing,
                                                                stuff),
                                     delegate
                                     {
-                                        selectedUnit.equipWeapon(ThingMaker.MakeThing(thing, stuff) as ThingWithComps);
+                                        selectedUnit.equipWeapon(
+                                            ThingMaker.MakeThing(thing, stuff) as ThingWithComps);
                                     })).ToList();
 
                             stuffList.Sort(FactionColonies.CompareFloatMenuOption);
@@ -2361,7 +2320,8 @@ namespace FactionColonies
                         if (thing.apparel.layers.Contains(ApparelLayerDefOf.Overhead) &&
                             FactionColonies.canCraftItem(thing))
                         {
-                            headgearList.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
+                            headgearList.Add(new FloatMenuOption(
+                                thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
                                 delegate
                                 {
                                     if (thing.MadeFromStuff)
@@ -2371,15 +2331,18 @@ namespace FactionColonies
                                         foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
                                         {
                                             if (stuff.IsStuff &&
-                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
+                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps
+                                                    .categories))
                                             {
                                                 stuffList.Add(new FloatMenuOption(
                                                     stuff.LabelCap + " - Total Value: " +
-                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)),
+                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                        stuff)),
                                                     delegate
                                                     {
                                                         selectedUnit.wearEquipment(
-                                                            ThingMaker.MakeThing(thing, stuff) as Apparel, true);
+                                                            ThingMaker.MakeThing(thing, stuff) as Apparel,
+                                                            true);
                                                     }));
                                             }
                                         }
@@ -2392,7 +2355,8 @@ namespace FactionColonies
                                     {
                                         //If not made from stuff
 
-                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel, true);
+                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel,
+                                            true);
                                     }
                                 }, thing));
                         }
@@ -2432,39 +2396,44 @@ namespace FactionColonies
                             thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) &&
                             FactionColonies.canCraftItem(thing)) //CHANGE THIS
                         {
-                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
-                            {
-                                if (thing.MadeFromStuff)
+                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
+                                delegate
                                 {
-                                    //If made from stuff
-                                    List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
-                                    foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
+                                    if (thing.MadeFromStuff)
                                     {
-                                        if (stuff.IsStuff &&
-                                            thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
+                                        //If made from stuff
+                                        List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
+                                        foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
                                         {
-                                            stuffList.Add(new FloatMenuOption(
-                                                stuff.LabelCap + " - Total Value: " +
-                                                (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)),
-                                                delegate
-                                                {
-                                                    selectedUnit.wearEquipment(
-                                                        ThingMaker.MakeThing(thing, stuff) as Apparel, true);
-                                                }));
+                                            if (stuff.IsStuff &&
+                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps
+                                                    .categories))
+                                            {
+                                                stuffList.Add(new FloatMenuOption(
+                                                    stuff.LabelCap + " - Total Value: " +
+                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                        stuff)),
+                                                    delegate
+                                                    {
+                                                        selectedUnit.wearEquipment(
+                                                            ThingMaker.MakeThing(thing, stuff) as Apparel,
+                                                            true);
+                                                    }));
+                                            }
                                         }
+
+                                        stuffList.Sort(FactionColonies.CompareFloatMenuOption);
+                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        Find.WindowStack.Add(stuffWindow);
                                     }
+                                    else
+                                    {
+                                        //If not made from stuff
 
-                                    stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                    FloatMenu stuffWindow = new FloatMenu(stuffList);
-                                    Find.WindowStack.Add(stuffWindow);
-                                }
-                                else
-                                {
-                                    //If not made from stuff
-
-                                    selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel, true);
-                                }
-                            }, thing));
+                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel,
+                                            true);
+                                    }
+                                }, thing));
                         }
                     }
                 }
@@ -2504,39 +2473,44 @@ namespace FactionColonies
                             thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) &&
                             FactionColonies.canCraftItem(thing)) //CHANGE THIS
                         {
-                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
-                            {
-                                if (thing.MadeFromStuff)
+                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
+                                delegate
                                 {
-                                    //If made from stuff
-                                    List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
-                                    foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
+                                    if (thing.MadeFromStuff)
                                     {
-                                        if (stuff.IsStuff &&
-                                            thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
+                                        //If made from stuff
+                                        List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
+                                        foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
                                         {
-                                            stuffList.Add(new FloatMenuOption(
-                                                stuff.LabelCap + " - Total Value: " +
-                                                (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)),
-                                                delegate
-                                                {
-                                                    selectedUnit.wearEquipment(
-                                                        ThingMaker.MakeThing(thing, stuff) as Apparel, true);
-                                                }));
+                                            if (stuff.IsStuff &&
+                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps
+                                                    .categories))
+                                            {
+                                                stuffList.Add(new FloatMenuOption(
+                                                    stuff.LabelCap + " - Total Value: " +
+                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                        stuff)),
+                                                    delegate
+                                                    {
+                                                        selectedUnit.wearEquipment(
+                                                            ThingMaker.MakeThing(thing, stuff) as Apparel,
+                                                            true);
+                                                    }));
+                                            }
                                         }
+
+                                        stuffList.Sort(FactionColonies.CompareFloatMenuOption);
+                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        Find.WindowStack.Add(stuffWindow);
                                     }
+                                    else
+                                    {
+                                        //If not made from stuff
 
-                                    stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                    FloatMenu stuffWindow = new FloatMenu(stuffList);
-                                    Find.WindowStack.Add(stuffWindow);
-                                }
-                                else
-                                {
-                                    //If not made from stuff
-
-                                    selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel, true);
-                                }
-                            }, thing));
+                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel,
+                                            true);
+                                    }
+                                }, thing));
                         }
                     }
                 }
@@ -2576,39 +2550,44 @@ namespace FactionColonies
                             thing.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) &&
                             FactionColonies.canCraftItem(thing)) //CHANGE THIS
                         {
-                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
-                            {
-                                if (thing.MadeFromStuff)
+                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
+                                delegate
                                 {
-                                    //If made from stuff
-                                    List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
-                                    foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
+                                    if (thing.MadeFromStuff)
                                     {
-                                        if (stuff.IsStuff &&
-                                            thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
+                                        //If made from stuff
+                                        List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
+                                        foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
                                         {
-                                            stuffList.Add(new FloatMenuOption(
-                                                stuff.LabelCap + " - Total Value: " +
-                                                (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)),
-                                                delegate
-                                                {
-                                                    selectedUnit.wearEquipment(
-                                                        ThingMaker.MakeThing(thing, stuff) as Apparel, true);
-                                                }));
+                                            if (stuff.IsStuff &&
+                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps
+                                                    .categories))
+                                            {
+                                                stuffList.Add(new FloatMenuOption(
+                                                    stuff.LabelCap + " - Total Value: " +
+                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                        stuff)),
+                                                    delegate
+                                                    {
+                                                        selectedUnit.wearEquipment(
+                                                            ThingMaker.MakeThing(thing, stuff) as Apparel,
+                                                            true);
+                                                    }));
+                                            }
                                         }
+
+                                        stuffList.Sort(FactionColonies.CompareFloatMenuOption);
+                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        Find.WindowStack.Add(stuffWindow);
                                     }
+                                    else
+                                    {
+                                        //If not made from stuff
 
-                                    stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                    FloatMenu stuffWindow = new FloatMenu(stuffList);
-                                    Find.WindowStack.Add(stuffWindow);
-                                }
-                                else
-                                {
-                                    //If not made from stuff
-
-                                    selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel, true);
-                                }
-                            }, thing));
+                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel,
+                                            true);
+                                    }
+                                }, thing));
                         }
                     }
                 }
@@ -2648,39 +2627,44 @@ namespace FactionColonies
                             thing.apparel.layers.Contains(ApparelLayerDefOf.OnSkin) &&
                             FactionColonies.canCraftItem(thing)) //CHANGE THIS
                         {
-                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
-                            {
-                                if (thing.MadeFromStuff)
+                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
+                                delegate
                                 {
-                                    //If made from stuff
-                                    List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
-                                    foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
+                                    if (thing.MadeFromStuff)
                                     {
-                                        if (stuff.IsStuff &&
-                                            thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
+                                        //If made from stuff
+                                        List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
+                                        foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
                                         {
-                                            stuffList.Add(new FloatMenuOption(
-                                                stuff.LabelCap + " - Total Value: " +
-                                                (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)),
-                                                delegate
-                                                {
-                                                    selectedUnit.wearEquipment(
-                                                        ThingMaker.MakeThing(thing, stuff) as Apparel, true);
-                                                }));
+                                            if (stuff.IsStuff &&
+                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps
+                                                    .categories))
+                                            {
+                                                stuffList.Add(new FloatMenuOption(
+                                                    stuff.LabelCap + " - Total Value: " +
+                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                        stuff)),
+                                                    delegate
+                                                    {
+                                                        selectedUnit.wearEquipment(
+                                                            ThingMaker.MakeThing(thing, stuff) as Apparel,
+                                                            true);
+                                                    }));
+                                            }
                                         }
+
+                                        stuffList.Sort(FactionColonies.CompareFloatMenuOption);
+                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        Find.WindowStack.Add(stuffWindow);
                                     }
+                                    else
+                                    {
+                                        //If not made from stuff
 
-                                    stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                    FloatMenu stuffWindow = new FloatMenu(stuffList);
-                                    Find.WindowStack.Add(stuffWindow);
-                                }
-                                else
-                                {
-                                    //If not made from stuff
-
-                                    selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel, true);
-                                }
-                            }, thing));
+                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel,
+                                            true);
+                                    }
+                                }, thing));
                         }
                     }
                 }
@@ -2718,48 +2702,54 @@ namespace FactionColonies
                         if (thing.apparel.layers.Contains(ApparelLayerDefOf.Belt) &&
                             FactionColonies.canCraftItem(thing))
                         {
-                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue, delegate
-                            {
-                                if (thing.MadeFromStuff)
+                            list.Add(new FloatMenuOption(thing.LabelCap + " - Cost: " + thing.BaseMarketValue,
+                                delegate
                                 {
-                                    //If made from stuff
-                                    List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
-                                    foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
+                                    if (thing.MadeFromStuff)
                                     {
-                                        if (stuff.IsStuff &&
-                                            thing.stuffCategories.SharesElementWith(stuff.stuffProps.categories))
+                                        //If made from stuff
+                                        List<FloatMenuOption> stuffList = new List<FloatMenuOption>();
+                                        foreach (ThingDef stuff in DefDatabase<ThingDef>.AllDefs)
                                         {
-                                            stuffList.Add(new FloatMenuOption(
-                                                stuff.LabelCap + " - Total Value: " +
-                                                (StatWorker_MarketValue.CalculatedBaseMarketValue(thing, stuff)),
-                                                delegate
-                                                {
-                                                    selectedUnit.wearEquipment(
-                                                        ThingMaker.MakeThing(thing, stuff) as Apparel, true);
-                                                }));
+                                            if (stuff.IsStuff &&
+                                                thing.stuffCategories.SharesElementWith(stuff.stuffProps
+                                                    .categories))
+                                            {
+                                                stuffList.Add(new FloatMenuOption(
+                                                    stuff.LabelCap + " - Total Value: " +
+                                                    (StatWorker_MarketValue.CalculatedBaseMarketValue(thing,
+                                                        stuff)),
+                                                    delegate
+                                                    {
+                                                        selectedUnit.wearEquipment(
+                                                            ThingMaker.MakeThing(thing, stuff) as Apparel,
+                                                            true);
+                                                    }));
+                                            }
                                         }
-                                    }
 
-                                    stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                    FloatMenu stuffWindow = new FloatMenu(stuffList);
-                                    Find.WindowStack.Add(stuffWindow);
-                                }
-                                else
-                                {
-                                    //If not made from stuff
-                                    //Remove old equipment
-                                    foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
+                                        stuffList.Sort(FactionColonies.CompareFloatMenuOption);
+                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        Find.WindowStack.Add(stuffWindow);
+                                    }
+                                    else
                                     {
-                                        if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
+                                        //If not made from stuff
+                                        //Remove old equipment
+                                        foreach (Apparel apparel in selectedUnit.defaultPawn.apparel
+                                            .WornApparel)
                                         {
-                                            selectedUnit.defaultPawn.apparel.Remove(apparel);
-                                            break;
+                                            if (apparel.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
+                                            {
+                                                selectedUnit.defaultPawn.apparel.Remove(apparel);
+                                                break;
+                                            }
                                         }
-                                    }
 
-                                    selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel, true);
-                                }
-                            }, thing));
+                                        selectedUnit.wearEquipment(ThingMaker.MakeThing(thing) as Apparel,
+                                            true);
+                                    }
+                                }, thing));
                         }
                     }
                 }
@@ -2794,12 +2784,14 @@ namespace FactionColonies
             foreach (Thing thing in selectedUnit.defaultPawn.apparel.WornApparel.Concat(selectedUnit.defaultPawn
                 .equipment.AllEquipmentListForReading))
             {
-                Rect tmp = new Rect(ApparelWornItems.x, ApparelWornItems.y + i * 25, ApparelWornItems.width, 25);
+                Rect tmp = new Rect(ApparelWornItems.x, ApparelWornItems.y + i * 25, ApparelWornItems.width,
+                    25);
                 i++;
 
                 totalCost += thing.MarketValue;
 
-                if (Widgets.CustomButtonText(ref tmp, thing.LabelCap + " Cost: " + thing.MarketValue, Color.white,
+                if (Widgets.CustomButtonText(ref tmp, thing.LabelCap + " Cost: " + thing.MarketValue,
+                    Color.white,
                     Color.black, Color.black))
                 {
                     Find.WindowStack.Add(new Dialog_InfoCard(thing));
@@ -2888,9 +2880,11 @@ namespace FactionColonies
                 numberProjectiles.width, numberProjectiles.height);
 
             Rect ResetButton = new Rect(700 - 2, 100, 100, 30);
-            Rect DeleteButton = new Rect(ResetButton.x, ResetButton.y + ResetButton.height + 5, ResetButton.width,
+            Rect DeleteButton = new Rect(ResetButton.x, ResetButton.y + ResetButton.height + 5,
+                ResetButton.width,
                 ResetButton.height);
-            Rect PointRefButton = new Rect(DeleteButton.x, DeleteButton.y + DeleteButton.height + 5, DeleteButton.width,
+            Rect PointRefButton = new Rect(DeleteButton.x, DeleteButton.y + DeleteButton.height + 5,
+                DeleteButton.width,
                 DeleteButton.height);
 
 
@@ -2950,7 +2944,8 @@ namespace FactionColonies
                 {
                     Widgets.Label(TotalCost,
                         "Total Fire Support Silver Cost: " + selectedSupport.returnTotalCost() + " / " +
-                        FactionColonies.calculateMilitaryLevelPoints(settlementPointReference.settlementMilitaryLevel) +
+                        FactionColonies.calculateMilitaryLevelPoints(settlementPointReference
+                            .settlementMilitaryLevel) +
                         " (Max Cost)");
                 }
                 else
@@ -2960,14 +2955,17 @@ namespace FactionColonies
                         "No Reference");
                 }
 
-                Widgets.Label(numberProjectiles, "Number of Projectiles: " + selectedSupport.projectiles.Count());
+                Widgets.Label(numberProjectiles,
+                    "Number of Projectiles: " + selectedSupport.projectiles.Count());
                 Widgets.Label(duration,
                     "Duration of fire support: " + Math.Round(selectedSupport.projectiles.Count() * .25, 2) +
                     " seconds");
                 Widgets.Label(floatRangeAccuracyLabel,
-                    selectedSupport.accuracy + " = Accuracy of fire support (In tiles radius): Affecting cost by : " +
+                    selectedSupport.accuracy +
+                    " = Accuracy of fire support (In tiles radius): Affecting cost by : " +
                     selectedSupport.returnAccuracyCostPercentage() + "%");
-                selectedSupport.accuracy = Widgets.HorizontalSlider(floatRangeAccuracy, selectedSupport.accuracy,
+                selectedSupport.accuracy = Widgets.HorizontalSlider(floatRangeAccuracy,
+                    selectedSupport.accuracy,
                     Math.Max(3, (15 - Find.World.GetComponent<FactionFC>().returnHighestMilitaryLevel())), 30,
                     roundTo: 1);
                 Text.Font = GameFont.Tiny;
@@ -3002,7 +3000,8 @@ namespace FactionColonies
                     foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
                     {
                         settlementList.Add(new FloatMenuOption(
-                            settlement.name + " - Military Level : " + settlement.settlementMilitaryLevel, delegate
+                            settlement.name + " - Military Level : " + settlement.settlementMilitaryLevel,
+                            delegate
                             {
                                 //set points
                                 settlementPointReference = settlement;
@@ -3126,7 +3125,8 @@ namespace FactionColonies
 
                         if (thingOptions.Count() == 0)
                         {
-                            thingOptions.Add(new FloatMenuOption("No available projectiles found", delegate { }));
+                            thingOptions.Add(
+                                new FloatMenuOption("No available projectiles found", delegate { }));
                         }
 
                         Find.WindowStack.Add(new FloatMenu(thingOptions));
@@ -3150,7 +3150,8 @@ namespace FactionColonies
 
                         if (thingOptions.Count() == 0)
                         {
-                            thingOptions.Add(new FloatMenuOption("No available projectiles found", delegate { }));
+                            thingOptions.Add(
+                                new FloatMenuOption("No available projectiles found", delegate { }));
                         }
 
                         Find.WindowStack.Add(new FloatMenu(thingOptions));
@@ -3173,7 +3174,8 @@ namespace FactionColonies
                             foreach (ThingDef def in selectedSupport.returnFireSupportOptions())
                             {
                                 thingOptions.Add(new FloatMenuOption(
-                                    def.LabelCap + " - " + Math.Round(def.BaseMarketValue * 1.5, 2).ToString(), delegate
+                                    def.LabelCap + " - " + Math.Round(def.BaseMarketValue * 1.5, 2).ToString(),
+                                    delegate
                                     {
                                         Log.Message("insert at " + k);
                                         selectedSupport.projectiles.Insert(k, def);
@@ -3182,7 +3184,8 @@ namespace FactionColonies
 
                             if (thingOptions.Count() == 0)
                             {
-                                thingOptions.Add(new FloatMenuOption("No available projectiles found", delegate { }));
+                                thingOptions.Add(new FloatMenuOption("No available projectiles found",
+                                    delegate { }));
                             }
 
                             Find.WindowStack.Add(new FloatMenu(thingOptions));
@@ -3308,6 +3311,18 @@ namespace FactionColonies
             //Reset Text anchor and font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
+        }
+
+        public void SetActive(MilSquadFC squad)
+        {
+            selectedSquad = squad;
+            selectedText = squad.name;
+        }
+
+        public void SetActive(MilUnitFC unit)
+        {
+            selectedUnit = unit;
+            selectedText = unit.name;
         }
     }
 }
