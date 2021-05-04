@@ -1170,15 +1170,7 @@ namespace FactionColonies
 
         public Mercenary returnPawn(Pawn pawn)
         {
-            foreach (Mercenary merc in mercenaries)
-            {
-                if (merc.pawn == pawn)
-                {
-                    return merc;
-                }
-            }
-
-            return null;
+            return mercenaries.FirstOrDefault(merc => merc.pawn == pawn);
         }
     }
 
@@ -1276,42 +1268,36 @@ namespace FactionColonies
 
         public void setTraderCaravan(bool state)
         {
-            ChangeTick();
-            isTraderCaravan = state;
-            if (state)
+            while (true)
             {
-                bool hasTrader = false;
-                int hasTraderCount = 0;
-                foreach (MilUnitFC unit in units)
+                ChangeTick();
+                isTraderCaravan = state;
+                if (state)
                 {
-                    if (unit.isTrader)
+                    int hasTraderCount = units.Count(unit => unit.isTrader);
+
+                    if (hasTraderCount == 0)
                     {
-                        hasTrader = true;
-                        hasTraderCount++;
+                        Messages.Message("There must be a trader in the squad to be a trader caravan!", MessageTypeDefOf.RejectInput);
+                        state = false;
+                        continue;
                     }
-                }
 
-                if (hasTrader == false)
+                    if (hasTraderCount > 1)
+                    {
+                        Messages.Message("There cannot be more than one trader in the caravan!", MessageTypeDefOf.RejectInput);
+                        state = false;
+                        continue;
+                    }
+
+                    setCivilian(true);
+                }
+                else
                 {
-                    Messages.Message("There must be a trader in the squad to be a trader caravan!",
-                        MessageTypeDefOf.RejectInput);
-                    setTraderCaravan(false);
-                    return;
+                    setCivilian(false);
                 }
 
-                if (hasTraderCount > 1)
-                {
-                    Messages.Message("There cannot be more than one trader in the caravan!",
-                        MessageTypeDefOf.RejectInput);
-                    setTraderCaravan(false);
-                    return;
-                }
-
-                setCivilian(true);
-            }
-            else
-            {
-                setCivilian(false);
+                break;
             }
         }
 
