@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.BaseGen;
@@ -65,7 +66,7 @@ namespace FactionColonies
         public List<FCPolicy> policies = new List<FCPolicy>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
         public List<int> militaryTargets = new List<int>();
-        public ThingFilter raceFilter = new ThingFilter();
+        public RaceThingFilter raceFilter = new RaceThingFilter();
 
 
         //Faction resources
@@ -1665,24 +1666,7 @@ namespace FactionColonies
 
         public void resetRaceFilter()
         {
-            raceFilter = new ThingFilter();
-
-            List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading)
-            {
-                if (def.race.race.intelligence == Intelligence.Humanlike & races.Contains(def.race.label) == false &&
-                    def.race.BaseMarketValue != 0)
-                {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist")
-                    {
-                    }
-                    else
-                    {
-                        races.Add(def.race.label);
-                        raceFilter.SetAllow(def.race, true);
-                    }
-                }
-            }
+            raceFilter = new RaceThingFilter(true);
         }
 
         public void updateAverages()

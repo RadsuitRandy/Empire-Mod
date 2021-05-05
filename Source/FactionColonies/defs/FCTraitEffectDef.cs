@@ -68,7 +68,6 @@ namespace FactionColonies
 
         //Faction Pawn Required Traits
         List<TraitDef> forcedFactionPawnTraits = new List<TraitDef>();   //Traits that pawns are required to have                                        #NEEDS TO BE IMPLEMENTED
-        List<PawnKindDef> factionAllowedRaces = new List<PawnKindDef>();  //List of races allowed in the faction                                        #NEEDS TO BE IMPLEMENTED
         List<Thing> factionUniform = new List<Thing>(); //List of the things pawns in the faction can wear                                        #NEEDS TO BE IMPLEMENTED
 
         public void ExposeData()
@@ -134,7 +133,6 @@ namespace FactionColonies
 
             //Faction Pawn Required Traits
         Scribe_Collections.Look(ref forcedFactionPawnTraits, "forcedFactionPawnTraits", LookMode.Deep);   //Traits that pawns are required to have
-        Scribe_Collections.Look(ref factionAllowedRaces, "factionAllowedRaces", LookMode.Deep);  //List of races allowed in the faction
         Scribe_Collections.Look(ref factionUniform, "factionUniform", LookMode.Deep); //List of uniform items for the faction
         }
 

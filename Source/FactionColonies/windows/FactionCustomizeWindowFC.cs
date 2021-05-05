@@ -213,20 +213,16 @@ namespace FactionColonies
 
             if (Widgets.ButtonTextSubtle(buttonAllowedRaces, "AllowedRaces".Translate()))
             {
-                List<string> races = new List<string>();
                 List<FloatMenuOption> list = new List<FloatMenuOption>
                 {
                     new FloatMenuOption("Enable All", delegate { faction.resetRaceFilter(); })
                 };
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading
-                    .Where(def => def.race.race.intelligence == Intelligence.Humanlike &&
-                                  races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
+                List<string> races = new List<string>();
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
+                    def.race.race.intelligence == Intelligence.Humanlike &
+                    races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
                 {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist")
-                    {
-                        continue;
-                    }
-
+                    if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);
                     list.Add(new FloatMenuOption(
                         def.race.label.CapitalizeFirst() + " - Allowed: " + faction.raceFilter.Allows(def.race),
@@ -242,6 +238,7 @@ namespace FactionColonies
                             }
                             else
                             {
+                                Log.Message("Found: " + faction.raceFilter.AllowedThingDefs.Any());
                                 Log.Message("Empire Error - Zero races available for faction - Report this");
                                 Log.Message("Reseting race filter");
                                 faction.resetRaceFilter();

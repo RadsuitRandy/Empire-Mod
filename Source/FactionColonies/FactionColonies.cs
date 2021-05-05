@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -200,8 +201,7 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.339)
             {
-                factionFC.raceFilter = new ThingFilter();
-                factionFC.resetRaceFilter();
+                factionFC.raceFilter = new RaceThingFilter(true);
             }
 
             if (factionFC.updateVersion < 0.340)
@@ -856,6 +856,18 @@ namespace FactionColonies
         {
             //Log.Message("Debug - Increment Time 5 Days");
             Find.TickManager.DebugSetTicksGame(Find.TickManager.TicksGame + GenDate.TicksPerYear);
+        }
+        
+        [DebugAction("Empire", "Print Races", allowedGameStates = AllowedGameStates.Playing)]
+        private static void PrintRaces()
+        {
+            getPlayerColonyFaction().def.pawnGroupMakers.ForEach(maker =>
+            {
+                foreach (PawnGenOption option in maker.options)
+                { 
+                    Log.Message("Race: " + option.kind.race.defName);   
+                }
+            });
         }
 
         [DebugAction("Empire", "Reset All Military Squad Assignments", allowedGameStates = AllowedGameStates.Playing)]

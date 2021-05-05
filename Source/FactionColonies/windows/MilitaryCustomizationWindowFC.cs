@@ -873,7 +873,6 @@ namespace FactionColonies
         public void createNewAnimal(ref Mercenary merc, PawnKindDef race)
         {
             Pawn newPawn;
-            Log.Message("Found race " + race.race);
             newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(race,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
@@ -2170,15 +2169,11 @@ namespace FactionColonies
                 List<string> races = new List<string>();
                 List<FloatMenuOption> options = new List<FloatMenuOption>();
 
-                foreach (var def in DefDatabase<PawnKindDef>.AllDefsListForReading
-                    .Where(def => def.race.race.intelligence == Intelligence.Humanlike &
-                        races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
+                    def.race.race.intelligence == Intelligence.Humanlike &
+                    races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
                 {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist")
-                    {
-                        continue;
-                    }
-
+                    if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);
                     options.Add(new FloatMenuOption(
                         def.race.label.CapitalizeFirst() + " - Cost: " + Math.Floor(def.race.BaseMarketValue *

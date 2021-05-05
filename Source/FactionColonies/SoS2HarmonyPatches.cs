@@ -211,8 +211,7 @@ namespace FactionColonies
         public static void ResetFactionLeaders(bool planet = false)
         {
             List<Faction> list;
-
-
+            
             if (planet)
             {
                 list = Find.FactionManager.AllFactionsListForReading;
