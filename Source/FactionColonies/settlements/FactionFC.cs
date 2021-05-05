@@ -30,7 +30,6 @@ namespace FactionColonies
         public int NextUnitID => ++nextUnitId;
         public int NextSquadID => ++nextSquadId;
 
-
         public List<SettlementFC> settlements = new List<SettlementFC>();
         public string name = "PlayerFaction".Translate();
         public string title = "Bastion".Translate();
@@ -216,6 +215,8 @@ namespace FactionColonies
             //Military Customization Util
             Scribe_Deep.Look(ref militaryCustomizationUtil, "militaryCustomizationUtil");
             Scribe_Values.Look(ref nextMilitaryFireSupportID, "nextMilitaryFireSupportID", 1);
+            Scribe_Values.Look(ref nextUnitId, "nextUnitID", 1);
+            Scribe_Values.Look(ref nextSquadId, "nextSquadID", 1);
             Scribe_Values.Look(ref nextMercenaryID, "nextMercenaryID", 1);
             Scribe_Values.Look(ref nextMercenarySquadID, "nextMercenarySquadID", 1);
             Scribe_Values.Look(ref mercenaryTick, "mercenaryTick", -1);
