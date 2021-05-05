@@ -238,7 +238,6 @@ namespace FactionColonies
                             }
                             else
                             {
-                                Log.Message("Found: " + faction.raceFilter.AllowedThingDefs.Any());
                                 Log.Message("Empire Error - Zero races available for faction - Report this");
                                 Log.Message("Reseting race filter");
                                 faction.resetRaceFilter();

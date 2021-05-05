@@ -1565,8 +1565,6 @@ namespace FactionColonies
             }
             //Log.Message("FactionFC.updateFactionDef - switch(tech) passed");
 
-            //Log.Message("1");
-            def.pawnGroupMakers = replacingDef.pawnGroupMakers;
             //Log.Message("2");
             def.caravanTraderKinds = replacingDef.caravanTraderKinds;
             //Log.Message("3");

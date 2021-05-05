@@ -27,7 +27,6 @@ namespace FactionColonies.util
                 !races.Contains(def.race.label) && def.race.BaseMarketValue != 0))
             {
                 if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
-                Log.Message("Adding " + def.race.label);
                 races.Add(def.race.label);
                 SetAllow(def.race, true);
             }
@@ -42,23 +41,46 @@ namespace FactionColonies.util
 
             if (allow)
             {
-                PawnKindDef pawnKind = DefDatabase<PawnKindDef>.AllDefsListForReading.Find(
+                PawnGroupMaker combat = new PawnGroupMaker {kindDef = PawnGroupKindDefOf.Combat};
+                PawnGroupMaker trader = new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Trader
+                };
+                foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
+                {
+                    trader.carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
+                }
+                
+                PawnGroupMaker settlement = new PawnGroupMaker {kindDef = PawnGroupKindDefOf.Settlement};
+                PawnGroupMaker peaceful = new PawnGroupMaker {kindDef = PawnGroupKindDefOf.Peaceful};
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(
                     def => def.race.race.intelligence == Intelligence.Humanlike && def.race.BaseMarketValue != 0
-                        && def.race.label == thingDef.label);
-                PawnGroupMaker maker = new PawnGroupMaker();
-                PawnGenOption genOption = new PawnGenOption {kind = pawnKind};
-                maker.options.Add(genOption);
-                if (genOption.kind.trader)
+                        && def.race.label == thingDef.label))
                 {
-                    maker.traders.Add(genOption);
-                }
+                    PawnGenOption type = new PawnGenOption { kind = def, selectionWeight = 1 };
+                    settlement.options.Add(type);
+                    if (def.label != "mercenary")
+                    {
+                        trader.options.Add(type);
+                        peaceful.options.Add(type);
+                    }
 
-                if (genOption.kind.isFighter)
-                {
-                    maker.guards.Add(genOption);
-                }
+                    if (def.isFighter)
+                    {
+                        trader.guards.Add(type);
+                        combat.options.Add(type);
+                    }
 
-                faction.pawnGroupMakers.Add(maker);
+                    if (def.trader)
+                    {
+                        trader.traders.Add(type);
+                    }
+                }
+                
+                faction.pawnGroupMakers.Add(combat);
+                faction.pawnGroupMakers.Add(trader);
+                faction.pawnGroupMakers.Add(settlement);
+                faction.pawnGroupMakers.Add(peaceful);
             }
             else
             {
@@ -67,15 +89,15 @@ namespace FactionColonies.util
                         type => type.kind.race.label.Equals(thingDef.label)) != null);
                 if (index >= 0)
                 {
-                    Log.Message("Removing " + thingDef.label);
                     faction.pawnGroupMakers.RemoveAt(index);
-                    FactionColonies.getPlayerColonyFaction().TryGenerateNewLeader();
+                    if (!FactionColonies.getPlayerColonyFaction().TryGenerateNewLeader())
+                    {
+                        Log.Error("Couldn't generate new leader! " + FactionColonies.getPlayerColonyFaction().def.pawnGroupMakers.Count);
+                    }
                 }
             }
-            Log.Message("Size: " + faction.pawnGroupMakers.Count);
 
             base.SetAllow(thingDef, allow);
         }
-
     }
 }

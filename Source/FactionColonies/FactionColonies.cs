@@ -865,7 +865,7 @@ namespace FactionColonies
             {
                 foreach (PawnGenOption option in maker.options)
                 { 
-                    Log.Message("Race: " + option.kind.race.defName);   
+                    Log.Message("Race: " + option.kind.race.defName + ", " + option.kind.defName + ", " + option.kind.isFighter);   
                 }
             });
         }
