@@ -184,14 +184,18 @@ namespace FactionColonies
                 pawn.DeSpawn();
             }
 
-            Current.Game.tickManager.RemoveAllFromMap(Map);
             CameraJumper.TryJump(settlement.mapLocation);
             //Prevent player from zooming back into the settlement
             Current.Game.CurrentMap = Find.World.worldObjects.SettlementAt(
                 Find.World.GetComponent<FactionFC>().capitalLocation).Map;
 
             Current.Root.soundRoot.sustainerManager.EndAllInMap(Map);
-            Current.Game.DeinitAndRemoveMap(Map);
+        }
+
+        public override bool ShouldRemoveMapNow(out bool removeWorldObject)
+        {
+            removeWorldObject = false;
+            return !defenders.Any() && !attackers.Any();
         }
 
         public void startDefense(FCEvent evt, Action after)
@@ -242,11 +246,12 @@ namespace FactionColonies
                 {
                     CameraJumper.TryJump(new GlobalTargetInfo(friendlies[0]));
                 }
+                return;
             }
 
-            if (Map.mapPawns.FreeColonists.Any())
+            if (Map.mapPawns.AllPawnsSpawned.Any())
             {
-                CameraJumper.TryJump(new GlobalTargetInfo(Map.mapPawns.FreeColonists[0]));
+                CameraJumper.TryJump(new GlobalTargetInfo(Map.mapPawns.AllPawnsSpawned[0]));
             }
             else
             {
