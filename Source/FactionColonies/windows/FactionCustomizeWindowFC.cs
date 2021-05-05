@@ -234,7 +234,10 @@ namespace FactionColonies
                             }
                             else if (faction.raceFilter.AllowedThingDefs.Count() > 1)
                             {
-                                faction.raceFilter.SetAllow(def.race, !faction.raceFilter.Allows(def.race));
+                                if (!faction.raceFilter.SetAllow(def.race, !faction.raceFilter.Allows(def.race)))
+                                {
+                                    Messages.Message(new Message("InvalidFaction".Translate(), MessageTypeDefOf.RejectInput));
+                                }
                             }
                             else
                             {

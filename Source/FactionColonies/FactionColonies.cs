@@ -875,7 +875,7 @@ namespace FactionColonies
         {
             Log.Message("Debug - Reset All Military Squad Assignments");
             MilitaryCustomizationUtil util = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
-            for (int i = util.AllMercenaries.Count() - 1; i >= 0; i--)
+            for (int i = util.AllMercenaries.Count - 1; i >= 0; i--)
             {
                 if (util.AllMercenaries[i].squad.hasLord)
                 {

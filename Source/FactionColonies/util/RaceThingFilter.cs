@@ -32,7 +32,7 @@ namespace FactionColonies.util
             }
         }
 
-        public new void SetAllow(ThingDef thingDef, bool allow)
+        public new bool SetAllow(ThingDef thingDef, bool allow)
         {
             if (faction == null)
             {
@@ -81,23 +81,20 @@ namespace FactionColonies.util
                 faction.pawnGroupMakers.Add(trader);
                 faction.pawnGroupMakers.Add(settlement);
                 faction.pawnGroupMakers.Add(peaceful);
+                if (!trader.traders.Any() || !combat.options.Any() || !peaceful.options.Any())
+                {
+                    return false;
+                }
             }
             else
             {
-                int index = faction.pawnGroupMakers.FindIndex(
+                faction.pawnGroupMakers.RemoveAll(
                     groupMaker => groupMaker.options.Find(
                         type => type.kind.race.label.Equals(thingDef.label)) != null);
-                if (index >= 0)
-                {
-                    faction.pawnGroupMakers.RemoveAt(index);
-                    if (!FactionColonies.getPlayerColonyFaction().TryGenerateNewLeader())
-                    {
-                        Log.Error("Couldn't generate new leader! " + FactionColonies.getPlayerColonyFaction().def.pawnGroupMakers.Count);
-                    }
-                }
             }
 
             base.SetAllow(thingDef, allow);
+            return true;
         }
     }
 }

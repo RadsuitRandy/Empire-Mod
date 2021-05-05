@@ -55,6 +55,7 @@
     <FactionName>Faction Name</FactionName>
     <FactionTitle>Faction Title</FactionTitle>
     <FactionIcon>Faction Icon</FactionIcon>
+	<InvalidFaction>That faction can't run an empire on its own!</InvalidFaction>
     <ButtonNotAvailable>This button is not available yet</ButtonNotAvailable>
     <ConfirmChanges>Confirm Changes</ConfirmChanges>
 

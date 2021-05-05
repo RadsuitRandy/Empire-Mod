@@ -7,8 +7,5 @@ This mod was initially developed by Saakra, a lone Mod Dev. He has since moved o
 ## Building
 To build using the dotnet cli, go to `Source/FactionColonies` and run `dotnet build`. The Assembly will output to the Assemblies folder, along with debug symbols.
 
-To get IDE decompilation of the Rimworld DLL, add a reference to your copy of `Assembly-CSharp.dll` and add this as a `.gitignore` in your `Source/FactionColonies` directory:
-```gitignore
-.gitignore
-FactionColonies.csproj
-```
+To get IDE decompilation of the Rimworld DLL, import the FactionColonies-FileReference file instead of FactionColonies, 
+and make sure the folder is in your Rimworld/Mods folder.
