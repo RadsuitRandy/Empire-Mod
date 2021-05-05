@@ -317,12 +317,7 @@ namespace FactionColonies
             evt.militaryForceDefending =
                 militaryForce.createMilitaryForceFromSettlement(settlementOfMilitaryForce,
                     homeDefendingForce: tmpMilitaryForce);
-
-            Log.Message("Updated force to " + evt.militaryForceDefending.forceRemaining);
-
-            Log.Message("Found " + Find.World.GetComponent<FactionFC>().events.Find(test =>
-                test.def == FCEventDefOf.settlementBeingAttacked &&
-                test.settlementFCDefending == oldDefending));
+            
             if (settlementOfMilitaryForce == homeSettlement)
             {
                 //if home settlement is reseting to defense

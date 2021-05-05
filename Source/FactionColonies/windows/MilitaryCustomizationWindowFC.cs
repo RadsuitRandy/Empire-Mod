@@ -541,13 +541,11 @@ namespace FactionColonies
                 totalCost = defaultPawn.apparel.WornApparel.Aggregate(totalCost,
                     (current, thing) => current + thing.MarketValue);
 
-                Log.Message("3");
                 totalCost = defaultPawn.equipment.AllEquipmentListForReading.Aggregate(totalCost,
                     (current, thing) => current + thing.MarketValue);
 
                 if (animal != null)
                 {
-                    Log.Message("4");
                     totalCost += Math.Floor(animal.race.BaseMarketValue * FactionColonies.militaryAnimalCostMultiplier);
                 }
 
