@@ -200,6 +200,12 @@ namespace FactionColonies
 
         public void startDefense(FCEvent evt, Action after)
         {
+            if (FactionColonies.Settings().settlementsAutoBattle)
+            {
+                bool won = SimulateBattleFc.FightBattle(evt.militaryForceAttacking, evt.militaryForceDefending) == 1;
+                endBattle(won, (int) evt.militaryForceDefending.forceRemaining);
+                return;
+            }
             LongEventHandler.QueueLongEvent(() =>
                 {
                     if (Map == null)
@@ -414,10 +420,11 @@ namespace FactionColonies
             return friendlies;
         }
 
-        private void endAttack()
+        private void endBattle(bool won, int remaining)
         {
+            
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            if (defenders.Any())
+            if (won)
             {
                 faction.addExperienceToFactionLevel(5f);
                 //if winner is player
@@ -484,7 +491,7 @@ namespace FactionColonies
             if (defenderForce.homeSettlement != settlement)
             {
                 //if not the home settlement defending
-                if (defenders.Count >= 7)
+                if (remaining >= 7)
                 {
                     Find.LetterStack.ReceiveLetter("OverwhelmingVictory".Translate(),
                         "OverwhelmingVictoryDesc".Translate(), LetterDefOf.PositiveEvent);
@@ -499,7 +506,11 @@ namespace FactionColonies
             //Must be done before creating caravans and deiniting map to prevent AI bugging out or
             //caravans being removed mid-loop
             settlement.isUnderAttack = false;
-
+        }
+        
+        private void endAttack()
+        {
+            endBattle(defenders.Any(), defenders.Count);
             deleteMap();
 
             supporting.Clear();

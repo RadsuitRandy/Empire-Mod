@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
-using JetBrains.Annotations;
 using RimWorld;
 using Verse;
 
@@ -19,8 +17,26 @@ namespace FactionColonies.util
         public RaceThingFilter(bool reset)
         {
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
-            faction.pawnGroupMakers = new List<PawnGroupMaker>();
+            faction.pawnGroupMakers = new List<PawnGroupMaker> {new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Combat
+                }, new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Trader
+                }, 
+                new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Settlement
+                }, new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Peaceful
+                }};
 
+            foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
+            {
+                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
+            }
+            
             List<string> races = new List<string>();
             foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
                 def.race.race.intelligence == Intelligence.Humanlike &
@@ -41,56 +57,51 @@ namespace FactionColonies.util
 
             if (allow)
             {
-                PawnGroupMaker combat = new PawnGroupMaker {kindDef = PawnGroupKindDefOf.Combat};
-                PawnGroupMaker trader = new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Trader
-                };
-                foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
-                {
-                    trader.carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
-                }
-                
-                PawnGroupMaker settlement = new PawnGroupMaker {kindDef = PawnGroupKindDefOf.Settlement};
-                PawnGroupMaker peaceful = new PawnGroupMaker {kindDef = PawnGroupKindDefOf.Peaceful};
+                //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(
                     def => def.race.race.intelligence == Intelligence.Humanlike && def.race.BaseMarketValue != 0
                         && def.race.label == thingDef.label))
                 {
                     PawnGenOption type = new PawnGenOption { kind = def, selectionWeight = 1 };
-                    settlement.options.Add(type);
+                    faction.pawnGroupMakers[2].options.Add(type);
                     if (def.label != "mercenary")
                     {
-                        trader.options.Add(type);
-                        peaceful.options.Add(type);
+                        faction.pawnGroupMakers[1].options.Add(type);
+                        faction.pawnGroupMakers[3].options.Add(type);
                     }
 
                     if (def.isFighter)
                     {
-                        trader.guards.Add(type);
-                        combat.options.Add(type);
+                        faction.pawnGroupMakers[1].guards.Add(type);
+                        faction.pawnGroupMakers[0].options.Add(type);
                     }
 
                     if (def.trader)
                     {
-                        trader.traders.Add(type);
+                        faction.pawnGroupMakers[1].traders.Add(type);
                     }
                 }
                 
-                faction.pawnGroupMakers.Add(combat);
-                faction.pawnGroupMakers.Add(trader);
-                faction.pawnGroupMakers.Add(settlement);
-                faction.pawnGroupMakers.Add(peaceful);
-                if (!trader.traders.Any() || !combat.options.Any() || !peaceful.options.Any())
-                {
-                    return false;
-                }
             }
             else
             {
-                faction.pawnGroupMakers.RemoveAll(
-                    groupMaker => groupMaker.options.Find(
-                        type => type.kind.race.label.Equals(thingDef.label)) != null);
+                faction.pawnGroupMakers.ForEach(
+                    groupMaker =>
+                    {
+                        groupMaker.options.RemoveAll(
+                            type => type.kind.race.label.Equals(thingDef.label));
+                        groupMaker.traders.RemoveAll(
+                            type => type.kind.race.label.Equals(thingDef.label));
+                        groupMaker.guards.RemoveAll(
+                            type => type.kind.race.label.Equals(thingDef.label));
+                    });
+                
+                if (!faction.pawnGroupMakers[1].traders.Any() || !faction.pawnGroupMakers[0].options.Any() || 
+                    !faction.pawnGroupMakers[3].options.Any())
+                {
+                    SetAllow(thingDef, true);
+                    return false;
+                }
             }
 
             base.SetAllow(thingDef, allow);

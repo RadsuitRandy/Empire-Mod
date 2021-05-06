@@ -217,7 +217,7 @@ namespace FactionColonies
 					//Initial release - Autocreate faction
 					if (Find.CurrentMap.Parent != null && Find.CurrentMap.Parent.Tile != null && Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile) != null)
 					{
-						Messages.Message(Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile).Name + " " + "SetAsFactionCapital".Translate() + "!", MessageTypeDefOf.NeutralEvent);
+						Messages.Message( "SetAsFactionCapital".Translate(Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile).Name), MessageTypeDefOf.NeutralEvent);
 					}
 
 				}
