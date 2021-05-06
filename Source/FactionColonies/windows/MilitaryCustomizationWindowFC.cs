@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -847,7 +848,7 @@ namespace FactionColonies
 
         public void removeDroppedEquipment()
         {
-            while (DroppedApparel.Count() > 0)
+            while (DroppedApparel.Any())
             {
                 Apparel apparel = DroppedApparel[0];
                 UsedApparelList.Remove(DroppedApparel[0]);
@@ -857,7 +858,7 @@ namespace FactionColonies
                 }
             }
 
-            while (DroppedWeapons.Count() > 0)
+            while (DroppedWeapons.Any())
             {
                 ThingWithComps weapon = DroppedWeapons[0];
                 UsedWeaponList.Remove(DroppedWeapons[0]);
@@ -884,31 +885,21 @@ namespace FactionColonies
 
         public void createNewPawn(ref Mercenary merc, PawnKindDef race)
         {
-            if (merc.pawn != null)
+            //pawn.ParentHolder.remov
+            if (merc.pawn?.health != null && merc.pawn.health.Dead)
             {
-                //pawn.ParentHolder.remov
-                if (merc.pawn.health != null && merc.pawn.health.Dead)
-                {
-                    //Log.Message("Passing old pawn to dead mercenaries");
-                    //PassPawnToDeadMercenaries(pawn);
-                }
+                //Log.Message("Passing old pawn to dead mercenaries");
+                //PassPawnToDeadMercenaries(pawn);
             }
 
-            PawnKindDef raceChoice;
-
-
-            if (race == null)
+            PawnKindDef raceChoice = race ?? PawnKindDefOf.Colonist;
+            FactionFC factionFc = Find.World.GetComponent<FactionFC>();
+            if (!factionFc.raceFilter.Allows(raceChoice.race))
             {
-                raceChoice = PawnKindDefOf.Colonist;
-            }
-            else
-            {
-                raceChoice = race;
+                raceChoice = FactionColonies.getPlayerColonyFaction().def.pawnGroupMakers[0].options.RandomElement().kind;
             }
 
-
-            Pawn newPawn;
-            newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
+            Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
             newPawn.apparel.DestroyAll();
@@ -1232,6 +1223,9 @@ namespace FactionColonies
                 units.Add(Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.blankUnit);
             }
 
+            isTraderCaravan = false;
+            isCivilian = false;
+
             updateEquipmentTotalCost();
         }
 
@@ -1268,7 +1262,7 @@ namespace FactionColonies
         public void setTraderCaravan(bool state)
         {
             ChangeTick();
-
+            isTraderCaravan = state;
             if (state)
             {
                 int hasTraderCount = units.Count(unit => unit.isTrader);
@@ -1793,7 +1787,6 @@ namespace FactionColonies
             GameFont fontBefore = Text.Font;
             TextAnchor anchorBefore = Text.Anchor;
 
-
             Rect SelectionBar = new Rect(5, 45, 200, 30);
             Rect importButton = new Rect(5, SelectionBar.y + SelectionBar.height + 10, 200, 30);
             Rect nameTextField = new Rect(5, importButton.y + importButton.height + 10, 250, 30);
@@ -1880,8 +1873,7 @@ namespace FactionColonies
 
                 Widgets.CheckboxLabeled(isTrader, "is Trader Caravan", ref selectedSquad.isTraderCaravan);
                 selectedSquad.setTraderCaravan(selectedSquad.isTraderCaravan);
-
-
+                
                 //Unit Name
                 selectedSquad.name = Widgets.TextField(nameTextField, selectedSquad.name);
 
@@ -2008,8 +2000,9 @@ namespace FactionColonies
         public void DrawTabUnit(Rect inRect)
         {
             Rect SelectionBar = new Rect(5, 45, 200, 30);
-            Rect nameTextField = new Rect(5, 90, 250, 30);
-            Rect isCivilian = new Rect(5, 130, 100, 30);
+            Rect importButton = new Rect(5, SelectionBar.y + SelectionBar.height + 10, 200, 30);
+            Rect nameTextField = new Rect(5, importButton.y + importButton.height + 10, 250, 30);
+            Rect isCivilian = new Rect(5, nameTextField.y + nameTextField.height + 10, 100, 30);
             Rect isTrader = new Rect(isCivilian.x, isCivilian.y + isCivilian.height + 5, isCivilian.width,
                 isCivilian.height);
 
@@ -2040,30 +2033,23 @@ namespace FactionColonies
             Rect RollNewPawn = new Rect(325, ResetButton.y + SavePawn.height + 5, SavePawn.width,
                 SavePawn.height);
 
-            //Rect ApparelTorso
-            //If unit is not selected
             if (Widgets.CustomButtonText(ref SelectionBar, selectedText, Color.gray, Color.white, Color.black))
             {
-                List<FloatMenuOption> Units = new List<FloatMenuOption>();
+                List<FloatMenuOption> Units = new List<FloatMenuOption>
+                {
+                    new FloatMenuOption("Create New Unit", delegate
+                    {
+                        MilUnitFC newUnit = new MilUnitFC(false)
+                        {
+                            name = $"New Unit {(util.units.Count() + 1).ToString()}"
+                        };
+                        selectedText = newUnit.name;
+                        selectedUnit = newUnit;
+                        util.units.Add(newUnit);
+                    })
+                };
 
                 //Option to create new unit
-                Units.Add(new FloatMenuOption("Create New Unit", delegate
-                {
-                    MilUnitFC newUnit = new MilUnitFC(false)
-                    {
-                        name = $"New Unit {(util.units.Count() + 1).ToString()}"
-                    };
-                    selectedText = newUnit.name;
-                    selectedUnit = newUnit;
-                    util.units.Add(newUnit);
-                }));
-
-                if (FactionColoniesMilitary.SavedUnits.Any())
-                {
-                    Units.Add(new FloatMenuOption("Import Unit", () =>
-                        Find.WindowStack.Add(new Dialog_ManageUnitExportsFC(
-                            FactionColoniesMilitary.SavedUnits.ToList()))));
-                }
 
                 //Create list of selectable units
                 foreach (MilUnitFC unit in util.units)
@@ -2090,6 +2076,12 @@ namespace FactionColonies
 
                 FloatMenu selection = new FloatMenu(Units);
                 Find.WindowStack.Add(selection);
+            }
+
+            if (Widgets.ButtonText(importButton, "Import Unit"))
+            {
+                Find.WindowStack.Add(new Dialog_ManageUnitExportsFC(
+                    FactionColoniesMilitary.SavedUnits.ToList()));
             }
 
             //Worn Items

@@ -8,7 +8,8 @@ namespace FactionColonies.util
     public class RaceThingFilter : ThingFilter
     {
         private FactionDef faction;
-
+        private MilitaryCustomizationUtil militaryUtil;
+        
         public RaceThingFilter()
         {
         }
@@ -16,7 +17,9 @@ namespace FactionColonies.util
         //Useless parameter to only reset when reset instead of when loaded
         public RaceThingFilter(bool reset)
         {
+            militaryUtil = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
+            
             faction.pawnGroupMakers = new List<PawnGroupMaker> {new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Combat
@@ -105,6 +108,16 @@ namespace FactionColonies.util
             }
 
             base.SetAllow(thingDef, allow);
+            foreach (MercenarySquadFC mercenarySquadFc in militaryUtil.mercenarySquads)
+            {
+                foreach (Mercenary mercenary in mercenarySquadFc.mercenaries.Where(mercenary => !Allows(mercenary.pawn.kindDef.race)))
+                {
+                    Mercenary merc = mercenary;
+                    mercenarySquadFc.createNewPawn(ref merc, faction.pawnGroupMakers[0].options.RandomElement().kind);
+                    mercenarySquadFc.mercenaries.Replace(mercenary, merc);
+                }
+            }
+            
             return true;
         }
     }

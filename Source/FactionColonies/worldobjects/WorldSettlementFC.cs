@@ -245,17 +245,19 @@ namespace FactionColonies
                 {
                     FloodFillerFog.FloodUnfog(building.InteractionCell, Map);
                 }
-
-                List<Pawn> friendlies = generateFriendlies(force);
-
-                if (friendlies.Any())
-                {
-                    CameraJumper.TryJump(new GlobalTargetInfo(friendlies[0]));
-                }
-                return;
+                
+                generateFriendlies(force);
             }
 
-            if (Map.mapPawns.AllPawnsSpawned.Any())
+            if (Current.Game.CurrentMap == Map)
+            {
+                return;
+            }
+            
+            if (defenders.Any())
+            {
+                CameraJumper.TryJump(new GlobalTargetInfo(defenders[0]));
+            }  else if (Map.mapPawns.AllPawnsSpawned.Any())
             {
                 CameraJumper.TryJump(new GlobalTargetInfo(Map.mapPawns.AllPawnsSpawned[0]));
             }
@@ -332,7 +334,7 @@ namespace FactionColonies
             return CellFinder.RandomCell(map);
         }
 
-        private List<Pawn> generateFriendlies(militaryForce force)
+        private void generateFriendlies(militaryForce force)
         {
             float points = (float) (force.militaryLevel * force.militaryEfficiency * 100);
             List<Pawn> friendlies;
@@ -416,8 +418,6 @@ namespace FactionColonies
                 FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(riders), Map, friendlies);
 
             defenders = friendlies;
-
-            return friendlies;
         }
 
         private void endBattle(bool won, int remaining)

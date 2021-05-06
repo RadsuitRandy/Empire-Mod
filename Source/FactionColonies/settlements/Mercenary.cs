@@ -40,9 +40,5 @@ namespace FactionColonies
         {
             return "Mercenary_" + loadID;
         }
-
-
     }
-
-
 }
