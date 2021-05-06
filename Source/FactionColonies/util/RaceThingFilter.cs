@@ -51,6 +51,33 @@ namespace FactionColonies.util
             }
         }
 
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            if (militaryUtil != null) return;
+            militaryUtil = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
+            faction = DefDatabase<FactionDef>.GetNamed("PColony");
+            
+            faction.pawnGroupMakers = new List<PawnGroupMaker> {new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Combat
+                }, new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Trader
+                }, 
+                new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Settlement
+                }, new PawnGroupMaker
+                {
+                    kindDef = PawnGroupKindDefOf.Peaceful
+                }};
+            foreach (ThingDef allowed in AllowedThingDefs)
+            {
+                SetAllow(allowed, true);
+            }
+        }
+
         public new bool SetAllow(ThingDef thingDef, bool allow)
         {
             if (faction == null)
@@ -110,12 +137,22 @@ namespace FactionColonies.util
             base.SetAllow(thingDef, allow);
             foreach (MercenarySquadFC mercenarySquadFc in militaryUtil.mercenarySquads)
             {
-                foreach (Mercenary mercenary in mercenarySquadFc.mercenaries.Where(mercenary => !Allows(mercenary.pawn.kindDef.race)))
+                List<Mercenary> newMercs = new List<Mercenary>();
+                foreach (Mercenary mercenary in mercenarySquadFc.mercenaries)
                 {
-                    Mercenary merc = mercenary;
-                    mercenarySquadFc.createNewPawn(ref merc, faction.pawnGroupMakers[0].options.RandomElement().kind);
-                    mercenarySquadFc.mercenaries.Replace(mercenary, merc);
+                    if (!Allows(mercenary.pawn.kindDef.race))
+                    {
+                        Mercenary merc = mercenary;
+                        mercenarySquadFc.createNewPawn(ref merc, faction.pawnGroupMakers[0].options.RandomElement().kind);
+                        newMercs.Add(merc);
+                    }
+                    else
+                    {
+                        newMercs.Add(mercenary);
+                    }
                 }
+
+                mercenarySquadFc.mercenaries = newMercs;
             }
             
             return true;

@@ -896,7 +896,7 @@ namespace FactionColonies
             FactionFC factionFc = Find.World.GetComponent<FactionFC>();
             if (!factionFc.raceFilter.Allows(raceChoice.race))
             {
-                raceChoice = FactionColonies.getPlayerColonyFaction().def.pawnGroupMakers[0].options.RandomElement().kind;
+                raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             }
 
             Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
