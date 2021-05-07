@@ -211,6 +211,10 @@ namespace FactionColonies
                 animal = animal,
                 pawnKind = pawnKind
             };
+            if (!Find.World.GetComponent<FactionFC>().raceFilter.Allows(pawnKind.race))
+            {
+                unit.pawnKind = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
+            }
             unit.generateDefaultPawn();
 
             if (weapon.thing != null)

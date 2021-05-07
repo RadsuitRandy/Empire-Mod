@@ -554,7 +554,7 @@ namespace FactionColonies
 		{
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Small;
-			for (int i = 0; i < buttons.Count(); i++)
+			for (int i = 0; i < buttons.Count; i++)
 			{
 				if (Widgets.ButtonText(new Rect(140, 110 + ((buttonSize + 5) * i), 170, buttonSize), buttons[i]))
 				{
@@ -568,7 +568,14 @@ namespace FactionColonies
 
 					if (buttons[i] == "Military".Translate())
 					{
-						Find.WindowStack.Add(new militaryCustomizationWindowFC());
+						if (FactionColonies.getPlayerColonyFaction() == null)
+						{
+							Messages.Message(new Message("NoFactionForMilitary".Translate(), MessageTypeDefOf.RejectInput));
+						}
+						else
+						{
+							Find.WindowStack.Add(new militaryCustomizationWindowFC());
+						}
 					}
 
 					if (buttons[i] == "Actions".Translate())

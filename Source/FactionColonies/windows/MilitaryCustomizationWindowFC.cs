@@ -380,7 +380,7 @@ namespace FactionColonies
             loadID = Find.World.GetComponent<FactionFC>().NextUnitID;
             isBlank = blank;
             equipmentTotalCost = 0;
-            pawnKind = PawnKindDefOf.Colonist;
+            pawnKind = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             generateDefaultPawn();
         }
 
@@ -2160,8 +2160,9 @@ namespace FactionColonies
                 List<FloatMenuOption> options = new List<FloatMenuOption>();
 
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                    def.race.race.intelligence == Intelligence.Humanlike &
-                    races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
+                    def.race.race.intelligence == Intelligence.Humanlike &&
+                    !races.Contains(def.race.label) && def.race.BaseMarketValue != 0 && 
+                    faction.raceFilter.Allows(def.race)))
                 {
                     if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);

@@ -120,6 +120,7 @@
     <CreateNewColony>Create New Colony</CreateNewColony>
     <SelectTile>Select a tile to create the colony</SelectTile>
     <SetAsFactionCapital>{0} has been set as the faction capital</SetAsFactionCapital>
+	<NoFactionForMilitary>You cannot make a military without a faction!</NoFactionForMilitary>
     <!--<Faction>Faction</Faction>-->
     <Colonies>Colonies</Colonies>
     <Bills>Bills</Bills>
