@@ -885,16 +885,16 @@ namespace FactionColonies
 
         public void createNewPawn(ref Mercenary merc, PawnKindDef race)
         {
-            //pawn.ParentHolder.remov
+            //pawn.ParentHolder.remove
             if (merc.pawn?.health != null && merc.pawn.health.Dead)
             {
                 //Log.Message("Passing old pawn to dead mercenaries");
                 //PassPawnToDeadMercenaries(pawn);
             }
 
-            PawnKindDef raceChoice = race ?? PawnKindDefOf.Colonist;
+            PawnKindDef raceChoice = race;
             FactionFC factionFc = Find.World.GetComponent<FactionFC>();
-            if (!factionFc.raceFilter.Allows(raceChoice.race))
+            if (race == null || !factionFc.raceFilter.Allows(raceChoice.race))
             {
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             }
@@ -902,8 +902,8 @@ namespace FactionColonies
             Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
-            newPawn.apparel.DestroyAll();
-            newPawn.equipment.DestroyAllEquipment();
+            newPawn.apparel?.DestroyAll();
+            newPawn.equipment?.DestroyAllEquipment();
             //merc = (Mercenary)newPawn;
             merc.squad = this;
             merc.settlement = settlement;
