@@ -7,7 +7,6 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
-using Verse.AI;
 using Verse.AI.Group;
 using Verse.Sound;
 
@@ -216,8 +215,20 @@ namespace FactionColonies
             }
             else
             {
-                Log.Message("Trader kind: " + trader.TraderKind);
-                yield return CaravanVisitUtility.TradeCommand(caravan, Faction, trader.TraderKind);
+                Command_Action action = (Command_Action) CaravanVisitUtility.TradeCommand(caravan, Faction, trader.TraderKind);
+                
+                Pawn bestNegotiator = BestCaravanPawnUtility.FindBestNegotiator(caravan, Faction, trader.TraderKind);
+                action.action = () =>
+                {
+                    if (!CanTradeNow)
+                        return;
+                    Find.WindowStack.Add(new Dialog_Trade(bestNegotiator, this));
+                    PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter_Send(Goods.OfType<Pawn>(), 
+                        "LetterRelatedPawnsTradingWithSettlement"
+                            .Translate((NamedArgument) Faction.OfPlayer.def.pawnsPlural), LetterDefOf.NeutralEvent);
+                };
+
+                yield return action;
             }
         }
 

@@ -9,8 +9,52 @@ using Verse;
 
 namespace FactionColonies
 {
+    [StaticConstructorOnStartup]
     public class WorldSettlementTraderTracker : IThingHolder, IExposable
     {
+        private static List<TraderKindDef> baseTraderKinds;
+
+        public static List<TraderKindDef> BaseTraderKinds
+        {
+            get
+            {
+                if (baseTraderKinds != null) return baseTraderKinds;
+                baseTraderKinds = DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers
+                    .SelectMany(maker => maker.options).Select(option => option.kind.defaultFactionType)
+                    .Where(faction => faction?.baseTraderKinds != null)
+                    .SelectMany(faction =>
+                        faction.baseTraderKinds).Distinct()
+                    .Where(trader => trader.tradeCurrency == TradeCurrency.Silver &&
+                                     trader.TitleRequiredToTrade == null &&
+                                     trader.permitRequiredForTrading == null)
+                    .Select(kind =>
+                    {
+                        Log.Message("Found " + kind.defName);
+                        TraderKindDef temp = new TraderKindDef
+                        {
+                            faction = DefDatabase<FactionDef>.GetNamed("PColony"),
+                            category = kind.category,
+                            commonality = kind.commonality,
+                            tradeCurrency = TradeCurrency.Silver,
+                            commonalityMultFromPopulationIntent = kind.commonalityMultFromPopulationIntent,
+                            hideThingsNotWillingToTrade = true
+                        };
+                        foreach (StockGenerator generator in kind.stockGenerators)
+                        {
+                            temp.stockGenerators.Add(new ColonyStockGenerator(generator));
+                        }
+
+                        return temp;
+                    }).ToList();
+                foreach (TraderKindDef trader in baseTraderKinds)
+                {
+                    Log.Message("Found: " + trader.defName);
+                }
+
+                return baseTraderKinds;
+            }
+        }
+
         public WorldSettlementFC settlement;
         private ThingOwner<Thing> stock;
         private int lastStockGenerationTicks = -1;
@@ -31,33 +75,10 @@ namespace FactionColonies
             }
         }
 
-        private TraderKindDef kind;
-
         [CanBeNull]
-        public TraderKindDef TraderKind
-        {
-            get
-            {
-                if (kind != null) return kind;
-                List<TraderKindDef> baseTraderKinds = DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers
-                    .SelectMany(
-                        maker => maker.options).Select(option => option.kind.defaultFactionType).SelectMany(
-                        faction => faction.baseTraderKinds.Where(
-                            trader => trader.tradeCurrency == TradeCurrency.Silver
-                                      && trader.TitleRequiredToTrade == null &&
-                                      trader.permitRequiredForTrading == null)).ToList();
-                if (!baseTraderKinds.Any())
-                    return null;
-                int index = Mathf.Abs(settlement.HashOffset()) % baseTraderKinds.Count;
-                kind = baseTraderKinds[index];
-                for (int i = 0; i < kind.stockGenerators.Count; i++)
-                {
-                    kind.stockGenerators[i] = new ColonyStockGenerator(kind.stockGenerators[i]);
-                }
-
-                return kind;
-            }
-        }
+        public TraderKindDef TraderKind => !BaseTraderKinds.Any()
+            ? null
+            : BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count];
 
         public int RandomPriceFactorSeed => Gen.HashCombineInt(settlement.ID, 1933327354);
 
