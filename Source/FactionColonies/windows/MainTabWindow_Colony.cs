@@ -215,9 +215,9 @@ namespace FactionColonies
 					faction.factionCreated = true;
 					Find.WindowStack.Add(new FactionCustomizeWindowFc(faction));
 					//Initial release - Autocreate faction
-					if (Find.CurrentMap.Parent != null && Find.CurrentMap.Parent.Tile != null && Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile) != null)
+					if (Find.CurrentMap.Parent != null && Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(Find.CurrentMap.Parent.Tile) != null)
 					{
-						Messages.Message( "SetAsFactionCapital".Translate(Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile).Name), MessageTypeDefOf.NeutralEvent);
+						Messages.Message( "SetAsFactionCapital".Translate(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(Find.CurrentMap.Parent.Tile).Name), MessageTypeDefOf.NeutralEvent);
 					}
 
 				}

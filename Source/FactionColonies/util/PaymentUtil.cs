@@ -116,20 +116,13 @@ namespace FactionColonies
             Map taxMap = Find.World.GetComponent<FactionFC>().taxMap;
             if (taxMap == null)
             {
-                if (Find.WorldObjects.SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation) == null)
+                if (Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(Find.World.GetComponent<FactionFC>().capitalLocation) == null)
                 {
-                    if (Find.WorldObjects.SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation).Map ==
+                    if (Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(Find.World.GetComponent<FactionFC>().capitalLocation).Map ==
                         null)
                     {
                         //if no tax map or no capital map is valid
-                        if (Find.CurrentMap.IsPlayerHome == true)
-                        {
-                            map = Find.CurrentMap;
-                        }
-                        else
-                        {
-                            map = Find.AnyPlayerHomeMap;
-                        }
+                        map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
 
                         Log.Message(
                             "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +

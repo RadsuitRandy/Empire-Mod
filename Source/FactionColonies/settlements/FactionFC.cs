@@ -1088,13 +1088,11 @@ namespace FactionColonies
                 foreach (SettlementSoS2Info entry in deleteSettlementQueue)
                 {
                     //Log.Message("key for destroy-" + entry.Key);
-                    if (entry.planetName == Find.World.info.name)
-                    {
-                        //Log.Message("Match");
-                        Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(entry.location));
-                        deleteSettlementQueue.Remove(entry);
-                        goto Reset2;
-                    }
+                    if (entry.planetName != Find.World.info.name) continue;
+                    //Log.Message("Match");
+                    Find.WorldObjects.Remove(Find.World.worldObjects.WorldObjectAt<WorldSettlementFC>(entry.location));
+                    deleteSettlementQueue.Remove(entry);
+                    goto Reset2;
                 }
 
                 boolChangedPlanet = false;

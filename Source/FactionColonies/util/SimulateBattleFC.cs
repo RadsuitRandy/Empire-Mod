@@ -283,7 +283,7 @@ namespace FactionColonies
             settlement.isUnderAttack = true;
 
             Find.LetterStack.ReceiveLetter("settlementInDanger".Translate(), tmp.customDescription,
-                LetterDefOf.ThreatBig, new LookTargets(Find.WorldObjects.SettlementAt(settlement.mapLocation)));
+                LetterDefOf.ThreatBig, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(settlement.mapLocation)));
         }
 
         public static void changeDefendingMilitaryForce(FCEvent evt, SettlementFC settlementOfMilitaryForce)

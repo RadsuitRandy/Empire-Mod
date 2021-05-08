@@ -154,16 +154,6 @@ namespace FactionColonies
             }
         }
 
-        public override void PreOpen()
-        {
-            base.PreOpen();
-        }
-
-        public override void WindowUpdate()
-        {
-            base.WindowUpdate();
-        }
-
         public override void OnAcceptKeyPressed()
         {
             base.OnAcceptKeyPressed();
@@ -219,6 +209,7 @@ namespace FactionColonies
                 };
                 List<string> races = new List<string>();
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
+                    def.race?.race != null && 
                     def.race.race.intelligence == Intelligence.Humanlike &
                     races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
                 {

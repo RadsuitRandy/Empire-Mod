@@ -779,7 +779,7 @@ namespace FactionColonies
                     "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label); // + 
                 factionfc.addEvent(tmp);
                 Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)),
+                    "FCMilitarySentRaid".Translate(name, Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(location)),
                     LetterDefOf.NeutralEvent);
             }
 
@@ -794,7 +794,7 @@ namespace FactionColonies
                     "settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label); // + 
                 factionfc.addEvent(tmp);
                 Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)),
+                    "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(location)),
                     LetterDefOf.NeutralEvent);
             }
 
@@ -809,7 +809,7 @@ namespace FactionColonies
                     "settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label); // + 
                 factionfc.addEvent(tmp);
                 Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)),
+                    "FCMilitarySentCapture".Translate(name, Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(location)),
                     LetterDefOf.NeutralEvent);
             }
 
@@ -830,12 +830,7 @@ namespace FactionColonies
 
         public Settlement returnMilitaryTarget()
         {
-            if (militaryLocation == -1)
-            {
-                return null;
-            }
-
-            return Find.WorldObjects.SettlementAt(militaryLocation);
+            return militaryLocation == -1 ? null : Find.WorldObjects.SettlementAt(militaryLocation);
         }
 
 
@@ -920,8 +915,8 @@ namespace FactionColonies
 
                     Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
                         "RaidEnemySettlementSuccess".Translate(
-                            Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
-                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap) + "\n" + text,
+                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
 
                     //deliver
                     PaymentUtil.deliverThings(loot);
@@ -931,8 +926,8 @@ namespace FactionColonies
                     //if lost
                     Find.LetterStack.ReceiveLetter("RaidFailure".Translate(),
                         "RaidEnemySettlementFailure".Translate(
-                            Find.WorldObjects.SettlementAt(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
-                        new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
+                        new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
                 }
             }
             else if (militaryJob == "enslaveEnemySettlement")
@@ -957,8 +952,8 @@ namespace FactionColonies
 
                     Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
                         "RaidEnemySettlementSuccess".Translate(
-                            Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
-                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap) + "\n" + text,
+                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
 
                     //deliver
                     PaymentUtil.deliverThings(loot);
@@ -968,8 +963,8 @@ namespace FactionColonies
                     //if lost
                     Find.LetterStack.ReceiveLetter("RaidFailure".Translate(),
                         "RaidEnemySettlementFailure".Translate(
-                            Find.WorldObjects.SettlementAt(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
-                        new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
+                        new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
                 }
             }
             else if (militaryJob == "captureEnemySettlement")
@@ -980,10 +975,11 @@ namespace FactionColonies
                 {
                     //Log.Message("Won");
                     faction.addExperienceToFactionLevel(5f);
+                    
                     string tmpName = Find.WorldObjects.SettlementAt(militaryLocation).LabelCap;
                     TechLevel tech = Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.techLevel;
                     Faction tempFactionLink = Find.WorldObjects.SettlementAt(militaryLocation).Faction;
-                    Find.WorldObjects.SettlementAt(militaryLocation).Destroy();
+                    Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).Destroy();
                     if (Find.World.info.name == militaryLocationPlanet)
                     {
                         WorldSettlementFC settlement =
@@ -1040,16 +1036,16 @@ namespace FactionColonies
 
                     Find.LetterStack.ReceiveLetter("CaptureSettlement".Translate(),
                         "CaptureEnemySettlementSuccess".Translate(name,
-                            Find.WorldObjects.SettlementAt(militaryLocation).Name, settlementFc.settlementLevel),
-                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).Name, settlementFc.settlementLevel),
+                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
                 }
                 else if (winner == 1)
                 {
                     //Log.Message("Loss");
                     Find.LetterStack.ReceiveLetter("CaptureSettlement".Translate(),
                         "CaptureEnemySettlementFailure".Translate(name,
-                            Find.WorldObjects.SettlementAt(militaryLocation).Name), LetterDefOf.NegativeEvent,
-                        new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).Name), LetterDefOf.NegativeEvent,
+                        new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
                 }
             }
 
@@ -1550,13 +1546,6 @@ namespace FactionColonies
         }
         //UNUSED FUNCTIONS /END
 
-
-        //returns the Settlement that the SettlementFC belongs to
-        public Settlement returnFCSettlement()
-        {
-            return Find.WorldObjects.SettlementAt(mapLocation);
-        }
-
         public void goTo()
         {
             Find.World.renderer.wantedMode = WorldRenderMode.Planet;
@@ -1566,7 +1555,7 @@ namespace FactionColonies
             Find.WorldSelector.ClearSelection();
             Find.WorldSelector.Select(
                 Find.WorldObjects
-                    .SettlementAt(
+                    .MapParentAt(
                         mapLocation)); // = Convert.ToInt32(settlementList[i][10]); //(Find.World.GetComponent<FactionFC>().settlements[i]);
             if (Find.MainButtonsRoot.tabs.OpenTab != null)
             {

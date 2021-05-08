@@ -543,7 +543,7 @@ namespace FactionColonies
 
             Log.Message("Empire - Testing for invalid capital map");
             //Check for an invalid capital map
-            if (Find.WorldObjects.SettlementAt(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
+            if (Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
             {
                 Messages.Message(
                     "Please reset your capital location. If you continue to see this after reseting, please report it.",
@@ -959,19 +959,9 @@ namespace FactionColonies
 
             foreach (SettlementFC settlement in factionfc.settlementsOnPlanet)
             {
-                if (Find.WorldObjects.AnySettlementAt(settlement.mapLocation) == false)
+                if (Find.WorldObjects.AnyWorldObjectAt(settlement.mapLocation) == false)
                 {
-                    Settlement worldObj = (Settlement) WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
-                    worldObj.SetFaction(getPlayerColonyFaction());
-                    worldObj.Tile = settlement.mapLocation;
-                    worldObj.Name = settlement.name;
-                    Find.WorldObjects.Add(worldObj);
-                }
-                else
-                {
-                    Settlement obj = Find.WorldObjects.SettlementAt(settlement.mapLocation);
-                    if (obj.Faction != getPlayerColonyFaction())
-                        obj.SetFaction(getPlayerColonyFaction());
+                    createPlayerColonySettlement(settlement.mapLocation, true, Find.World.info.name);
                 }
             }
         }
