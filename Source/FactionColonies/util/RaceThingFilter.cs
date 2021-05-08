@@ -9,7 +9,7 @@ namespace FactionColonies.util
     {
         private FactionDef faction;
         private MilitaryCustomizationUtil militaryUtil;
-        
+
         public RaceThingFilter()
         {
         }
@@ -19,27 +19,33 @@ namespace FactionColonies.util
         {
             militaryUtil = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
-            
-            faction.pawnGroupMakers = new List<PawnGroupMaker> {new PawnGroupMaker
+
+            faction.pawnGroupMakers = new List<PawnGroupMaker>
+            {
+                new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Combat
-                }, new PawnGroupMaker
+                },
+                new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Trader
-                }, 
+                },
                 new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Settlement
-                }, new PawnGroupMaker
+                },
+                new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Peaceful
-                }};
+                }
+            };
 
-            foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
+            foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind =>
+                kind.RaceProps.packAnimal))
             {
-                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
+                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption {kind = pawnKindDef, selectionWeight = 1});
             }
-            
+
             List<string> races = new List<string>();
             foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
                 def.race.race.intelligence == Intelligence.Humanlike &
@@ -49,6 +55,8 @@ namespace FactionColonies.util
                 races.Add(def.race.label);
                 SetAllow(def.race, true);
             }
+
+            WorldSettlementTraderTracker.reloadTraderKind();
         }
 
         public override void ExposeData()
@@ -57,25 +65,32 @@ namespace FactionColonies.util
             if (militaryUtil != null) return;
             militaryUtil = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
-            
-            faction.pawnGroupMakers = new List<PawnGroupMaker> {new PawnGroupMaker
+
+            faction.pawnGroupMakers = new List<PawnGroupMaker>
+            {
+                new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Combat
-                }, new PawnGroupMaker
+                },
+                new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Trader
-                }, 
+                },
                 new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Settlement
-                }, new PawnGroupMaker
+                },
+                new PawnGroupMaker
                 {
                     kindDef = PawnGroupKindDefOf.Peaceful
-                }};
+                }
+            };
             foreach (ThingDef allowed in AllowedThingDefs)
             {
                 SetAllow(allowed, true);
             }
+
+            WorldSettlementTraderTracker.reloadTraderKind();
         }
 
         public new bool SetAllow(ThingDef thingDef, bool allow)
@@ -92,7 +107,7 @@ namespace FactionColonies.util
                     def => def.race.race.intelligence == Intelligence.Humanlike && def.race.BaseMarketValue != 0
                         && def.race.label == thingDef.label))
                 {
-                    PawnGenOption type = new PawnGenOption { kind = def, selectionWeight = 1 };
+                    PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);
                     if (def.label != "mercenary")
                     {
@@ -111,7 +126,6 @@ namespace FactionColonies.util
                         faction.pawnGroupMakers[1].traders.Add(type);
                     }
                 }
-                
             }
             else
             {
@@ -125,9 +139,17 @@ namespace FactionColonies.util
                         groupMaker.guards.RemoveAll(
                             type => type.kind.race.label.Equals(thingDef.label));
                     });
-                
-                if (!faction.pawnGroupMakers[1].traders.Any() || !faction.pawnGroupMakers[0].options.Any() || 
+
+                if (!faction.pawnGroupMakers[1].traders.Any() || !faction.pawnGroupMakers[0].options.Any() ||
                     !faction.pawnGroupMakers[3].options.Any())
+                {
+                    SetAllow(thingDef, true);
+                    return false;
+                }
+
+                WorldSettlementTraderTracker.reloadTraderKind();
+                if (WorldSettlementTraderTracker.BaseTraderKinds == null
+                    || !WorldSettlementTraderTracker.BaseTraderKinds.Any())
                 {
                     SetAllow(thingDef, true);
                     return false;
@@ -143,7 +165,8 @@ namespace FactionColonies.util
                     if (!Allows(mercenary.pawn.kindDef.race))
                     {
                         Mercenary merc = mercenary;
-                        mercenarySquadFc.createNewPawn(ref merc, faction.pawnGroupMakers[0].options.RandomElement().kind);
+                        mercenarySquadFc.createNewPawn(ref merc,
+                            faction.pawnGroupMakers[0].options.RandomElement().kind);
                         newMercs.Add(merc);
                     }
                     else
@@ -154,7 +177,7 @@ namespace FactionColonies.util
 
                 mercenarySquadFc.mercenaries = newMercs;
             }
-            
+
             return true;
         }
     }

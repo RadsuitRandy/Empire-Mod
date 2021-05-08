@@ -9,7 +9,6 @@ using Verse;
 
 namespace FactionColonies
 {
-    [StaticConstructorOnStartup]
     public class WorldSettlementTraderTracker : IThingHolder, IExposable
     {
         private static List<TraderKindDef> baseTraderKinds;
@@ -29,7 +28,6 @@ namespace FactionColonies
                                      trader.permitRequiredForTrading == null)
                     .Select(kind =>
                     {
-                        Log.Message("Found " + kind.defName);
                         TraderKindDef temp = new TraderKindDef
                         {
                             faction = DefDatabase<FactionDef>.GetNamed("PColony"),
@@ -46,15 +44,16 @@ namespace FactionColonies
 
                         return temp;
                     }).ToList();
-                foreach (TraderKindDef trader in baseTraderKinds)
-                {
-                    Log.Message("Found: " + trader.defName);
-                }
 
                 return baseTraderKinds;
             }
         }
 
+        public static void reloadTraderKind()
+        {
+            baseTraderKinds = null;
+        }
+        
         public WorldSettlementFC settlement;
         private ThingOwner<Thing> stock;
         private int lastStockGenerationTicks = -1;

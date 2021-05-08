@@ -187,15 +187,11 @@ namespace FactionColonies
             Widgets.Label(labelFactionIcon, "FactionIcon".Translate());
             if (Widgets.ButtonImage(buttonIcon, tempFactionIcon))
             {
-                List<FloatMenuOption> list = new List<FloatMenuOption>();
-                foreach (Texture2D texture in TexLoad.factionIcons)
-                {
-                    list.Add(new FloatMenuOption(texture.name, delegate
+                List<FloatMenuOption> list = TexLoad.factionIcons.Select(texture => new FloatMenuOption(texture.name, delegate
                     {
                         tempFactionIcon = texture;
                         tempFactionIconPath = texture.name;
-                    }, texture, Color.white));
-                }
+                    }, texture, Color.white)).ToList();
 
                 FloatMenu menu = new FloatMenu(list);
                 Find.WindowStack.Add(menu);
