@@ -49,7 +49,7 @@ namespace FactionColonies
         public string factionIconPath = TexLoad.factionIcons.ElementAt(0).name;
 
 
-        //New Types of PRoductions
+        //New Types of Productions
         public float researchPointPool;
         public float powerPool;
         public ThingWithComps powerOutput;
@@ -262,6 +262,12 @@ namespace FactionColonies
 
             //Research Trading
             Scribe_Values.Look(ref tradedAmount, "tradedAmount");
+
+            //Just in case null is saved somehow
+            if (raceFilter == null)
+            {
+                raceFilter = new RaceThingFilter(true);
+            }
         }
 
         [HarmonyPatch(typeof(FactionDialogMaker), "RequestMilitaryAidOption")]
