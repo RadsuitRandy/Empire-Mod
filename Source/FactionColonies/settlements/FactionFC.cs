@@ -263,11 +263,17 @@ namespace FactionColonies
             //Research Trading
             Scribe_Values.Look(ref tradedAmount, "tradedAmount");
 
+        }
+
+        public override void FinalizeInit()
+        {
+            base.FinalizeInit();
             //Just in case null is saved somehow
             if (raceFilter == null)
             {
-                raceFilter = new RaceThingFilter(true);
+                raceFilter = new RaceThingFilter(this);
             }
+            raceFilter.FinalizeInit(this);
         }
 
         [HarmonyPatch(typeof(FactionDialogMaker), "RequestMilitaryAidOption")]
@@ -275,11 +281,9 @@ namespace FactionColonies
         {
             static void Postfix(Map map, Faction faction, Pawn negotiator, ref DiaOption __result)
             {
-                if (faction.def.defName == "PColony")
-                {
-                    __result = new DiaOption("RequestMilitaryAid".Translate(25));
-                    __result.Disable("Disabled. Use the settlements military tab.");
-                }
+                if (faction.def.defName != "PColony") return;
+                __result = new DiaOption("RequestMilitaryAid".Translate(25));
+                __result.Disable("Disabled. Use the settlements military tab.");
             }
         }
 
@@ -290,24 +294,8 @@ namespace FactionColonies
             static bool Prefix(Pawn pawn, PawnDiscardDecideMode discardMode = PawnDiscardDecideMode.Decide)
             {
                 FactionFC faction = Find.World.GetComponent<FactionFC>();
-                if (faction != null && faction.militaryCustomizationUtil != null)
-                {
-                    if (faction.militaryCustomizationUtil.AllMercenaryPawns != null &&
-                        faction.militaryCustomizationUtil.AllMercenaryPawns.Contains(pawn))
-                    {
-                        //Don't pass
-                        //Log.Message("POOf");
-                        ///*   MercenarySquadFC squad = faction.militaryCustomizationUtil.returnSquadFromUnit(pawn);
-                        //   if (squad.DeployedMercenaries.Count == 0 && squad.DeployedMercenaryAnimals.Count == 0)
-                        //   {
-                        //       Log.Message("Last pawn, removing Lord");
-                        //      squad.hasLord = false;
-                        //   }
-                        return false;
-                    }
-                }
-
-                return true;
+                return faction?.militaryCustomizationUtil?.AllMercenaryPawns == null || 
+                       !faction.militaryCustomizationUtil.AllMercenaryPawns.Contains(pawn);
             }
         }
 
@@ -1669,7 +1657,7 @@ namespace FactionColonies
 
         public void resetRaceFilter()
         {
-            raceFilter = new RaceThingFilter(true);
+            raceFilter = new RaceThingFilter(this);
         }
 
         public void updateAverages()

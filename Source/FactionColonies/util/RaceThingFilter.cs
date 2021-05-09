@@ -8,6 +8,7 @@ namespace FactionColonies.util
     public class RaceThingFilter : ThingFilter
     {
         private FactionDef faction;
+        private FactionFC factionFc;
         private MilitaryCustomizationUtil militaryUtil;
 
         public RaceThingFilter()
@@ -15,11 +16,13 @@ namespace FactionColonies.util
         }
 
         //Useless parameter to only reset when reset instead of when loaded
-        public RaceThingFilter(bool reset)
+        public RaceThingFilter(FactionFC factionFc)
         {
-            militaryUtil = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
+            this.factionFc = factionFc;
+            militaryUtil = factionFc.militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
 
+            Log.Message("Faction: " + faction);
             faction.pawnGroupMakers = new List<PawnGroupMaker>
             {
                 new PawnGroupMaker
@@ -59,11 +62,10 @@ namespace FactionColonies.util
             WorldSettlementTraderTracker.reloadTraderKind();
         }
 
-        public override void ExposeData()
+        public void FinalizeInit(FactionFC factionFc)
         {
-            base.ExposeData();
-            if (militaryUtil != null) return;
-            militaryUtil = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
+            this.factionFc = factionFc;
+            militaryUtil = factionFc.militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
 
             faction.pawnGroupMakers = new List<PawnGroupMaker>
