@@ -205,8 +205,8 @@ namespace FactionColonies
                 };
                 List<string> races = new List<string>();
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                    def?.race?.race != null && def.race.label != null &&
-                    def.race.race.intelligence == Intelligence.Humanlike &
+                    def?.race?.label != null &&
+                    def.race.race?.intelligence == Intelligence.Humanlike &
                     races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
                 {
                     if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;

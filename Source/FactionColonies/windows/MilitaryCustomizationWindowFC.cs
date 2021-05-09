@@ -885,6 +885,7 @@ namespace FactionColonies
 
         public void createNewPawn(ref Mercenary merc, PawnKindDef race)
         {
+            Log.Message("Merc: " + merc);
             //pawn.ParentHolder.remove
             if (merc.pawn?.health != null && merc.pawn.health.Dead)
             {
@@ -898,6 +899,7 @@ namespace FactionColonies
             {
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             }
+            Log.Message("Race: " + raceChoice);
 
             Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
@@ -2160,7 +2162,8 @@ namespace FactionColonies
                 List<FloatMenuOption> options = new List<FloatMenuOption>();
 
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                    def.race.race.intelligence == Intelligence.Humanlike &&
+                    def?.race?.label != null && 
+                    def.race.race?.intelligence == Intelligence.Humanlike &&
                     !races.Contains(def.race.label) && def.race.BaseMarketValue != 0 && 
                     faction.raceFilter.Allows(def.race)))
                 {
