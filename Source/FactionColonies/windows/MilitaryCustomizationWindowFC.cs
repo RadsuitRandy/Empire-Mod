@@ -645,17 +645,15 @@ namespace FactionColonies
         {
             get
             {
-                List<Mercenary> pawns = new List<Mercenary>();
-                foreach (Mercenary merc in mercenaries)
+                return mercenaries.Where(merc =>
                 {
-                    if ((merc.pawn.apparel.WornApparel.Any() || merc.pawn.equipment.AllEquipmentListForReading.Any() ||
-                         merc.animal != null) && merc.deployable)
-                    {
-                        pawns.Add(merc);
-                    }
-                }
-
-                return pawns;
+                    Log.Message(merc.pawn.apparel.WornApparel.Any()
+                                + ", " + merc.pawn.equipment.AllEquipmentListForReading.Any()
+                                + ", " + (merc.animal != null) + ", " + merc.deployable);
+                    return (merc.pawn.apparel.WornApparel.Any()
+                            || merc.pawn.equipment.AllEquipmentListForReading.Any()
+                            || merc.animal != null) && merc.deployable;
+                }).ToList();
             }
         }
 
@@ -887,7 +885,6 @@ namespace FactionColonies
         {
             PawnKindDef raceChoice = race;
             FactionFC factionFc = Find.World.GetComponent<FactionFC>();
-            Log.Message("Race filter: " + factionFc.raceFilter + ", player faction: " + FactionColonies.getPlayerColonyFaction());
             if (race == null || !factionFc.raceFilter.Allows(raceChoice.race))
             {
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
@@ -981,10 +978,8 @@ namespace FactionColonies
                     }
 
                     mercenaries[count].loadout = loadout;
-                    if (mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit)
-                        mercenaries[count].deployable = true;
-                    else
-                        mercenaries[count].deployable = false;
+                    Log.Message("Deployable: " + (mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit));
+                    mercenaries[count].deployable = mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit;
                 }
 
                 if (mercenaries[count].pawn.equipment.AllEquipmentListForReading != null)
