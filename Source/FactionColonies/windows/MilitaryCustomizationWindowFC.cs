@@ -887,6 +887,7 @@ namespace FactionColonies
         {
             PawnKindDef raceChoice = race;
             FactionFC factionFc = Find.World.GetComponent<FactionFC>();
+            Log.Message("Race filter: " + factionFc.raceFilter + ", player faction: " + FactionColonies.getPlayerColonyFaction());
             if (race == null || !factionFc.raceFilter.Allows(raceChoice.race))
             {
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
