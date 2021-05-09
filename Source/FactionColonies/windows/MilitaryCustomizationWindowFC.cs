@@ -885,22 +885,15 @@ namespace FactionColonies
 
         public void createNewPawn(ref Mercenary merc, PawnKindDef race)
         {
-            Log.Message("Merc: " + merc);
-            //pawn.ParentHolder.remove
-            if (merc.pawn?.health != null && merc.pawn.health.Dead)
-            {
-                //Log.Message("Passing old pawn to dead mercenaries");
-                //PassPawnToDeadMercenaries(pawn);
-            }
-
             PawnKindDef raceChoice = race;
             FactionFC factionFc = Find.World.GetComponent<FactionFC>();
+            Log.Message("Faction: " + factionFc + ", race: " + raceChoice);
             if (race == null || !factionFc.raceFilter.Allows(raceChoice.race))
             {
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             }
-            Log.Message("Race: " + raceChoice);
 
+            Log.Message("Race: " + raceChoice);
             Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
                 FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1, false, false, false,
                 false, false, true, 0, false, false, false, false, false, false, false, false, 0, null, 0));
