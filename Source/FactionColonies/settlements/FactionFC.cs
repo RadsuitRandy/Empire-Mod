@@ -65,7 +65,7 @@ namespace FactionColonies
         public List<FCPolicy> policies = new List<FCPolicy>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
         public List<int> militaryTargets = new List<int>();
-        public RaceThingFilter raceFilter;
+        public RaceThingFilter raceFilter = new RaceThingFilter(true);
 
 
         //Faction resources
