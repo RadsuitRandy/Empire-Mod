@@ -645,15 +645,9 @@ namespace FactionColonies
         {
             get
             {
-                return mercenaries.Where(merc =>
-                {
-                    Log.Message(merc.pawn.apparel.WornApparel.Any()
-                                + ", " + merc.pawn.equipment.AllEquipmentListForReading.Any()
-                                + ", " + (merc.animal != null) + ", " + merc.deployable);
-                    return (merc.pawn.apparel.WornApparel.Any()
-                            || merc.pawn.equipment.AllEquipmentListForReading.Any()
-                            || merc.animal != null) && merc.deployable;
-                }).ToList();
+                return mercenaries.Where(merc => (merc.pawn.apparel.WornApparel.Any()
+                                                  || merc.pawn.equipment.AllEquipmentListForReading.Any()
+                                                  || merc.animal != null) && merc.deployable).ToList();
             }
         }
 
@@ -689,11 +683,7 @@ namespace FactionColonies
         {
             get
             {
-                List<Pawn> list = new List<Pawn>();
-                foreach (Mercenary merc in EquippedMercenaries)
-                {
-                    list.Add(merc.pawn);
-                }
+                List<Pawn> list = EquippedMercenaries.Select(merc => merc.pawn).ToList();
 
                 list.AddRange(EquippedAnimalMercenaries);
                 return list;
@@ -978,7 +968,6 @@ namespace FactionColonies
                     }
 
                     mercenaries[count].loadout = loadout;
-                    Log.Message("Deployable: " + (mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit));
                     mercenaries[count].deployable = mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit;
                 }
 

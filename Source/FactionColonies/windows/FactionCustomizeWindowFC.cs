@@ -204,11 +204,13 @@ namespace FactionColonies
                     new FloatMenuOption("Enable All", delegate { faction.resetRaceFilter(); })
                 };
                 List<string> races = new List<string>();
+                Log.Message("Checking defs");
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
                     def?.race?.label != null &&
                     def.race.race?.intelligence == Intelligence.Humanlike &
                     races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
                 {
+                    Log.Message("Fine for " + def.label);
                     if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);
                     list.Add(new FloatMenuOption(
