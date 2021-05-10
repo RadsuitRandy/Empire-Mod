@@ -858,194 +858,201 @@ namespace FactionColonies
             //Process end result here
             //attacker == 0; defender == 1;
 
-            if (militaryJob == "raidEnemySettlement")
+            switch (militaryJob)
             {
-                int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
-                    militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
-                if (winner == 0)
+                case "raidEnemySettlement":
                 {
-                    //if won
-                    faction.addExperienceToFactionLevel(5f);
-
-                    TechLevel tech = Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.techLevel;
-                    int lootLevel;
-                    bool getSlaves = true;
-
-
-                    switch (tech)
+                    int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
+                        militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
+                    if (winner == 0)
                     {
-                        case TechLevel.Archotech:
-                        case TechLevel.Ultra:
-                        case TechLevel.Spacer:
-                            lootLevel = 4;
-                            break;
-                        case TechLevel.Industrial:
+                        //if won
+                        faction.addExperienceToFactionLevel(5f);
+
+                        TechLevel tech = Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.techLevel;
+                        int lootLevel;
+                        bool getSlaves = true;
+
+
+                        switch (tech)
+                        {
+                            case TechLevel.Archotech:
+                            case TechLevel.Ultra:
+                            case TechLevel.Spacer:
+                                lootLevel = 4;
+                                break;
+                            case TechLevel.Industrial:
+                                lootLevel = 3;
+                                break;
+                            case TechLevel.Medieval:
+                            case TechLevel.Neolithic:
+                                lootLevel = 2;
+                                break;
+                            default:
+                                lootLevel = 1;
+                                break;
+                        }
+
+                        if (Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.defName == "VFEI_Insect")
+                        {
                             lootLevel = 3;
-                            break;
-                        case TechLevel.Medieval:
-                        case TechLevel.Neolithic:
-                            lootLevel = 2;
-                            break;
-                        default:
-                            lootLevel = 1;
-                            break;
-                    }
+                            getSlaves = false;
+                        }
 
-                    if (Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.defName == "VFEI_Insect")
-                    {
-                        lootLevel = 3;
-                        getSlaves = false;
-                    }
+                        List<Thing> loot = PaymentUtil.generateRaidLoot(lootLevel, tech);
 
-                    List<Thing> loot = PaymentUtil.generateRaidLoot(lootLevel, tech);
+                        string text = "settlementDeliveredLoot".Translate();
+                        text = loot.Aggregate(text, 
+                            (current, thing) => current + thing.LabelCap + " x" + thing.stackCount + "\n ");
 
-                    string text = "settlementDeliveredLoot".Translate();
-                    foreach (Thing thing in loot)
-                    {
-                        text = text + thing.LabelCap + " x" + thing.stackCount + "\n ";
-                    }
+                        int num = new IntRange(0, 10).RandomInRange;
+                        if (num <= 4 && getSlaves)
+                        {
+                            Pawn prisoner = PaymentUtil.generatePrisoner(militaryEnemy);
+                            text += "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name);
+                            addPrisoner(prisoner);
+                        }
 
-                    int num = new IntRange(0, 10).RandomInRange;
-                    if (num <= 4 && getSlaves)
-                    {
-                        Pawn prisoner = PaymentUtil.generatePrisoner(militaryEnemy);
-                        text = text + "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name);
-                        addPrisoner(prisoner);
-                    }
+                        Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
+                            "RaidEnemySettlementSuccess".Translate(
+                                Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap) + "\n" + text,
+                            LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
 
-                    Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
-                        "RaidEnemySettlementSuccess".Translate(
-                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap) + "\n" + text,
-                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
-
-                    //deliver
-                    PaymentUtil.deliverThings(loot);
-                }
-                else if (winner == 1)
-                {
-                    //if lost
-                    Find.LetterStack.ReceiveLetter("RaidFailure".Translate(),
-                        "RaidEnemySettlementFailure".Translate(
-                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
-                        new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
-                }
-            }
-            else if (militaryJob == "enslaveEnemySettlement")
-            {
-                int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
-                    militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
-                if (winner == 0)
-                {
-                    //if won
-                    faction.addExperienceToFactionLevel(5f);
-                    List<Thing> loot = new List<Thing>();
-
-                    string text = "settlementDeliveredLoot".Translate();
-
-                    int num = new IntRange(1, 3).RandomInRange;
-                    for (int i = 0; i <= num; i++)
-                    {
-                        Pawn prisoner = PaymentUtil.generatePrisoner(militaryEnemy);
-                        text = text + "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name) + "\n";
-                        addPrisoner(prisoner);
-                    }
-
-                    Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
-                        "RaidEnemySettlementSuccess".Translate(
-                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap) + "\n" + text,
-                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
-
-                    //deliver
-                    PaymentUtil.deliverThings(loot);
-                }
-                else if (winner == 1)
-                {
-                    //if lost
-                    Find.LetterStack.ReceiveLetter("RaidFailure".Translate(),
-                        "RaidEnemySettlementFailure".Translate(
-                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
-                        new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
-                }
-            }
-            else if (militaryJob == "captureEnemySettlement")
-            {
-                int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
-                    militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
-                if (winner == 0)
-                {
-                    //Log.Message("Won");
-                    faction.addExperienceToFactionLevel(5f);
-                    
-                    string tmpName = Find.WorldObjects.SettlementAt(militaryLocation).LabelCap;
-                    TechLevel tech = Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.techLevel;
-                    Faction tempFactionLink = Find.WorldObjects.SettlementAt(militaryLocation).Faction;
-                    Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).Destroy();
-                    if (Find.World.info.name == militaryLocationPlanet)
-                    {
-                        WorldSettlementFC settlement =
-                            FactionColonies.createPlayerColonySettlement(militaryLocation, true,
-                                militaryLocationPlanet);
-                        settlement.Name = tmpName;
+                        //deliver
+                        PaymentUtil.deliverThings(loot);
                     }
                     else
                     {
-                        FactionColonies.createPlayerColonySettlement(militaryLocation, false,
-                            militaryLocationPlanet);
-                        Find.World.GetComponent<FactionFC>().createSettlementQueue
-                            .Add(new SettlementSoS2Info(militaryLocationPlanet, militaryLocation));
+                        //if lost
+                        Find.LetterStack.ReceiveLetter("RaidFailure".Translate(),
+                            "RaidEnemySettlementFailure".Translate(
+                                Find.WorldObjects.SettlementAt(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
+                            new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
                     }
 
-                    SettlementFC settlementFc = Find.World.GetComponent<FactionFC>()
-                        .returnSettlementByLocation(militaryLocation, Find.World.info.name);
-                    settlementFc.name = tmpName;
-
-                    int upgradeTimes;
-
-                    switch (tech)
-                    {
-                        case TechLevel.Archotech:
-                        case TechLevel.Ultra:
-                        case TechLevel.Spacer:
-                            upgradeTimes = 2;
-                            break;
-                        case TechLevel.Industrial:
-                            upgradeTimes = 1;
-                            break;
-                        default:
-                            upgradeTimes = 0;
-                            break;
-                    }
-
-                    for (int i = 1; i < upgradeTimes; i++)
-                    {
-                        settlementFc.upgradeSettlement();
-                    }
-
-                    settlementFc.loyalty = 15;
-                    settlementFc.happiness = 25;
-                    settlementFc.unrest = 20;
-                    settlementFc.prosperity = 70;
-
-                    bool defeated = !Find.WorldObjects.Settlements.Any(settlement => settlement.Faction != null
-                        && settlement.Faction == tempFactionLink);
-
-                    if (defeated)
-                    {
-                        tempFactionLink.defeated = true;
-                    }
-
-                    Find.LetterStack.ReceiveLetter("CaptureSettlement".Translate(),
-                        "CaptureEnemySettlementSuccess".Translate(name,
-                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).Name, settlementFc.settlementLevel),
-                        LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
+                    break;
                 }
-                else if (winner == 1)
+                case "enslaveEnemySettlement":
                 {
-                    //Log.Message("Loss");
-                    Find.LetterStack.ReceiveLetter("CaptureSettlement".Translate(),
-                        "CaptureEnemySettlementFailure".Translate(name,
-                            Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).Name), LetterDefOf.NegativeEvent,
-                        new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation)));
+                    int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
+                        militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
+                    if (winner == 0)
+                    {
+                        //if won
+                        faction.addExperienceToFactionLevel(5f);
+                        List<Thing> loot = new List<Thing>();
+
+                        string text = "settlementDeliveredLoot".Translate();
+
+                        int num = new IntRange(1, 3).RandomInRange;
+                        for (int i = 0; i <= num; i++)
+                        {
+                            Pawn prisoner = PaymentUtil.generatePrisoner(militaryEnemy);
+                            text = text + "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name) + "\n";
+                            addPrisoner(prisoner);
+                        }
+
+                        Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
+                            "RaidEnemySettlementSuccess".Translate(
+                                Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
+                            LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+
+                        //deliver
+                        PaymentUtil.deliverThings(loot);
+                    }
+                    else if (winner == 1)
+                    {
+                        //if lost
+                        Find.LetterStack.ReceiveLetter("RaidFailure".Translate(),
+                            "RaidEnemySettlementFailure".Translate(
+                                Find.WorldObjects.SettlementAt(militaryLocation).LabelCap), LetterDefOf.NegativeEvent,
+                            new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                    }
+
+                    break;
+                }
+                case "captureEnemySettlement":
+                {
+                    int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
+                        militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
+                    if (winner == 0)
+                    {
+                        //Log.Message("Won");
+                        faction.addExperienceToFactionLevel(5f);
+                    
+                        string tmpName = Find.WorldObjects.SettlementAt(militaryLocation).LabelCap;
+                        TechLevel tech = Find.WorldObjects.SettlementAt(militaryLocation).Faction.def.techLevel;
+                        Faction tempFactionLink = Find.WorldObjects.SettlementAt(militaryLocation).Faction;
+                        Find.WorldObjects.SettlementAt(militaryLocation).Destroy();
+                        if (Find.World.info.name == militaryLocationPlanet)
+                        {
+                            WorldSettlementFC settlement =
+                                FactionColonies.createPlayerColonySettlement(militaryLocation, true,
+                                    militaryLocationPlanet);
+                            settlement.Name = tmpName;
+                        }
+                        else
+                        {
+                            FactionColonies.createPlayerColonySettlement(militaryLocation, false,
+                                militaryLocationPlanet);
+                            Find.World.GetComponent<FactionFC>().createSettlementQueue
+                                .Add(new SettlementSoS2Info(militaryLocationPlanet, militaryLocation));
+                        }
+
+                        SettlementFC settlementFc = Find.World.GetComponent<FactionFC>()
+                            .returnSettlementByLocation(militaryLocation, Find.World.info.name);
+                        settlementFc.name = tmpName;
+
+                        int upgradeTimes;
+
+                        switch (tech)
+                        {
+                            case TechLevel.Archotech:
+                            case TechLevel.Ultra:
+                            case TechLevel.Spacer:
+                                upgradeTimes = 2;
+                                break;
+                            case TechLevel.Industrial:
+                                upgradeTimes = 1;
+                                break;
+                            default:
+                                upgradeTimes = 0;
+                                break;
+                        }
+
+                        for (int i = 1; i < upgradeTimes; i++)
+                        {
+                            settlementFc.upgradeSettlement();
+                        }
+
+                        settlementFc.loyalty = 15;
+                        settlementFc.happiness = 25;
+                        settlementFc.unrest = 20;
+                        settlementFc.prosperity = 70;
+
+                        bool defeated = !Find.WorldObjects.Settlements.Any(settlement => settlement.Faction != null
+                            && settlement.Faction == tempFactionLink);
+
+                        if (defeated)
+                        {
+                            tempFactionLink.defeated = true;
+                        }
+
+                        Find.LetterStack.ReceiveLetter("CaptureSettlement".Translate(),
+                            "CaptureEnemySettlementSuccess".Translate(name,
+                                Find.WorldObjects.SettlementAt(militaryLocation).Name, settlementFc.settlementLevel),
+                            LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                    }
+                    else if (winner == 1)
+                    {
+                        //Log.Message("Loss");
+                        Find.LetterStack.ReceiveLetter("CaptureSettlement".Translate(),
+                            "CaptureEnemySettlementFailure".Translate(name,
+                                Find.WorldObjects.SettlementAt(militaryLocation).Name), LetterDefOf.NegativeEvent,
+                            new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
+                    }
+
+                    break;
                 }
             }
 
