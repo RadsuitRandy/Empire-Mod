@@ -626,6 +626,8 @@ namespace FactionColonies
             parms.raidArrivalMode.Worker.Arrive(attackers, parms);
 
             worldSettlement.attackers = attackers;
+            worldSettlement.attackerForce = temp.militaryForceAttacking;
+            worldSettlement.defenderForce = temp.militaryForceDefending;
             LordMaker.MakeNewLord(
                 parms.faction, new LordJob_HuntColonists(parms.raidArrivalMode != PawnsArrivalModeDefOf.CenterDrop), 
                 worldSettlement.Map, attackers);
