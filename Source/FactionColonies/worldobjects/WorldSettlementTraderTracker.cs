@@ -109,6 +109,10 @@ namespace FactionColonies
 
         public virtual float TradePriceImprovementOffsetForPlayer => 0.02f;
 
+        public WorldSettlementTraderTracker()
+        {
+        }
+
         public WorldSettlementTraderTracker(WorldSettlementFC settlement) => this.settlement = settlement;
 
         public virtual void ExposeData()

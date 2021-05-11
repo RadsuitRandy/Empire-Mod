@@ -297,6 +297,8 @@ namespace FactionColonies
                 return;
             }
 
+            WorldSettlementFC target = Find.World.worldObjects.WorldObjectAt<WorldSettlementFC>(evt.location);
+
             if (evt.militaryForceDefending.homeSettlement !=
                 factionfc.returnSettlementByLocation(evt.location, evt.planetName))
             {
@@ -311,12 +313,12 @@ namespace FactionColonies
                         factionfc.returnSettlementByLocation(evt.location, evt.planetName), true);
             }
 
-            SettlementFC oldDefending = evt.settlementFCDefending;
-
             factionfc.militaryTargets.Remove(evt.location);
             evt.militaryForceDefending =
                 militaryForce.createMilitaryForceFromSettlement(settlementOfMilitaryForce,
                     homeDefendingForce: tmpMilitaryForce);
+
+            target.defenderForce = evt.militaryForceDefending;
             
             if (settlementOfMilitaryForce == homeSettlement)
             {

@@ -43,11 +43,11 @@ namespace FactionColonies
         public override string Label => Name;
 
         
-        public TraderKindDef TraderKind => trader == null ? null : trader.TraderKind;
+        public TraderKindDef TraderKind => trader?.TraderKind;
 
-        public IEnumerable<Thing> Goods => trader == null ? null : (IEnumerable<Thing>) trader.StockListForReading;
+        public IEnumerable<Thing> Goods => trader?.StockListForReading;
 
-        public int RandomPriceFactorSeed => trader == null ? 0 : trader.RandomPriceFactorSeed;
+        public int RandomPriceFactorSeed => trader?.RandomPriceFactorSeed ?? 0;
 
         public string TraderName => trader?.TraderName;
 
@@ -272,8 +272,8 @@ namespace FactionColonies
 
             CameraJumper.TryJump(settlement.mapLocation);
             //Prevent player from zooming back into the settlement
-            Current.Game.CurrentMap = Find.World.worldObjects.WorldObjectAt<WorldSettlementFC>(
-                Find.World.GetComponent<FactionFC>().capitalLocation)?.Map;
+            Current.Game.CurrentMap = Find.World.worldObjects.SettlementAt(
+                Find.World.GetComponent<FactionFC>().capitalLocation).Map;
         }
 
         public override bool ShouldRemoveMapNow(out bool removeWorldObject)
@@ -527,11 +527,11 @@ namespace FactionColonies
                 double happinessLostMultiplier =
                     (TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
                         settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(),
-                        "happinessLostMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                        "happinessLostMultiplier", faction.traits, "multiply"));
                 double loyaltyLostMultiplier =
                     (TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", settlement.traits,
                         "multiply") * TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier",
-                        Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                        faction.traits, "multiply"));
 
                 int muliplier = 1;
                 if (faction.hasPolicy(FCPolicyDefOf.feudal))
@@ -604,7 +604,9 @@ namespace FactionColonies
 
             supporting.Clear();
             defenders.Clear();
+            defenderForce = null;
             attackers.Clear();
+            attackerForce = null;
         }
 
         public void removeAttacker(Pawn downed)
