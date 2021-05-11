@@ -512,7 +512,6 @@ namespace FactionColonies
 
         private void endBattle(bool won, int remaining)
         {
-            
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             if (won)
             {
@@ -575,7 +574,7 @@ namespace FactionColonies
                 }
 
                 Find.LetterStack.ReceiveLetter("DefenseFailure".Translate(), str, LetterDefOf.Death,
-                    new LookTargets(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(settlement.mapLocation)));
+                    new LookTargets(this));
             }
 
             if (defenderForce.homeSettlement != settlement)
