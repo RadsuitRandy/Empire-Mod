@@ -271,6 +271,7 @@ namespace FactionColonies
             //Just in case null is saved somehow
             if (raceFilter == null)
             {
+                Log.Message("Null raceFilter detected - Recreating");
                 raceFilter = new RaceThingFilter(this);
             }
             raceFilter.FinalizeInit(this);
