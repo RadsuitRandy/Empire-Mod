@@ -117,7 +117,7 @@ namespace FactionColonies
             if (taxMap == null)
             {
                 if (Find.WorldObjects
-                        .WorldObjectAt<WorldSettlementFC>(Find.World.GetComponent<FactionFC>().capitalLocation)?.Map ==
+                        .SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation)?.Map ==
                     null)
                 {
                     //if no tax map or no capital map is valid

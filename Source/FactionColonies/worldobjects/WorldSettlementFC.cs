@@ -258,11 +258,6 @@ namespace FactionColonies
         private void deleteMap()
         {
             if (Map == null) return;
-            Log.Message("Lords: " + Map.lordManager?.lords);
-            Log.Message("Supporting: " + supporting);
-            Log.Message("Map pawns: " + Map.mapPawns?.AllPawnsSpawned?.ListFullCopy());
-            Log.Message("Capital: " + Find.World.worldObjects.SettlementAt(
-                Find.World.GetComponent<FactionFC>().capitalLocation));
             Map.lordManager.lords.Clear();
 
             //Ignore any empty caravans
@@ -281,8 +276,7 @@ namespace FactionColonies
 
             CameraJumper.TryJump(settlement.mapLocation);
             //Prevent player from zooming back into the settlement
-            Current.Game.CurrentMap = Find.World.worldObjects.SettlementAt(
-                Find.World.GetComponent<FactionFC>().capitalLocation).Map;
+            Current.Game.CurrentMap = Find.AnyPlayerHomeMap;
         }
 
         public override bool ShouldRemoveMapNow(out bool removeWorldObject)
