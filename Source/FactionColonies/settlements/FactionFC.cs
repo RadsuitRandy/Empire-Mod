@@ -1659,6 +1659,7 @@ namespace FactionColonies
         public void resetRaceFilter()
         {
             raceFilter = new RaceThingFilter(this);
+            raceFilter.FinalizeInit(this);
         }
 
         public void updateAverages()

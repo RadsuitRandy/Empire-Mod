@@ -156,30 +156,33 @@ namespace FactionColonies.util
                     SetAllow(thingDef, true);
                     return false;
                 }
-            }
-
-            base.SetAllow(thingDef, allow);
-            foreach (MercenarySquadFC mercenarySquadFc in militaryUtil.mercenarySquads)
-            {
-                List<Mercenary> newMercs = new List<Mercenary>();
-                foreach (Mercenary mercenary in mercenarySquadFc.mercenaries)
+                
+                base.SetAllow(thingDef, false);
+                foreach (MercenarySquadFC mercenarySquadFc in militaryUtil.mercenarySquads)
                 {
-                    if (!Allows(mercenary.pawn.kindDef.race))
+                    List<Mercenary> newMercs = new List<Mercenary>();
+                    foreach (Mercenary mercenary in mercenarySquadFc.mercenaries)
                     {
-                        Mercenary merc = mercenary;
-                        mercenarySquadFc.createNewPawn(ref merc,
-                            faction.pawnGroupMakers[0].options.RandomElement().kind);
-                        newMercs.Add(merc);
+                        if (!Allows(mercenary.pawn.kindDef.race))
+                        {
+                            Mercenary merc = mercenary;
+                            mercenarySquadFc.createNewPawn(ref merc,
+                                faction.pawnGroupMakers[0].options.RandomElement().kind);
+                            newMercs.Add(merc);
+                        }
+                        else
+                        {
+                            newMercs.Add(mercenary);
+                        }
                     }
-                    else
-                    {
-                        newMercs.Add(mercenary);
-                    }
+
+                    mercenarySquadFc.mercenaries = newMercs;
                 }
 
-                mercenarySquadFc.mercenaries = newMercs;
+                return true;
             }
-
+            
+            base.SetAllow(thingDef, allow);
             return true;
         }
     }

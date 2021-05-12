@@ -201,7 +201,7 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.339)
             {
-                factionFC.raceFilter = new RaceThingFilter(factionFC);
+                factionFC.resetRaceFilter();
             }
 
             if (factionFC.updateVersion < 0.340)
