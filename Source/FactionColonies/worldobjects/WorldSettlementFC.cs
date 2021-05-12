@@ -77,6 +77,10 @@ namespace FactionColonies
             def.expandingIconTexture = "FactionIcons/" + Find.World.GetComponent<FactionFC>().factionIconPath;
             traitCachedIcon.SetValue(def, ContentFinder<Texture2D>.Get(def.expandingIconTexture));
             base.PostMake();
+
+            attackers = new List<Pawn>();
+            defenders = new List<Pawn>();
+            supporting = new List<CaravanSupporting>();
         }
 
         public void updateTechIcon()
@@ -254,6 +258,11 @@ namespace FactionColonies
         private void deleteMap()
         {
             if (Map == null) return;
+            Log.Message("Lords: " + Map.lordManager?.lords);
+            Log.Message("Supporting: " + supporting);
+            Log.Message("Map pawns: " + Map.mapPawns?.AllPawnsSpawned?.ListFullCopy());
+            Log.Message("Capital: " + Find.World.worldObjects.SettlementAt(
+                Find.World.GetComponent<FactionFC>().capitalLocation));
             Map.lordManager.lords.Clear();
 
             //Ignore any empty caravans
