@@ -295,6 +295,11 @@ namespace FactionColonies
                 endBattle(won, (int) evt.militaryForceDefending.forceRemaining);
                 return;
             }
+            if (defenderForce == null)
+            {
+                endBattle(false, 0);
+                return;
+            }
             LongEventHandler.QueueLongEvent(() =>
                 {
                     if (Map == null)
