@@ -260,6 +260,10 @@ namespace FactionColonies
             if (Map == null) return;
             Map.lordManager.lords.Clear();
 
+            CameraJumper.TryJump(settlement.mapLocation);
+            //Prevent player from zooming back into the settlement
+            Current.Game.CurrentMap = Find.AnyPlayerHomeMap;
+            
             //Ignore any empty caravans
             foreach (CaravanSupporting caravanSupporting in supporting.Where(supporting => supporting.pawns.Find(
                 pawn => !pawn.Downed && !pawn.Dead) != null))
@@ -268,15 +272,13 @@ namespace FactionColonies
                     Faction.OfPlayer, settlement.mapLocation, settlement.mapLocation, -1);
             }
 
+            if(Map.mapPawns?.AllPawnsSpawned == null) return;
+            
             //Despawn removes them from AllPawnsSpawned, so we copy it
             foreach (Pawn pawn in Map.mapPawns.AllPawnsSpawned.ListFullCopy())
             {
                 pawn.DeSpawn();
             }
-
-            CameraJumper.TryJump(settlement.mapLocation);
-            //Prevent player from zooming back into the settlement
-            Current.Game.CurrentMap = Find.AnyPlayerHomeMap;
         }
 
         public override bool ShouldRemoveMapNow(out bool removeWorldObject)
