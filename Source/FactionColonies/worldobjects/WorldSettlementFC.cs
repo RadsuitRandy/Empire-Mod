@@ -602,8 +602,6 @@ namespace FactionColonies
                 }
             }
 
-            //Must be done before creating caravans and deiniting map to prevent AI bugging out or
-            //caravans being removed mid-loop
             settlement.isUnderAttack = false;
         }
         

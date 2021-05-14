@@ -428,12 +428,7 @@ namespace FactionColonies
                 //If has loot to give
                 if (temp.def.loot.Any())
                 {
-                    List<Thing> list = new List<Thing>();
-
-                    foreach (ThingDef thing in temp.def.loot)
-                    {
-                        list.Add(ThingMaker.MakeThing(thing));
-                    }
+                    List<Thing> list = temp.def.loot.Select(thing => ThingMaker.MakeThing(thing)).ToList();
 
                     PaymentUtil.deliverThings(list);
                 }
