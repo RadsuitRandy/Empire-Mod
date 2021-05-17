@@ -171,7 +171,7 @@ namespace FactionColonies
                 if (PaymentUtil.getSilver() >= silverToCreateSettlement) //if have enough monies to make new settlement
                 {
                     StringBuilder reason = new StringBuilder();
-                    if (!TileFinder.IsValidTileForNewSettlement(currentTileSelected, reason) || currentTileSelected == -1 || 
+                    if (currentTileSelected == -1 || !TileFinder.IsValidTileForNewSettlement(currentTileSelected, reason) || 
                         Find.World.GetComponent<FactionFC>().checkSettlementCaravansList(currentTileSelected.ToString()))
                     {
                         //Alert Error to User

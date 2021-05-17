@@ -2,7 +2,7 @@
 <LanguageData>
 
     <TheSettlement>The settlement</TheSettlement>
-    <HasBeenFormed>has been formed</HasBeenFormed>
+    <HasBeenFormed> has been formed</HasBeenFormed>
     <PlayerColony>Player Colony</PlayerColony>
 
 
@@ -55,6 +55,7 @@
     <FactionName>Faction Name</FactionName>
     <FactionTitle>Faction Title</FactionTitle>
     <FactionIcon>Faction Icon</FactionIcon>
+	<InvalidFaction>That faction can't run an empire on its own!</InvalidFaction>
     <ButtonNotAvailable>This button is not available yet</ButtonNotAvailable>
     <ConfirmChanges>Confirm Changes</ConfirmChanges>
 
@@ -119,6 +120,7 @@
     <CreateNewColony>Create New Colony</CreateNewColony>
     <SelectTile>Select a tile to create the colony</SelectTile>
     <SetAsFactionCapital>{0} has been set as the faction capital</SetAsFactionCapital>
+	<NoFactionForMilitary>You cannot make a military without a faction!</NoFactionForMilitary>
     <!--<Faction>Faction</Faction>-->
     <Colonies>Colonies</Colonies>
     <Bills>Bills</Bills>

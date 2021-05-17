@@ -119,7 +119,9 @@ namespace FactionColonies
         public static void SaveSquad(SavedSquadFC squad)
         {
             if (Scribe.mode != LoadSaveMode.Inactive)
+            {
                 throw new Exception("Empire - Attempt to save squad while scribe is active");
+            }
 
             string path = GetSquadPath(squad.name);
             try
@@ -145,7 +147,9 @@ namespace FactionColonies
         public static void SaveUnit(SavedUnitFC unit)
         {
             if (Scribe.mode != LoadSaveMode.Inactive)
+            {
                 throw new Exception("Empire - Attempt to save unit while scribe is active");
+            }
 
             string path = GetUnitPath(unit.name);
             try
@@ -199,18 +203,30 @@ namespace FactionColonies
 
         public MilUnitFC CreateMilUnit()
         {
-            MilUnitFC unit = new MilUnitFC(false);
-            unit.name = name;
-            unit.isCivilian = isCivilian;
-            unit.isTrader = isTrader;
-            unit.animal = animal;
-            unit.pawnKind = pawnKind;
+            MilUnitFC unit = new MilUnitFC(false)
+            {
+                name = name,
+                isCivilian = isCivilian,
+                isTrader = isTrader,
+                animal = animal,
+                pawnKind = pawnKind
+            };
+            if (!Find.World.GetComponent<FactionFC>().raceFilter.Allows(pawnKind.race))
+            {
+                unit.pawnKind = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
+            }
             unit.generateDefaultPawn();
 
-            if (this.weapon.thing != null)
-                unit.equipWeapon((ThingWithComps)this.weapon.CreateThing());
+            if (weapon.thing != null)
+                unit.equipWeapon((ThingWithComps) weapon.CreateThing());
 
-            apparel.ForEach(a => unit.wearEquipment((Apparel)a.CreateThing(), true));
+            apparel.ForEach(a =>
+            {
+                if (a.thing != null)
+                {
+                    unit.wearEquipment((Apparel) a.CreateThing(), true);
+                }
+            });
 
             unit.changeTick();
             unit.updateEquipmentTotalCost();
@@ -313,7 +329,7 @@ namespace FactionColonies
             this.thing = thing.def;
             this.stuff = thing.Stuff;
         }
-        public Thing CreateThing() => ThingMaker.MakeThing(this.thing, this.stuff);
+        public Thing CreateThing() => thing != null ? ThingMaker.MakeThing(thing, stuff) : null;
         public void ExposeData()
         {
             Scribe_Defs.Look(ref thing, "thing");

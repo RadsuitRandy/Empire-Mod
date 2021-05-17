@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.BaseGen;
@@ -29,7 +30,6 @@ namespace FactionColonies
         public int NextUnitID => ++nextUnitId;
         public int NextSquadID => ++nextSquadId;
 
-
         public List<SettlementFC> settlements = new List<SettlementFC>();
         public string name = "PlayerFaction".Translate();
         public string title = "Bastion".Translate();
@@ -49,7 +49,7 @@ namespace FactionColonies
         public string factionIconPath = TexLoad.factionIcons.ElementAt(0).name;
 
 
-        //New Types of PRoductions
+        //New Types of Productions
         public float researchPointPool;
         public float powerPool;
         public ThingWithComps powerOutput;
@@ -65,7 +65,7 @@ namespace FactionColonies
         public List<FCPolicy> policies = new List<FCPolicy>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
         public List<int> militaryTargets = new List<int>();
-        public ThingFilter raceFilter = new ThingFilter();
+        public RaceThingFilter raceFilter;
 
 
         //Faction resources
@@ -215,6 +215,8 @@ namespace FactionColonies
             //Military Customization Util
             Scribe_Deep.Look(ref militaryCustomizationUtil, "militaryCustomizationUtil");
             Scribe_Values.Look(ref nextMilitaryFireSupportID, "nextMilitaryFireSupportID", 1);
+            Scribe_Values.Look(ref nextUnitId, "nextUnitID", 1);
+            Scribe_Values.Look(ref nextSquadId, "nextSquadID", 1);
             Scribe_Values.Look(ref nextMercenaryID, "nextMercenaryID", 1);
             Scribe_Values.Look(ref nextMercenarySquadID, "nextMercenarySquadID", 1);
             Scribe_Values.Look(ref mercenaryTick, "mercenaryTick", -1);
@@ -260,6 +262,19 @@ namespace FactionColonies
 
             //Research Trading
             Scribe_Values.Look(ref tradedAmount, "tradedAmount");
+
+        }
+
+        public override void FinalizeInit()
+        {
+            base.FinalizeInit();
+            //Just in case null is saved somehow
+            if (raceFilter == null)
+            {
+                Log.Message("Null raceFilter detected - Recreating");
+                raceFilter = new RaceThingFilter(this);
+            }
+            raceFilter.FinalizeInit(this);
         }
 
         [HarmonyPatch(typeof(FactionDialogMaker), "RequestMilitaryAidOption")]
@@ -267,11 +282,9 @@ namespace FactionColonies
         {
             static void Postfix(Map map, Faction faction, Pawn negotiator, ref DiaOption __result)
             {
-                if (faction.def.defName == "PColony")
-                {
-                    __result = new DiaOption("RequestMilitaryAid".Translate(25));
-                    __result.Disable("Disabled. Use the settlements military tab.");
-                }
+                if (faction.def.defName != "PColony") return;
+                __result = new DiaOption("RequestMilitaryAid".Translate(25));
+                __result.Disable("Disabled. Use the settlements military tab.");
             }
         }
 
@@ -282,24 +295,8 @@ namespace FactionColonies
             static bool Prefix(Pawn pawn, PawnDiscardDecideMode discardMode = PawnDiscardDecideMode.Decide)
             {
                 FactionFC faction = Find.World.GetComponent<FactionFC>();
-                if (faction != null && faction.militaryCustomizationUtil != null)
-                {
-                    if (faction.militaryCustomizationUtil.AllMercenaryPawns != null &&
-                        faction.militaryCustomizationUtil.AllMercenaryPawns.Contains(pawn))
-                    {
-                        //Don't pass
-                        //Log.Message("POOf");
-                        ///*   MercenarySquadFC squad = faction.militaryCustomizationUtil.returnSquadFromUnit(pawn);
-                        //   if (squad.DeployedMercenaries.Count == 0 && squad.DeployedMercenaryAnimals.Count == 0)
-                        //   {
-                        //       Log.Message("Last pawn, removing Lord");
-                        //      squad.hasLord = false;
-                        //   }
-                        return false;
-                    }
-                }
-
-                return true;
+                return faction?.militaryCustomizationUtil?.AllMercenaryPawns == null || 
+                       !faction.militaryCustomizationUtil.AllMercenaryPawns.Contains(pawn);
             }
         }
 
@@ -1086,13 +1083,11 @@ namespace FactionColonies
                 foreach (SettlementSoS2Info entry in deleteSettlementQueue)
                 {
                     //Log.Message("key for destroy-" + entry.Key);
-                    if (entry.planetName == Find.World.info.name)
-                    {
-                        //Log.Message("Match");
-                        Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(entry.location));
-                        deleteSettlementQueue.Remove(entry);
-                        goto Reset2;
-                    }
+                    if (entry.planetName != Find.World.info.name) continue;
+                    //Log.Message("Match");
+                    Find.WorldObjects.Remove(Find.World.worldObjects.WorldObjectAt<WorldSettlementFC>(entry.location));
+                    deleteSettlementQueue.Remove(entry);
+                    goto Reset2;
                 }
 
                 boolChangedPlanet = false;
@@ -1520,7 +1515,7 @@ namespace FactionColonies
             faction.def.factionIconPath = iconPath;
             if (settlements.Any())
             {
-                WorldSettlementFC.CachedIcon.SetValue(settlements[0].worldSettlement.def,
+                WorldSettlementFC.traitCachedIcon.SetValue(settlements[0].worldSettlement.def,
                     ContentFinder<Texture2D>.Get(iconPath));
             }
 
@@ -1564,8 +1559,6 @@ namespace FactionColonies
             }
             //Log.Message("FactionFC.updateFactionDef - switch(tech) passed");
 
-            //Log.Message("1");
-            def.pawnGroupMakers = replacingDef.pawnGroupMakers;
             //Log.Message("2");
             def.caravanTraderKinds = replacingDef.caravanTraderKinds;
             //Log.Message("3");
@@ -1665,24 +1658,8 @@ namespace FactionColonies
 
         public void resetRaceFilter()
         {
-            raceFilter = new ThingFilter();
-
-            List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading)
-            {
-                if (def.race.race.intelligence == Intelligence.Humanlike & races.Contains(def.race.label) == false &&
-                    def.race.BaseMarketValue != 0)
-                {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist")
-                    {
-                    }
-                    else
-                    {
-                        races.Add(def.race.label);
-                        raceFilter.SetAllow(def.race, true);
-                    }
-                }
-            }
+            raceFilter = new RaceThingFilter(this);
+            raceFilter.FinalizeInit(this);
         }
 
         public void updateAverages()

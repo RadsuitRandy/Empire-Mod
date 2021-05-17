@@ -116,41 +116,21 @@ namespace FactionColonies
             Map taxMap = Find.World.GetComponent<FactionFC>().taxMap;
             if (taxMap == null)
             {
-                if (Find.WorldObjects.SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation) == null)
+                if (Find.WorldObjects
+                        .SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation)?.Map ==
+                    null)
                 {
-                    if (Find.WorldObjects.SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation).Map ==
-                        null)
-                    {
-                        //if no tax map or no capital map is valid
-                        if (Find.CurrentMap.IsPlayerHome == true)
-                        {
-                            map = Find.CurrentMap;
-                        }
-                        else
-                        {
-                            map = Find.AnyPlayerHomeMap;
-                        }
+                    //if no tax map or no capital map is valid
+                    map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
 
-                        Log.Message(
-                            "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
-                            map.Parent.LabelCap);
-                    }
-                    else
-                    {
-                        map = Find.Maps.ElementAt(Find.World.GetComponent<FactionFC>().capitalLocation);
-                    }
+                    Log.Message(
+                        "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
+                        map.Parent.LabelCap);
                 }
                 else
                 {
                     //if no tax map or no capital map is valid
-                    if (Find.CurrentMap.IsPlayerHome == true)
-                    {
-                        map = Find.CurrentMap;
-                    }
-                    else
-                    {
-                        map = Find.AnyPlayerHomeMap;
-                    }
+                    map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
 
                     Log.Message(
                         "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
@@ -334,6 +314,7 @@ namespace FactionColonies
                     {
                         filter.SetAllow(thing, false);
                     }
+
                     break;
             }
         }
@@ -475,19 +456,20 @@ namespace FactionColonies
                     break;
             }
         }
-        
+
         public static List<ThingDef> debugGenerateTithe(ResourceType resourceType)
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
-            ThingSetMaker thingSetMaker = resourceType == ResourceType.Animals ? (ThingSetMaker) new ThingSetMaker_Animal() 
-                                        : new ThingSetMaker_Count();
+            ThingSetMaker thingSetMaker = resourceType == ResourceType.Animals
+                ? (ThingSetMaker) new ThingSetMaker_Animal()
+                : new ThingSetMaker_Count();
             List<ThingDef> things = new List<ThingDef>();
 
             ThingSetMakerParams param = new ThingSetMakerParams();
             param.filter = new ThingFilter();
             param.techLevel = faction.techLevel;
             param.countRange = new IntRange(1, 1);
-            
+
             filterResource(param.filter, resourceType, faction.techLevel);
 
             things = thingSetMaker.AllGeneratableThingsDebug(param).ToList();

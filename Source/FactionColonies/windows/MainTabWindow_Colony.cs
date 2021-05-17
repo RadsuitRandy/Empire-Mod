@@ -48,13 +48,7 @@ namespace FactionColonies
 		private readonly List<string> statsTab0 = new List<string> {"happiness", "loyalty", "unrest", "prosperity"};
 
 		private readonly List<string> buttonsTab0 = new List<string> { "FCOverview".Translate(), "Military".Translate(), "Actions".Translate()};
-
-
-		public override void PostOpen()
-		{
-			base.PostOpen();
-		}
-
+		
 		public override void PreOpen()
 		{
 			base.PreOpen();
@@ -221,9 +215,9 @@ namespace FactionColonies
 					faction.factionCreated = true;
 					Find.WindowStack.Add(new FactionCustomizeWindowFc(faction));
 					//Initial release - Autocreate faction
-					if (Find.CurrentMap.Parent != null && Find.CurrentMap.Parent.Tile != null && Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile) != null)
+					if (Find.CurrentMap.Parent != null && Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(Find.CurrentMap.Parent.Tile) != null)
 					{
-						Messages.Message(Find.WorldObjects.SettlementAt(Find.CurrentMap.Parent.Tile).Name + " " + "SetAsFactionCapital".Translate() + "!", MessageTypeDefOf.NeutralEvent);
+						Messages.Message( "SetAsFactionCapital".Translate(Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(Find.CurrentMap.Parent.Tile).Name), MessageTypeDefOf.NeutralEvent);
 					}
 
 				}
@@ -560,7 +554,7 @@ namespace FactionColonies
 		{
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Small;
-			for (int i = 0; i < buttons.Count(); i++)
+			for (int i = 0; i < buttons.Count; i++)
 			{
 				if (Widgets.ButtonText(new Rect(140, 110 + ((buttonSize + 5) * i), 170, buttonSize), buttons[i]))
 				{
@@ -574,7 +568,14 @@ namespace FactionColonies
 
 					if (buttons[i] == "Military".Translate())
 					{
-						Find.WindowStack.Add(new militaryCustomizationWindowFC());
+						if (FactionColonies.getPlayerColonyFaction() == null)
+						{
+							Messages.Message(new Message("NoFactionForMilitary".Translate(), MessageTypeDefOf.RejectInput));
+						}
+						else
+						{
+							Find.WindowStack.Add(new militaryCustomizationWindowFC());
+						}
 					}
 
 					if (buttons[i] == "Actions".Translate())

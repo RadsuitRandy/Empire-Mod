@@ -34,6 +34,8 @@ namespace FactionColonies
         public static readonly Texture2D iconProsperity = ContentFinder<Texture2D>.Get("GUI/Prosperity");
         public static readonly Texture2D iconMilitary = ContentFinder<Texture2D>.Get("GUI/MilitaryLevel");
         public static readonly Texture2D iconCustomize = ContentFinder<Texture2D>.Get("GUI/customizebutton");
+        
+        public static readonly Texture2D iconTrade = ContentFinder<Texture2D>.Get("UI/Commands/Trade");
 
 
         //Trait Icons

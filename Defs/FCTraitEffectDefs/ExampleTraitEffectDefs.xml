@@ -65,9 +65,6 @@
 		<forcedFactionPawnTraits>
 			<!--<li></li>     These are traits pawns are forced to have in the faction -->
 		</forcedFactionPawnTraits>
-		<factionAllowedRaces>
-			<!--<li></li>     These are the allowed races in the faction -->
-		</factionAllowedRaces>
 		<factionUniform>
 			<!--<li></li>     These are the things worn as a uniform -->
 		</factionUniform>

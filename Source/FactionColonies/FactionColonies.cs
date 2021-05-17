@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -200,7 +201,6 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.339)
             {
-                factionFC.raceFilter = new ThingFilter();
                 factionFC.resetRaceFilter();
             }
 
@@ -543,7 +543,7 @@ namespace FactionColonies
 
             Log.Message("Empire - Testing for invalid capital map");
             //Check for an invalid capital map
-            if (Find.WorldObjects.SettlementAt(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
+            if (Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
             {
                 Messages.Message(
                     "Please reset your capital location. If you continue to see this after reseting, please report it.",
@@ -790,7 +790,6 @@ namespace FactionColonies
                 settlementfc = new SettlementFC("Settlement", tile);
             }
 
-            Log.Message("2");
             //create settlement data for world object
             settlementfc.power.isTithe = true;
             settlementfc.power.isTitheBool = true;
@@ -806,8 +805,6 @@ namespace FactionColonies
             if (worldcomp.hasPolicy(FCPolicyDefOf.expansionist) && settlementfc.settlementLevel == 1)
                 settlementfc.upgradeSettlement();
 
-            Log.Message("3");
-            
             worldcomp.addSettlement(settlementfc);
             if (createWorldObject)
             {
@@ -860,13 +857,25 @@ namespace FactionColonies
             //Log.Message("Debug - Increment Time 5 Days");
             Find.TickManager.DebugSetTicksGame(Find.TickManager.TicksGame + GenDate.TicksPerYear);
         }
+        
+        [DebugAction("Empire", "Print Races", allowedGameStates = AllowedGameStates.Playing)]
+        private static void PrintRaces()
+        {
+            getPlayerColonyFaction().def.pawnGroupMakers.ForEach(maker =>
+            {
+                foreach (PawnGenOption option in maker.options)
+                { 
+                    Log.Message("Race: " + option.kind.race.defName + ", " + option.kind.defName + ", " + option.kind.isFighter);   
+                }
+            });
+        }
 
         [DebugAction("Empire", "Reset All Military Squad Assignments", allowedGameStates = AllowedGameStates.Playing)]
         private static void resetAllMilitarySquads()
         {
             Log.Message("Debug - Reset All Military Squad Assignments");
             MilitaryCustomizationUtil util = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil;
-            for (int i = util.AllMercenaries.Count() - 1; i >= 0; i--)
+            for (int i = util.AllMercenaries.Count - 1; i >= 0; i--)
             {
                 if (util.AllMercenaries[i].squad.hasLord)
                 {
@@ -950,19 +959,9 @@ namespace FactionColonies
 
             foreach (SettlementFC settlement in factionfc.settlementsOnPlanet)
             {
-                if (Find.WorldObjects.AnySettlementAt(settlement.mapLocation) == false)
+                if (Find.WorldObjects.AnyWorldObjectAt(settlement.mapLocation) == false)
                 {
-                    Settlement worldObj = (Settlement) WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
-                    worldObj.SetFaction(getPlayerColonyFaction());
-                    worldObj.Tile = settlement.mapLocation;
-                    worldObj.Name = settlement.name;
-                    Find.WorldObjects.Add(worldObj);
-                }
-                else
-                {
-                    Settlement obj = Find.WorldObjects.SettlementAt(settlement.mapLocation);
-                    if (obj.Faction != getPlayerColonyFaction())
-                        obj.SetFaction(getPlayerColonyFaction());
+                    createPlayerColonySettlement(settlement.mapLocation, true, Find.World.info.name);
                 }
             }
         }
@@ -1891,6 +1890,7 @@ namespace FactionColonies
         public bool disableRandomEvents;
         public bool disableForcedPausingDuringEvents = true;
         public bool deadPawnsIncreaseMilitaryCooldown;
+        public bool settlementsAutoBattle;
 
         public int minDaysTillMilitaryAction = 4;
         public int maxDaysTillMilitaryAction = 10;
@@ -1912,6 +1912,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref disableHostileMilitaryActions, "disableHostileMilitaryActions");
             Scribe_Values.Look(ref disableRandomEvents, "disableRandomEvents");
             Scribe_Values.Look(ref deadPawnsIncreaseMilitaryCooldown, "deadPawnsIncreaseMilitaryCooldown");
+            Scribe_Values.Look(ref settlementsAutoBattle, "settlementsAutoBattle");
             Scribe_Values.Look(ref minDaysTillMilitaryAction, "minDaysTillMilitaryAction");
             Scribe_Values.Look(ref maxDaysTillMilitaryAction, "maxDaysTillMilitaryAction");
 
@@ -1939,6 +1940,7 @@ namespace FactionColonies
         bool disableRandomEvents;
         bool disableForcedPausingDuringEvents;
         bool deadPawnsIncreaseMilitaryCooldown;
+        bool settlementsAutoBattle;
         int minDaysTillMilitaryAction;
         int maxDaysTillMilitaryAction;
         IntRange minMaxDaysTillMilitaryAction;
@@ -1980,6 +1982,8 @@ namespace FactionColonies
                 ref settings.deadPawnsIncreaseMilitaryCooldown);
             listingStandard.CheckboxLabeled("Disable Forced Pausing During Events",
                 ref settings.disableForcedPausingDuringEvents);
+            listingStandard.CheckboxLabeled("Automatically Resolve Battles",
+                ref settings.settlementsAutoBattle);
             listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
@@ -1997,6 +2001,7 @@ namespace FactionColonies
                 settings.minMaxDaysTillMilitaryAction = blank.minMaxDaysTillMilitaryAction;
                 settings.disableRandomEvents = blank.disableRandomEvents;
                 settings.deadPawnsIncreaseMilitaryCooldown = blank.deadPawnsIncreaseMilitaryCooldown;
+                settings.settlementsAutoBattle = blank.settlementsAutoBattle;
                 settings.disableForcedPausingDuringEvents = blank.disableForcedPausingDuringEvents;
             }
 
