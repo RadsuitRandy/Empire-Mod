@@ -35,6 +35,7 @@ namespace FactionColonies
                 lord.AddPawn(pawn);
                 return;
             }
+            pawn.SetFaction(FactionColonies.getPlayerColonyFaction());
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             //Check if a settlement battle ended
             SettlementFC settlement = faction.getSettlement(pawn.Tile, Find.World.info.name);
