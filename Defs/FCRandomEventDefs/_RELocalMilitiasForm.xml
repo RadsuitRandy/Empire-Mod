@@ -6,7 +6,7 @@
 		<!-- Basic def stuff -->
 		<defName>localMilitiasForm</defName> 
 		<label>Local Militias Form</label> 
-		<desc>Due to lowered loyaltyed, citizens are starting to form local militias and are refusing to hand over their share of taxes. -5% Base Tax Rate.</desc>
+		<desc>Due to lowered loyalty, citizens are starting to form local militias and are refusing to hand over their share of taxes. -5% Base Tax Rate.</desc>
 		
 		<!-- Basic event stuff -->
 		<timeTillTrigger>300000</timeTillTrigger> 
