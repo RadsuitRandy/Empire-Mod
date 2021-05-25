@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace FactionColonies
 {
@@ -16,12 +19,14 @@ namespace FactionColonies
         
         public override IEnumerable<Thing> GenerateThings(int forTile, Faction faction = null)
         {
-            return parent.GenerateThings(forTile, faction);
+            return parent.GenerateThings(forTile, faction).Where(thing => HandlesThingDef(thing.def));
         }
 
         public override bool HandlesThingDef(ThingDef thingDef)
         {
-            return thingDef.techLevel <= faction.techLevel && parent.HandlesThingDef(thingDef);
+            return thingDef.techLevel <= faction.techLevel || thingDef is StockGenerator_Techprints && 
+                   (!thingDef.tradeTags?.Contains("ExoticMisc") ?? true) && 
+                   parent.HandlesThingDef(thingDef);
         }
 
 

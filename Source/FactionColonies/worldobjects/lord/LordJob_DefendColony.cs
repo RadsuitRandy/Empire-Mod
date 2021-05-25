@@ -11,6 +11,7 @@ namespace FactionColonies
         public LordJob_DefendColony(Dictionary<Pawn, Pawn> mounts)
         {
             this.mounts = mounts;
+            
         }
         
         public override bool AddFleeToil => false;

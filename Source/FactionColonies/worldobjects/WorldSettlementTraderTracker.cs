@@ -37,7 +37,8 @@ namespace FactionColonies
                             commonalityMultFromPopulationIntent = kind.commonalityMultFromPopulationIntent,
                             hideThingsNotWillingToTrade = true
                         };
-                        foreach (StockGenerator generator in kind.stockGenerators)
+                        foreach (StockGenerator generator in 
+                            kind.stockGenerators.Where(generator => !generator.GetType().Name.Equals("StockGenerator_Techprints")))
                         {
                             temp.stockGenerators.Add(new ColonyStockGenerator(generator));
                         }

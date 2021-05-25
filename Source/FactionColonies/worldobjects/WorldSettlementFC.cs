@@ -208,6 +208,40 @@ namespace FactionColonies
             };
         }
 
+        public void CaravanDefend(Caravan caravan)
+        {
+            startDefense(
+                MilitaryUtilFC.returnMilitaryEventByLocation(caravan.Tile), () =>
+                {
+                    CaravanSupporting caravanSupporting = new CaravanSupporting
+                    {
+                        pawns = caravan.pawns.InnerListForReading.ListFullCopy()
+                    };
+                    supporting.Add(caravanSupporting);
+                    if (!caravan.Destroyed)
+                    {
+                        caravan.Destroy();
+                    }
+
+                    IntVec3 enterCell = FindNearEdgeCell(Map);
+                    foreach (Pawn pawn in caravanSupporting.pawns)
+                    {
+                        IntVec3 loc =
+                            CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
+                        GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
+                        if(defenders.Any())
+                        {
+                            defenders[0].GetLord().AddPawn(pawn);
+                        }
+                        else
+                        {
+                            LordMaker.MakeNewLord(
+                                FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(new Dictionary<Pawn, Pawn>()), Map, caravanSupporting.pawns);
+                        }
+                    }
+                    defenders.AddRange(caravanSupporting.pawns);
+                });
+        }
         public override IEnumerable<Gizmo> GetCaravanGizmos(Caravan caravan)
         {
             if (settlement.isUnderAttack)
@@ -220,7 +254,7 @@ namespace FactionColonies
                     action = () =>
                     {
                         startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
-                            () => { });
+                            () => CaravanDefend(caravan));
                     }
                 };
             }
@@ -356,7 +390,7 @@ namespace FactionColonies
                 generateFriendlies(force);
             }
 
-            if (Current.Game.CurrentMap == Map)
+            if (Current.Game.CurrentMap == Map && Find.World.renderer.wantedMode != WorldRenderMode.Planet)
             {
                 return;
             }
@@ -370,7 +404,7 @@ namespace FactionColonies
             }
             else
             {
-                CameraJumper.TryJump(new IntVec3(50, 0, 50), Map);
+                CameraJumper.TryJump(new IntVec3(Map.Size.x/2, 0, Map.Size.z/2), Map);
             }
         }
 
@@ -657,15 +691,15 @@ namespace FactionColonies
         static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
             List<Gizmo> output = __result.ToList();
-            if (__result == null || __instance?.Faction == null || !output.Any())
+            if (__result == null || __instance?.Faction == null || !output.Any() || 
+                !(__instance.Map.Parent is WorldSettlementFC))
             {
                 return;
             }
 
             Pawn found = __instance;
-
-            if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()) &&
-                __instance.Map.Parent is WorldSettlementFC)
+            WorldSettlementFC settlementFc = (WorldSettlementFC) __instance.Map.Parent;
+            if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
             {
                 Pawn_DraftController pawnDraftController = __instance.drafter;
                 if (pawnDraftController == null)
@@ -697,18 +731,12 @@ namespace FactionColonies
                 draftColonists.tutorTag = "Draft";
                 output.Add(draftColonists);
             }
-            else if (__instance.Faction.Equals(Faction.OfPlayer))
+            else if (__instance.Faction.Equals(Faction.OfPlayer) && __instance.Drafted && 
+                     !settlementFc.supporting.Any(caravan => caravan.pawns.Any(pawn => pawn.Equals(found))))
             {
                 foreach (Command_Toggle action in output.Where(gizmo => gizmo is Command_Toggle))
                 {
                     if (action.hotKey != KeyBindingDefOf.Command_ColonistDraft)
-                    {
-                        continue;
-                    }
-
-                    SettlementFC settlementFc = Find.World.GetComponent<FactionFC>()
-                        .getSettlement(__instance.Tile, Find.World.info.name);
-                    if (settlementFc == null || !settlementFc.worldSettlement.defenders.Contains(__instance))
                     {
                         continue;
                     }
