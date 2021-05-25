@@ -43,7 +43,14 @@ namespace FactionColonies
         public override string Label => Name;
 
         
-        public TraderKindDef TraderKind => trader?.TraderKind;
+        public TraderKindDef TraderKind
+        {
+            get
+            {
+                if (trader.settlement == null) trader.settlement = this;
+                return trader?.TraderKind;
+            }
+        }
 
         public IEnumerable<Thing> Goods => trader?.StockListForReading;
 
