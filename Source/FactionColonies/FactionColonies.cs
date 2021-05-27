@@ -543,7 +543,7 @@ namespace FactionColonies
 
             Log.Message("Empire - Testing for invalid capital map");
             //Check for an invalid capital map
-            if (Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
+            if (Find.WorldObjects.SettlementAt(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
             {
                 Messages.Message(
                     "Please reset your capital location. If you continue to see this after reseting, please report it.",
