@@ -37,7 +37,8 @@ namespace FactionColonies
                             commonalityMultFromPopulationIntent = kind.commonalityMultFromPopulationIntent,
                             hideThingsNotWillingToTrade = true
                         };
-                        foreach (StockGenerator generator in kind.stockGenerators)
+                        foreach (StockGenerator generator in 
+                            kind.stockGenerators.Where(generator => !generator.GetType().Name.Equals("StockGenerator_Techprints")))
                         {
                             temp.stockGenerators.Add(new ColonyStockGenerator(generator));
                         }
@@ -136,10 +137,14 @@ namespace FactionColonies
             Scribe_Deep.Look(ref stock, "stock", Array.Empty<object>());
             Scribe_Values.Look(ref lastStockGenerationTicks, "lastStockGenerationTicks");
             Scribe_Values.Look(ref everGeneratedStock, "wasStockGeneratedYet");
+            Scribe_References.Look(ref settlement, "settlement");
             if (Scribe.mode != LoadSaveMode.PostLoadInit && Scribe.mode != LoadSaveMode.Saving)
                 return;
-            for (int index = 0; index < tmpSavedPawns.Count; ++index)
-                stock.TryAdd(tmpSavedPawns[index], false);
+            foreach (Pawn pawn in tmpSavedPawns)
+            {
+                stock.TryAdd(pawn, false);
+            }
+
             tmpSavedPawns.Clear();
         }
 

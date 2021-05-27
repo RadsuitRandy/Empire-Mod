@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -35,6 +36,17 @@ namespace FactionColonies
                     pawn.jobs.curJob.failIfCantJoinOrCreateCaravan = true;
                 }
             }
+        }
+    }
+    
+    [HarmonyPatch(typeof(JobDriver_Goto), "TryExitMap")]
+    public class Patch
+    {
+        static bool Prefix(ref JobDriver_Goto __instance)
+        {
+            Pawn pawn = __instance.pawn;
+            return !(pawn.Map.Parent is WorldSettlementFC settlementFc) || 
+                   settlementFc.supporting.Any(caravan => caravan.pawns.Contains(pawn));
         }
     }
 }

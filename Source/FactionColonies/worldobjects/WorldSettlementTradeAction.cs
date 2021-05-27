@@ -68,7 +68,7 @@ namespace FactionColonies
       foreach (FloatMenuOption option in CaravanArrivalActionUtility.GetFloatMenuOptions(
         () => (FloatMenuAcceptanceReport) (settlement.Spawned &&
                                            !settlement.settlement.isUnderAttack && settlement.CanTradeNow) &&
-              !bestNegotiator.skills.GetSkill(SkillDefOf.Social).TotallyDisabled,
+              (!bestNegotiator?.skills.GetSkill(SkillDefOf.Social).TotallyDisabled ?? false),
         () => new WorldSettlementTradeAction(settlement),
         "TradeWith".Translate((NamedArgument) settlement.Label), caravan,
         settlement.Tile, settlement))
