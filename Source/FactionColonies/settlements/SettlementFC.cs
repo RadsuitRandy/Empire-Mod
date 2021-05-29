@@ -779,7 +779,7 @@ namespace FactionColonies
                     "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label); // + 
                 factionfc.addEvent(tmp);
                 Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentRaid".Translate(name, Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(location)),
+                    "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)),
                     LetterDefOf.NeutralEvent);
             }
 
@@ -794,7 +794,7 @@ namespace FactionColonies
                     "settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label); // + 
                 factionfc.addEvent(tmp);
                 Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(location)),
+                    "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)),
                     LetterDefOf.NeutralEvent);
             }
 
@@ -809,7 +809,7 @@ namespace FactionColonies
                     "settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label); // + 
                 factionfc.addEvent(tmp);
                 Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentCapture".Translate(name, Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(location)),
+                    "FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)),
                     LetterDefOf.NeutralEvent);
             }
 
@@ -915,7 +915,7 @@ namespace FactionColonies
 
                         Find.LetterStack.ReceiveLetter("RaidLoot".Translate(),
                             "RaidEnemySettlementSuccess".Translate(
-                                Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(militaryLocation).LabelCap) + "\n" + text,
+                                Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
                             LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
 
                         //deliver
