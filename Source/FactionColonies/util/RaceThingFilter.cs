@@ -21,8 +21,15 @@ namespace FactionColonies.util
             this.factionFc = factionFc;
             militaryUtil = factionFc.militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
+            
+        }
 
-            Log.Message("Faction: " + faction);
+        public void FinalizeInit(FactionFC factionFc)
+        {
+            this.factionFc = factionFc;
+            militaryUtil = factionFc.militaryCustomizationUtil;
+            faction = DefDatabase<FactionDef>.GetNamed("PColony");
+
             faction.pawnGroupMakers = new List<PawnGroupMaker>
             {
                 new PawnGroupMaker
@@ -57,39 +64,6 @@ namespace FactionColonies.util
                 if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                 races.Add(def.race.label);
                 SetAllow(def.race, true);
-            }
-
-            WorldSettlementTraderTracker.reloadTraderKind();
-        }
-
-        public void FinalizeInit(FactionFC factionFc)
-        {
-            this.factionFc = factionFc;
-            militaryUtil = factionFc.militaryCustomizationUtil;
-            faction = DefDatabase<FactionDef>.GetNamed("PColony");
-
-            faction.pawnGroupMakers = new List<PawnGroupMaker>
-            {
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Combat
-                },
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Trader
-                },
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Settlement
-                },
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Peaceful
-                }
-            };
-            foreach (ThingDef allowed in AllowedThingDefs)
-            {
-                SetAllow(allowed, true);
             }
 
             WorldSettlementTraderTracker.reloadTraderKind();

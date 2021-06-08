@@ -864,9 +864,11 @@ namespace FactionColonies
         {
             getPlayerColonyFaction().def.pawnGroupMakers.ForEach(maker =>
             {
+                Log.Message("Traders: " + maker.traders.Count);
                 foreach (PawnGenOption option in maker.options)
-                { 
-                    Log.Message("Race: " + option.kind.race.defName + ", " + option.kind.defName + ", " + option.kind.isFighter);   
+                {
+                    Log.Message("Race: " + option.kind.race.defName + ", " + option.kind.defName + ", " + 
+                                option.kind.isFighter + ", " + option.kind.trader + " for " + maker.kindDef);   
                 }
             });
         }
