@@ -136,7 +136,21 @@ namespace FactionColonies
                                                 // if(cEvent.)
                                             }
                                         }
-
+										
+										//If techlevel is out of range.
+										if (Find.World.GetComponent<FactionFC>().techLevel < cEvent.minTechlevel || Find.World.GetComponent<FactionFC>().techLevel > cEvent.maxTechlevel )
+										{
+											return false;
+										}
+										
+										//If player faction does not have all needed policies.
+										List<String> checkpolicies = Find.World.GetComponent<FactionFC>().policies.ConvertAll(policy => policy.def.defName);
+										foreach (string policycheck in cEvent.requiredPolicies) {
+											if (!checkpolicies.Contains(policycheck))
+											{
+												return false;
+											}
+										}
                                         //else if compatible
                                         return true;
                                     }
@@ -769,6 +783,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref splitEventChance, "splitEventChance");
             Scribe_Values.Look(ref optionDescription, "optionDescription");
             Scribe_Collections.Look(ref applicableBiomes, "applicableBiomes", LookMode.Value);
+            Scribe_Collections.Look(ref requiredPolicies, "requiredPolicies", LookMode.Value);
             Scribe_Collections.Look(ref loot, "loot", LookMode.Def);
             Scribe_Values.Look(ref classToRun, "classToRun");
             Scribe_Values.Look(ref classMethodToRun, "classMethodToRun");
@@ -816,6 +831,8 @@ namespace FactionColonies
         public int maximumUnrest = 100;
         public int minimumProsperity;
         public int maximumProsperity = 100;
+        public TechLevel minTechLevel = TechLevel.Neolithic;
+        public TechLevel maxTechLevel = TechLevel.Archotech;
         public List<FCOptionDef> options = new List<FCOptionDef>();
         public string requiredResource = "";
         public int randomThingValue;
@@ -829,6 +846,7 @@ namespace FactionColonies
         public int splitEventChance = 50;
         public string optionDescription = "";
         public List<string> applicableBiomes = new List<string>();
+        public List<string> requiredPolicies = new List<string>();
         public List<ThingDef> loot = new List<ThingDef>();
         public string classToRun = "";
         public string classMethodToRun = "";
@@ -905,8 +923,11 @@ namespace FactionColonies
         public int splitEventChance = 50;
         public string optionDescription = "";
         public List<string> applicableBiomes = new List<string>();
+        public List<string> requiredPolicies = new List<string>();
         public List<ThingDef> loot = new List<ThingDef>();
         public bool hasCustomDescription = false;
+        public TechLevel minTechLevel = TechLevel.Neolithic;
+        public TechLevel maxTechLevel = TechLevel.Archotech;		
         public string customDescription = "";
         public string classToRun;
         public string classMethodToRun;
