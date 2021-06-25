@@ -16,10 +16,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref constructionDuration, "constructionDuration");
             Scribe_Collections.Look(ref traits, "traits", LookMode.Def);
             Scribe_Collections.Look(ref applicableBiomes, "applicableBiomes", LookMode.Value);
-			Scribe_Collections.Look(ref requiredPolicies, "requiredPolicies", LookMode.Value);
-			Scribe_Collections.Look(ref requiredPolicies, "requiredBuildings", LookMode.Value);
             Scribe_Values.Look(ref upkeep, "upkeep");
-            Scribe_Values.Look(ref unique, "unique");
             Scribe_Values.Look(ref iconPath, "iconPath");
         }
 
@@ -31,9 +28,6 @@ namespace FactionColonies
         public List<string> applicableBiomes = new List<string>();
         public int upkeep;
         public string iconPath = "GUI/unrest";
-		public bool unique;
-        public List<string> requiredPolicies = new List<string>();
-		public List<string> requiredBuildings= new List<string>();
         public Texture2D iconLoaded;
         //public required research
 

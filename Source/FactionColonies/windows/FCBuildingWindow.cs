@@ -173,50 +173,16 @@ namespace FactionColonies
             {
                 if(building.defName != "Empty" && building.defName != "Construction")
                 {
-					//If not a building that shouldn't appear on the list
-					bool unique_used = false;
-					if (building.unique)
-					{
-						foreach (SettlementFC checkunique in factionfc.settlements)
-						{
-							foreach (BuildingFC checkunique_building in checkunique.buildings)
-							{
-								if (checkunique_building.def.defName == building.def.defName) {unique_used = true;}
-							}
-						}
-					}
-						if (building.techLevel <= factionfc.techLevel && !unique_used)
-						{
-							//If building techlevel requirement is met, AND the building is not unique and already built
-							if (building.applicableBiomes.Count == 0 || building.applicableBiomes.Any() 
-								&& building.applicableBiomes.Contains(settlement.biome)){
-								//If building meets the biome requirements
-									bool valid = true;
-									List<String> policies = factionfc.policies.ConvertAll(policy => policy.def.defName);
-									foreach (string checkpolicy in building.requiredPolicies){
-										if (!policies.Contains(checkpolicy)) {
-											valid = false;
-										}
-										//If faction meets ALL policy requirements. Just one unmet condition sets valid to false.
-									}
-									if (valid) {
-										List<String> buildings = settlement.buildings.ConvertAll(building => building.def.defName);
-										bool validbuilding = true;
-										foreach (string checkreqbuilds in building.requiredBuildings){
-											if (!buildings.Contains(checkreqbuilds)) {
-												validbuilding = false;
-											}
-											// If ALL required buildings are present. Just one unmet condition sets validbuilding to false.
-											if (validbuilding) {
-												buildingList.Add(building);	
-											}
-										}
-									}
-								}
-								
-							}
-						}
-					
+                    //If not a building that shouldn't appear on the list
+                    if (building.techLevel <= factionfc.techLevel)
+                    {
+                        //If building techlevel requirement is met
+                        if (building.applicableBiomes.Count == 0 || building.applicableBiomes.Any() 
+                            && building.applicableBiomes.Contains(settlement.biome)){
+                            //If building meets the biome requirements
+                            buildingList.Add(building);
+                        }
+                    }
                 }
             }
 
