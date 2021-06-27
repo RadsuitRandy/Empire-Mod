@@ -138,7 +138,7 @@ namespace FactionColonies
                                         }
 										
 										//If techlevel is out of range.
-										if (Find.World.GetComponent<FactionFC>().techLevel < cEvent.minTechlevel || Find.World.GetComponent<FactionFC>().techLevel > cEvent.maxTechlevel )
+										if (Find.World.GetComponent<FactionFC>().techLevel < cEvent.minTechLevel || Find.World.GetComponent<FactionFC>().techLevel > cEvent.maxTechLevel )
 										{
 											return false;
 										}
@@ -770,6 +770,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref maximumUnrest, "maximumUnrest");
             Scribe_Values.Look(ref minimumProsperity, "minimumProsperity");
             Scribe_Values.Look(ref maximumProsperity, "maximumProsperity");
+            Scribe_Values.Look(ref minTechLevel, "minTechLevel");
+            Scribe_Values.Look(ref maxTechLevel, "maxTechLevel");
             Scribe_Values.Look(ref requiredResource, "requiredResource");
             Scribe_Values.Look(ref randomThingValue, "randomThingValue");
             Scribe_Values.Look(ref randomThingType, "randomThingType");
@@ -910,6 +912,8 @@ namespace FactionColonies
         public int maximumUnrest = 100;
         public int minimumProsperity = 0;
         public int maximumProsperity = 100;
+        public TechLevel minTechLevel = TechLevel.Neolithic;
+        public TechLevel maxTechLevel = TechLevel.Archotech;
         public List<FCOptionDef> options = new List<FCOptionDef>();
         public string requiredResource = "";
         public int randomThingValue = 0;
@@ -925,9 +929,7 @@ namespace FactionColonies
         public List<string> applicableBiomes = new List<string>();
         public List<string> requiredPolicies = new List<string>();
         public List<ThingDef> loot = new List<ThingDef>();
-        public bool hasCustomDescription = false;
-        public TechLevel minTechLevel = TechLevel.Neolithic;
-        public TechLevel maxTechLevel = TechLevel.Archotech;		
+        public bool hasCustomDescription = false;	
         public string customDescription = "";
         public string classToRun;
         public string classMethodToRun;
