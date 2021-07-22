@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -119,7 +119,7 @@ namespace FactionColonies
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			base.DoWindowContents(inRect);
+			// FIXME base.DoWindowContents(inRect);
 
 			
 			//set text anchor and font
