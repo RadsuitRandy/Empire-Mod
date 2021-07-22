@@ -535,17 +535,18 @@ namespace FactionColonies
             PawnKindDef raceChoice;
             raceChoice = faction.RandomPawnKind();
 
-            pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(raceChoice,
-                FactionColonies.getPlayerColonyFaction(), PawnGenerationContext.NonPlayer, -1,
-                false, false, false, false, false,
-                true, 0, false, false,
-                false, false, false, false,
-                false, false, 0,
-                null, 0));
+            pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: raceChoice,
+                faction: FactionColonies.getPlayerColonyFaction(), context: PawnGenerationContext.NonPlayer, tile: -1, 
+                forceGenerateNewPawn: false, newborn: false, allowDead: false, allowDowned: false, 
+                canGeneratePawnRelations: false, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0, 
+                forceAddFreeWarmLayerIfNeeded: false, allowGay: false, allowFood: false, allowAddictions: false, 
+                inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false, 
+                worldPawnFactionDoesntMatter: false, biocodeWeaponChance: 0, extraPawnForExtraRelationChance: null, 
+                relationWithExtraPawnChanceFactor: 0));
             pawn.equipment.DestroyAllEquipment();
             pawn.apparel.DestroyAll();
             pawn.SetFaction(faction);
-            pawn.guest.isPrisonerInt = true;
+            pawn.guest.guestStatusInt = GuestStatus.Prisoner;
 
             return pawn;
         }
@@ -677,9 +678,15 @@ namespace FactionColonies
                     //Log.Message("Attempts +1");
                 }
 
-                PawnGenerationRequest request = new PawnGenerationRequest(things.RandomElement<PawnKindDef>(),
-                    Find.FactionManager.OfPlayer, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true,
-                    false, 1f, false, true, true, false, false, false, false, true, 0, null, 1, null, null, null, null);
+                PawnGenerationRequest request = new PawnGenerationRequest(kind: things.RandomElement<PawnKindDef>(),
+                    faction: Find.FactionManager.OfPlayer, context: PawnGenerationContext.NonPlayer, tile: -1, 
+                    forceGenerateNewPawn: false, newborn: false, allowDead: false, allowDowned: false, 
+                    canGeneratePawnRelations: true, mustBeCapableOfViolence: false, colonistRelationChanceFactor: 1f, 
+                    forceAddFreeWarmLayerIfNeeded: false, allowGay: true, allowFood: true, allowAddictions: false, 
+                    inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false, 
+                    worldPawnFactionDoesntMatter: true, biocodeWeaponChance: 0, extraPawnForExtraRelationChance: null, 
+                    relationWithExtraPawnChanceFactor: 1, validatorPreGear: null, validatorPostGear: null, 
+                    forcedTraits: null, prohibitedTraits: null);
                 Pawn pawn = PawnGenerator.GeneratePawn(request);
                 //Log.Message("Pawn generate: " + pawn.LabelCap + " value: " + pawn.MarketValue);
                 if (pawn.MarketValue + value > parms.totalMarketValueRange.Value.max)
@@ -756,9 +763,15 @@ namespace FactionColonies
             }
 
             regen:
-            PawnGenerationRequest request = new PawnGenerationRequest(things.RandomElement<PawnKindDef>(),
-                Find.FactionManager.OfPlayer, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true,
-                false, 1f, false, true, true, false, false, false, false, true, 0, null, 1, null, null, null, null);
+            PawnGenerationRequest request = new PawnGenerationRequest(kind: things.RandomElement<PawnKindDef>(),
+                faction: Find.FactionManager.OfPlayer, context: PawnGenerationContext.NonPlayer, tile: -1, 
+                forceGenerateNewPawn: false, newborn: false, allowDead: false, allowDowned: false, 
+                canGeneratePawnRelations: true, mustBeCapableOfViolence: false, colonistRelationChanceFactor: 1f,
+                forceAddFreeWarmLayerIfNeeded: false, allowGay: true, allowFood: true, allowAddictions: false,
+                inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false, 
+                worldPawnFactionDoesntMatter: true, biocodeWeaponChance: 0, extraPawnForExtraRelationChance: null, 
+                relationWithExtraPawnChanceFactor: 1, validatorPreGear: null, validatorPostGear: null, 
+                forcedTraits: null, prohibitedTraits: null);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
 
 
