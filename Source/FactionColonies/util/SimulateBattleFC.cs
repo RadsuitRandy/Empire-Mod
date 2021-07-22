@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
@@ -370,8 +370,8 @@ namespace FactionColonies
                 {
                     //if not player faction or player colony faction
                     PCFaction.TryAffectGoodwillWith(faction,
-                        (Find.FactionManager.OfPlayer.RelationWith(faction).goodwill -
-                         PCFaction.RelationWith(faction).goodwill));
+                        (Find.FactionManager.OfPlayer.RelationWith(faction).baseGoodwill -
+                         PCFaction.RelationWith(faction).baseGoodwill));
                     PCFaction.TrySetRelationKind(faction, Find.FactionManager.OfPlayer.RelationKindWith(faction));
                     //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony " + PCFaction.RelationWith(faction).goodwill);
                 }
