@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
@@ -356,7 +356,7 @@ namespace FactionColonies
             //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony ");
             Find.FactionManager.OfPlayer.TryAffectGoodwillWith(faction, -50);
             // FIXME Workaround, since method TrySetRelationKind is gone
-            Find.FactionManager.OfPlayer.SetRelationDirect(faction, FactionRelationKind.Hostile);
+            TrySetRelationKind(Find.FactionManager.OfPlayer,faction, FactionRelationKind.Hostile);
             resetPlayerColonyRelations();
             //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony ");
             //FactionColonies.getPlayerColonyFaction().TryAffectGoodwillWith(faction, -50)
@@ -374,9 +374,37 @@ namespace FactionColonies
                         (Find.FactionManager.OfPlayer.RelationWith(faction).baseGoodwill -
                          PCFaction.RelationWith(faction).baseGoodwill));
                     // FIXME Workaround, since method TrySetRelationKind is gone
-                    PCFaction.SetRelationDirect(faction, Find.FactionManager.OfPlayer.RelationKindWith(faction));
+                    TrySetRelationKind(PCFaction, faction, Find.FactionManager.OfPlayer.RelationKindWith(faction));
                     //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony " + PCFaction.RelationWith(faction).goodwill);
                 }
+            }
+        }
+
+        private static bool TrySetRelationKind(Faction self, Faction other, FactionRelationKind kind, bool canSendLetter = true)
+        {
+            FactionRelation factionRelation = self.RelationWith(other);
+            if (factionRelation.kind == kind)
+            {
+                return true;
+            }
+            if (!self.HasGoodwill)
+            {
+                self.SetRelationDirect(other, kind, canSendLetter);
+                return true;
+            }
+            switch (kind)
+            {
+                case FactionRelationKind.Hostile:
+                    self.TryAffectGoodwillWith(other, -75 - factionRelation.baseGoodwill, canSendMessage: false, canSendLetter);
+                    return factionRelation.kind == FactionRelationKind.Hostile;
+                case FactionRelationKind.Neutral:
+                    self.TryAffectGoodwillWith(other, -factionRelation.baseGoodwill, canSendMessage: false, canSendLetter);
+                    return factionRelation.kind == FactionRelationKind.Neutral;
+                case FactionRelationKind.Ally:
+                    self.TryAffectGoodwillWith(other, 75 - factionRelation.baseGoodwill, canSendMessage: false, canSendLetter);
+                    return factionRelation.kind == FactionRelationKind.Ally;
+                default:
+                    throw new NotSupportedException(kind.ToString());
             }
         }
     }
