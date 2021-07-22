@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -692,8 +692,8 @@ namespace FactionColonies
             }
         }
 
-        //CheckNaturalTendencyToReachGoodwillThreshold()
-        [HarmonyPatch(typeof(Faction), "CheckNaturalTendencyToReachGoodwillThreshold")]
+        //CheckReachNaturalGoodwill()
+        [HarmonyPatch(typeof(Faction), "CheckReachNaturalGoodwill")]
         class GoodwillPatchFunctionsGoodwillTendency
         {
             static bool Prefix(ref Faction __instance)
