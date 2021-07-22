@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1777,12 +1777,15 @@ namespace FactionColonies
             faction.colorFromSpectrum = FactionGenerator.NewRandomColorFromSpectrum(faction);
             faction.Name = "PlayerColony".Translate();
             faction.centralMelanin = Rand.Value;
+            faction.def.classicIdeo = Faction.OfPlayer.def.classicIdeo;
+            faction.ideos = Faction.OfPlayer.ideos;
             //<DevAdd> Copy player faction relationships  
             foreach (Faction other in Find.FactionManager.AllFactionsListForReading)
             {
                 faction.TryMakeInitialRelationsWith(other);
             }
 
+            faction.def.pawnGroupMakers = Faction.OfPlayer.def.pawnGroupMakers;
             faction.TryGenerateNewLeader();
             worldcomp.factionBackup = faction;
             Find.FactionManager.Add(faction);
