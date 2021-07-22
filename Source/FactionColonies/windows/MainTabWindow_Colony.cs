@@ -119,8 +119,6 @@ namespace FactionColonies
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			// FIXME base.DoWindowContents(inRect);
-
 			
 			//set text anchor and font
 			GameFont fontBefore = Text.Font;

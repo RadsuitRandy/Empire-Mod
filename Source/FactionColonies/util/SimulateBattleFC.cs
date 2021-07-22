@@ -356,7 +356,7 @@ namespace FactionColonies
             //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony ");
             Find.FactionManager.OfPlayer.TryAffectGoodwillWith(faction, -50);
             // FIXME Workaround, since method TrySetRelationKind is gone
-            TrySetRelationKind(Find.FactionManager.OfPlayer,faction, FactionRelationKind.Hostile);
+            TrySetRelationKind(Find.FactionManager.OfPlayer, faction, FactionRelationKind.Hostile);
             resetPlayerColonyRelations();
             //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony ");
             //FactionColonies.getPlayerColonyFaction().TryAffectGoodwillWith(faction, -50)
