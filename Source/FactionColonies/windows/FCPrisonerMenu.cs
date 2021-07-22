@@ -248,7 +248,7 @@ namespace FactionColonies
                         {
                             prisoner.prisoner.guest = new Pawn_GuestTracker();
                         }
-                        prisoner.prisoner.guest.isPrisonerInt = true;
+                        prisoner.prisoner.guest.guestStatusInt = GuestStatus.Prisoner;
                         FieldInfo hostFaction = typeof(Pawn_GuestTracker).GetField("hostFactionInt", BindingFlags.NonPublic | BindingFlags.Instance);
                         hostFaction.SetValue(prisoner.prisoner.guest, Find.FactionManager.OfPlayer);
 
