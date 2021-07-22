@@ -108,8 +108,8 @@ namespace FactionColonies
                 TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", faction.traits,
                     "multiply") * TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency",
                     settlement.traits, "multiply");
-            if (isAttacking && faction.hasPolicy(FCPolicyDefOf.militaristic)) ;
-            efficiency *= 1.2;
+            if (isAttacking && faction.hasPolicy(FCPolicyDefOf.militaristic)) 
+                efficiency *= 1.2;
             militaryForce returnForce = new militaryForce(militaryLevel, efficiency, settlement,
                 FactionColonies.getPlayerColonyFaction());
             return returnForce;
