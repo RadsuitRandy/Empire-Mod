@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
@@ -355,7 +355,8 @@ namespace FactionColonies
         {
             //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony ");
             Find.FactionManager.OfPlayer.TryAffectGoodwillWith(faction, -50);
-            Find.FactionManager.OfPlayer.TrySetRelationKind(faction, FactionRelationKind.Hostile);
+            // FIXME Workaround, since method TrySetRelationKind is gone
+            Find.FactionManager.OfPlayer.SetRelationDirect(faction, FactionRelationKind.Hostile);
             resetPlayerColonyRelations();
             //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony ");
             //FactionColonies.getPlayerColonyFaction().TryAffectGoodwillWith(faction, -50)
@@ -372,7 +373,8 @@ namespace FactionColonies
                     PCFaction.TryAffectGoodwillWith(faction,
                         (Find.FactionManager.OfPlayer.RelationWith(faction).baseGoodwill -
                          PCFaction.RelationWith(faction).baseGoodwill));
-                    PCFaction.TrySetRelationKind(faction, Find.FactionManager.OfPlayer.RelationKindWith(faction));
+                    // FIXME Workaround, since method TrySetRelationKind is gone
+                    PCFaction.SetRelationDirect(faction, Find.FactionManager.OfPlayer.RelationKindWith(faction));
                     //Log.Message(Find.FactionManager.OfPlayer.RelationWith(faction).goodwill + " player:colony " + PCFaction.RelationWith(faction).goodwill);
                 }
             }
