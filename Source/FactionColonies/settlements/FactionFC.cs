@@ -1808,17 +1808,17 @@ namespace FactionColonies
                     Find.ResearchManager.ResearchPerformed(
                         (float) Math.Ceiling(
                             ((1 * Find.ResearchManager.currentProj.CostFactor(pawn.Faction.def.techLevel)) /
-                             (0.00825 * Find.Storyteller.difficultyValues.researchSpeedFactor)) * expendedPoints),
+                             (0.00825 * Find.Storyteller.difficulty.researchSpeedFactor)) * expendedPoints),
                         pawn);
                     Log.Message("Passed to function: " + (float) Math.Ceiling(
                         ((1 * Find.ResearchManager.currentProj.CostFactor(pawn.Faction.def.techLevel)) /
-                         (0.00825 * Find.Storyteller.difficultyValues.researchSpeedFactor)) * expendedPoints));
+                         (0.00825 * Find.Storyteller.difficulty.researchSpeedFactor)) * expendedPoints));
                 }
                 else
                 {
                     Log.Message("Could not find colonist to research with");
                     Find.ResearchManager.ResearchPerformed(
-                        (float) Math.Ceiling((1 / (0.00825 * Find.Storyteller.difficultyValues.researchSpeedFactor)) *
+                        (float) Math.Ceiling((1 / (0.00825 * Find.Storyteller.difficulty.researchSpeedFactor)) *
                                              expendedPoints), null);
                 }
             }
