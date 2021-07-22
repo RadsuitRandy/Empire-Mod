@@ -1567,8 +1567,7 @@ namespace FactionColonies
             //Log.Message("4");
             def.techLevel = tech;
             //Log.Message("5");
-            // FIXME only Hair? or full basicMemberKind?
-            def.basicMemberKind.styleItemTags = replacingDef.basicMemberKind.styleItemTags;
+            def.basicMemberKind = replacingDef.basicMemberKind;
             //Log.Message("6");
             def.visitorTraderKinds = replacingDef.visitorTraderKinds;
             //Log.Message("7");
