@@ -466,7 +466,7 @@ namespace FactionColonies
                     return false;
                 if (hostFaction != null && map.reachability.CanReachFactionBase(x, hostFaction))
                     return true;
-                return hostFaction == null && map.reachability.CanReachBiggestMapEdgeRoom(x);
+                return hostFaction == null && map.reachability.CanReachBiggestMapEdgeDistrict(x);
             }, map, CellFinder.EdgeRoadChance_Neutral, out var result))
                 return CellFinder.RandomClosewalkCellNear(result, map, 5);
             if (CellFinder.TryFindRandomEdgeCellWith(BaseValidator, map, CellFinder.EdgeRoadChance_Neutral, out result))
