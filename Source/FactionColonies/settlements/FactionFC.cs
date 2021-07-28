@@ -1507,6 +1507,31 @@ namespace FactionColonies
                 Log.Message("Updating Tech Level");
                 updateFactionDef(techLevel, ref playerColonyfaction);
             }
+            // Check Leader
+            if (playerColonyfaction != null)
+            {
+                if (playerColonyfaction.leader != null)
+                {
+                    if (playerColonyfaction.leader.Dead)
+                        playerColonyfaction.leader = null;
+                }
+                if (playerColonyfaction.leader == null)
+                {
+                    if (!playerColonyfaction.TryGenerateNewLeader())
+                    {
+                        Log.Message("Generating Leader failed! Manually Generating . . .");
+                        playerColonyfaction.leader = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: Faction.OfPlayer.RandomPawnKind(),
+                        faction: playerColonyfaction, context: PawnGenerationContext.NonPlayer,
+                        forceGenerateNewPawn: true, newborn: false, allowDead: false, allowDowned: false,
+                        canGeneratePawnRelations: true, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0,
+                        forceAddFreeWarmLayerIfNeeded: false, worldPawnFactionDoesntMatter: false));
+                        if (playerColonyfaction.leader == null)
+                        {
+                            Log.Warning("That failed, too! Contacting " + playerColonyfaction.Name + " won't work!");
+                        }
+                    }
+                }
+            }
         }
 
         public void updateFactionIcon(ref Faction faction, string iconPath)
@@ -1582,27 +1607,6 @@ namespace FactionColonies
                 def.apparelStuffFilter.SetAllow(DefDatabase<StuffCategoryDef>.GetNamedSilentFail("Synthread"), true);
                 def.apparelStuffFilter.SetAllow(DefDatabase<StuffCategoryDef>.GetNamedSilentFail("Hyperweave"), true);
                 def.apparelStuffFilter.SetAllow(DefDatabase<StuffCategoryDef>.GetNamedSilentFail("Plasteel"), true);
-            }
-            if(faction.leader!=null)
-            {
-                if (faction.leader.Dead)
-                    faction.leader = null;
-            }
-            if(faction.leader==null)
-            {
-                if (!faction.TryGenerateNewLeader())
-                {
-                    Log.Message("Generating Leader failed! Manually Generating . . .");
-                    faction.leader = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: Faction.OfPlayer.RandomPawnKind(),
-                    faction: faction, context: PawnGenerationContext.NonPlayer,
-                    forceGenerateNewPawn: true, newborn: false, allowDead: false, allowDowned: false,
-                    canGeneratePawnRelations: true, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0,
-                    forceAddFreeWarmLayerIfNeeded: false, worldPawnFactionDoesntMatter: false));
-                    if (faction.leader == null)
-                    {
-                        Log.Warning("That failed, too! Contacting " + faction.Name + " won't work!");
-                    }
-                }
             }
             updateFactionIcon(ref faction, "FactionIcons/" + factionIconPath);
 
