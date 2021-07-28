@@ -1583,7 +1583,27 @@ namespace FactionColonies
                 def.apparelStuffFilter.SetAllow(DefDatabase<StuffCategoryDef>.GetNamedSilentFail("Hyperweave"), true);
                 def.apparelStuffFilter.SetAllow(DefDatabase<StuffCategoryDef>.GetNamedSilentFail("Plasteel"), true);
             }
-
+            if(faction.leader!=null)
+            {
+                if (faction.leader.Dead)
+                    faction.leader = null;
+            }
+            if(faction.leader==null)
+            {
+                if (!faction.TryGenerateNewLeader())
+                {
+                    Log.Message("Generating Leader failed! Manually Generating . . .");
+                    faction.leader = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: Faction.OfPlayer.RandomPawnKind(),
+                    faction: faction, context: PawnGenerationContext.NonPlayer,
+                    forceGenerateNewPawn: true, newborn: false, allowDead: false, allowDowned: false,
+                    canGeneratePawnRelations: true, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0,
+                    forceAddFreeWarmLayerIfNeeded: false, worldPawnFactionDoesntMatter: false));
+                    if (faction.leader == null)
+                    {
+                        Log.Warning("That failed, too! Contacting " + faction.Name + " won't work!");
+                    }
+                }
+            }
             updateFactionIcon(ref faction, "FactionIcons/" + factionIconPath);
 
             Log.Message("FactionFC.updateFactionDef - Completed tech update");

@@ -1784,9 +1784,21 @@ namespace FactionColonies
             {
                 faction.TryMakeInitialRelationsWith(other);
             }
-
             faction.def.pawnGroupMakers = Faction.OfPlayer.def.pawnGroupMakers;
-            faction.TryGenerateNewLeader();
+            
+            if(!faction.TryGenerateNewLeader())
+            {
+                Log.Message("Generating Leader failed! Manually Generating . . .");
+                faction.leader = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: Faction.OfPlayer.RandomPawnKind(),
+                faction: faction, context: PawnGenerationContext.NonPlayer, 
+                forceGenerateNewPawn: true, newborn: false, allowDead: false, allowDowned: false,
+                canGeneratePawnRelations: true, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0,
+                forceAddFreeWarmLayerIfNeeded: false,  worldPawnFactionDoesntMatter: false));
+                if(faction.leader == null)
+                {
+                    Log.Warning("That failed, too! Contacting " + faction.Name + " won't work!");
+                }
+            }
             worldcomp.factionBackup = faction;
             Find.FactionManager.Add(faction);
             return faction;
