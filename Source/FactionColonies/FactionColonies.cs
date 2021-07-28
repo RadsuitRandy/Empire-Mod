@@ -1784,8 +1784,11 @@ namespace FactionColonies
             {
                 faction.TryMakeInitialRelationsWith(other);
             }
+            // Set starting goodwill to Player
+            faction.TryAffectGoodwillWith(Faction.OfPlayer, 200);
+
+            // Generate Leader
             faction.def.pawnGroupMakers = Faction.OfPlayer.def.pawnGroupMakers;
-            
             if(!faction.TryGenerateNewLeader())
             {
                 Log.Message("Generating Leader failed! Manually Generating . . .");

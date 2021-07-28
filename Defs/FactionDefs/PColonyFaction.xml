@@ -4,9 +4,6 @@
 		<defName>PColony</defName>
 		<label>Player Faction</label>
 		<description>This faction resides under your control.</description>
-		<startingGoodwill>100</startingGoodwill>
-		<naturalColonyGoodwill>100</naturalColonyGoodwill>
-		
 		<settlementGenerationWeight>0</settlementGenerationWeight>
 		<requiredCountAtGameStart>0</requiredCountAtGameStart>
 		<canMakeRandomly>false</canMakeRandomly>
