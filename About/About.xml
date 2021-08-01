@@ -9,6 +9,9 @@
 		<li>1.3</li>
 	</supportedVersions>
 	<modDependencies>
+	<incompatibleWith>
+		<li>kentington.saveourship2</li>
+	</incompatibleWith>
     <li>
         <packageId>brrainz.harmony</packageId>
         <displayName>Harmony</displayName>
