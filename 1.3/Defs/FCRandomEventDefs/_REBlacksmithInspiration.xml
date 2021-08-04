@@ -4,7 +4,7 @@
 <FactionColonies.FCEventDef>
 		<defName>blacksmithInspiration_0</defName> 
 		<label>Blacksmith Inspiration</label> 
-		<desc>A blacksmith in one of your settlements contacts you. He explains that he has been struck with great inspiration and requests silver for supplies to create you a weapon worthy of your empire. He plans to give it to you as a token of his loyalty.</desc>
+		<desc>A blacksmith in a nearby settlement has received a great inspiration and is seeking patrons for what he claims will be a work of unparalleled quality! He plans to give it to his patron as a token of his loyalty.</desc>
 		<!-- Basic event stuff -->
 		<timeTillTrigger>0</timeTillTrigger> 
 
