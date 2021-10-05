@@ -116,6 +116,8 @@ namespace FactionColonies
                         settlement.buildings.Add(BuildingFCDefOf.Empty);
                     }
                 }
+                
+                IncidentDef
 
                 factionFC.power = new ResourceFC(0, ResourceType.Power);
                 factionFC.medicine = new ResourceFC(0, ResourceType.Medicine);
