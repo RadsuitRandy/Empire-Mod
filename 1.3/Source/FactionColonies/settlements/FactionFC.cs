@@ -1486,12 +1486,10 @@ namespace FactionColonies
             {
                 techLevel = TechLevel.Medieval;
                 factionDef.techLevel = TechLevel.Medieval;
-                //Log.Message("Medieval");
                 Log.Message("Medieval");
             }
             else
             {
-                //Log.Message("Neolithic");
                 if (techLevel < TechLevel.Neolithic)
                 {
                     Log.Message("Neolithic");
@@ -1510,7 +1508,7 @@ namespace FactionColonies
             }
             else if (playerColonyfaction.def.techLevel >= techLevel)
             {
-                Log.Message("Tech Level already matches");
+                //Log.Message("Tech Level already matches");
             }
             // Check Leader
             if (playerColonyfaction != null)
