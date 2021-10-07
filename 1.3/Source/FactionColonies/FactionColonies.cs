@@ -722,7 +722,7 @@ namespace FactionColonies
 
         public static Faction getPlayerColonyFaction()
         {
-            return Find.GameInitData.playerFaction;
+            return Find.FactionManager.FirstFactionOfDef(DefDatabase<FactionDef>.GetNamed("PColony"));
         }
 
 
