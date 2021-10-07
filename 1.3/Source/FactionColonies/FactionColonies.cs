@@ -1803,6 +1803,8 @@ namespace FactionColonies
             }
             worldcomp.factionBackup = faction;
             Find.FactionManager.Add(faction);
+
+            Find.World.GetComponent<FactionFC>().updateTechLevel(Find.ResearchManager);
             return faction;
         }
 
