@@ -1513,12 +1513,7 @@ namespace FactionColonies
             // Check Leader
             if (playerColonyfaction != null)
             {
-                if (playerColonyfaction.leader != null)
-                {
-                    if (playerColonyfaction.leader.Dead)
-                        playerColonyfaction.leader = null;
-                }
-                if (playerColonyfaction.leader == null)
+                if (playerColonyfaction.leader == null || playerColonyfaction.leader.Dead)
                 {
                     if (!playerColonyfaction.TryGenerateNewLeader())
                     {
