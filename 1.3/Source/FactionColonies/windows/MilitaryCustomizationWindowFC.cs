@@ -2213,12 +2213,7 @@ namespace FactionColonies
             if (Widgets.ButtonInvisible(AnimalCompanion))
             {
                 List<FloatMenuOption> list = (from animal in DefDatabase<PawnKindDef>.AllDefs
-                    where animal.RaceProps.IsFlesh && animal.race.race.Animal &&
-                          animal.race.tradeTags != null &&
-                          !animal.race.tradeTags.Contains("AnimalDryad") &&
-                          !animal.race.tradeTags.Contains("AnimalMonster") &&
-                          !animal.race.tradeTags.Contains("AnimalGenetic") &&
-                          !animal.race.tradeTags.Contains("AnimalAlpha")
+                    where animal.IsAnimalAndAllowed()
                     select new FloatMenuOption(animal.LabelCap + " - Cost: " +
                                                Math.Floor(animal.race.BaseMarketValue *
                                                           FactionColonies.militaryAnimalCostMultiplier),
