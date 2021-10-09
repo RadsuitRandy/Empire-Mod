@@ -350,6 +350,7 @@ namespace FactionColonies
                     foreach (PawnKindDef def in allAnimalDefs)
                     {
                         bool flag = def.race.race.Animal && def.RaceProps.IsFlesh && def.race.tradeTags != null &&
+                                    !def.race.tradeTags.Contains("AnimalDryad") &&
                                     !def.race.tradeTags.Contains("AnimalMonster") &&
                                     !def.race.tradeTags.Contains("AnimalGenetic") &&
                                     !def.race.tradeTags.Contains("AnimalAlpha");

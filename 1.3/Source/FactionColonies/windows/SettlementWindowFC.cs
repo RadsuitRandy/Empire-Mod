@@ -218,16 +218,15 @@ namespace FactionColonies
                                     }));
                                 List<ThingDef> things = PaymentUtil.debugGenerateTithe(resourceType);
                                 
-                                foreach (ThingDef thing in things)
+                                foreach (ThingDef thing in things.Where(thing => !(thing.race != null && thing.race.Animal && thing.race.animalType == AnimalType.Dryad)))
                                 {
-                                    FloatMenuOption option;
                                     if (!FactionColonies.canCraftItem(thing))
                                     {
                                         resource.filter.SetAllow(thing, false);
                                     }
                                     else
                                     {
-                                        option = new FloatMenuOption(thing.LabelCap + " - Cost - "
+                                        FloatMenuOption option = new FloatMenuOption(thing.LabelCap + " - Cost - "
                                             + thing.BaseMarketValue + " | Allowed: " + resource.filter.Allows(thing),
                                             delegate
                                             {
