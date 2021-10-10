@@ -128,7 +128,6 @@ namespace FactionColonies
         public List<Mercenary> deadPawns = new List<Mercenary>();
         public int tickChanged;
 
-
         public MilitaryCustomizationUtil()
         {
             //set load stuff here
@@ -1208,6 +1207,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref isTraderCaravan, "isTraderCaravan");
             Scribe_Values.Look(ref isCivilian, "isCivilian");
             Scribe_Values.Look(ref tickChanged, "tickChanged");
+
+            updateEquipmentTotalCost();
         }
 
         public void setLoadID()
@@ -1579,7 +1580,7 @@ namespace FactionColonies
 
                     if (!squads.Any())
                     {
-                        squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
+                        squads.Add(new FloatMenuOption("No Available Squads", null));
                     }
 
                     FloatMenu selection = new FloatMenu(squads);

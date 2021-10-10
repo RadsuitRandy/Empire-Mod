@@ -1019,6 +1019,8 @@ namespace FactionColonies
                     updateFactionIcon(ref FCf, "FactionIcons/" + factionIcon.name);
                     factionIconPath = factionIcon.name;
                 }
+                
+                militaryCustomizationUtil.checkMilitaryUtilForErrors();
 
                 factionBackup = FCf;
                 firstTick = false;
