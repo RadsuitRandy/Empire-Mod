@@ -236,6 +236,9 @@
     <!--MilitaryCustomizationWindowFC-->
     <ExportedUnit>Exported Unit</ExportedUnit>
     <ExportedSquad>Exported Squad</ExportedSquad>
+	<CantBeModified>{0} can't be modified: {1}</CantBeModified>
+	<ReasonDeployed>A squad containing it is deployed</ReasonDeployed>
+	<ReasonDefending>A squad containing it is defending a settlement</ReasonDefending>
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
     <Date>Date</Date>

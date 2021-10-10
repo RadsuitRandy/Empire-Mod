@@ -2053,7 +2053,7 @@ namespace FactionColonies
                     {
                         MilUnitFC newUnit = new MilUnitFC(false)
                         {
-                            name = $"New Unit {(util.units.Count() + 1).ToString()}"
+                            name = $"New Unit {util.units.Count() + 1}"
                         };
                         selectedText = newUnit.name;
                         selectedUnit = newUnit;
@@ -2066,23 +2066,38 @@ namespace FactionColonies
                 //Create list of selectable units
                 foreach (MilUnitFC unit in util.units)
                 {
+                    void action()
+                    {
+                        selectedText = unit.name;
+                        selectedUnit = unit;
+                    }
+
+                    //Prevent units being modified when their squads are deployed
+                    FactionFC factionFC = Find.World.GetComponent<FactionFC>();
+                    List<MilSquadFC> squadsContainingUnit = factionFC?.militaryCustomizationUtil?.squads.Where(squad => squad?.units != null && squad.units.Contains(unit)).ToList();
+                    List<SettlementFC> settlementsContainingSquad = factionFC?.settlements?.Where(settlement => settlement?.militarySquad?.outfit != null && squadsContainingUnit.Any(squad => settlement.militarySquad.outfit == squad)).ToList();
+
+                    if ((settlementsContainingSquad?.Count ?? 0) > 0)
+                    {
+                        if (settlementsContainingSquad.Any(settlement => settlement.militarySquad.isDeployed))
+                        {
+                            Units.Add(new FloatMenuOption(unit.name, delegate { Messages.Message("CantBeModified".Translate(unit.name, "ReasonDeployed".Translate()), MessageTypeDefOf.NeutralEvent, false); }));
+                            continue;
+                        }
+                        else if (settlementsContainingSquad.Any(settlement => settlement.isUnderAttack && settlementsContainingSquad.Contains(settlement.worldSettlement.defenderForce.homeSettlement)))
+                        {
+                            Units.Add(new FloatMenuOption(unit.name, delegate { Messages.Message("CantBeModified".Translate(unit.name, "ReasonDefending".Translate()), MessageTypeDefOf.NeutralEvent, false); }));
+                            continue;
+                        }
+                    } 
+                    
                     if (unit.defaultPawn.equipment.Primary != null)
                     {
-                        Units.Add(new FloatMenuOption(unit.name, delegate
-                        {
-                            //Unit is selected
-                            selectedText = unit.name;
-                            selectedUnit = unit;
-                        }, unit.defaultPawn.equipment.Primary.def));
+                        Units.Add(new FloatMenuOption(unit.name, action, unit.defaultPawn.equipment.Primary.def));
                     }
                     else
                     {
-                        Units.Add(new FloatMenuOption(unit.name, delegate
-                        {
-                            //Unit is selected
-                            selectedText = unit.name;
-                            selectedUnit = unit;
-                        }));
+                        Units.Add(new FloatMenuOption(unit.name, action));
                     }
                 }
 
