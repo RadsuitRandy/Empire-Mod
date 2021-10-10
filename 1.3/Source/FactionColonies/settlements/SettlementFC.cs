@@ -85,14 +85,20 @@ namespace FactionColonies
 
         public void upgradeSettlement()
         {
-            settlementLevel += 1;
-            updateStats();
+            if (settlementLevel < 10)
+            {
+                settlementLevel += 1;
+                updateStats();
+            }
         }
 
         public void delevelSettlement()
         {
-            settlementLevel -= 1;
-            updateStats();
+            if (settlementLevel > 0)
+            {
+                settlementLevel -= 1;
+                updateStats();
+            }
         }
 
         public void tickSpecialActions(int tick)
