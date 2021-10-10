@@ -642,6 +642,10 @@ namespace FactionColonies
                     defenderForce.homeSettlement.cooldownMilitary();
                 }
             }
+            else
+            {
+                defenderForce.homeSettlement.cooldownMilitary();
+            }
 
             settlement.isUnderAttack = false;
         }

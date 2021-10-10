@@ -845,6 +845,15 @@ namespace FactionColonies
             return NameGenerator.GenerateName(rulePack, usedNames, true);
         }
 
+        [DebugAction("Empire", "View Events and ticks till", allowedGameStates = AllowedGameStates.Playing)]
+        private static void ViewEventsAndLog()
+        {
+            Find.World.GetComponent<FactionFC>().events.ForEach(delegate(FCEvent e)
+            {
+                Log.Message(e.def.defName + " with cooldown: " + (e.timeTillTrigger - Find.TickManager.TicksGame));
+            });
+        }
+
         [DebugAction("Empire", "Increment Time 5 Days", allowedGameStates = AllowedGameStates.Playing)]
         private static void incrementTimeFiveDays()
         {
