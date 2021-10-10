@@ -472,12 +472,16 @@ namespace FactionColonies
             {
                 Messages.Message("You cannot put a weapon on a civilian!", MessageTypeDefOf.RejectInput);
             }
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public void unequipWeapon()
         {
             changeTick();
             defaultPawn.equipment.DestroyAllEquipment();
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public void wearEquipment(Apparel Equipment, bool wear)
@@ -510,6 +514,8 @@ namespace FactionColonies
             {
                 defaultPawn.apparel.Wear(Equipment);
             }
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public void removeUnit()
@@ -522,6 +528,8 @@ namespace FactionColonies
             changeTick();
             defaultPawn.apparel.DestroyAll();
             defaultPawn.equipment.DestroyAllEquipment();
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public double getTotalCost
@@ -1167,6 +1175,17 @@ namespace FactionColonies
         public bool isTraderCaravan;
         public bool isCivilian;
         public int tickChanged;
+
+        public static void UpdateEquipmentTotalCostOfSquadsContaining(MilUnitFC unit)
+        {
+            Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.squads.ForEach(delegate(MilSquadFC squad)
+            {
+                if (squad.units.Contains(unit))
+                {
+                    squad.updateEquipmentTotalCost();
+                }
+            });
+        }
 
         public MilSquadFC()
         {
