@@ -1766,10 +1766,7 @@ namespace FactionColonies
             worldcomp.setCapital();
 
             //Log.Message("Faction is being created");
-            FactionDef facDef = new FactionDef();
-
-
-            facDef = DefDatabase<FactionDef>.GetNamed("PColony");
+            FactionDef facDef = DefDatabase<FactionDef>.GetNamed("PColony");
             Faction faction = new Faction();
             faction.def = facDef;
             faction.def.techLevel = TechLevel.Undefined;
