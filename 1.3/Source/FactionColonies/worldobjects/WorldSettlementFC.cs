@@ -517,46 +517,56 @@ namespace FactionColonies
                 }
             }
 
+            void tryFindLoc(out IntVec3 loc, Pawn friendly)
+            {
+                int min = (70 + settlement.settlementLevel * 10) / 2 - 5 - 5 * settlement.settlementLevel;
+                int size = 10 + settlement.settlementLevel * 10;
+                CellFinder.TryFindRandomCellInsideWith(new CellRect(min, min, size, size),
+                    testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
+                        TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                if (loc.x == -1000)
+                {
+                    Log.Message("Failed with " + friendly + ", " + loc);
+                    CellFinder.TryFindRandomCellNear(new IntVec3(min + 10 + settlement.settlementLevel, 1,
+                            min + 10 + settlement.settlementLevel), Map, 75,
+                        testing => testing.Standable(Map), out loc);
+                }
+            }
+
             foreach (Pawn friendly in friendlies)
             {
                 IntVec3 loc;
-                if (friendly.AnimalOrWildMan())
+                if (friendly.AnimalOrWildMan() && riders.Count > 0)
                 {
-                    Pawn owner = riders.First(pair => pair.Value.thingIDNumber == friendly.thingIDNumber).Key;
-                    CellFinder.TryFindRandomCellInsideWith(new CellRect((int) owner.DrawPos.x - 5,
-                            (int) owner.DrawPos.z - 5, 10, 10),
-                        testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
-                            TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                    try
+                    {
+                        Pawn owner = riders.First(pair => pair.Value.thingIDNumber == friendly.thingIDNumber).Key;
+                        CellFinder.TryFindRandomCellInsideWith(new CellRect((int)owner.DrawPos.x - 5,
+                                (int)owner.DrawPos.z - 5, 10, 10),
+                            testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
+                                TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                    }
+                    catch
+                    {
+                        //riders.First() occasionally produces an InvalidOperationException unsure why yet
+                        Log.Error("No pair found for " + friendly.Name + ", and riders dictionary is not empty!");
+                        tryFindLoc(out loc, friendly);
+                    }
                 }
                 else
                 {
-                    int min = (70 + settlement.settlementLevel * 10) / 2 - 5 - 5 * settlement.settlementLevel;
-                    int size = 10 + settlement.settlementLevel * 10;
-                    CellFinder.TryFindRandomCellInsideWith(new CellRect(min, min, size, size),
-                        testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
-                            TraverseParms.For(TraverseMode.PassDoors)), out loc);
-                    if (loc.x == -1000)
-                    {
-                        Log.Message("Failed with " + friendly + ", " + loc);
-                        CellFinder.TryFindRandomCellNear(new IntVec3(min + 10 + settlement.settlementLevel, 1,
-                                min + 10 + settlement.settlementLevel), Map, 75,
-                            testing => testing.Standable(Map), out loc);
-                    }
+                    tryFindLoc(out loc, friendly);
                 }
 
                 GenSpawn.Spawn(friendly, loc, Map, new Rot4());
-                if (friendly.drafter == null)
-                {
-                    friendly.drafter = new Pawn_DraftController(friendly);
-                }
+                friendly.drafter = new Pawn_DraftController(friendly);
 
 
                 Map.mapPawns.RegisterPawn(friendly);
                 friendly.drafter.Drafted = true;
             }
 
-            LordMaker.MakeNewLord(
-                FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(riders), Map, friendlies);
+            LordMaker.MakeNewLord(FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(riders), Map, friendlies);
 
             defenders = friendlies;
         }
