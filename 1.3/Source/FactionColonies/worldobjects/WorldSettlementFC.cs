@@ -536,21 +536,28 @@ namespace FactionColonies
             foreach (Pawn friendly in friendlies)
             {
                 IntVec3 loc;
-                if (friendly.AnimalOrWildMan() && riders.Count > 0)
+                if (friendly.AnimalOrWildMan())
                 {
-                    try
+                    if (riders.Count > 0)
                     {
-                        Pawn owner = riders.First(pair => pair.Value.thingIDNumber == friendly.thingIDNumber).Key;
-                        CellFinder.TryFindRandomCellInsideWith(new CellRect((int)owner.DrawPos.x - 5,
-                                (int)owner.DrawPos.z - 5, 10, 10),
-                            testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
-                                TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                        try
+                        {
+                            Pawn owner = riders.First(pair => pair.Value.thingIDNumber == friendly.thingIDNumber).Key;
+                            CellFinder.TryFindRandomCellInsideWith(new CellRect((int)owner.DrawPos.x - 5,
+                                    (int)owner.DrawPos.z - 5, 10, 10),
+                                testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
+                                    TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                        }
+                        catch
+                        {
+                            //riders.First() occasionally produces an InvalidOperationException unsure why yet
+                            Log.Error("No pair found for " + friendly.Name + ", and riders dictionary is not empty!");
+                            tryFindLoc(out loc, friendly);
+                        }
                     }
-                    catch
+                    else
                     {
-                        //riders.First() occasionally produces an InvalidOperationException unsure why yet
-                        Log.Error("No pair found for " + friendly.Name + ", and riders dictionary is not empty!");
-                        tryFindLoc(out loc, friendly);
+                        continue;
                     }
                 }
                 else
