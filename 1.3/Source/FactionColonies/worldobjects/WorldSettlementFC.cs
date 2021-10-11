@@ -551,8 +551,9 @@ namespace FactionColonies
                         catch
                         {
                             //riders.First() occasionally produces an InvalidOperationException unsure why yet
-                            Log.Error("No pair found for " + friendly.Name + ", and riders dictionary is not empty!");
-                            tryFindLoc(out loc, friendly);
+                            string isAnimal = friendly.RaceProps.Animal ? "animal" : "human";
+                            Log.Error("No pair found for " + isAnimal + ": " + friendly.thingIDNumber + ", and riders dictionary is not empty!");
+                            continue;
                         }
                     }
                     else
