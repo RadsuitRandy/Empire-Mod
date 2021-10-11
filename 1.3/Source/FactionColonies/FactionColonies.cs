@@ -1530,7 +1530,9 @@ namespace FactionColonies
 
             //clear military events
             settlement.returnMilitary(false);
-            Reset:
+
+            HashSet<FCEvent> toRemove = new HashSet<FCEvent>();
+
             foreach (FCEvent evt in faction.events)
             {
                 //military event removal
@@ -1538,8 +1540,7 @@ namespace FactionColonies
                 {
                     if (evt.militaryForceAttacking.homeSettlement == settlement)
                     {
-                        faction.events.Remove(evt);
-                        goto Reset;
+                        toRemove.Add(evt);
                     }
                 }
 
@@ -1549,8 +1550,7 @@ namespace FactionColonies
                     {
                         if (evt.settlementFCDefending == settlement)
                         {
-                            faction.events.Remove(evt);
-                            goto Reset;
+                            toRemove.Add(evt);
                         }
 
                         //if not defending settlement
@@ -1561,8 +1561,7 @@ namespace FactionColonies
                         //if force belongs to other settlement
                         evt.militaryForceDefending.homeSettlement.cooldownMilitary();
 
-                        faction.events.Remove(evt);
-                        goto Reset;
+                        toRemove.Add(evt);
                     }
                 }
 
@@ -1573,8 +1572,7 @@ namespace FactionColonies
                 {
                     if (evt.source == settlement.mapLocation)
                     {
-                        faction.events.Remove(evt);
-                        goto Reset;
+                        toRemove.Add(evt);
                     }
                 }
 
@@ -1585,11 +1583,15 @@ namespace FactionColonies
                         evt.settlementTraitLocations.Remove(settlement);
                         if (evt.settlementTraitLocations.Count() == 0)
                         {
-                            faction.events.Remove(evt);
-                            goto Reset;
+                            toRemove.Add(evt);
                         }
                     }
                 }
+            }
+
+            foreach(FCEvent evt in toRemove)
+            {
+                faction.events.Remove(evt);
             }
         }
 
