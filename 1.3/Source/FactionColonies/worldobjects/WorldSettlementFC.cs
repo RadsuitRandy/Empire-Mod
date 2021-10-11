@@ -705,23 +705,18 @@ namespace FactionColonies
         static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
             List<Gizmo> output = __result.ToList();
-            if (__result == null || __instance?.Faction == null || !output.Any() || 
+            if (__result == null || __instance?.Faction == null || !output.Any() ||
                 !(__instance.Map.Parent is WorldSettlementFC))
             {
                 return;
             }
 
             Pawn found = __instance;
-            WorldSettlementFC settlementFc = (WorldSettlementFC) __instance.Map.Parent;
+            Pawn_DraftController pawnDraftController = __instance.drafter ?? new Pawn_DraftController(__instance);
+
+            WorldSettlementFC settlementFc = (WorldSettlementFC)__instance.Map.Parent;
             if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
             {
-                Pawn_DraftController pawnDraftController = __instance.drafter;
-                if (pawnDraftController == null)
-                {
-                    pawnDraftController = new Pawn_DraftController(__instance);
-                    __instance.drafter = pawnDraftController;
-                }
-
                 Command_Toggle draftColonists = new Command_Toggle
                 {
                     hotKey = KeyBindingDefOf.Command_ColonistDraft,
