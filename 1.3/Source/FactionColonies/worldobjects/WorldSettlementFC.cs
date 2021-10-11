@@ -535,6 +535,8 @@ namespace FactionColonies
 
             foreach (Pawn friendly in friendlies)
             {
+                if (friendly.IsWildMan()) continue;
+
                 IntVec3 loc;
                 if (friendly.AnimalOrWildMan())
                 {
@@ -550,7 +552,6 @@ namespace FactionColonies
                         }
                         catch
                         {
-                            //riders.First() occasionally produces an InvalidOperationException unsure why yet
                             string isAnimal = friendly.RaceProps.Animal ? "animal" : "human";
                             Log.Error("No pair found for " + isAnimal + ": " + friendly.thingIDNumber + ", and riders dictionary is not empty!");
                             continue;
@@ -558,6 +559,7 @@ namespace FactionColonies
                     }
                     else
                     {
+                        Log.Error("Rider Dictionary is empty but animal was still generated?");
                         continue;
                     }
                 }
