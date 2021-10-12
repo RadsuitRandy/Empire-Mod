@@ -934,11 +934,11 @@ namespace FactionColonies
                             {
                                 if (settlementString == "")
                                 {
-                                    settlementString = settlementString + loc.name;
+                                    settlementString += loc.name;
                                 }
                                 else
                                 {
-                                    settlementString = settlementString + ", " + loc.name;
+                                    settlementString += ", " + loc.name;
                                 }
                             }
 
