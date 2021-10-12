@@ -43,7 +43,8 @@ namespace FactionColonies
         static bool Prefix(ref JobDriver_Goto __instance)
         {
             Pawn pawn = __instance.pawn;
-            return !(pawn.Map.Parent is WorldSettlementFC settlementFc) || settlementFc.supporting.Any(caravan => caravan.pawns.Contains(pawn));
+            WorldSettlementFC settlementFc = pawn.Map.Parent as WorldSettlementFC;
+            return !settlementFc.defenders.Contains(pawn) || settlementFc.supporting.Any(caravan => caravan.pawns.Contains(pawn));
         }
     }
 }
