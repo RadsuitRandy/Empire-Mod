@@ -276,4 +276,6 @@
 	<FCImported>Imported {0}</FCImported>
 	<FCDeleted>Deleted {0}</FCDeleted>
 
+	<FloatMenuSearchable>Type to search:</FloatMenuSearchable>
+	
 </LanguageData>
