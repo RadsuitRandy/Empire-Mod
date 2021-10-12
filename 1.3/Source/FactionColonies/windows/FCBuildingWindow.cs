@@ -9,18 +9,18 @@ namespace FactionColonies
 {
     class FCBuildingWindow : Window
     {
-
-        SettlementFC settlement;
-        int buildingSlot;
-        BuildingFCDef buildingDef;
-        List<BuildingFCDef> buildingList;
-        FactionFC factionfc;
+        readonly SettlementFC settlement;
+        readonly int buildingSlot;
+        readonly BuildingFCDef buildingDef;
+        readonly List<BuildingFCDef> buildingList;
+        readonly FactionFC factionfc;
 
         int scroll;
         int maxScroll;
+        private static readonly int offset = 8;
 
-        static int rowHeight = 90;
-        int scrollHeight = 350;
+        private static readonly int rowHeight = 90;
+        readonly int scrollHeight = 350;
 
         Rect TopWindow = new Rect(0, 0, 400, 150);
         Rect TopIcon = new Rect(15, 60, 64, 64);
@@ -28,7 +28,7 @@ namespace FactionColonies
         Rect TopDescription = new Rect(95, 60, 305, 90);
 
         Rect BaseBuildingWindow = new Rect(0, 150, 400, rowHeight);
-        Rect BaseBuildingIcon = new Rect(8, 150 + 8, 64, 64);
+        Rect BaseBuildingIcon = new Rect(offset, 150 + offset, 64, 64);
         Rect BaseBuildingLabel = new Rect(80, 150 + 5, 320, 20);
         Rect BaseBuildingDesc = new Rect(80, 150 + 25, 320, 65);
 
@@ -52,14 +52,10 @@ namespace FactionColonies
             GameFont fontBefore = Text.Font;
             TextAnchor anchorBefore = Text.Anchor;
 
-
-
-
-
             //Buildings
-            int i = 0;
-            foreach (BuildingFCDef building in buildingList)
+            for (int i = 0; i < buildingList.Count; i++)
             {
+                BuildingFCDef building = buildingList[i];
                 newBuildingWindow = new Rect(BaseBuildingWindow.x, BaseBuildingWindow.y + (i * (rowHeight)) + scroll, BaseBuildingWindow.width, BaseBuildingWindow.height);
                 newBuildingIcon = new Rect(BaseBuildingIcon.x, BaseBuildingIcon.y + (i * (rowHeight)) + scroll, BaseBuildingIcon.width, BaseBuildingIcon.height);
                 newBuildingLabel = new Rect(BaseBuildingLabel.x, BaseBuildingLabel.y + (i * (rowHeight)) + scroll, BaseBuildingLabel.width, BaseBuildingLabel.height);
@@ -70,7 +66,7 @@ namespace FactionColonies
                     //If click on building
                     List<FloatMenuOption> list = new List<FloatMenuOption>();
 
-                    if(building == buildingDef)
+                    if (building == buildingDef)
                     {
                         //if the same building
                         list.Add(new FloatMenuOption("Destroy".Translate(), delegate
@@ -79,18 +75,21 @@ namespace FactionColonies
                             Find.WindowStack.TryRemove(this);
                             Find.WindowStack.WindowOfType<SettlementWindowFc>().windowUpdateFc();
                         }));
-                    } else
+                    }
+                    else
                     {
                         //if not the same building
                         list.Add(new FloatMenuOption("Build".Translate(), delegate
                         {
                             if (!settlement.validConstructBuilding(building, buildingSlot, settlement)) return;
-                            FCEvent tmpEvt = new FCEvent(true);
-                            tmpEvt.def = FCEventDefOf.constructBuilding;
-                            tmpEvt.source = settlement.mapLocation;
-                            tmpEvt.planetName = settlement.planetName;
-                            tmpEvt.building = building;
-                            tmpEvt.buildingSlot = buildingSlot;
+                            FCEvent tmpEvt = new FCEvent(true)
+                            {
+                                def = FCEventDefOf.constructBuilding,
+                                source = settlement.mapLocation,
+                                planetName = settlement.planetName,
+                                building = building,
+                                buildingSlot = buildingSlot
+                            };
 
 
                             int triggerTime = building.constructionDuration;
@@ -127,10 +126,6 @@ namespace FactionColonies
 
                 Text.Font = GameFont.Tiny;
                 Widgets.Label(newBuildingDesc, building.desc);
-
-
-
-                i++;
             }
 
 
