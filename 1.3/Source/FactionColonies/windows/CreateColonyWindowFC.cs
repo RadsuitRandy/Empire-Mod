@@ -171,7 +171,7 @@ namespace FactionColonies
                 if (PaymentUtil.getSilver() >= silverToCreateSettlement) //if have enough monies to make new settlement
                 {
                     StringBuilder reason = new StringBuilder();
-                    if (currentTileSelected == -1 || AnyWorldSettlementFCAtOrAdjacent(currentTileSelected, reason) || !TileFinder.IsValidTileForNewSettlement(currentTileSelected, reason) ||
+                    if (currentTileSelected == -1 || util.WorldTileChecker.AnyWorldSettlementFCAtOrAdjacent(currentTileSelected, reason) || !TileFinder.IsValidTileForNewSettlement(currentTileSelected, reason) ||
                         Find.World.GetComponent<FactionFC>().checkSettlementCaravansList(currentTileSelected.ToString()))
                     {
                         //Alert Error to User
@@ -210,10 +210,6 @@ namespace FactionColonies
                 }
             }
 
-            
-
-
-
             //reset anchor/font
             Text.Font = fontBefore;
             Text.Anchor = anchorBefore;
@@ -232,22 +228,6 @@ namespace FactionColonies
 
             //Bottom Text - Gamers Rise Up
             Widgets.Label(new Rect(x, y + height / 2, length, height / 2f), text2);
-        }
-
-
-        private bool AnyWorldSettlementFCAtOrAdjacent(int tile, StringBuilder reason = null)
-        {
-            foreach (WorldSettlementFC settlement in Find.WorldObjects.AllWorldObjects.Where(obj => obj.GetType() == typeof(WorldSettlementFC)))
-            {
-                Log.Message("Type: " + settlement.GetType().Name);
-                if (Find.WorldGrid.IsNeighborOrSame(settlement.Tile, tile))
-                {
-                    reason?.Append("FactionBaseAdjacent".Translate());
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
