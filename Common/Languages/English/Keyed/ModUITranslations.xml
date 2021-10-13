@@ -278,4 +278,18 @@
 
 	<FloatMenuSearchable>Type to search:</FloatMenuSearchable>
 	
+	<!--EmpireUI.cs-->
+	<selectDeployedSquad>Select Deployed Squad</selectDeployedSquad>
+	<selectedDeployedSquad>{0}'s {1}</selectedDeployedSquad> <!--{0} is a settlement name. {1} is a squad name. -->
+	<noSquadsAvailable>No squads available</noSquadsAvailable>
+	
+	<commandAttack>Attack</commandAttack>
+	<attackSuccess>{0} are now charging the enemy.</attackSuccess>
+	
+	<commandMove>Move</commandMove>
+	<moveSuccess>{0} are moving to the position and standing by.</moveSuccess>
+	
+	<commandLeave>Leave</commandLeave>
+	<leaveSuccess>{0} are now leaving the map. {1} dead.</leaveSuccess>
+	
 </LanguageData>
