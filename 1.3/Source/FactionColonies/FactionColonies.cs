@@ -1264,7 +1264,7 @@ namespace FactionColonies
                 //MilitaryAI.SquadAI(ref settlement.militarySquad);
 
                 DebugTools.curTool = null;
-                settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, "Deploy", 1, null);
+                settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
             });
             DebugTools.curTool = tool;
 

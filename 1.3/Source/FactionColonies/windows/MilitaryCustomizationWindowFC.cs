@@ -591,16 +591,6 @@ namespace FactionColonies
         }
     }
 
-    public enum MilitaryOrders
-    {
-        Undefinded,
-        Standby,
-        Attack,
-        MoveTo,
-        RecoverWounded,
-        Leave
-    }
-
     public class MercenarySquadFC : IExposable, ILoadReferenceable
     {
         public int loadID = -1;

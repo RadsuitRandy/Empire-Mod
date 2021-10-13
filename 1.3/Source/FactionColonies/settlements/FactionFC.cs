@@ -446,7 +446,7 @@ namespace FactionColonies
                                                         RelationsUtilFC.attackFaction(faction);
 
                                                         settlement.sendMilitary(tile, Find.World.info.name,
-                                                            "captureEnemySettlement", 60000, faction);
+                                                            MilitaryJob.CaptureEnemySettlement, 60000, faction);
 
 
                                                         //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
@@ -492,7 +492,7 @@ namespace FactionColonies
                                                     RelationsUtilFC.attackFaction(faction);
 
                                                     settlement.sendMilitary(tile, Find.World.info.name,
-                                                        "raidEnemySettlement", 60000, faction);
+                                                        MilitaryJob.RaidEnemySettlement, 60000, faction);
 
 
                                                     //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
@@ -543,7 +543,7 @@ namespace FactionColonies
                                                         RelationsUtilFC.attackFaction(faction);
 
                                                         settlement.sendMilitary(tile, Find.World.info.name,
-                                                            "enslaveEnemySettlement", 60000, faction);
+                                                            MilitaryJob.EnslaveEnemySettlement, 60000, faction);
 
 
                                                         //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
