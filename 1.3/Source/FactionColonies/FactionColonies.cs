@@ -763,17 +763,18 @@ namespace FactionColonies
                     DefDatabase<WorldObjectDef>.GetNamed("FactionBaseGenerator"));
                 settlement.Tile = tile;
 
-                List<string> used = new List<string>();
+                List<String> used = new List<string>();
                 List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects;
                 foreach (WorldObject found in worldObjects)
                 {
-                    if (found is WorldSettlementFC foundSettlementFC) 
-                    { 
-                        used.Add(foundSettlementFC.Name);
-                    }
-                    else if (found is Settlement foundSettlement)
+                    switch (found)
                     {
-                        used.Add(foundSettlement.Name);
+                        case Settlement foundSettlement:
+                            used.Add(foundSettlement.Name);
+                            break;
+                        case WorldSettlementFC worldSettlement:
+                            used.Add(worldSettlement.Name);
+                            break;
                     }
                 }
                 

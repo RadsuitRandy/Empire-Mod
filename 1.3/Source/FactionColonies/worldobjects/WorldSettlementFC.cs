@@ -12,7 +12,7 @@ using Verse.Sound;
 
 namespace FactionColonies
 {
-    public class WorldSettlementFC : Settlement, ITrader, ITraderRestockingInfoProvider
+    public class WorldSettlementFC : MapParent, ITrader, ITraderRestockingInfoProvider
     {
         public static readonly FieldInfo traitCachedIcon = typeof(WorldObjectDef).GetField("expandingIconTextureInt",
             BindingFlags.NonPublic | BindingFlags.Instance);
@@ -20,7 +20,7 @@ namespace FactionColonies
         public static readonly FieldInfo traitCachedMaterial = typeof(WorldObjectDef).GetField("material",
             BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public new WorldSettlementTraderTracker trader;
+        public WorldSettlementTraderTracker trader;
         
         public SettlementFC settlement;
 
@@ -34,7 +34,7 @@ namespace FactionColonies
 
         public militaryForce attackerForce;
 
-        public new string Name
+        public string Name
         {
             get => settlement.name;
             set => settlement.name = value;
@@ -43,7 +43,7 @@ namespace FactionColonies
         public override string Label => Name;
 
         
-        public new TraderKindDef TraderKind
+        public TraderKindDef TraderKind
         {
             get
             {
@@ -52,29 +52,29 @@ namespace FactionColonies
             }
         }
 
-        public new IEnumerable<Thing> Goods => trader?.StockListForReading;
+        public IEnumerable<Thing> Goods => trader?.StockListForReading;
 
-        public new int RandomPriceFactorSeed => trader?.RandomPriceFactorSeed ?? 0;
+        public int RandomPriceFactorSeed => trader?.RandomPriceFactorSeed ?? 0;
 
-        public new string TraderName => trader?.TraderName;
+        public string TraderName => trader?.TraderName;
 
-        public new bool CanTradeNow => trader != null && trader.CanTradeNow;
+        public bool CanTradeNow => trader != null && trader.CanTradeNow;
 
-        public new float TradePriceImprovementOffsetForPlayer => trader?.TradePriceImprovementOffsetForPlayer ?? 0.0f;
+        public float TradePriceImprovementOffsetForPlayer => trader?.TradePriceImprovementOffsetForPlayer ?? 0.0f;
 
-        public new TradeCurrency TradeCurrency => TraderKind.tradeCurrency;
+        public TradeCurrency TradeCurrency => TraderKind.tradeCurrency;
 
-        public new IEnumerable<Thing> ColonyThingsWillingToBuy(Pawn playerNegotiator) => trader?.ColonyThingsWillingToBuy(playerNegotiator);
+        public IEnumerable<Thing> ColonyThingsWillingToBuy(Pawn playerNegotiator) => trader?.ColonyThingsWillingToBuy(playerNegotiator);
 
-        public new void GiveSoldThingToTrader(Thing toGive, int countToGive, Pawn playerNegotiator) => trader.GiveSoldThingToTrader(toGive, countToGive, playerNegotiator);
+        public void GiveSoldThingToTrader(Thing toGive, int countToGive, Pawn playerNegotiator) => trader.GiveSoldThingToTrader(toGive, countToGive, playerNegotiator);
 
-        public new void GiveSoldThingToPlayer(Thing toGive, int countToGive, Pawn playerNegotiator) => trader.GiveSoldThingToPlayer(toGive, countToGive, playerNegotiator);
+        public void GiveSoldThingToPlayer(Thing toGive, int countToGive, Pawn playerNegotiator) => trader.GiveSoldThingToPlayer(toGive, countToGive, playerNegotiator);
 
-        public new bool EverVisited => trader.EverVisited;
+        public bool EverVisited => trader.EverVisited;
 
-        public new bool RestockedSinceLastVisit => trader.RestockedSinceLastVisit;
+        public bool RestockedSinceLastVisit => trader.RestockedSinceLastVisit;
 
-        public new int NextRestockTick => trader.NextRestockTick;
+        public int NextRestockTick => trader.NextRestockTick;
 
         public override void PostMake()
         {
