@@ -12,38 +12,27 @@ namespace FactionColonies.util
 		private Color baseColor = Color.white;
 		private static readonly Vector2 SearchBarOffset = new Vector2(25f, -27f);
 		private readonly char ignoreBeforeChar;
-		private bool useIgnoreBeforeChar;
+		private readonly bool useIgnoreBeforeChar;
 
 		private readonly IEnumerable<FloatMenuOption> filteredOptions;
-
-		private float ColumnWidthCashed = -1f;
 
 		private float ColumnWidth
 		{
 			get
 			{
 				float num = 70f;
-				if (ColumnWidthCashed == -1f)
-                {
-					for (int i = 0; i < options.Count; i++)
+				for (int i = 0; i < options.Count; i++)
+				{
+					float requiredWidth = options[i].RequiredWidth;
+					if (requiredWidth >= 300f)
 					{
-						float requiredWidth = options[i].RequiredWidth;
-						if (requiredWidth >= 300f)
-						{
-							return 300f;
-						}
-						if (requiredWidth > num)
-						{
-							num = requiredWidth;
-						}
-
-						ColumnWidthCashed = num;
+						return 300f;
 					}
-                }
-                else
-                {
-					num = ColumnWidthCashed;
-                }
+					if (requiredWidth > num)
+					{
+						num = requiredWidth;
+					}
+				}
 				return Mathf.Round(num);
 			}
 		}
