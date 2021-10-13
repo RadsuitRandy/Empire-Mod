@@ -84,22 +84,17 @@ namespace FactionColonies
 
         public int NumberBuildings => 3 + (int) Math.Floor(settlementLevel / 2f);
 
-        public void upgradeSettlement()
+        public void upgradeSettlement(int times = 1)
         {
-            if (settlementLevel < 10)
-            {
-                settlementLevel += 1;
-                updateStats();
-            }
+            settlementLevel += times;
+            if (settlementLevel > 10) settlementLevel = 10;
+            if (settlementLevel < 0) settlementLevel = 0;
+            updateStats();
         }
 
-        public void delevelSettlement()
+        public void delevelSettlement(int times = -1)
         {
-            if (settlementLevel > 0)
-            {
-                settlementLevel -= 1;
-                updateStats();
-            }
+            upgradeSettlement(times);
         }
 
         public void tickSpecialActions(int tick)
@@ -1026,11 +1021,8 @@ namespace FactionColonies
                                 upgradeTimes = 0;
                                 break;
                         }
-
-                        for (int i = 1; i < upgradeTimes; i++)
-                        {
-                            settlementFc.upgradeSettlement();
-                        }
+                        
+                        settlementFc.upgradeSettlement(upgradeTimes);
 
                         settlementFc.loyalty = 15;
                         settlementFc.happiness = 25;

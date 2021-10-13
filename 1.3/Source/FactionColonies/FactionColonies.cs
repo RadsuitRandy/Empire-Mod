@@ -1051,42 +1051,33 @@ namespace FactionColonies
         }
 
         [DebugAction("Empire", "Upgrade Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
-        private static void UpgradePlayerSettlement()
-        {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                    {
-                        Log.Message("Debug - Upgrade Player Settlement - " + settlement.name);
-                        settlement.upgradeSettlement();
-                    }
-                ));
-            }
-
-            Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
-        }
+        private static void UpgradePlayerSettlementx1() => UpgradePlayerSettlement();
 
         [DebugAction("Empire", "Upgrade Player Settlement x5", allowedGameStates = AllowedGameStates.Playing)]
-        private static void UpgradePlayerSettlementx5()
+        private static void UpgradePlayerSettlementx5() => UpgradePlayerSettlement(5);
+
+        private static void UpgradePlayerSettlement(int times = 1)
         {
             List<DebugMenuOption> list = new List<DebugMenuOption>();
             foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
             {
                 list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                {
+                    if (times > 0)
                     {
-                        Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
-                        for (int i = 0; i < 5; i++)
-                        {
-                            settlement.upgradeSettlement();
-                        }
+                        Log.Message("Debug - Upgrade Player Settlement x" + times + "- " + settlement.name);
                     }
+                    else
+                    {
+                        Log.Message("Debug - Downgrade Player Settlement x" + times + "- " + settlement.name);
+                    }
+                    settlement.upgradeSettlement(times);
+                }
                 ));
             }
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
-
 
         [DebugAction("Empire", "Test Function", allowedGameStates = AllowedGameStates.Playing)]
         private static void testVariable()
@@ -1096,21 +1087,7 @@ namespace FactionColonies
         }
 
         [DebugAction("Empire", "De-Level Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
-        private static void DelevelPlayerSettlement()
-        {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                    {
-                        Log.Message("Debug - Delevel Player Settlement - " + settlement.name);
-                        settlement.delevelSettlement();
-                    }
-                ));
-            }
-
-            Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
-        }
+        private static void DelevelPlayerSettlement() => UpgradePlayerSettlement(-1);
 
         [DebugAction("Empire", "Reset Military Squads Cooldowns", allowedGameStates = AllowedGameStates.Playing)]
         private static void ResetMilitarySquads()
@@ -1143,26 +1120,12 @@ namespace FactionColonies
         }
 
         [DebugAction("Empire", "Place 500 Silver", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void placeSilverFC()
-        {
-            DebugTool tool = null;
-            IntVec3 DropPosition;
-            Map map;
-            tool = new DebugTool("Select Drop Position", delegate
-            {
-                DropPosition = UI.MouseCell();
-                map = Find.CurrentMap;
-
-
-                Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                silver.stackCount = 500;
-                GenPlace.TryPlaceThing(silver, DropPosition, map, ThingPlaceMode.Near);
-            });
-            DebugTools.curTool = tool;
-        }
+        private static void placeSilverFC() => silverPlacer(500);
 
         [DebugAction("Empire", "Place 50000 Silver", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void PlaceALotOfSilverFC()
+        private static void placeALotOfSilverFC() => silverPlacer(50000);
+
+        private static void silverPlacer(int amount = 500)
         {
             DebugTool tool = null;
             IntVec3 DropPosition;
@@ -1174,7 +1137,7 @@ namespace FactionColonies
 
 
                 Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                silver.stackCount = 50000;
+                silver.stackCount = amount;
                 GenPlace.TryPlaceThing(silver, DropPosition, map, ThingPlaceMode.Near);
             });
             DebugTools.curTool = tool;
