@@ -1,4 +1,5 @@
-﻿using Verse;
+﻿using UnityEngine;
+using Verse;
 
 namespace FactionColonies.util
 {
@@ -18,6 +19,20 @@ namespace FactionColonies.util
 									!pawnKindDef.race.tradeTags.Contains("AnimalMonster") &&
 									!pawnKindDef.race.tradeTags.Contains("AnimalGenetic") &&
 									!pawnKindDef.race.tradeTags.Contains("AnimalAlpha");
+		}
+
+		public static Rect CopyAndShift(this Rect rect, Vector2 vector2)
+        {
+			return CopyAndShift(rect, vector2.x, vector2.y);
+        }
+
+		public static Rect CopyAndShift(this Rect rect, float x, float y)
+		{
+			Rect newRect = new Rect(rect);
+			newRect.x += x;
+			newRect.y += y;
+
+			return newRect;
 		}
 	}
 }

@@ -4,6 +4,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using FactionColonies.util;
 
 namespace FactionColonies
 {
@@ -135,26 +136,27 @@ namespace FactionColonies
             {
                 foreach (ResourceType titheType in ResourceUtils.resourceTypes)
                 {
-                    int height = 15;
-                    if(Widgets.ButtonImage(new Rect(20, 335 + (int) titheType * (5 + height), height, height), 
-                        faction.returnResource(titheType).getIcon()))
+                    int titheTypeInt = (int)titheType;
+                    int baseHeight = 15;
+                    if(Widgets.ButtonImage(new Rect(20, 335 + titheTypeInt * (5 + baseHeight), baseHeight, baseHeight), faction.returnResource(titheType).getIcon()))
                     {
-                        Find.WindowStack.Add(new DescWindowFc("SettlementProductionOf".Translate() + ": " 
-                            + faction.returnResource(titheType).label, 
-                            char.ToUpper(faction.returnResource(titheType).label[0]) 
-                            + faction.returnResource(titheType).label.Substring(1)));
+                        string label = faction.returnResource(titheType).label;
+
+                        Find.WindowStack.Add(new DescWindowFc("SettlementProductionOf".Translate() + ": " + label, label.CapitalizeFirst()));
                     }
-                    Widgets.Label(new Rect(40, 335 + (int) titheType * (5 + height), 60, height+2), 
-                        (currentBiomeSelected.BaseProductionAdditive[(int) titheType] 
-                         + currentHillinessSelected.BaseProductionAdditive[(int) titheType]).ToString());
-                    Widgets.Label(new Rect(110, 335 + (int) titheType * (5 + height), 60, height+2), 
-                        (currentBiomeSelected.BaseProductionMultiplicative[(int) titheType] 
-                         * currentHillinessSelected.BaseProductionMultiplicative[(int) titheType]).ToString());
-                    Widgets.Label(new Rect(180, 335 + (int) titheType * (5 + height), 60, height+2), 
-                        ((currentBiomeSelected.BaseProductionAdditive[(int) titheType] 
-                          + currentHillinessSelected.BaseProductionAdditive[(int) titheType])
-                         *(currentBiomeSelected.BaseProductionMultiplicative[(int) titheType] 
-                           * currentHillinessSelected.BaseProductionMultiplicative[(int) titheType])).ToString());
+
+                    float xMod = 70f;
+                    Rect baseRect = new Rect(40, 335 + titheTypeInt * (5 + baseHeight), 60, baseHeight + 2);
+
+                    double titheAddBaseProductionCurBiome = currentBiomeSelected.BaseProductionAdditive[titheTypeInt];
+                    double titheAddBaseProductionCurHilli = currentHillinessSelected.BaseProductionAdditive[titheTypeInt];
+
+                    double titheMultBaseProductionCurBiome = currentBiomeSelected.BaseProductionMultiplicative[titheTypeInt];
+                    double titheMultBaseProductionCurHilli = currentHillinessSelected.BaseProductionMultiplicative[titheTypeInt];
+
+                    Widgets.Label(baseRect, (titheAddBaseProductionCurBiome + titheAddBaseProductionCurHilli).ToString());
+                    Widgets.Label(baseRect.CopyAndShift(xMod, 0f), (titheMultBaseProductionCurBiome * titheMultBaseProductionCurHilli).ToString());
+                    Widgets.Label(baseRect.CopyAndShift(xMod * 2f, 0f), ((titheAddBaseProductionCurBiome + titheAddBaseProductionCurHilli) *(titheMultBaseProductionCurBiome * titheMultBaseProductionCurHilli)).ToString());
                 }
             }
 
