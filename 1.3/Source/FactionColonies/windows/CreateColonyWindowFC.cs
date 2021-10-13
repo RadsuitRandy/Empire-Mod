@@ -156,7 +156,7 @@ namespace FactionColonies
 
                     Widgets.Label(baseRect, (titheAddBaseProductionCurBiome + titheAddBaseProductionCurHilli).ToString());
                     Widgets.Label(baseRect.CopyAndShift(xMod, 0f), (titheMultBaseProductionCurBiome * titheMultBaseProductionCurHilli).ToString());
-                    Widgets.Label(baseRect.CopyAndShift(xMod * 2f, 0f), ((titheAddBaseProductionCurBiome + titheAddBaseProductionCurHilli) *(titheMultBaseProductionCurBiome * titheMultBaseProductionCurHilli)).ToString());
+                    Widgets.Label(baseRect.CopyAndShift(xMod * 2f, 0f), ((titheAddBaseProductionCurBiome + titheAddBaseProductionCurHilli) * (titheMultBaseProductionCurBiome * titheMultBaseProductionCurHilli)).ToString());
                 }
             }
 

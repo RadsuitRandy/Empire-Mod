@@ -1207,9 +1207,22 @@ namespace FactionColonies
 
 
             IntVec3 dropPosition;
-            var tool = new DebugTool("Select Deployment Position", delegate
+            DebugTool tool = new DebugTool("selectDeploymentPosition".Translate(), delegate
             {
                 dropPosition = UI.MouseCell();
+                Map curMap = Find.CurrentMap;
+
+                if (!dropPosition.InBounds(curMap)) 
+                { 
+                    Messages.Message("selectedPosOutOfBounds".Translate(), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+                if (dropPosition.CloseToEdge(curMap, 10))
+                {
+                    Messages.Message("selectedPosTooCloseToEdge".Translate(), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
                 if (DropPod)
                 {
                     parms.spawnCenter = dropPosition;
@@ -1257,9 +1270,8 @@ namespace FactionColonies
                 settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("Military Deployed",
-                    "The Military forces of " + settlement.name + " have been deployed to " +
-                    Find.CurrentMap.Parent.LabelCap, LetterDefOf.NeutralEvent,
+                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(),
+                    "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,
                     new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
                 //MilitaryAI.SquadAI(ref settlement.militarySquad);
 

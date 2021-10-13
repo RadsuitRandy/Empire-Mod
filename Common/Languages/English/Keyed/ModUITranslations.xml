@@ -292,4 +292,12 @@
 	<commandLeave>Leave</commandLeave>
 	<leaveSuccess>{0} are now leaving the map. {1} dead.</leaveSuccess>
 	
+	<!-- CallInAlliedForces -->
+	<selectDeploymentPosition>Select Deployment Position</selectDeploymentPosition>
+	<selectedPosOutOfBounds>The position you selected is out of bounds for this map!</selectedPosOutOfBounds>
+	<selectedPosTooCloseToEdge>The position you selected is to close to the map edge!</selectedPosTooCloseToEdge>
+
+	<deploymentSuccessLabel>Military deployed</deploymentSuccessLabel>
+	<deploymentSuccessDesc>The military forces of {0} have been deployed to {1}</deploymentSuccessDesc>
+	
 </LanguageData>
