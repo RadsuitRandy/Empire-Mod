@@ -591,13 +591,14 @@ namespace FactionColonies
         }
     }
 
-    public class MilitaryOrders
+    public enum MilitaryOrders
     {
-        public static int Standby = 1;
-        public static int Attack = 2;
-        public static int MoveTo = 3;
-        public static int RecoverWounded = 4;
-        public static int Leave = 5;
+        Undefinded,
+        Standby,
+        Attack,
+        MoveTo,
+        RecoverWounded,
+        Leave
     }
 
     public class MercenarySquadFC : IExposable, ILoadReferenceable
@@ -610,7 +611,7 @@ namespace FactionColonies
         public bool isTraderCaravan;
         public bool isDeployed;
         public bool isExtraSquad;
-        public int order;
+        public MilitaryOrders order;
         public int timeDeployed;
         public IntVec3 orderLocation;
         public bool hitMap;
@@ -640,7 +641,7 @@ namespace FactionColonies
             Scribe_Collections.Look(ref UsedApparelList, "UsedApparelList", LookMode.Reference);
             Scribe_References.Look(ref settlement, "Settlement");
             Scribe_Values.Look(ref tickChanged, "tickChanged");
-            Scribe_Values.Look(ref order, "order", -1);
+            Scribe_Values.Look(ref order, "order", MilitaryOrders.Undefinded);
             Scribe_Values.Look(ref timeDeployed, "timeDeployed", -1);
             Scribe_Values.Look(ref orderLocation, "orderLocation");
             Scribe_Values.Look(ref hasLord, "hasLord");
