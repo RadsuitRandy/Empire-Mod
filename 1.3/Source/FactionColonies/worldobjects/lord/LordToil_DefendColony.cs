@@ -44,7 +44,9 @@ namespace FactionColonies
         {
             Pawn pawn = __instance.pawn;
             WorldSettlementFC settlementFc = pawn.Map.Parent as WorldSettlementFC;
-            return !settlementFc.defenders.Contains(pawn) || settlementFc.supporting.Any(caravan => caravan.pawns.Contains(pawn));
+            //Log.Message("Can't leave due to supporting: " + settlementFc?.supporting.Any(caravan => caravan.pawns.Contains(pawn)));
+            //Log.Message("Can't leave due to defending:  " + settlementFc?.defenders.Contains(pawn));
+            return !settlementFc?.defenders.Contains(pawn) ?? true || (settlementFc?.supporting.Any(caravan => caravan.pawns.Contains(pawn)) ?? false);
         }
     }
 }
