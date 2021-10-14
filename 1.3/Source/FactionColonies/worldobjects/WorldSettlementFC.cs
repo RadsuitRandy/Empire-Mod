@@ -9,6 +9,7 @@ using UnityEngine;
 using Verse;
 using Verse.AI.Group;
 using Verse.Sound;
+using FactionColonies.util;
 
 namespace FactionColonies
 {
@@ -536,6 +537,8 @@ namespace FactionColonies
             foreach (Pawn friendly in friendlies)
             {
                 if (friendly.IsWildMan()) continue;
+
+                friendly.ApplyIdeologyRitualWounds();
 
                 IntVec3 loc;
                 if (friendly.AnimalOrWildMan())

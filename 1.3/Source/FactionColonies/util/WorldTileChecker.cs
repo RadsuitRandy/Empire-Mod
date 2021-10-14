@@ -10,7 +10,6 @@ namespace FactionColonies.util
         {
             foreach (WorldSettlementFC settlement in Find.WorldObjects.AllWorldObjects.Where(obj => obj.GetType() == typeof(WorldSettlementFC)))
             {
-                Log.Message("Type: " + settlement.GetType().Name);
                 if (Find.WorldGrid.IsNeighborOrSame(settlement.Tile, tile))
                 {
                     reason?.Append("FactionBaseAdjacent".Translate());
