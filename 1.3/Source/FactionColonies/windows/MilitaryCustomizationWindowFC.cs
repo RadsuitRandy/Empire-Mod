@@ -380,7 +380,7 @@ namespace FactionColonies
             isBlank = blank;
             equipmentTotalCost = 0;
 
-            pawnKind = DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers.First().options.First().kind;
+            pawnKind = FactionColonies.getPlayerColonyFaction()?.RandomPawnKind() ?? DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers.First().options.First().kind;
             generateDefaultPawn();
         }
 
