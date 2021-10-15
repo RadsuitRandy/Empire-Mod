@@ -29,6 +29,8 @@ namespace FactionColonies.util
 			return CopyAndShift(rect, vector2.x, vector2.y);
 		}
 
+		public static bool IsMercenary(this Pawn pawn) => Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.AllMercenaryPawns.Contains(pawn);
+
 		public static Rect CopyAndShift(this Rect rect, float x, float y)
 		{
 			Rect newRect = new Rect(rect);
@@ -58,7 +60,7 @@ namespace FactionColonies.util
 		}
 
 		public static void Blind(this Pawn pawn)
-        {
+		{
 			foreach (BodyPartRecord part in pawn.RaceProps.body.GetPartsWithTag(BodyPartTagDefOf.SightSource))
 			{
 				if (!pawn.health.hediffSet.PartIsMissing(part))

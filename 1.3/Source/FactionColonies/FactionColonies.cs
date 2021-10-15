@@ -1229,6 +1229,7 @@ namespace FactionColonies
                     }
                 }
 
+                settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 settlement.militarySquad.isDeployed = true;
                 settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
@@ -1317,6 +1318,7 @@ namespace FactionColonies
                     }
                 }
 
+                squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 squad.isDeployed = true;
                 squad.order = MilitaryOrders.Standby;
                 squad.orderLocation = DropPosition;
@@ -1447,6 +1449,7 @@ namespace FactionColonies
 
                                 PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,
                                     settlement.militarySquad.AllEquippedMercenaryPawns);
+                                settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                                 settlement.militarySquad.isDeployed = true;
                                 DebugTools.curTool = null;
                             });
