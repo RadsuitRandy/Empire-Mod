@@ -379,7 +379,8 @@ namespace FactionColonies
             loadID = Find.World.GetComponent<FactionFC>().NextUnitID;
             isBlank = blank;
             equipmentTotalCost = 0;
-            pawnKind = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
+
+            pawnKind = DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers.First().options.First().kind;
             generateDefaultPawn();
         }
 
