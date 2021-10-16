@@ -958,45 +958,59 @@ namespace FactionColonies
             animals = new List<Mercenary>();
             foreach (MilUnitFC loadout in outfit.units)
             {
-                if (mercenaries[count].pawn.kindDef != loadout.pawnKind || mercenaries[count].pawn.Dead)
+                try
                 {
-                    Mercenary pawn = new Mercenary(true);
-                    createNewPawn(ref pawn, loadout.pawnKind);
-                    mercenaries.Replace(mercenaries[count], pawn);
-                }
-
-                StripPawn(mercenaries[count]);
-                HealPawn(mercenaries[count]);
-                if (loadout != null)
-                {
-                    //mercenaries[count];
-                    //StripPawn(mercenaries[count]);
-                    EquipPawn(mercenaries[count], loadout);
-                    if (loadout.animal != null)
+                    if (mercenaries[count]?.pawn?.kindDef != loadout.pawnKind || mercenaries[count].pawn.Dead)
                     {
-                        Mercenary animal = new Mercenary(true);
-                        createNewAnimal(ref animal, loadout.animal);
-                        animal.handler = mercenaries[count];
-                        mercenaries[count].animal = animal;
-                        animals.Add(animal);
+                        Mercenary pawn = new Mercenary(true);
+                        createNewPawn(ref pawn, loadout.pawnKind);
+                        mercenaries.Replace(mercenaries[count], pawn);
                     }
 
-                    mercenaries[count].loadout = loadout;
-                    mercenaries[count].deployable = mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit;
-                }
+                    StripPawn(mercenaries[count]);
+                    HealPawn(mercenaries[count]);
+                    if (loadout != null)
+                    {
+                        //mercenaries[count];
+                        //StripPawn(mercenaries[count]);
+                        EquipPawn(mercenaries[count], loadout);
+                        if (loadout.animal != null)
+                        {
+                            Mercenary animal = new Mercenary(true);
+                            createNewAnimal(ref animal, loadout.animal);
+                            animal.handler = mercenaries[count];
+                            mercenaries[count].animal = animal;
+                            animals.Add(animal);
+                        }
 
-                if (mercenaries[count].pawn.equipment.AllEquipmentListForReading != null)
+                        mercenaries[count].loadout = loadout;
+                        mercenaries[count].deployable = mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit;
+                    }
+
+                    if (mercenaries[count].pawn.equipment.AllEquipmentListForReading != null)
+                    {
+                        UsedWeaponList.AddRange(mercenaries[count].pawn.equipment.AllEquipmentListForReading);
+
+                        //add single check at start of load and mark variable
+                    }
+
+                    if (mercenaries[count].pawn.apparel.WornApparel != null)
+                    {
+                        UsedApparelList.AddRange(mercenaries[count].pawn.apparel.WornApparel);
+                    }
+                }
+                catch (Exception e)
                 {
-                    UsedWeaponList.AddRange(mercenaries[count].pawn.equipment.AllEquipmentListForReading);
+                    Log.Error("Something went wrong when outfitting a squad: " + e.Message);
+                    bool isNullOrEmpty = mercenaries.NullOrEmpty();
+                    Log.Error("Mercanaries NullOrEmpty: " + isNullOrEmpty);
 
-                    //add single check at start of load and mark variable
+                    if (isNullOrEmpty)
+                    {
+                        Log.Error("Number of Mercs: " + mercenaries.Count);
+                        Log.Error("Any mercenary or pawn is null: " + mercenaries.Any(mercenary => mercenary?.pawn == null));
+                    }
                 }
-
-                if (mercenaries[count].pawn.apparel.WornApparel != null)
-                {
-                    UsedApparelList.AddRange(mercenaries[count].pawn.apparel.WornApparel);
-                }
-
                 count++;
             }
 
