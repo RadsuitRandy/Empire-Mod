@@ -42,7 +42,7 @@ namespace FactionColonies.util
 
 		public static void ApplyIdeologyRitualWounds(this Pawn pawn)
 		{
-			if (ModsConfig.IdeologyActive)
+			if (ModsConfig.IdeologyActive && !pawn.AnimalOrWildMan())
 			{
 				if (pawn.Ideo.HasPrecept(PreceptDefOf.AgeReversal_Demanded))
 				{
