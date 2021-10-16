@@ -211,38 +211,59 @@ namespace FactionColonies
 
         public void CaravanDefend(Caravan caravan)
         {
-            startDefense(
-                MilitaryUtilFC.returnMilitaryEventByLocation(caravan.Tile), () =>
+            List<Pawn> pawns = caravan.pawns.InnerListForReading.ListFullCopy();
+            AddToDefenceFromList(pawns, caravan.Tile);
+
+            if (!caravan.Destroyed)
+            {
+                caravan.Destroy();
+            }
+            IntVec3 enterCell = FindNearEdgeCell(Map);
+            foreach (Pawn pawn in pawns)
+            {
+                IntVec3 loc =
+                    CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
+                GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
+                if (defenders.Any())
                 {
-                    CaravanSupporting caravanSupporting = new CaravanSupporting
+                    defenders[0].GetLord().AddPawn(pawn);
+                }
+                else
+                {
+                    LordMaker.MakeNewLord(
+                        FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(new Dictionary<Pawn, Pawn>()), Map, pawns);
+                }
+            }
+        }
+
+        public void AddToDefenceFromList(List<Pawn> pawns, int destinationTile)
+        {
+            if (pawns.NullOrEmpty()) 
+            {
+                Log.Error("Tried to add an empty list of pawns to an FCEvent");
+                return; 
+            }
+
+            startDefense(
+                MilitaryUtilFC.returnMilitaryEventByLocation(destinationTile), () =>
+                {
+                    foreach (Pawn pawn in pawns)
                     {
-                        pawns = caravan.pawns.InnerListForReading.ListFullCopy()
-                    };
-                    supporting.Add(caravanSupporting);
-                    if (!caravan.Destroyed)
-                    {
-                        caravan.Destroy();
+                        if (defenders.Contains(pawn)) return;
                     }
 
-                    IntVec3 enterCell = FindNearEdgeCell(Map);
-                    foreach (Pawn pawn in caravanSupporting.pawns)
+                    CaravanSupporting caravanSupporting = new CaravanSupporting
                     {
-                        IntVec3 loc =
-                            CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
-                        GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
-                        if(defenders.Any())
-                        {
-                            defenders[0].GetLord().AddPawn(pawn);
-                        }
-                        else
-                        {
-                            LordMaker.MakeNewLord(
-                                FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(new Dictionary<Pawn, Pawn>()), Map, caravanSupporting.pawns);
-                        }
-                    }
+                        pawns = pawns
+                    };
+
+                    supporting.Add(caravanSupporting);
+
                     defenders.AddRange(caravanSupporting.pawns);
                 });
+
         }
+
         public override IEnumerable<Gizmo> GetCaravanGizmos(Caravan caravan)
         {
             if (settlement.isUnderAttack)
@@ -296,7 +317,37 @@ namespace FactionColonies
                 }
             }
         }
-        
+
+        public override IEnumerable<FloatMenuOption> GetTransportPodsFloatMenuOptions(IEnumerable<IThingHolder> pods, CompLaunchable representative)
+        {
+            if (TransportPodsArrivalAction_LandInSpecificCell.CanLandInSpecificCell(pods, this))
+            {
+                yield return new FloatMenuOption("LandInExistingMap".Translate(Label), delegate ()
+                {
+                    Map myMap = representative.parent.Map;
+                    Map map = Map;
+                    Current.Game.CurrentMap = map;
+                    CameraJumper.TryHideWorld();
+                    Targeter targeter = Find.Targeter;
+                    TargetingParameters targetParams = TargetingParameters.ForDropPodsDestination();
+
+                    void action(LocalTargetInfo targetInfo)
+                    {
+                        representative.TryLaunch(Tile, new WorldSettlementTransportPodDefendAction(this, targetInfo.Cell, representative.parent.TryGetComp<CompShuttle>() != null));
+                    }
+
+                    targeter.BeginTargeting(targetParams, action, null, delegate ()
+                    {
+                        if (Find.Maps.Contains(myMap))
+                        {
+                            Current.Game.CurrentMap = myMap;
+                        }
+                    }, CompLaunchable.TargeterMouseAttachment);
+                }, MenuOptionPriority.Default, null, null, 0f, null, null, true, 0);
+            }
+            yield break;
+        }
+
         private void deleteMap()
         {
             if (Map == null) return;
