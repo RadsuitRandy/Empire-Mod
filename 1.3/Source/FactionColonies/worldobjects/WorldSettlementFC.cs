@@ -282,9 +282,11 @@ namespace FactionColonies
             }
             else
             {
-                Command_Action action = (Command_Action) CaravanVisitUtility.TradeCommand(caravan, Faction, trader.TraderKind);
+                trader.settlement = trader.settlement ?? settlement.worldSettlement;
+                TraderKindDef kindDef = trader.TraderKind;
+                Command_Action action = (Command_Action) CaravanVisitUtility.TradeCommand(caravan, Faction, kindDef);
                 
-                Pawn bestNegotiator = BestCaravanPawnUtility.FindBestNegotiator(caravan, Faction, trader.TraderKind);
+                Pawn bestNegotiator = BestCaravanPawnUtility.FindBestNegotiator(caravan, Faction, kindDef);
                 action.action = () =>
                 {
                     if (!CanTradeNow)

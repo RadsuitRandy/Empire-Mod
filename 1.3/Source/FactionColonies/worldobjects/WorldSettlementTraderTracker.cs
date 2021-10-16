@@ -76,9 +76,13 @@ namespace FactionColonies
         }
 
         [CanBeNull]
-        public TraderKindDef TraderKind => !BaseTraderKinds.Any()
-            ? null
-            : BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count];
+        public TraderKindDef TraderKind
+        {
+            get
+            {
+                return !BaseTraderKinds.Any() ? null : BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count];
+            }
+        }
 
         public int RandomPriceFactorSeed => Gen.HashCombineInt(settlement.ID, 1933327354);
 
