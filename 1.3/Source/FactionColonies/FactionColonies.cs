@@ -566,19 +566,20 @@ namespace FactionColonies
 
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.359)
+            if (factionFC.updateVersion < 0.360)
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.359\n The following abbreviated changes have occurred:";
-                str += "\n\n- Fixed a bunch of military related bugs";
-                str += "\n\n- Fixed a bunch of settlement map generation related bugs";
-                str += "\n\n- All of the code for this update has been developed by Github Contributors Big_Bad_E and EMP";
-                str += "\n\n- Big props to our team of dedicated testers, BlueberryPi, Eviance, extinctShadow, Lughir, and Nathan";
+                    "A new update for Empire has been released!  v.0.360\n The following abbreviated changes have occurred:";
+                str += "\n\n- Mod update to 1.3";
+                str += "\n\n- Fixed the trait message spam bug";
+                str += "\n\n- Fixed a bunch of settlement defence map generation related bugs";
+                str += "\n\n- All of the code for this update has been developed by Danimineiro";
+                str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Countless other minor bugfixes";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.359;
+                factionFC.updateVersion = 0.360;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
             }
         }
