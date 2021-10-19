@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -43,10 +44,10 @@ namespace FactionColonies
         static bool Prefix(ref JobDriver_Goto __instance)
         {
             Pawn pawn = __instance.pawn;
-            WorldSettlementFC settlementFc = pawn.Map.Parent as WorldSettlementFC;
             //Log.Message("Can't leave due to supporting: " + settlementFc?.supporting.Any(caravan => caravan.pawns.Contains(pawn)));
             //Log.Message("Can't leave due to defending:  " + settlementFc?.defenders.Contains(pawn));
-            return !settlementFc?.defenders.Contains(pawn) ?? true || (settlementFc?.supporting.Any(caravan => caravan.pawns.Contains(pawn)) ?? false);
+            //Log.Message("Is Mercenary: " + pawn.IsMercenary());
+            return !(pawn.IsMercenary() && pawn.Map.Parent is WorldSettlementFC);
         }
     }
 }
