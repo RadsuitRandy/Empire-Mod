@@ -42,21 +42,29 @@ namespace FactionColonies.util
 
 		public static void ApplyIdeologyRitualWounds(this Pawn pawn)
 		{
-			if (ModsConfig.IdeologyActive && !pawn.AnimalOrWildMan())
+			try
 			{
-				if (pawn.Ideo.HasPrecept(PreceptDefOf.AgeReversal_Demanded))
+				if (ModsConfig.IdeologyActive && pawn?.Ideo != null && !pawn.AnimalOrWildMan())
 				{
-					pawn.ageTracker.DebugResetAgeReversalDemand();
+					if (pawn.Ideo.HasPrecept(PreceptDefOf.AgeReversal_Demanded))
+					{
+						pawn.ageTracker.DebugResetAgeReversalDemand();
+					}
+					if (pawn.Ideo.BlindPawnChance > 0)
+					{
+						pawn.Blind();
+					}
+					if (pawn.Ideo.RequiredScars > 0 && !pawn.HasTrait(TraitDefOf.Wimp))
+					{
+						pawn.Scarify();
+					}
 				}
-				if (pawn.ideo.Ideo.BlindPawnChance > 0)
-				{
-					pawn.Blind();
-				}
-				if (pawn.ideo.Ideo.RequiredScars > 0 && !pawn.HasTrait(TraitDefOf.Wimp))
-				{
-					pawn.Scarify();
-				}
-			}
+            }
+            catch
+            {
+				string pawnName = (pawn?.Name != null) ? pawn.Name.ToString() : "pawn is null!";
+				Log.Error("Required ritual wounds couldn't be applied to pawn: " + pawnName + ". Pawn Ideo == null: " + (pawn?.Ideo == null));
+            }
 		}
 
 		public static void Blind(this Pawn pawn)
@@ -104,6 +112,6 @@ namespace FactionColonies.util
 			}
 		}
 
-		public static bool HasTrait(this Pawn pawn, TraitDef trait) => pawn?.ideo?.Ideo == null || pawn.health == null || (pawn.story?.traits?.HasTrait(trait) ?? false);
+		public static bool HasTrait(this Pawn pawn, TraitDef trait) => pawn?.story?.traits?.HasTrait(trait) ?? false;
 	}
 }
