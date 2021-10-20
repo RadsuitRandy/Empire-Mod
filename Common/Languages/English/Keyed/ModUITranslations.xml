@@ -300,4 +300,6 @@
 	<deploymentSuccessLabel>Military deployed</deploymentSuccessLabel>
 	<deploymentSuccessDesc>The military forces of {0} have been deployed to {1}</deploymentSuccessDesc>
 	
+	<!-- ShuttleTransportEvent -->
+	<transportingInjuredShuttle>A shuttle is transporting injured colonists back to you after a successful settlement defence</transportingInjuredShuttle>
 </LanguageData>

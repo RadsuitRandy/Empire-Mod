@@ -705,6 +705,43 @@ namespace FactionColonies
         }
     }
 
+    public struct FCEventParams
+    {
+        static FCEventParams()
+        {
+            
+        }
+
+        public int Location; //destination
+        public string PlanetName;
+        public int Source; //source location
+        public string CustomDescription;
+        public IEnumerable<Thing> Contents;
+        public bool HasDestination
+        {
+            get
+            {
+                return Location != -1;
+            }
+        }
+
+        public bool HasCustomDescription
+        {
+            get
+            {
+                return !CustomDescription.NullOrEmpty();
+            }
+        }
+
+        //Military Force stuff
+        public militaryForce militaryForceAttacking;
+        public Faction militaryForceAttackingFaction;
+        public militaryForce militaryForceDefending;
+        public Faction militaryForceDefendingFaction;
+        public SettlementFC settlementFCDefending;
+        public bool isMilitaryEvent;
+    }
+
     public class FCEvent : IExposable, ILoadReferenceable
     {
         public FCEvent()
@@ -951,6 +988,7 @@ namespace FactionColonies
         public static FCEventDef captureEnemySettlement;
         public static FCEventDef cooldownMilitary;
         public static FCEventDef settlementBeingAttacked;
+        public static FCEventDef transportShipArrival;
 
         static FCEventDefOf()
         {
