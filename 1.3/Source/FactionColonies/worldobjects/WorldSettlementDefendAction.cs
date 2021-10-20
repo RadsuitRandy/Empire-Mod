@@ -23,7 +23,7 @@ namespace FactionColonies
 
         public override void Arrived(Caravan caravan)
         {
-            settlement.CaravanDefend(caravan);
+            settlement.startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.settlement.mapLocation),() => settlement.CaravanDefend(caravan));
         }
         
         public override void ExposeData()
