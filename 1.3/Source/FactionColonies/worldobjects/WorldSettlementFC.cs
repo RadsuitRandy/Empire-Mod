@@ -224,15 +224,6 @@ namespace FactionColonies
                 IntVec3 loc =
                     CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
                 GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
-                if (defenders.Any())
-                {
-                    defenders[0].GetLord().AddPawn(pawn);
-                }
-                else
-                {
-                    LordMaker.MakeNewLord(
-                        FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(new Dictionary<Pawn, Pawn>()), Map, pawns);
-                }
             }
         }
 
