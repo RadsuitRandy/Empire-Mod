@@ -599,11 +599,9 @@ namespace FactionColonies
         {
             static bool Prefix(Pawn __instance)
             {
-                FactionFC faction = Find.World.GetComponent<FactionFC>();
-                if (faction.militaryCustomizationUtil.AllMercenaryPawns
-                    .Contains(__instance))
+                if (__instance.IsMercenary())
                 {
-                    __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
+                    if (__instance.Faction != FactionColonies.getPlayerColonyFaction()) __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
                     MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
                         .returnSquadFromUnit(__instance);
                     if (squad != null)
