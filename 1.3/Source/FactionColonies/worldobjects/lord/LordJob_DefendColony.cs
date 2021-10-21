@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using RimWorld;
+using FactionColonies.util;
 using Verse;
 using Verse.AI.Group;
 
@@ -51,7 +51,7 @@ namespace FactionColonies
                 readded.Add(pawn);
                 return;
             }
-            pawn.SetFaction(FactionColonies.getPlayerColonyFaction());
+            if (pawn.IsMercenary()) pawn.SetFaction(FactionColonies.getPlayerColonyFaction());
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             //Check if a settlement battle ended
             SettlementFC settlement = faction.getSettlement(pawn.Tile, Find.World.info.name);
