@@ -404,12 +404,12 @@ namespace FactionColonies
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Widgets.Label(AdjustRect(settlement_2, i), settlement.settlementLevel.ToString());
                 Widgets.Label(AdjustRect(settlement_3, i), settlement.settlementMilitaryLevel.ToString());
-                Widgets.Label(AdjustRect(settlement_4, i), settlement.getTotalProfit().ToString());
+                Widgets.Label(AdjustRect(settlement_4, i), ((int)settlement.getTotalProfit()).ToString());
                 Widgets.Label(AdjustRect(settlement_5, i),
                     (settlement.workersUltraMax - settlement.getTotalWorkers()).ToString());
-                Widgets.Label(AdjustRect(settlement_6, i), settlement.Happiness.ToString());
-                Widgets.Label(AdjustRect(settlement_7, i), settlement.Loyalty.ToString());
-                Widgets.Label(AdjustRect(settlement_8, i), settlement.Unrest.ToString());
+                Widgets.Label(AdjustRect(settlement_6, i), ((int)settlement.Happiness).ToString());
+                Widgets.Label(AdjustRect(settlement_7, i), ((int)settlement.Loyalty).ToString());
+                Widgets.Label(AdjustRect(settlement_8, i), ((int)settlement.Unrest).ToString());
             }
 
             GUI.EndGroup();
