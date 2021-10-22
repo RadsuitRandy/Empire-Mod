@@ -9,9 +9,14 @@ namespace FactionColonies
 {
 	static class PawnKindDefExtensions
 	{
+		public static bool IsHumanLikeRace(this PawnKindDef pawnKindDef)
+        {
+			return pawnKindDef.race.race?.intelligence == Intelligence.Humanlike && pawnKindDef.race.BaseMarketValue != 0;
+		}
+
 		public static bool IsHumanlikeWithLabelRace(this PawnKindDef pawnKindDef)
         {
-			return pawnKindDef?.race?.label != null && pawnKindDef.race.race?.intelligence == Intelligence.Humanlike && pawnKindDef.race.BaseMarketValue != 0;
+			return pawnKindDef?.race?.label != null && pawnKindDef.IsHumanLikeRace();
 		}
 
 		/// <summary>
