@@ -566,20 +566,21 @@ namespace FactionColonies
 
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.360)
+            if (factionFC.updateVersion < 0.361)
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.360\n The following abbreviated changes have occurred:";
-                str += "\n\n- Mod update to 1.3";
-                str += "\n\n- Fixed the trait message spam bug";
-                str += "\n\n- Fixed a bunch of settlement defence map generation related bugs";
+                    "A new update for Empire has been released!  v.0.361\n The following abbreviated changes have occurred:\n\n- Only bugfixes including:";
+                str += "\n\n- Fixed original colonists being unable to leave a settlement defence map";
+                str += "\n\n- Fixed caravans vanishing on settlement defence";
+                str += "\n\n- Fixed invincible animals";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
-                str += "\n\n- Countless other minor bugfixes";
-                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                str += "\n\n- I'm sorry for the bugs and the delay in fixing them - I've been kinda ill recently";
+                str += "\n\n- Join us on Discord! https://discord.gg/f3zFQqA";
+                //str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.360;
+                factionFC.updateVersion = 0.361;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
             }
         }
