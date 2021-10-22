@@ -602,12 +602,10 @@ namespace FactionColonies
                 if (__instance.IsMercenary())
                 {
                     if (__instance.Faction != FactionColonies.getPlayerColonyFaction()) __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
-                    MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
-                        .returnSquadFromUnit(__instance);
+                    MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.returnSquadFromUnit(__instance);
                     if (squad != null)
                     {
-                        Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
-                            .returnMercenaryFromUnit(__instance, squad);
+                        Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.returnMercenaryFromUnit(__instance, squad);
                         if (merc != null)
                         {
                             if (squad.settlement != null)
@@ -630,10 +628,10 @@ namespace FactionColonies
                         Log.Message("Mercenary Errored out. Did not find squad.");
                     }
 
-                    __instance.equipment.DestroyAllEquipment();
-                    __instance.apparel.DestroyAll();
+                    __instance.equipment?.DestroyAllEquipment();
+                    __instance.apparel?.DestroyAll();
                     //__instance.Destroy();
-                    return false;
+                    return true;
                 }
 
                 return true;
