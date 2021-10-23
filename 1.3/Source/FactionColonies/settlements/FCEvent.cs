@@ -705,9 +705,9 @@ namespace FactionColonies
         }
     }
 
-    public struct FCEventParams
+    public struct DeliveryEventParams
     {
-        static FCEventParams()
+        static DeliveryEventParams()
         {
             
         }
@@ -717,6 +717,7 @@ namespace FactionColonies
         public int Source; //source location
         public string CustomDescription;
         public IEnumerable<Thing> Contents;
+        public int timeTillTriger;
         public bool HasDestination
         {
             get
@@ -732,14 +733,6 @@ namespace FactionColonies
                 return !CustomDescription.NullOrEmpty();
             }
         }
-
-        //Military Force stuff
-        public militaryForce militaryForceAttacking;
-        public Faction militaryForceAttackingFaction;
-        public militaryForce militaryForceDefending;
-        public Faction militaryForceDefendingFaction;
-        public SettlementFC settlementFCDefending;
-        public bool isMilitaryEvent;
     }
 
     public class FCEvent : IExposable, ILoadReferenceable

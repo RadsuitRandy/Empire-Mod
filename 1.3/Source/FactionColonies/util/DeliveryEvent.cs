@@ -9,6 +9,11 @@ namespace FactionColonies.util
 	class DeliveryEvent
 	{
 		public static void Action(FCEvent evt)
+        {
+			Action(evt.goods);
+        }
+
+		public static void Action(List<Thing> things)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().returnCapitalMap();
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
@@ -16,7 +21,7 @@ namespace FactionColonies.util
 				if (ModsConfig.RoyaltyActive)
 				{
 					Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
-					TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, evt.goods, shuttle);
+					TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
 					transportShip.ArriveAt(ValidLandingCell(shuttle.def.size, playerHomeMap), playerHomeMap.Parent);
 					transportShip.AddJobs(new ShipJobDef[]
 					{
@@ -26,13 +31,13 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, evt.goods);
+					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things);
 				}
 			}
 			else
 			{
 				List<Pawn> pawns = new List<Pawn>();
-				while(evt.goods.Count() > 0)
+				while(things.Count() > 0)
 				{
 					PawnGenerationRequest request = new PawnGenerationRequest
 					{
@@ -57,14 +62,16 @@ namespace FactionColonies.util
 					};
 
 					Pawn pawn = PawnGenerator.GeneratePawn(request);
-					Thing next = evt.goods.First();
+					Thing next = things.First();
 
 					if (pawn.carryTracker.innerContainer.TryAdd(next))
 					{
-						evt.goods.Remove(next);
+						things.Remove(next);
 					}
+
 					pawns.Add(pawn);
 				}
+
 				PawnsArrivalModeWorker_EdgeWalkIn pawnsArrivalModeWorker = new PawnsArrivalModeWorker_EdgeWalkIn();
 				IncidentParms parms = StorytellerUtility.DefaultParmsNow(IncidentCategoryDefOf.FactionArrival, playerHomeMap);
 				parms.spawnRotation = Rot4.FromAngleFlat((((Map)parms.target).Center - parms.spawnCenter).AngleFlat);
@@ -74,11 +81,37 @@ namespace FactionColonies.util
 				pawnsArrivalModeWorker.Arrive(pawns, parms);
 				//Thing resultingThing = null;
 
-				foreach(Pawn pawn in pawns)
+				TraverseParms traverseParms = new TraverseParms()
 				{
-					if (!PaymentUtil.checkForTaxSpot(playerHomeMap, out IntVec3 intVec3) != true)
+					canBashDoors = false,
+					canBashFences = false,
+					alwaysUseAvoidGrid = false,
+					fenceBlocked = false,
+					maxDanger = Danger.Deadly,
+					mode = TraverseMode.ByPawn
+				};
+
+				foreach (Pawn pawn in pawns)
+				{
+					traverseParms.pawn = pawn;
+
+					if (!PaymentUtil.checkForTaxSpot(playerHomeMap, out IntVec3 intVec3))
 					{
-						intVec3 = DropCellFinder.TradeDropSpot(playerHomeMap);
+						intVec3 = ValidLandingCell(new IntVec2(1,1), playerHomeMap, true);
+					}
+
+					IntVec3 oldVec = intVec3;
+					for(int i = 0; i < 10; i++)
+                    {
+						if (CellFinder.TryFindRandomReachableCellNear(intVec3, playerHomeMap, i, traverseParms, cell => playerHomeMap.thingGrid.ThingsAt(cell) == null, null, out intVec3))
+						{
+							break;
+						}
+
+						if (i == 9)
+                        {
+							intVec3 = oldVec;
+						}
 					}
 					Job job = new Job(DefDatabase<JobDef>.GetNamed("GotoAndDrop"), intVec3);
 					pawn.jobs.StartJob(job);
@@ -86,16 +119,17 @@ namespace FactionColonies.util
 			}
 		}
 
-		public static void CreateShuttleEvent(FCEventParams evtParams)
+		public static void CreateShuttleEvent(DeliveryEventParams evtParams)
 		{
 			FCEvent evt = FCEventMaker.MakeEvent(FCEventDefOf.deliveryArrival);
 			evt.source = evtParams.Source;
 			evt.goods = evtParams.Contents.ToList();
-			evt.classToRun = "FactionColonies.util.ShuttleEvent";
+			evt.classToRun = "FactionColonies.util.DeliveryEvent";
 			evt.classMethodToRun = "Action";
 			evt.passEventToClassMethodToRun = true;
 			evt.customDescription = evtParams.CustomDescription;
 			evt.hasCustomDescription = true;
+			evt.timeTillTrigger = evtParams.timeTillTriger;
 
 			Find.World.GetComponent<FactionFC>().addEvent(evt);
 		}

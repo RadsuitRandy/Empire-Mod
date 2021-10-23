@@ -400,13 +400,14 @@ namespace FactionColonies
                     }
                 }
 
-                FCEventParams eventParams = new FCEventParams
+                DeliveryEventParams eventParams = new DeliveryEventParams
                 {
                     Location = Find.AnyPlayerHomeMap.Tile,
                     PlanetName = settlement.planetName,
                     Source = settlement.mapLocation,
                     Contents = pawns,
-                    CustomDescription = DeliveryEvent.ShuttleEventInjuredString
+                    CustomDescription = DeliveryEvent.ShuttleEventInjuredString,
+                    timeTillTriger = FactionColonies.ReturnTicksToArrive(Tile, Find.AnyPlayerHomeMap.Tile)
                 };
 
                 if (pawns.Count() > 0) DeliveryEvent.CreateShuttleEvent(eventParams);
