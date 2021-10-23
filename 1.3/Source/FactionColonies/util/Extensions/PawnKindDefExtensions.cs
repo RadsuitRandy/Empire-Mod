@@ -1,25 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using RimWorld;
-using UnityEngine;
+using System.Text;
+using System.Threading.Tasks;
 using Verse;
 
-namespace FactionColonies.util
+namespace FactionColonies
 {
-	static class MiscExtensions
+	static class PawnKindDefExtensions
 	{
-		public static Rect CopyAndShift(this Rect rect, Vector2 vector2)
-		{
-			return CopyAndShift(rect, vector2.x, vector2.y);
+		public static bool IsHumanLikeRace(this PawnKindDef pawnKindDef)
+        {
+			return pawnKindDef.race.race?.intelligence == Intelligence.Humanlike && pawnKindDef.race.BaseMarketValue != 0;
 		}
 
-		public static Rect CopyAndShift(this Rect rect, float x, float y)
-		{
-			Rect newRect = new Rect(rect);
-			newRect.x += x;
-			newRect.y += y;
-
-			return newRect;
+		public static bool IsHumanlikeWithLabelRace(this PawnKindDef pawnKindDef)
+        {
+			return pawnKindDef?.race?.label != null && pawnKindDef.IsHumanLikeRace();
 		}
 
 		/// <summary>

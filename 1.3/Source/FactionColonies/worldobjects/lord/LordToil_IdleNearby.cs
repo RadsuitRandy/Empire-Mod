@@ -15,7 +15,7 @@ namespace FactionColonies
         {
             foreach (Pawn pawn in lord.ownedPawns)
             {
-                pawn.mindState.duty = new PawnDuty(DutyDefOf.WanderClose, (LocalTargetInfo) pawn);
+                pawn.mindState.duty = new PawnDuty(DutyDefOf.WanderClose, pawn);
             }
         }
     }

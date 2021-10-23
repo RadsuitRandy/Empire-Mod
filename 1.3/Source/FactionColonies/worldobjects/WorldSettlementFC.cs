@@ -241,6 +241,14 @@ namespace FactionColonies
                     foreach (Pawn pawn in pawns)
                     {
                         if (defenders.Contains(pawn)) return;
+                        if (defenders.Any())
+                        {
+                            defenders[0].GetLord().AddPawn(pawn);
+                        }
+                        else
+                        {
+                            LordMaker.MakeNewLord(FactionColonies.getPlayerColonyFaction(), new LordJob_ColonistsIdle(), Map, pawns);
+                        }
                     }
 
                     CaravanSupporting caravanSupporting = new CaravanSupporting
