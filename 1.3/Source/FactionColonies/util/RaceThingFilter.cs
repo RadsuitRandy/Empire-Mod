@@ -80,7 +80,6 @@ namespace FactionColonies.util
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && def.race.label == thingDef.label))
                 {
                     if (def.defaultFactionType == null || def.defaultFactionType.defName == "Empire") continue;
-                    Log.Message("Added: " + def.label);
 
                     PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);
