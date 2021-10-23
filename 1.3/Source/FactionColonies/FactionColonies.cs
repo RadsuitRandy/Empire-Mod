@@ -582,6 +582,11 @@ namespace FactionColonies
 
                 factionFC.updateVersion = 0.361;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
+                Find.LetterStack.ReceiveLetter("Manual Settlement is now disabled by default", 
+                    "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
+                    " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
+
+                Settings().settlementsAutoBattle = true;
             }
         }
 
