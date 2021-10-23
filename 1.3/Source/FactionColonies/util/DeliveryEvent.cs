@@ -31,7 +31,7 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things);
+					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
 				}
 			}
 			else
