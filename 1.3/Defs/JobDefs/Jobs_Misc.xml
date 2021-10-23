@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<JobDef>
+		<defName>GotoAndDrop</defName>
+		<driverClass>FactionColonies.JobDriver_GotoAndDrop</driverClass>
+		<reportString>dropping off something.</reportString>
+		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+		<carryThingAfterJob>false</carryThingAfterJob>
+		<dropThingBeforeJob>false</dropThingBeforeJob>
+	</JobDef>
+</Defs>

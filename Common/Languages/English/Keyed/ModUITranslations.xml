@@ -302,4 +302,7 @@
 	
 	<!-- ShuttleTransportEvent -->
 	<transportingInjuredShuttle>A shuttle is transporting injured colonists back to you after a successful settlement defence</transportingInjuredShuttle>
+	<transportingInjuredDropPod>Drop pods are transporting injured colonists back to you after a successful settlement defence</transportingInjuredDropPod>
+	<transportingInjuredCaravan>A caravan is transporting injured colonists back to you after a successful settlement defence</transportingInjuredCaravan>
+	
 </LanguageData>

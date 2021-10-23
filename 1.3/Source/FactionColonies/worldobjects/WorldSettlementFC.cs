@@ -130,7 +130,7 @@ namespace FactionColonies
                 icon = TexLoad.iconMilitary,
                 action = () =>
                 {
-                    startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
+                    startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
                         () => { });
                 }
             };
@@ -235,7 +235,7 @@ namespace FactionColonies
                 return;
             }
 
-            startDefense(
+            startDefence(
                 MilitaryUtilFC.returnMilitaryEventByLocation(destinationTile), () =>
                 {
                     foreach (Pawn pawn in pawns)
@@ -274,7 +274,7 @@ namespace FactionColonies
                     icon = TexLoad.iconMilitary,
                     action = () =>
                     {
-                        startDefense(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
+                        startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
                             () => CaravanDefend(caravan));
                     }
                 };
@@ -405,10 +405,11 @@ namespace FactionColonies
                     Location = Find.AnyPlayerHomeMap.Tile,
                     PlanetName = settlement.planetName,
                     Source = settlement.mapLocation,
-                    Contents = pawns
+                    Contents = pawns,
+                    CustomDescription = DeliveryEvent.ShuttleEventInjuredString
                 };
 
-                if (pawns.Count() > 0) ShuttleEvent.CreateShuttleEvent(eventParams);
+                if (pawns.Count() > 0) DeliveryEvent.CreateShuttleEvent(eventParams);
             }
 
             if (Map.mapPawns?.AllPawnsSpawned == null) return;
@@ -426,7 +427,7 @@ namespace FactionColonies
             return !defenders.Any() && !attackers.Any();
         }
 
-        public void startDefense(FCEvent evt, Action after)
+        public void startDefence(FCEvent evt, Action after)
         {
             if (FactionColonies.Settings().settlementsAutoBattle)
             {

@@ -398,7 +398,7 @@ namespace FactionColonies
 
                     WorldSettlementFC worldSettlement = evt.settlementFCDefending.worldSettlement;
 
-                    worldSettlement.startDefense(evt, () => setupAttack(worldSettlement, evt));
+                    worldSettlement.startDefence(evt, () => setupAttack(worldSettlement, evt));
                 }
                 else //if undefined event
                 {
@@ -988,7 +988,7 @@ namespace FactionColonies
         public static FCEventDef captureEnemySettlement;
         public static FCEventDef cooldownMilitary;
         public static FCEventDef settlementBeingAttacked;
-        public static FCEventDef transportShipArrival;
+        public static FCEventDef deliveryArrival;
 
         static FCEventDefOf()
         {
