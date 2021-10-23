@@ -570,7 +570,8 @@ namespace FactionColonies
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.361\n The following abbreviated changes have occurred:\n\n- Only bugfixes including:";
+                    "A new update for Empire has been released!  v.0.361\n The following abbreviated changes have occurred:";
+                str += "\n\n- A new tax delivery system";
                 str += "\n\n- Fixed original colonists being unable to leave a settlement defence map";
                 str += "\n\n- Fixed caravans vanishing on settlement defence";
                 str += "\n\n- Fixed invincible animals";
