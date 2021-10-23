@@ -56,15 +56,12 @@ namespace FactionColonies.util
                 faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
             }
 
-            if (AllowedDefCount == 0)
+            List<string> races = new List<string>();
+            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Any(thingDef => thingDef.label == def.race.label)))
             {
-                List<string> races = new List<string>();
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label)))
-                {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
-                    races.Add(def.race.label);
-                    SetAllow(def.race, true);
-                }
+                if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
+                races.Add(def.race.label);
+                SetAllow(def.race, true);
             }
 
             WorldSettlementTraderTracker.reloadTraderKind();
@@ -80,8 +77,11 @@ namespace FactionColonies.util
             if (allow)
             {
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where( def => def.IsHumanLikeRace() && def.race.label == thingDef.label))
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && def.race.label == thingDef.label))
                 {
+                    if (def.defaultFactionType == null || def.defaultFactionType.defName == "Empire") continue;
+                    Log.Message("Added: " + def.label);
+
                     PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);
                     if (def.label != "mercenary")
