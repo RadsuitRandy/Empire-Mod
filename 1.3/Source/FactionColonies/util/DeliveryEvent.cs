@@ -8,6 +8,39 @@ namespace FactionColonies.util
 {
 	class DeliveryEvent
 	{
+        private static readonly PawnGenerationRequest baseRequest = new PawnGenerationRequest
+        {
+            Context = PawnGenerationContext.NonPlayer,
+            Tile = -1,
+            ForceGenerateNewPawn = false,
+            Newborn = false,
+            AllowDead = false,
+            AllowDowned = false,
+            CanGeneratePawnRelations = true,
+            MustBeCapableOfViolence = false,
+            ColonistRelationChanceFactor = 0,
+            Inhabitant = false,
+            CertainlyBeenInCryptosleep = false,
+            ForceRedressWorldPawnIfFormerColonist = false,
+            WorldPawnFactionDoesntMatter = false,
+            BiocodeApparelChance = 0,
+            ExtraPawnForExtraRelationChance = null,
+            RelationWithExtraPawnChanceFactor = 0
+        };
+
+        public static PawnGenerationRequest Request
+        {
+            get
+			{
+				PawnGenerationRequest request = baseRequest;
+
+				request.KindDef = FactionColonies.getPlayerColonyFaction()?.RandomPawnKind();
+				request.Faction = FactionColonies.getPlayerColonyFaction();
+
+				return request;
+			}
+        }
+
 		public static void Action(FCEvent evt)
         {
 			Action(evt.goods);
@@ -39,29 +72,7 @@ namespace FactionColonies.util
 				List<Pawn> pawns = new List<Pawn>();
 				while(things.Count() > 0)
 				{
-					PawnGenerationRequest request = new PawnGenerationRequest
-					{
-						KindDef = FactionColonies.getPlayerColonyFaction()?.RandomPawnKind(),
-						Faction = FactionColonies.getPlayerColonyFaction(),
-						Context = PawnGenerationContext.NonPlayer,
-						Tile = -1,
-						ForceGenerateNewPawn = false,
-						Newborn = false,
-						AllowDead = false,
-						AllowDowned = false,
-						CanGeneratePawnRelations = true,
-						MustBeCapableOfViolence = false,
-						ColonistRelationChanceFactor = 0,
-						Inhabitant = false,
-						CertainlyBeenInCryptosleep = false,
-						ForceRedressWorldPawnIfFormerColonist = false,
-						WorldPawnFactionDoesntMatter = false,
-						BiocodeApparelChance = 0,
-						ExtraPawnForExtraRelationChance = null,
-						RelationWithExtraPawnChanceFactor = 0
-					};
-
-					Pawn pawn = PawnGenerator.GeneratePawn(request);
+					Pawn pawn = PawnGenerator.GeneratePawn(Request);
 					Thing next = things.First();
 
 					if (pawn.carryTracker.innerContainer.TryAdd(next))
