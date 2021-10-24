@@ -5,9 +5,10 @@ It adds the ability to found your own empire and have colonies not controlled by
 This mod was initially developed by Saakra, a lone Mod Dev. He has since moved on due to IRL issues and handed over the reigns of development to me and Shalax.
 
 ## Building
-To build using the dotnet cli, go to `Source/FactionColonies` and run 
+To build using the dotnet cli, go to `[version]/Source/FactionColonies` and run `dotnet build`. The Assembly will output to the Assemblies folder, along with debug symbols.
 
-`dotnet build --configuration release`
+dotnet build --configuration release
 
-The Assembly will output to the Assemblies folder. Debug symbols will only be included on the debug configuration,
-which requires two different folders in your rimworld folder, RimWorldData_1.2 and RimWorldData_1.3, for multi-version support.
+The Assembly will output to the Assemblies folder. 
+Debug symbols will only be included on the debug configuration, 
+which requires RimWorldData_(version) copied from the vanilla game.

@@ -568,20 +568,27 @@ namespace FactionColonies
 
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.359)
+            if (factionFC.updateVersion < 0.361)
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.359\n The following abbreviated changes have occurred:";
-                str += "\n\n- Fixed a bunch of military related bugs";
-                str += "\n\n- Fixed a bunch of settlement map generation related bugs";
-                str += "\n\n- All of the code for this update has been developed by Github Contributors Big_Bad_E and EMP";
-                str += "\n\n- Big props to our team of dedicated testers, BlueberryPi, Eviance, extinctShadow, Lughir, and Nathan";
-                str += "\n\n- Countless other minor bugfixes";
-                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                    "A new update for Empire has been released!  v.0.361\n The following abbreviated changes have occurred:\n\n- Only bugfixes including:";
+                str += "\n\n- Fixed original colonists being unable to leave a settlement defence map";
+                str += "\n\n- Fixed caravans vanishing on settlement defence";
+                str += "\n\n- Fixed invincible animals";
+                str += "\n\n- All of the code for this update has been developed by Danimineiro";
+                str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
+                str += "\n\n- I'm sorry for the bugs and the delay in fixing them - I've been kinda ill recently";
+                str += "\n\n- Join us on Discord! https://discord.gg/f3zFQqA";
+                //str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.359;
+                factionFC.updateVersion = 0.361;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
+                Find.LetterStack.ReceiveLetter("Manual Settlement is now disabled by default", 
+                    "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
+                    " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
+
+                Settings().settlementsAutoBattle = true;
             }
         }
 
@@ -847,6 +854,15 @@ namespace FactionColonies
             return NameGenerator.GenerateName(rulePack, usedNames, true);
         }
 
+        [DebugAction("Empire", "View Events and ticks till", allowedGameStates = AllowedGameStates.Playing)]
+        private static void ViewEventsAndLog()
+        {
+            Find.World.GetComponent<FactionFC>().events.ForEach(delegate(FCEvent e)
+            {
+                Log.Message(e.def.defName + " with cooldown: " + (e.timeTillTrigger - Find.TickManager.TicksGame));
+            });
+        }
+
         [DebugAction("Empire", "Increment Time 5 Days", allowedGameStates = AllowedGameStates.Playing)]
         private static void incrementTimeFiveDays()
         {
@@ -927,11 +943,11 @@ namespace FactionColonies
                             {
                                 if (settlementString == "")
                                 {
-                                    settlementString = settlementString + loc.name;
+                                    settlementString += loc.name;
                                 }
                                 else
                                 {
-                                    settlementString = settlementString + ", " + loc.name;
+                                    settlementString += ", " + loc.name;
                                 }
                             }
 
@@ -1044,42 +1060,33 @@ namespace FactionColonies
         }
 
         [DebugAction("Empire", "Upgrade Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
-        private static void UpgradePlayerSettlement()
-        {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                    {
-                        Log.Message("Debug - Upgrade Player Settlement - " + settlement.name);
-                        settlement.upgradeSettlement();
-                    }
-                ));
-            }
-
-            Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
-        }
+        private static void UpgradePlayerSettlementx1() => UpgradePlayerSettlement();
 
         [DebugAction("Empire", "Upgrade Player Settlement x5", allowedGameStates = AllowedGameStates.Playing)]
-        private static void UpgradePlayerSettlementx5()
+        private static void UpgradePlayerSettlementx5() => UpgradePlayerSettlement(5);
+
+        private static void UpgradePlayerSettlement(int times = 1)
         {
             List<DebugMenuOption> list = new List<DebugMenuOption>();
             foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
             {
                 list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
+                {
+                    if (times > 0)
                     {
-                        Log.Message("Debug - Upgrade Player Settlement x5- " + settlement.name);
-                        for (int i = 0; i < 5; i++)
-                        {
-                            settlement.upgradeSettlement();
-                        }
+                        Log.Message("Debug - Upgrade Player Settlement x" + times + "- " + settlement.name);
                     }
+                    else
+                    {
+                        Log.Message("Debug - Downgrade Player Settlement x" + times + "- " + settlement.name);
+                    }
+                    settlement.upgradeSettlement(times);
+                }
                 ));
             }
 
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
         }
-
 
         [DebugAction("Empire", "Test Function", allowedGameStates = AllowedGameStates.Playing)]
         private static void testVariable()
@@ -1089,21 +1096,7 @@ namespace FactionColonies
         }
 
         [DebugAction("Empire", "De-Level Player Settlement", allowedGameStates = AllowedGameStates.Playing)]
-        private static void DelevelPlayerSettlement()
-        {
-            List<DebugMenuOption> list = new List<DebugMenuOption>();
-            foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-            {
-                list.Add(new DebugMenuOption(settlement.name, DebugMenuOptionMode.Action, delegate
-                    {
-                        Log.Message("Debug - Delevel Player Settlement - " + settlement.name);
-                        settlement.delevelSettlement();
-                    }
-                ));
-            }
-
-            Find.WindowStack.Add(new Dialog_DebugOptionListLister(list));
-        }
+        private static void DelevelPlayerSettlement() => UpgradePlayerSettlement(-1);
 
         [DebugAction("Empire", "Reset Military Squads Cooldowns", allowedGameStates = AllowedGameStates.Playing)]
         private static void ResetMilitarySquads()
@@ -1136,26 +1129,12 @@ namespace FactionColonies
         }
 
         [DebugAction("Empire", "Place 500 Silver", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void placeSilverFC()
-        {
-            DebugTool tool = null;
-            IntVec3 DropPosition;
-            Map map;
-            tool = new DebugTool("Select Drop Position", delegate
-            {
-                DropPosition = UI.MouseCell();
-                map = Find.CurrentMap;
-
-
-                Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                silver.stackCount = 500;
-                GenPlace.TryPlaceThing(silver, DropPosition, map, ThingPlaceMode.Near);
-            });
-            DebugTools.curTool = tool;
-        }
+        private static void placeSilverFC() => silverPlacer(500);
 
         [DebugAction("Empire", "Place 50000 Silver", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void PlaceALotOfSilverFC()
+        private static void placeALotOfSilverFC() => silverPlacer(50000);
+
+        private static void silverPlacer(int amount = 500)
         {
             DebugTool tool = null;
             IntVec3 DropPosition;
@@ -1167,7 +1146,7 @@ namespace FactionColonies
 
 
                 Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                silver.stackCount = 50000;
+                silver.stackCount = amount;
                 GenPlace.TryPlaceThing(silver, DropPosition, map, ThingPlaceMode.Near);
             });
             DebugTools.curTool = tool;
@@ -1200,9 +1179,22 @@ namespace FactionColonies
 
 
             IntVec3 dropPosition;
-            var tool = new DebugTool("Select Deployment Position", delegate
+            DebugTool tool = new DebugTool("selectDeploymentPosition".Translate(), delegate
             {
                 dropPosition = UI.MouseCell();
+                Map curMap = Find.CurrentMap;
+
+                if (!dropPosition.InBounds(curMap)) 
+                { 
+                    Messages.Message("selectedPosOutOfBounds".Translate(), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+                if (dropPosition.CloseToEdge(curMap, 10))
+                {
+                    Messages.Message("selectedPosTooCloseToEdge".Translate(), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
                 if (DropPod)
                 {
                     parms.spawnCenter = dropPosition;
@@ -1246,18 +1238,18 @@ namespace FactionColonies
                     }
                 }
 
+                settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 settlement.militarySquad.isDeployed = true;
                 settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("Military Deployed",
-                    "The Military forces of " + settlement.name + " have been deployed to " +
-                    Find.CurrentMap.Parent.LabelCap, LetterDefOf.NeutralEvent,
+                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(),
+                    "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,
                     new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
                 //MilitaryAI.SquadAI(ref settlement.militarySquad);
 
                 DebugTools.curTool = null;
-                settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, "Deploy", 1, null);
+                settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
             });
             DebugTools.curTool = tool;
 
@@ -1335,6 +1327,7 @@ namespace FactionColonies
                     }
                 }
 
+                squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 squad.isDeployed = true;
                 squad.order = MilitaryOrders.Standby;
                 squad.orderLocation = DropPosition;
@@ -1465,6 +1458,7 @@ namespace FactionColonies
 
                                 PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,
                                     settlement.militarySquad.AllEquippedMercenaryPawns);
+                                settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                                 settlement.militarySquad.isDeployed = true;
                                 DebugTools.curTool = null;
                             });
@@ -1523,7 +1517,9 @@ namespace FactionColonies
 
             //clear military events
             settlement.returnMilitary(false);
-            Reset:
+
+            HashSet<FCEvent> toRemove = new HashSet<FCEvent>();
+
             foreach (FCEvent evt in faction.events)
             {
                 //military event removal
@@ -1531,8 +1527,7 @@ namespace FactionColonies
                 {
                     if (evt.militaryForceAttacking.homeSettlement == settlement)
                     {
-                        faction.events.Remove(evt);
-                        goto Reset;
+                        toRemove.Add(evt);
                     }
                 }
 
@@ -1542,8 +1537,7 @@ namespace FactionColonies
                     {
                         if (evt.settlementFCDefending == settlement)
                         {
-                            faction.events.Remove(evt);
-                            goto Reset;
+                            toRemove.Add(evt);
                         }
 
                         //if not defending settlement
@@ -1554,8 +1548,7 @@ namespace FactionColonies
                         //if force belongs to other settlement
                         evt.militaryForceDefending.homeSettlement.cooldownMilitary();
 
-                        faction.events.Remove(evt);
-                        goto Reset;
+                        toRemove.Add(evt);
                     }
                 }
 
@@ -1566,8 +1559,7 @@ namespace FactionColonies
                 {
                     if (evt.source == settlement.mapLocation)
                     {
-                        faction.events.Remove(evt);
-                        goto Reset;
+                        toRemove.Add(evt);
                     }
                 }
 
@@ -1578,11 +1570,15 @@ namespace FactionColonies
                         evt.settlementTraitLocations.Remove(settlement);
                         if (evt.settlementTraitLocations.Count() == 0)
                         {
-                            faction.events.Remove(evt);
-                            goto Reset;
+                            toRemove.Add(evt);
                         }
                     }
                 }
+            }
+
+            foreach(FCEvent evt in toRemove)
+            {
+                faction.events.Remove(evt);
             }
         }
 
@@ -1768,10 +1764,7 @@ namespace FactionColonies
             worldcomp.setCapital();
 
             //Log.Message("Faction is being created");
-            FactionDef facDef = new FactionDef();
-
-
-            facDef = DefDatabase<FactionDef>.GetNamed("PColony");
+            FactionDef facDef = DefDatabase<FactionDef>.GetNamed("PColony");
             Faction faction = new Faction();
             faction.def = facDef;
             faction.def.techLevel = TechLevel.Undefined;
@@ -1790,7 +1783,6 @@ namespace FactionColonies
             faction.TryAffectGoodwillWith(Faction.OfPlayer, 200);
 
             // Generate Leader
-            faction.def.pawnGroupMakers = Faction.OfPlayer.def.pawnGroupMakers;
             if(!faction.TryGenerateNewLeader())
             {
                 Log.Message("Generating Leader failed! Manually Generating . . .");
@@ -1806,6 +1798,8 @@ namespace FactionColonies
             }
             worldcomp.factionBackup = faction;
             Find.FactionManager.Add(faction);
+
+            Find.World.GetComponent<FactionFC>().updateTechLevel(Find.ResearchManager);
             return faction;
         }
 

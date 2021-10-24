@@ -236,6 +236,9 @@
     <!--MilitaryCustomizationWindowFC-->
     <ExportedUnit>Exported Unit</ExportedUnit>
     <ExportedSquad>Exported Squad</ExportedSquad>
+	<CantBeModified>{0} can't be modified: {1}</CantBeModified>
+	<ReasonDeployed>A squad containing it is deployed</ReasonDeployed>
+	<ReasonDefending>A squad containing it is defending a settlement</ReasonDefending>
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
     <Date>Date</Date>
@@ -273,4 +276,28 @@
 	<FCImported>Imported {0}</FCImported>
 	<FCDeleted>Deleted {0}</FCDeleted>
 
+	<FloatMenuSearchable>Type to search:</FloatMenuSearchable>
+	
+	<!--EmpireUI.cs-->
+	<selectDeployedSquad>Select Deployed Squad</selectDeployedSquad>
+	<selectedDeployedSquad>{0}'s {1}</selectedDeployedSquad> <!--{0} is a settlement name. {1} is a squad name. -->
+	<noSquadsAvailable>No squads available</noSquadsAvailable>
+	
+	<commandAttack>Attack</commandAttack>
+	<attackSuccess>{0} are now charging the enemy.</attackSuccess>
+	
+	<commandMove>Move</commandMove>
+	<moveSuccess>{0} are moving to the position and standing by.</moveSuccess>
+	
+	<commandLeave>Leave</commandLeave>
+	<leaveSuccess>{0} are now leaving the map. {1} dead.</leaveSuccess>
+	
+	<!-- CallInAlliedForces -->
+	<selectDeploymentPosition>Select Deployment Position</selectDeploymentPosition>
+	<selectedPosOutOfBounds>The position you selected is out of bounds for this map!</selectedPosOutOfBounds>
+	<selectedPosTooCloseToEdge>The position you selected is to close to the map edge!</selectedPosTooCloseToEdge>
+
+	<deploymentSuccessLabel>Military deployed</deploymentSuccessLabel>
+	<deploymentSuccessDesc>The military forces of {0} have been deployed to {1}</deploymentSuccessDesc>
+	
 </LanguageData>

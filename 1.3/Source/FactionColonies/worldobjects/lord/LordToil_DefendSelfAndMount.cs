@@ -10,7 +10,7 @@ namespace FactionColonies
 {
     public class LordToil_DefendSelfAndMount : LordToil
     {
-        private Dictionary<Pawn, Pawn> mounts;
+        private readonly Dictionary<Pawn, Pawn> mounts;
 
         public LordToil_DefendSelfAndMount(Dictionary<Pawn, Pawn> mounts)
         {
@@ -19,18 +19,21 @@ namespace FactionColonies
 
         public override void UpdateAllDuties()
         {
-            foreach (var pawn in lord.ownedPawns.Where(pawn => pawn.mindState.duty == null))
+            foreach (Pawn pawn in lord.ownedPawns)
             {
                 if (mounts.ContainsKey(pawn))
                 {
-                    pawn.mindState.duty = new PawnDuty(DutyDefOf.WanderClose, (LocalTargetInfo) pawn);
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.WanderClose, pawn);
                     if (pawn.jobs == null) pawn.jobs = new Pawn_JobTracker(pawn);
                     GiddyUpUtil.Mount(pawn, mounts[pawn]);
                 }
                 else
                 {
-                    pawn.mindState.duty = new PawnDuty(DutyDefOf.Defend,
-                        pawn.Position) {radius = 28f};
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.Defend, pawn.Position, -1f)
+                    {
+                        focusSecond = pawn.Position,
+                        radius = (pawn.kindDef.defendPointRadius >= 0f) ? pawn.kindDef.defendPointRadius : 28f
+                    };
                 }
             }
         }

@@ -53,13 +53,11 @@ namespace FactionColonies.util
             foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind =>
                 kind.RaceProps.packAnimal))
             {
-                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption {kind = pawnKindDef, selectionWeight = 1});
+                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
             }
 
             List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                def.race.race.intelligence == Intelligence.Humanlike &
-                !races.Contains(def.race.label) && def.race.BaseMarketValue != 0))
+            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Any(thingDef => thingDef.label == def.race.label)))
             {
                 if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                 races.Add(def.race.label);
@@ -79,10 +77,10 @@ namespace FactionColonies.util
             if (allow)
             {
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(
-                    def => def.race.race.intelligence == Intelligence.Humanlike && def.race.BaseMarketValue != 0
-                        && def.race.label == thingDef.label))
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && def.race.label == thingDef.label))
                 {
+                    if (def.defaultFactionType == null || def.defaultFactionType.defName == "Empire") continue;
+
                     PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);
                     if (def.label != "mercenary")

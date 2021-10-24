@@ -296,72 +296,72 @@ namespace FactionColonies
                 if (events[i].timeTillTrigger > Find.TickManager.TicksGame) continue;
                 //Make custom event functions here
 
-                FCEvent temp = new FCEvent(true);
-                if (temp.def.defName == "settlementBeingAttacked")
+                FCEvent evt = new FCEvent(true);
+                if (evt.def.defName == "settlementBeingAttacked")
                 {
                     Log.Message("Found attacked FCEvent");
                 }
 
-                temp = events[i];
+                evt = events[i];
                 //remove event (stop spam?)
                 faction.events.RemoveAt(i);
 
-                switch (temp.def.defName)
+                switch (evt.def.defName)
                 {
                     case "settleNewColony":
                     {
                         //Settle new colony event
                         //Log.Message(events[i].def.defName + " event triggered" + Find.TickManager.TicksGame)
                         faction.addExperienceToFactionLevel(10f);
-                        if (Find.World.info.name == temp.planetName)
+                        if (Find.World.info.name == evt.planetName)
                         {
-                            FactionColonies.createPlayerColonySettlement(temp.location, true, temp.planetName);
+                            FactionColonies.createPlayerColonySettlement(evt.location, true, evt.planetName);
                         }
                         else
                         {
-                            FactionColonies.createPlayerColonySettlement(temp.location, false, temp.planetName);
-                            faction.createSettlementQueue.Add(new SettlementSoS2Info(temp.planetName, temp.location));
+                            FactionColonies.createPlayerColonySettlement(evt.location, false, evt.planetName);
+                            faction.createSettlementQueue.Add(new SettlementSoS2Info(evt.planetName, evt.location));
                         }
 
-                        faction.settlementCaravansList.Remove(temp.location.ToString());
+                        faction.settlementCaravansList.Remove(evt.location.ToString());
                         break;
                     }
-                    case "taxColony" when faction.returnSettlementFCIDByLocation(temp.source, temp.planetName) == -1:
+                    case "taxColony" when faction.returnSettlementFCIDByLocation(evt.source, evt.planetName) == -1:
                         continue;
                     case "taxColony":
                     {
                         Messages.Message(
-                            "TaxesFrom".Translate() + " " + faction.getSettlementName(temp.source, temp.planetName) +
+                            "TaxesFrom".Translate() + " " + faction.getSettlementName(evt.source, evt.planetName) +
                             " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
                         string str = "TaxesFrom".Translate() + " " +
-                                     faction.getSettlementName(temp.source, temp.planetName) + " " +
+                                     faction.getSettlementName(evt.source, evt.planetName) + " " +
                                      "HaveBeenDelivered".Translate() + "!";
 
-                        foreach (Thing thing in temp.goods)
+                        foreach (Thing thing in evt.goods)
                         {
                             str = str + "\n" + thing.LabelCap;
                         }
 
                         Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(temp);
+                        PaymentUtil.deliverThings(evt);
                         break;
                     }
                     case "constructBuilding":
                         //Create building
-                        faction.settlements[faction.returnSettlementFCIDByLocation(temp.source, temp.planetName)]
-                            .constructBuilding(temp.building, temp.buildingSlot);
+                        faction.settlements[faction.returnSettlementFCIDByLocation(evt.source, evt.planetName)]
+                            .constructBuilding(evt.building, evt.buildingSlot);
                         Messages.Message(
-                            temp.building.label + " " + "HasBeenConstructedAt".Translate() + " " +
-                            faction.settlements[faction.returnSettlementFCIDByLocation(temp.source, temp.planetName)]
+                            evt.building.label + " " + "HasBeenConstructedAt".Translate() + " " +
+                            faction.settlements[faction.returnSettlementFCIDByLocation(evt.source, evt.planetName)]
                                 .name + "!", MessageTypeDefOf.PositiveEvent);
                         break;
                     case "upgradeSettlement":
                     {
-                        if (faction.returnSettlementByLocation(temp.location, temp.planetName) != null)
+                        if (faction.returnSettlementByLocation(evt.location, evt.planetName) != null)
                         {
                             //if settlement is not null
                             SettlementFC settlement =
-                                faction.returnSettlementByLocation(temp.location, temp.planetName);
+                                faction.returnSettlementByLocation(evt.location, evt.planetName);
                             settlement.upgradeSettlement();
                             Find.LetterStack.ReceiveLetter("Settlement Upgrade",
                                 settlement.name + " " + "HasBeenUpgraded".Translate() + " " +
@@ -374,12 +374,12 @@ namespace FactionColonies
                     case "raidEnemySettlement":
                     case "enslaveEnemySettlement":
                         //Process military event
-                        faction.returnSettlementByLocation(temp.location, temp.planetName).processMilitaryEvent();
+                        faction.returnSettlementByLocation(evt.location, evt.planetName).processMilitaryEvent();
                         break;
                     case "cooldownMilitary":
                     {
                         //Process military event
-                        if (temp.planetName == null)
+                        if (evt.planetName == null)
                         {
                             Log.Message(
                                 "temp.planetName null in FCEvent.ProcessEvents. Please report to Empire Mod with what you used this settlement for.");
@@ -388,33 +388,33 @@ namespace FactionColonies
                                 MessageTypeDefOf.NegativeEvent);
                         }
 
-                        faction.returnSettlementByLocation(temp.location, temp.planetName).returnMilitary(true);
+                        faction.returnSettlementByLocation(evt.location, evt.planetName).returnMilitary(true);
                         break;
                     }
                 }
 
-                if (temp.def.defName == "settlementBeingAttacked")
+                if (evt.def.defName == "settlementBeingAttacked")
                 {
 
-                    WorldSettlementFC worldSettlement = temp.settlementFCDefending.worldSettlement;
+                    WorldSettlementFC worldSettlement = evt.settlementFCDefending.worldSettlement;
 
-                    worldSettlement.startDefense(temp, () => setupAttack(worldSettlement, temp));
+                    worldSettlement.startDefense(evt, () => setupAttack(worldSettlement, evt));
                 }
                 else //if undefined event
                 {
-                    if (temp.def.goods.Count > 0)
+                    if (evt.def.goods.Count > 0)
                     {
-                        PaymentUtil.deliverThings(temp);
+                        PaymentUtil.deliverThings(evt);
                     }
 
                     // Log.Message(temp.def.label + " " + temp.def.randomThingValue + " value:thing " + temp.def.randomThingType);
-                    if (temp.def.randomThingValue > 0 && temp.def.randomThingType != "")
+                    if (evt.def.randomThingValue > 0 && evt.def.randomThingType != "")
                     {
                         List<Thing> list =
-                            PaymentUtil.generateThing(temp.def.randomThingValue, temp.def.randomThingType);
+                            PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
 
                         string str;
-                        str = "GoodsReceivedFollowing".Translate(temp.def.label);
+                        str = "GoodsReceivedFollowing".Translate(evt.def.label);
                         foreach (Thing thing in list)
                         {
                             str = str + "\n" + thing.LabelCap;
@@ -426,18 +426,18 @@ namespace FactionColonies
                 }
 
                 //If has loot to give
-                if (temp.def.loot.Any())
+                if (evt.def.loot.Any())
                 {
-                    List<Thing> list = temp.def.loot.Select(thing => ThingMaker.MakeThing(thing)).ToList();
+                    List<Thing> list = evt.def.loot.Select(thing => ThingMaker.MakeThing(thing)).ToList();
 
                     PaymentUtil.deliverThings(list);
                 }
 
-                if (temp.loot.Any())
+                if (evt.loot.Any())
                 {
                     List<Thing> list = new List<Thing>();
 
-                    foreach (ThingDef thing in temp.loot)
+                    foreach (ThingDef thing in evt.loot)
                     {
                         //list.Add(ThingMaker.MakeThing(thing));
                     }
@@ -447,24 +447,24 @@ namespace FactionColonies
 
 
                 //check if event has a location, if does, add traits to that specific location;
-                if (temp.settlementTraitLocations.Any()) //if has specific locations
+                if (evt.settlementTraitLocations.Any()) //if has specific locations
                 {
                     //Remove null settlements
                     ResetClear:
-                    foreach (SettlementFC settlement in temp.settlementTraitLocations)
+                    foreach (SettlementFC settlement in evt.settlementTraitLocations)
                     {
                         if (settlement == null)
                         {
-                            temp.settlementTraitLocations.Remove(settlement);
+                            evt.settlementTraitLocations.Remove(settlement);
                             goto ResetClear;
                         }
                     }
 
-                    foreach (SettlementFC location in temp.settlementTraitLocations)
+                    foreach (SettlementFC location in evt.settlementTraitLocations)
                     {
                         if (location != null)
                         {
-                            foreach (FCTraitEffectDef trait in temp.traits)
+                            foreach (FCTraitEffectDef trait in evt.traits)
                             {
                                 //Log.Message(trait.label);
                                 while (location.traits.Contains(trait))
@@ -474,7 +474,7 @@ namespace FactionColonies
                             }
 
                             //prosperity loss calculation
-                            location.prosperity -= temp.prosperityLost;
+                            location.prosperity -= evt.prosperityLost;
                         }
                     }
                 }
@@ -482,7 +482,7 @@ namespace FactionColonies
                 {
                     //if no specific location then faction wide
 
-                    foreach (FCTraitEffectDef trait in temp.traits)
+                    foreach (FCTraitEffectDef trait in evt.traits)
                     {
                         while (faction.traits.Contains(trait))
                         {
@@ -492,38 +492,38 @@ namespace FactionColonies
 
                     foreach (SettlementFC settlement in faction.settlements)
                     {
-                        settlement.prosperity -= temp.prosperityLost;
+                        settlement.prosperity -= evt.prosperityLost;
                     }
                 }
 
                 //if have options
-                if (temp.def != null && temp.def.options.Count > 0 && temp.def.activateAtStart == false)
+                if (evt.def != null && evt.def.options.Count > 0 && evt.def.activateAtStart == false)
                 {
-                    Find.WindowStack.Add(new FCOptionWindow(temp.def, temp));
+                    Find.WindowStack.Add(new FCOptionWindow(evt.def, evt));
                 }
 
                 //if has following event
-                if (temp.def.eventFollows)
+                if (evt.def.eventFollows)
                 {
                     FCEvent tempEvent = new FCEvent(true);
-                    if (temp.def.splitEventFollows) //if a split event
+                    if (evt.def.splitEventFollows) //if a split event
                     {
                         //remove null settlement references
-                        float baseChance = temp.def.splitEventChance;
+                        float baseChance = evt.def.splitEventChance;
                         int roll = Rand.Range(1, 100);
-                        if (temp.def.settlementsCarryOver)
+                        if (evt.def.settlementsCarryOver)
                         {
                             //if settlements carry
                             if (roll <= baseChance)
                             {
                                 //first event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent, temp.settlementTraitLocations);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent, evt.settlementTraitLocations);
                             }
                             else
                             {
                                 //if second event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent2,
-                                    temp.settlementTraitLocations);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent2,
+                                    evt.settlementTraitLocations);
                             }
                         }
                         else
@@ -531,25 +531,25 @@ namespace FactionColonies
                             if (roll <= baseChance)
                             {
                                 //first event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent, null);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent, null);
                             }
                             else
                             {
                                 //if second event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent2, null);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent2, null);
                             }
                         }
                     }
                     else
                     {
-                        if (temp.def.settlementsCarryOver)
+                        if (evt.def.settlementsCarryOver)
                         {
                             //if settlements carry
-                            tempEvent = MakeRandomEvent(temp.def.followingEvent, temp.settlementTraitLocations);
+                            tempEvent = MakeRandomEvent(evt.def.followingEvent, evt.settlementTraitLocations);
                         }
                         else
                         {
-                            tempEvent = MakeRandomEvent(temp.def.followingEvent, null);
+                            tempEvent = MakeRandomEvent(evt.def.followingEvent, null);
                         }
                     }
 
@@ -589,7 +589,7 @@ namespace FactionColonies
                     }
                 }
 
-                temp.runAction();
+                evt.runAction();
             }
         }
 

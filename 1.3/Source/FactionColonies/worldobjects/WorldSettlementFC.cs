@@ -9,6 +9,7 @@ using UnityEngine;
 using Verse;
 using Verse.AI.Group;
 using Verse.Sound;
+using FactionColonies.util;
 
 namespace FactionColonies
 {
@@ -210,38 +211,58 @@ namespace FactionColonies
 
         public void CaravanDefend(Caravan caravan)
         {
-            startDefense(
-                MilitaryUtilFC.returnMilitaryEventByLocation(caravan.Tile), () =>
-                {
-                    CaravanSupporting caravanSupporting = new CaravanSupporting
-                    {
-                        pawns = caravan.pawns.InnerListForReading.ListFullCopy()
-                    };
-                    supporting.Add(caravanSupporting);
-                    if (!caravan.Destroyed)
-                    {
-                        caravan.Destroy();
-                    }
+            List<Pawn> pawns = caravan.pawns.InnerListForReading.ListFullCopy();
+            AddToDefenceFromList(pawns, caravan.Tile);
 
-                    IntVec3 enterCell = FindNearEdgeCell(Map);
-                    foreach (Pawn pawn in caravanSupporting.pawns)
+            if (!caravan.Destroyed)
+            {
+                caravan.Destroy();
+            }
+            IntVec3 enterCell = FindNearEdgeCell(Map);
+            foreach (Pawn pawn in pawns)
+            {
+                IntVec3 loc =
+                    CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
+                GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
+            }
+        }
+
+        public void AddToDefenceFromList(List<Pawn> pawns, int destinationTile)
+        {
+            if (pawns.NullOrEmpty()) 
+            {
+                Log.Error("Tried to add an empty list of pawns to an FCEvent");
+                return; 
+            }
+
+            startDefense(
+                MilitaryUtilFC.returnMilitaryEventByLocation(destinationTile), () =>
+                {
+                    foreach (Pawn pawn in pawns)
                     {
-                        IntVec3 loc =
-                            CellFinder.RandomSpawnCellForPawnNear(enterCell, Map);
-                        GenSpawn.Spawn(pawn, loc, Map, Rot4.Random);
-                        if(defenders.Any())
+                        if (defenders.Contains(pawn)) return;
+                        if (defenders.Any())
                         {
                             defenders[0].GetLord().AddPawn(pawn);
                         }
                         else
                         {
-                            LordMaker.MakeNewLord(
-                                FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(new Dictionary<Pawn, Pawn>()), Map, caravanSupporting.pawns);
+                            LordMaker.MakeNewLord(FactionColonies.getPlayerColonyFaction(), new LordJob_ColonistsIdle(), Map, pawns);
                         }
                     }
+
+                    CaravanSupporting caravanSupporting = new CaravanSupporting
+                    {
+                        pawns = pawns
+                    };
+
+                    supporting.Add(caravanSupporting);
+
                     defenders.AddRange(caravanSupporting.pawns);
                 });
+
         }
+
         public override IEnumerable<Gizmo> GetCaravanGizmos(Caravan caravan)
         {
             if (settlement.isUnderAttack)
@@ -260,9 +281,11 @@ namespace FactionColonies
             }
             else
             {
-                Command_Action action = (Command_Action) CaravanVisitUtility.TradeCommand(caravan, Faction, trader.TraderKind);
+                trader.settlement = trader.settlement ?? settlement.worldSettlement;
+                TraderKindDef kindDef = trader.TraderKind;
+                Command_Action action = (Command_Action) CaravanVisitUtility.TradeCommand(caravan, Faction, kindDef);
                 
-                Pawn bestNegotiator = BestCaravanPawnUtility.FindBestNegotiator(caravan, Faction, trader.TraderKind);
+                Pawn bestNegotiator = BestCaravanPawnUtility.FindBestNegotiator(caravan, Faction, kindDef);
                 action.action = () =>
                 {
                     if (!CanTradeNow)
@@ -295,7 +318,37 @@ namespace FactionColonies
                 }
             }
         }
-        
+
+        public override IEnumerable<FloatMenuOption> GetTransportPodsFloatMenuOptions(IEnumerable<IThingHolder> pods, CompLaunchable representative)
+        {
+            if (TransportPodsArrivalAction_LandInSpecificCell.CanLandInSpecificCell(pods, this))
+            {
+                yield return new FloatMenuOption("LandInExistingMap".Translate(Label), delegate ()
+                {
+                    Map myMap = representative.parent.Map;
+                    Map map = Map;
+                    Current.Game.CurrentMap = map;
+                    CameraJumper.TryHideWorld();
+                    Targeter targeter = Find.Targeter;
+                    TargetingParameters targetParams = TargetingParameters.ForDropPodsDestination();
+
+                    void action(LocalTargetInfo targetInfo)
+                    {
+                        representative.TryLaunch(Tile, new WorldSettlementTransportPodDefendAction(this, targetInfo.Cell, representative.parent.TryGetComp<CompShuttle>() != null));
+                    }
+
+                    targeter.BeginTargeting(targetParams, action, null, delegate ()
+                    {
+                        if (Find.Maps.Contains(myMap))
+                        {
+                            Current.Game.CurrentMap = myMap;
+                        }
+                    }, CompLaunchable.TargeterMouseAttachment);
+                }, MenuOptionPriority.Default, null, null, 0f, null, null, true, 0);
+            }
+            yield break;
+        }
+
         private void deleteMap()
         {
             if (Map == null) return;
@@ -517,46 +570,68 @@ namespace FactionColonies
                 }
             }
 
+            void tryFindLoc(out IntVec3 loc, Pawn friendly)
+            {
+                int min = (70 + settlement.settlementLevel * 10) / 2 - 5 - 5 * settlement.settlementLevel;
+                int size = 10 + settlement.settlementLevel * 10;
+                CellFinder.TryFindRandomCellInsideWith(new CellRect(min, min, size, size),
+                    testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
+                        TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                if (loc.x == -1000)
+                {
+                    Log.Message("Failed with " + friendly + ", " + loc);
+                    CellFinder.TryFindRandomCellNear(new IntVec3(min + 10 + settlement.settlementLevel, 1,
+                            min + 10 + settlement.settlementLevel), Map, 75,
+                        testing => testing.Standable(Map), out loc);
+                }
+            }
+
             foreach (Pawn friendly in friendlies)
             {
+                if (friendly.IsWildMan()) continue;
+
+                friendly.ApplyIdeologyRitualWounds();
+
                 IntVec3 loc;
                 if (friendly.AnimalOrWildMan())
                 {
-                    Pawn owner = riders.First(pair => pair.Value.thingIDNumber == friendly.thingIDNumber).Key;
-                    CellFinder.TryFindRandomCellInsideWith(new CellRect((int) owner.DrawPos.x - 5,
-                            (int) owner.DrawPos.z - 5, 10, 10),
-                        testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
-                            TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                    if (riders.Count > 0)
+                    {
+                        try
+                        {
+                            Pawn owner = riders.First(pair => pair.Value.thingIDNumber == friendly.thingIDNumber).Key;
+                            CellFinder.TryFindRandomCellInsideWith(new CellRect((int)owner.DrawPos.x - 5,
+                                    (int)owner.DrawPos.z - 5, 10, 10),
+                                testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
+                                    TraverseParms.For(TraverseMode.PassDoors)), out loc);
+                        }
+                        catch
+                        {
+                            string isAnimal = friendly.RaceProps.Animal ? "animal" : "human";
+                            Log.Error("No pair found for " + isAnimal + ": " + friendly.thingIDNumber + ", and riders dictionary is not empty!");
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Log.Error("Rider Dictionary is empty but animal was still generated?");
+                        continue;
+                    }
                 }
                 else
                 {
-                    int min = (70 + settlement.settlementLevel * 10) / 2 - 5 - 5 * settlement.settlementLevel;
-                    int size = 10 + settlement.settlementLevel * 10;
-                    CellFinder.TryFindRandomCellInsideWith(new CellRect(min, min, size, size),
-                        testing => testing.Standable(Map) && Map.reachability.CanReachMapEdge(testing,
-                            TraverseParms.For(TraverseMode.PassDoors)), out loc);
-                    if (loc.x == -1000)
-                    {
-                        Log.Message("Failed with " + friendly + ", " + loc);
-                        CellFinder.TryFindRandomCellNear(new IntVec3(min + 10 + settlement.settlementLevel, 1,
-                                min + 10 + settlement.settlementLevel), Map, 75,
-                            testing => testing.Standable(Map), out loc);
-                    }
+                    tryFindLoc(out loc, friendly);
                 }
 
                 GenSpawn.Spawn(friendly, loc, Map, new Rot4());
-                if (friendly.drafter == null)
-                {
-                    friendly.drafter = new Pawn_DraftController(friendly);
-                }
+                friendly.drafter = new Pawn_DraftController(friendly);
 
 
                 Map.mapPawns.RegisterPawn(friendly);
                 friendly.drafter.Drafted = true;
             }
 
-            LordMaker.MakeNewLord(
-                FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(riders), Map, friendlies);
+            LordMaker.MakeNewLord(FactionColonies.getPlayerColonyFaction(), new LordJob_DefendColony(riders), Map, friendlies);
 
             defenders = friendlies;
         }
@@ -642,6 +717,10 @@ namespace FactionColonies
                     defenderForce.homeSettlement.cooldownMilitary();
                 }
             }
+            else
+            {
+                defenderForce.homeSettlement.cooldownMilitary();
+            }
 
             settlement.isUnderAttack = false;
         }
@@ -691,23 +770,18 @@ namespace FactionColonies
         static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
             List<Gizmo> output = __result.ToList();
-            if (__result == null || __instance?.Faction == null || !output.Any() || 
+            if (__result == null || __instance?.Faction == null || !output.Any() ||
                 !(__instance.Map.Parent is WorldSettlementFC))
             {
                 return;
             }
 
             Pawn found = __instance;
-            WorldSettlementFC settlementFc = (WorldSettlementFC) __instance.Map.Parent;
+            Pawn_DraftController pawnDraftController = __instance.drafter ?? new Pawn_DraftController(__instance);
+
+            WorldSettlementFC settlementFc = (WorldSettlementFC)__instance.Map.Parent;
             if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
             {
-                Pawn_DraftController pawnDraftController = __instance.drafter;
-                if (pawnDraftController == null)
-                {
-                    pawnDraftController = new Pawn_DraftController(__instance);
-                    __instance.drafter = pawnDraftController;
-                }
-
                 Command_Toggle draftColonists = new Command_Toggle
                 {
                     hotKey = KeyBindingDefOf.Command_ColonistDraft,

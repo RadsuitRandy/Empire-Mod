@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using FactionColonies.util;
 using Verse;
 using Verse.AI.Group;
 
@@ -6,15 +8,27 @@ namespace FactionColonies
 {
     public class LordJob_DefendColony : LordJob
     {
-        private Dictionary<Pawn, Pawn> mounts;
+        private readonly Dictionary<Pawn, Pawn> mounts;
+        private readonly HashSet<Pawn> readded = new HashSet<Pawn>();
 
         public LordJob_DefendColony(Dictionary<Pawn, Pawn> mounts)
         {
             this.mounts = mounts;
-            
         }
         
         public override bool AddFleeToil => false;
+        public override bool AllowStartNewGatherings => false;
+        public override bool AlwaysShowWeapon => true;
+
+        public override void LordJobTick()
+        {
+            base.LordJobTick();
+            if (readded.Any(pawn => pawn?.mindState?.duty == null))
+            {
+                lord.CurLordToil.UpdateAllDuties();
+                readded.Clear();
+            }
+        }
 
         public override StateGraph CreateGraph()
         {
@@ -34,9 +48,10 @@ namespace FactionColonies
             if (condition == PawnLostCondition.ChangedFaction || condition == PawnLostCondition.ExitedMap)
             {
                 lord.AddPawn(pawn);
+                readded.Add(pawn);
                 return;
             }
-            pawn.SetFaction(FactionColonies.getPlayerColonyFaction());
+            if (pawn.IsMercenary() && pawn.Faction != FactionColonies.getPlayerColonyFaction()) pawn.SetFaction(FactionColonies.getPlayerColonyFaction());
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             //Check if a settlement battle ended
             SettlementFC settlement = faction.getSettlement(pawn.Tile, Find.World.info.name);
