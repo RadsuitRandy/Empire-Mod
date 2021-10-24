@@ -578,8 +578,7 @@ namespace FactionColonies
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- I'm sorry for the bugs and the delay in fixing them - I've been kinda ill recently";
-                str += "\n\n- Join us on Discord! https://discord.gg/f3zFQqA";
-                //str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
                 factionFC.updateVersion = 0.370;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
