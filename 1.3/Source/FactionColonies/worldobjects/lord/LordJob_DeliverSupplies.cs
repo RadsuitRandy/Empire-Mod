@@ -8,6 +8,22 @@ namespace FactionColonies
 {
     class LordJob_DeliverSupplies : LordJob
     {
+        private IntVec3 fallbackLocation;
+
+        public LordJob_DeliverSupplies()
+        {
+        }
+
+        public LordJob_DeliverSupplies(IntVec3 fallbackLocation)
+        {
+            this.fallbackLocation = fallbackLocation;
+        }
+
+        public override void ExposeData()
+        {
+            Scribe_Values.Look(ref fallbackLocation, "fallbackLocation", default, false);
+        }
+
         public override StateGraph CreateGraph()
         {
             StateGraph stateGraph = new StateGraph
@@ -15,12 +31,7 @@ namespace FactionColonies
                 StartingToil = new LordToil_DeliverSupplies()
             };
 
-            TraverseParms traverseParms = DeliveryEvent.DeliveryTraverseParms;
-            if (!CellFinder.TryFindRandomReachableCellNear(DeliveryEvent.GetDeliveryCell(traverseParms, Map), Map, 5, traverseParms, null, null, out IntVec3 result))
-            {
-                result = DeliveryEvent.GetDeliveryCell(traverseParms, Map);
-            }
-            stateGraph.AddToil(new LordToil_HuntEnemies(result));
+            stateGraph.AddToil(new LordToil_HuntEnemies(fallbackLocation));
             stateGraph.AddToil(new LordToil_TakeWoundedAndLeave());
 
             stateGraph.AddTransition(new Transition(stateGraph.StartingToil, stateGraph.lordToils[1])

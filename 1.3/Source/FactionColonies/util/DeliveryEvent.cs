@@ -100,19 +100,11 @@ namespace FactionColonies.util
 				RCellFinder.TryFindRandomPawnEntryCell(out parms.spawnCenter, playerHomeMap, CellFinder.EdgeRoadChance_Friendly);
 
 				pawnsArrivalModeWorker.Arrive(pawns, parms);
+				TraverseParms traverseParms = DeliveryTraverseParms;
+				traverseParms.pawn = pawns[0];
+				IntVec3 intVec3 = GetDeliveryCell(traverseParms, playerHomeMap);
 
-				foreach (Pawn pawn in pawns)
-				{
-					TraverseParms traverseParms = DeliveryTraverseParms;
-					traverseParms.pawn = pawn;
-
-					IntVec3 intVec3 = GetDeliveryCell(traverseParms, playerHomeMap);
-
-					//Job job = new Job(DefDatabase<JobDef>.GetNamed("FCGotoAndDrop"), intVec3);
-					//pawn.jobs.StartJob(job);
-				}
-
-				LordMaker.MakeNewLord(Request.Faction, new LordJob_DeliverSupplies(), playerHomeMap, pawns);
+				LordMaker.MakeNewLord(Request.Faction, new LordJob_DeliverSupplies(intVec3), playerHomeMap, pawns);
 			}
 		}
 
