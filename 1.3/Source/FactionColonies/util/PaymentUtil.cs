@@ -152,21 +152,15 @@ namespace FactionColonies
             GenPlace.TryPlaceThing(thing, intvec, map, ThingPlaceMode.Near);
         }
 
-        public static void deliverThings(FCEvent events)
+        public static void deliverThings(FCEvent evt)
         {
-            foreach (Thing thing in events.goods)
-            {
-                placeThing(thing);
-            }
+            DeliveryEvent.Action(evt);
         }
 
 
         public static void deliverThings(List<Thing> things)
         {
-            foreach (Thing thing in things)
-            {
-                placeThing(thing);
-            }
+            DeliveryEvent.Action(things);
         }
 
         public static bool paySilver(int amount)

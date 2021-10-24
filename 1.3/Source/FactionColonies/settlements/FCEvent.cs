@@ -398,7 +398,7 @@ namespace FactionColonies
 
                     WorldSettlementFC worldSettlement = evt.settlementFCDefending.worldSettlement;
 
-                    worldSettlement.startDefense(evt, () => setupAttack(worldSettlement, evt));
+                    worldSettlement.startDefence(evt, () => setupAttack(worldSettlement, evt));
                 }
                 else //if undefined event
                 {
@@ -705,6 +705,36 @@ namespace FactionColonies
         }
     }
 
+    public struct DeliveryEventParams
+    {
+        static DeliveryEventParams()
+        {
+            
+        }
+
+        public int Location; //destination
+        public string PlanetName;
+        public int Source; //source location
+        public string CustomDescription;
+        public IEnumerable<Thing> Contents;
+        public int timeTillTriger;
+        public bool HasDestination
+        {
+            get
+            {
+                return Location != -1;
+            }
+        }
+
+        public bool HasCustomDescription
+        {
+            get
+            {
+                return !CustomDescription.NullOrEmpty();
+            }
+        }
+    }
+
     public class FCEvent : IExposable, ILoadReferenceable
     {
         public FCEvent()
@@ -951,6 +981,7 @@ namespace FactionColonies
         public static FCEventDef captureEnemySettlement;
         public static FCEventDef cooldownMilitary;
         public static FCEventDef settlementBeingAttacked;
+        public static FCEventDef deliveryArrival;
 
         static FCEventDefOf()
         {
