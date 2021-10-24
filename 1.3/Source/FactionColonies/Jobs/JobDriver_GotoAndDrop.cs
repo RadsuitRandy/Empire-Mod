@@ -23,7 +23,12 @@ namespace FactionColonies
 			{
 				toil.AddFailCondition(delegate ()
 				{
-					 return pawn.Map.dangerWatcher.DangerRating != RimWorld.StoryDanger.None;
+					if (pawn.carryTracker.CarriedThing == null) return true;
+
+					bool flag = pawn.Map.dangerWatcher.DangerRating == RimWorld.StoryDanger.High;
+					if (flag) pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Direct, out Thing thing);
+
+					return flag;
 				});
 			}
 
