@@ -2,7 +2,7 @@
 using System.Linq;
 using RimWorld;
 using Verse;
-using Verse.AI;
+using Verse.AI.Group;
 
 namespace FactionColonies.util
 {
@@ -40,6 +40,16 @@ namespace FactionColonies.util
 				return request;
 			}
         }
+
+		public static TraverseParms DeliveryTraverseParms => new TraverseParms()
+		{
+			canBashDoors = false,
+			canBashFences = false,
+			alwaysUseAvoidGrid = false,
+			fenceBlocked = false,
+			maxDanger = Danger.Deadly,
+			mode = TraverseMode.ByPawn
+		};
 
 		public static void Action(FCEvent evt)
         {
@@ -90,43 +100,19 @@ namespace FactionColonies.util
 				RCellFinder.TryFindRandomPawnEntryCell(out parms.spawnCenter, playerHomeMap, CellFinder.EdgeRoadChance_Friendly);
 
 				pawnsArrivalModeWorker.Arrive(pawns, parms);
-				//Thing resultingThing = null;
-
-				TraverseParms traverseParms = new TraverseParms()
-				{
-					canBashDoors = false,
-					canBashFences = false,
-					alwaysUseAvoidGrid = false,
-					fenceBlocked = false,
-					maxDanger = Danger.Deadly,
-					mode = TraverseMode.ByPawn
-				};
 
 				foreach (Pawn pawn in pawns)
 				{
+					TraverseParms traverseParms = DeliveryTraverseParms;
 					traverseParms.pawn = pawn;
 
-					if (!PaymentUtil.checkForTaxSpot(playerHomeMap, out IntVec3 intVec3))
-					{
-						intVec3 = ValidLandingCell(new IntVec2(1,1), playerHomeMap, true);
-					}
+					IntVec3 intVec3 = GetDeliveryCell(traverseParms, playerHomeMap);
 
-					IntVec3 oldVec = intVec3;
-					for(int i = 0; i < 10; i++)
-                    {
-						if (CellFinder.TryFindRandomReachableCellNear(intVec3, playerHomeMap, i, traverseParms, cell => playerHomeMap.thingGrid.ThingsAt(cell) == null, null, out intVec3))
-						{
-							break;
-						}
-
-						if (i == 9)
-                        {
-							intVec3 = oldVec;
-						}
-					}
-					Job job = new Job(DefDatabase<JobDef>.GetNamed("GotoAndDrop"), intVec3);
-					pawn.jobs.StartJob(job);
+					//Job job = new Job(DefDatabase<JobDef>.GetNamed("FCGotoAndDrop"), intVec3);
+					//pawn.jobs.StartJob(job);
 				}
+
+				LordMaker.MakeNewLord(Request.Faction, new LordJob_DeliverSupplies(), playerHomeMap, pawns);
 			}
 		}
 
@@ -159,6 +145,31 @@ namespace FactionColonies.util
 				}
 				return "transportingInjuredCaravan".Translate();
 			}
+		}
+
+		public static IntVec3 GetDeliveryCell(TraverseParms traverseParms, Map map)
+		{
+			if (!PaymentUtil.checkForTaxSpot(map, out IntVec3 intVec3))
+			{
+				intVec3 = ValidLandingCell(new IntVec2(1, 1), map, true);
+			}
+
+			IntVec3 oldVec = intVec3;
+			for (int i = 0; i < 10; i++)
+			{
+				if (CellFinder.TryFindRandomReachableCellNear(intVec3, map, i, traverseParms, cell => map.thingGrid.ThingsAt(cell) == null, null, out intVec3))
+				{
+					break;
+				}
+
+				if (i == 9)
+				{
+					intVec3 = oldVec;
+				}
+
+			}
+
+			return intVec3;
 		}
 
 		private static IntVec3 ValidLandingCell(IntVec2 requiredSpace, Map map, bool canLandRoofed = false)

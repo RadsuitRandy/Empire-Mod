@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 	<JobDef>
-		<defName>GotoAndDrop</defName>
+		<defName>FCGotoAndDrop</defName>
 		<driverClass>FactionColonies.JobDriver_GotoAndDrop</driverClass>
 		<reportString>dropping off something.</reportString>
-		<allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+		<allowOpportunisticPrefix>false</allowOpportunisticPrefix>
+		<carryThingAfterJob>false</carryThingAfterJob>
+		<dropThingBeforeJob>false</dropThingBeforeJob>
+	</JobDef>
+
+	<JobDef>
+		<defName>FCFollowCloseAndCarry</defName>
+		<driverClass>JobDriver_FollowClose</driverClass>
+		<reportString>following TargetA.</reportString>
+		<allowOpportunisticPrefix>false</allowOpportunisticPrefix>
 		<carryThingAfterJob>false</carryThingAfterJob>
 		<dropThingBeforeJob>false</dropThingBeforeJob>
 	</JobDef>
