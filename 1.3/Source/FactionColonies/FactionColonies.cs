@@ -1907,6 +1907,7 @@ namespace FactionColonies
         public bool disableForcedPausingDuringEvents = true;
         public bool deadPawnsIncreaseMilitaryCooldown;
         public bool settlementsAutoBattle;
+        public bool disableTaxDeliveryCaravan;
 
         public int minDaysTillMilitaryAction = 4;
         public int maxDaysTillMilitaryAction = 10;
@@ -1927,6 +1928,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref medievalTechOnly, "medievalTechOnly");
             Scribe_Values.Look(ref disableHostileMilitaryActions, "disableHostileMilitaryActions");
             Scribe_Values.Look(ref disableRandomEvents, "disableRandomEvents");
+            Scribe_Values.Look(ref disableTaxDeliveryCaravan, "disableTaxDeliveryCaravan", false);
             Scribe_Values.Look(ref deadPawnsIncreaseMilitaryCooldown, "deadPawnsIncreaseMilitaryCooldown");
             Scribe_Values.Look(ref settlementsAutoBattle, "settlementsAutoBattle");
             Scribe_Values.Look(ref minDaysTillMilitaryAction, "minDaysTillMilitaryAction");
@@ -2000,6 +2002,8 @@ namespace FactionColonies
                 ref settings.disableForcedPausingDuringEvents);
             listingStandard.CheckboxLabeled("Automatically Resolve Battles",
                 ref settings.settlementsAutoBattle);
+            listingStandard.CheckboxLabeled("Disable Tax Delivery Caravan",
+                ref settings.disableTaxDeliveryCaravan);
             listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
@@ -2017,8 +2021,9 @@ namespace FactionColonies
                 settings.minMaxDaysTillMilitaryAction = blank.minMaxDaysTillMilitaryAction;
                 settings.disableRandomEvents = blank.disableRandomEvents;
                 settings.deadPawnsIncreaseMilitaryCooldown = blank.deadPawnsIncreaseMilitaryCooldown;
-                settings.settlementsAutoBattle = blank.settlementsAutoBattle;
+                settings.settlementsAutoBattle = true;
                 settings.disableForcedPausingDuringEvents = blank.disableForcedPausingDuringEvents;
+                settings.disableTaxDeliveryCaravan = blank.disableTaxDeliveryCaravan;
             }
 
             listingStandard.End();

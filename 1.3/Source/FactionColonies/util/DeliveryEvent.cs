@@ -79,6 +79,12 @@ namespace FactionColonies.util
 			}
 			else
 			{
+				if (FactionColonies.Settings().disableTaxDeliveryCaravan)
+                {
+					things.ForEach(thing => PaymentUtil.placeThing(thing));
+					return;
+                }
+
 				List<Pawn> pawns = new List<Pawn>();
 				while(things.Count() > 0)
 				{
