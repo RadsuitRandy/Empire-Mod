@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -237,8 +238,7 @@ namespace FactionColonies
                                     }
                                 }
 
-                                FloatMenu menu = new FloatMenu(options);
-                                Find.WindowStack.Add(menu);
+                                Find.WindowStack.Add(new FloatMenuSearchable(options));
                                 //Log.Message("Settlement customize clicked");
                             }
 
