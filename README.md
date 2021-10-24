@@ -4,8 +4,11 @@ Empire mod is a mod for Ludeon Studio's topdown base building-exploration game R
 It adds the ability to found your own empire and have colonies not controlled by you give you silver and items, as well as provide you with troops.
 This mod was initially developed by Saakra, a lone Mod Dev. He has since moved on due to IRL issues and handed over the reigns of development to me and Shalax.
 
-## Building
-To build using the dotnet cli, go to `Source/FactionColonies` and run `dotnet build`. The Assembly will output to the Assemblies folder, along with debug symbols.
+Building
+To build using the dotnet cli, go to (version folder) and run
 
-To get IDE decompilation of the Rimworld DLL, import the FactionColonies-FileReference file instead of FactionColonies, 
-and make sure the folder is in your Rimworld/Mods folder.
+dotnet build --configuration release
+
+The Assembly will output to the Assemblies folder. 
+Debug symbols will only be included on the debug configuration, 
+which requires RimWorldData_(version) copied from the vanilla game.
