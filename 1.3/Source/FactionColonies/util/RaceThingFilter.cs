@@ -21,7 +21,6 @@ namespace FactionColonies.util
             this.factionFc = factionFc;
             militaryUtil = factionFc.militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
-            
         }
 
         public void FinalizeInit(FactionFC factionFc)
@@ -49,6 +48,11 @@ namespace FactionColonies.util
                     kindDef = PawnGroupKindDefOf.Peaceful
                 }
             };
+
+            if (AllowedDefCount == 0)
+            {
+                SetAllow(DefDatabase<PawnKindDef>.AllDefsListForReading.First(def => def.IsHumanlikeWithLabelRace()).race, true);
+            }
 
             foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind =>
                 kind.RaceProps.packAnimal))
