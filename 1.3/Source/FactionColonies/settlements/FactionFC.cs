@@ -446,7 +446,7 @@ namespace FactionColonies
                                                         RelationsUtilFC.attackFaction(faction);
 
                                                         settlement.sendMilitary(tile, Find.World.info.name,
-                                                            "captureEnemySettlement", 60000, faction);
+                                                            MilitaryJob.CaptureEnemySettlement, 60000, faction);
 
 
                                                         //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
@@ -492,7 +492,7 @@ namespace FactionColonies
                                                     RelationsUtilFC.attackFaction(faction);
 
                                                     settlement.sendMilitary(tile, Find.World.info.name,
-                                                        "raidEnemySettlement", 60000, faction);
+                                                        MilitaryJob.RaidEnemySettlement, 60000, faction);
 
 
                                                     //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
@@ -543,7 +543,7 @@ namespace FactionColonies
                                                         RelationsUtilFC.attackFaction(faction);
 
                                                         settlement.sendMilitary(tile, Find.World.info.name,
-                                                            "enslaveEnemySettlement", 60000, faction);
+                                                            MilitaryJob.EnslaveEnemySettlement, 60000, faction);
 
 
                                                         //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
@@ -599,17 +599,13 @@ namespace FactionColonies
         {
             static bool Prefix(Pawn __instance)
             {
-                FactionFC faction = Find.World.GetComponent<FactionFC>();
-                if (faction.militaryCustomizationUtil.AllMercenaryPawns
-                    .Contains(__instance))
+                if (__instance.IsMercenary())
                 {
-                    __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
-                    MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
-                        .returnSquadFromUnit(__instance);
+                    if (__instance.Faction != FactionColonies.getPlayerColonyFaction()) __instance.SetFaction(FactionColonies.getPlayerColonyFaction());
+                    MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.returnSquadFromUnit(__instance);
                     if (squad != null)
                     {
-                        Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil
-                            .returnMercenaryFromUnit(__instance, squad);
+                        Mercenary merc = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.returnMercenaryFromUnit(__instance, squad);
                         if (merc != null)
                         {
                             if (squad.settlement != null)
@@ -632,10 +628,10 @@ namespace FactionColonies
                         Log.Message("Mercenary Errored out. Did not find squad.");
                     }
 
-                    __instance.equipment.DestroyAllEquipment();
-                    __instance.apparel.DestroyAll();
+                    __instance.equipment?.DestroyAllEquipment();
+                    __instance.apparel?.DestroyAll();
                     //__instance.Destroy();
-                    return false;
+                    return true;
                 }
 
                 return true;
@@ -1019,6 +1015,8 @@ namespace FactionColonies
                     updateFactionIcon(ref FCf, "FactionIcons/" + factionIcon.name);
                     factionIconPath = factionIcon.name;
                 }
+                
+                militaryCustomizationUtil.checkMilitaryUtilForErrors();
 
                 factionBackup = FCf;
                 firstTick = false;
@@ -1486,12 +1484,10 @@ namespace FactionColonies
             {
                 techLevel = TechLevel.Medieval;
                 factionDef.techLevel = TechLevel.Medieval;
-                //Log.Message("Medieval");
                 Log.Message("Medieval");
             }
             else
             {
-                //Log.Message("Neolithic");
                 if (techLevel < TechLevel.Neolithic)
                 {
                     Log.Message("Neolithic");
@@ -1510,17 +1506,12 @@ namespace FactionColonies
             }
             else if (playerColonyfaction.def.techLevel >= techLevel)
             {
-                Log.Message("Tech Level already matches");
+                //Log.Message("Tech Level already matches");
             }
             // Check Leader
             if (playerColonyfaction != null)
             {
-                if (playerColonyfaction.leader != null)
-                {
-                    if (playerColonyfaction.leader.Dead)
-                        playerColonyfaction.leader = null;
-                }
-                if (playerColonyfaction.leader == null)
+                if (playerColonyfaction.leader == null || playerColonyfaction.leader.Dead)
                 {
                     if (!playerColonyfaction.TryGenerateNewLeader())
                     {

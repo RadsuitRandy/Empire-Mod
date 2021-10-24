@@ -23,7 +23,7 @@ namespace FactionColonies
             Messages.Message(new Message("The assault is beginning!", MessageTypeDefOf.ThreatSmall));
             foreach (Pawn pawn in lord.ownedPawns)
             {
-                pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("HuntColonists"));
+                pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony); //new PawnDuty(DefDatabase<DutyDef>.GetNamed("HuntColonists"));
                 pawn.mindState.canFleeIndividual = false;
             }
         }

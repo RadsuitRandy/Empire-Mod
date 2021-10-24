@@ -540,7 +540,7 @@ namespace FactionColonies
 					Widgets.DrawHighlight(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
 					if(Widgets.ButtonImage(new Rect(5 - 2, 110 + ((statSize + 15) * i) - 2, statSize + 4, statSize + 4), TexLoad.iconProsperity))
 					{
-						Find.WindowStack.Add(new DescWindowFc("FactionProsperityDesc", "FactionProsperity".Translate()));
+						Find.WindowStack.Add(new DescWindowFc("FactionProsperityDesc".Translate(), "FactionProsperity".Translate()));
 					};
 					Widgets.Label(new Rect(50, 110 + ((statSize + 15) * i), 80, statSize), Convert.ToInt32(faction.averageProsperity) + "%");
 				}

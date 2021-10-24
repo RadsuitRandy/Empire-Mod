@@ -128,7 +128,6 @@ namespace FactionColonies
         public List<Mercenary> deadPawns = new List<Mercenary>();
         public int tickChanged;
 
-
         public MilitaryCustomizationUtil()
         {
             //set load stuff here
@@ -380,7 +379,8 @@ namespace FactionColonies
             loadID = Find.World.GetComponent<FactionFC>().NextUnitID;
             isBlank = blank;
             equipmentTotalCost = 0;
-            pawnKind = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
+
+            pawnKind = FactionColonies.getPlayerColonyFaction()?.RandomPawnKind() ?? DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers.First().options.First().kind;
             generateDefaultPawn();
         }
 
@@ -472,12 +472,16 @@ namespace FactionColonies
             {
                 Messages.Message("You cannot put a weapon on a civilian!", MessageTypeDefOf.RejectInput);
             }
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public void unequipWeapon()
         {
             changeTick();
             defaultPawn.equipment.DestroyAllEquipment();
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public void wearEquipment(Apparel Equipment, bool wear)
@@ -510,6 +514,8 @@ namespace FactionColonies
             {
                 defaultPawn.apparel.Wear(Equipment);
             }
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public void removeUnit()
@@ -522,6 +528,8 @@ namespace FactionColonies
             changeTick();
             defaultPawn.apparel.DestroyAll();
             defaultPawn.equipment.DestroyAllEquipment();
+
+            MilSquadFC.UpdateEquipmentTotalCostOfSquadsContaining(this);
         }
 
         public double getTotalCost
@@ -584,15 +592,6 @@ namespace FactionColonies
         }
     }
 
-    public class MilitaryOrders
-    {
-        public static int Standby = 1;
-        public static int Attack = 2;
-        public static int MoveTo = 3;
-        public static int RecoverWounded = 4;
-        public static int Leave = 5;
-    }
-
     public class MercenarySquadFC : IExposable, ILoadReferenceable
     {
         public int loadID = -1;
@@ -603,7 +602,7 @@ namespace FactionColonies
         public bool isTraderCaravan;
         public bool isDeployed;
         public bool isExtraSquad;
-        public int order;
+        public MilitaryOrders order;
         public int timeDeployed;
         public IntVec3 orderLocation;
         public bool hitMap;
@@ -633,7 +632,7 @@ namespace FactionColonies
             Scribe_Collections.Look(ref UsedApparelList, "UsedApparelList", LookMode.Reference);
             Scribe_References.Look(ref settlement, "Settlement");
             Scribe_Values.Look(ref tickChanged, "tickChanged");
-            Scribe_Values.Look(ref order, "order", -1);
+            Scribe_Values.Look(ref order, "order", MilitaryOrders.Undefinded);
             Scribe_Values.Look(ref timeDeployed, "timeDeployed", -1);
             Scribe_Values.Look(ref orderLocation, "orderLocation");
             Scribe_Values.Look(ref hasLord, "hasLord");
@@ -959,45 +958,59 @@ namespace FactionColonies
             animals = new List<Mercenary>();
             foreach (MilUnitFC loadout in outfit.units)
             {
-                if (mercenaries[count].pawn.kindDef != loadout.pawnKind || mercenaries[count].pawn.Dead)
+                try
                 {
-                    Mercenary pawn = new Mercenary(true);
-                    createNewPawn(ref pawn, loadout.pawnKind);
-                    mercenaries.Replace(mercenaries[count], pawn);
-                }
-
-                StripPawn(mercenaries[count]);
-                HealPawn(mercenaries[count]);
-                if (loadout != null)
-                {
-                    //mercenaries[count];
-                    //StripPawn(mercenaries[count]);
-                    EquipPawn(mercenaries[count], loadout);
-                    if (loadout.animal != null)
+                    if (mercenaries[count]?.pawn?.kindDef != loadout.pawnKind || mercenaries[count].pawn.Dead)
                     {
-                        Mercenary animal = new Mercenary(true);
-                        createNewAnimal(ref animal, loadout.animal);
-                        animal.handler = mercenaries[count];
-                        mercenaries[count].animal = animal;
-                        animals.Add(animal);
+                        Mercenary pawn = new Mercenary(true);
+                        createNewPawn(ref pawn, loadout.pawnKind);
+                        mercenaries.Replace(mercenaries[count], pawn);
                     }
 
-                    mercenaries[count].loadout = loadout;
-                    mercenaries[count].deployable = mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit;
-                }
+                    StripPawn(mercenaries[count]);
+                    HealPawn(mercenaries[count]);
+                    if (loadout != null)
+                    {
+                        //mercenaries[count];
+                        //StripPawn(mercenaries[count]);
+                        EquipPawn(mercenaries[count], loadout);
+                        if (loadout.animal != null)
+                        {
+                            Mercenary animal = new Mercenary(true);
+                            createNewAnimal(ref animal, loadout.animal);
+                            animal.handler = mercenaries[count];
+                            mercenaries[count].animal = animal;
+                            animals.Add(animal);
+                        }
 
-                if (mercenaries[count].pawn.equipment.AllEquipmentListForReading != null)
+                        mercenaries[count].loadout = loadout;
+                        mercenaries[count].deployable = mercenaries[count].loadout != faction.militaryCustomizationUtil.blankUnit;
+                    }
+
+                    if (mercenaries[count].pawn.equipment.AllEquipmentListForReading != null)
+                    {
+                        UsedWeaponList.AddRange(mercenaries[count].pawn.equipment.AllEquipmentListForReading);
+
+                        //add single check at start of load and mark variable
+                    }
+
+                    if (mercenaries[count].pawn.apparel.WornApparel != null)
+                    {
+                        UsedApparelList.AddRange(mercenaries[count].pawn.apparel.WornApparel);
+                    }
+                }
+                catch (Exception e)
                 {
-                    UsedWeaponList.AddRange(mercenaries[count].pawn.equipment.AllEquipmentListForReading);
+                    Log.Error("Something went wrong when outfitting a squad: " + e.Message);
+                    bool isNullOrEmpty = mercenaries.NullOrEmpty();
+                    Log.Error("Mercanaries NullOrEmpty: " + isNullOrEmpty);
 
-                    //add single check at start of load and mark variable
+                    if (isNullOrEmpty)
+                    {
+                        Log.Error("Number of Mercs: " + mercenaries.Count);
+                        Log.Error("Any mercenary or pawn is null: " + mercenaries.Any(mercenary => mercenary?.pawn == null));
+                    }
                 }
-
-                if (mercenaries[count].pawn.apparel.WornApparel != null)
-                {
-                    UsedApparelList.AddRange(mercenaries[count].pawn.apparel.WornApparel);
-                }
-
                 count++;
             }
 
@@ -1168,6 +1181,17 @@ namespace FactionColonies
         public bool isCivilian;
         public int tickChanged;
 
+        public static void UpdateEquipmentTotalCostOfSquadsContaining(MilUnitFC unit)
+        {
+            Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.squads.ForEach(delegate(MilSquadFC squad)
+            {
+                if (squad.units.Contains(unit))
+                {
+                    squad.updateEquipmentTotalCost();
+                }
+            });
+        }
+
         public MilSquadFC()
         {
         }
@@ -1189,6 +1213,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref isTraderCaravan, "isTraderCaravan");
             Scribe_Values.Look(ref isCivilian, "isCivilian");
             Scribe_Values.Look(ref tickChanged, "tickChanged");
+
+            updateEquipmentTotalCost();
         }
 
         public void setLoadID()
@@ -1560,10 +1586,10 @@ namespace FactionColonies
 
                     if (!squads.Any())
                     {
-                        squads.Add(new FloatMenuOption("No Available Squads", delegate { }));
+                        squads.Add(new FloatMenuOption("No Available Squads", null));
                     }
 
-                    FloatMenu selection = new FloatMenu(squads);
+                    FloatMenu selection = new FloatMenuSearchable(squads);
                     Find.WindowStack.Add(selection);
                 }
 
@@ -1756,7 +1782,7 @@ namespace FactionColonies
                         list.Add(new FloatMenuOption("No fire supports currently made. Make one", delegate { }));
                     }
 
-                    FloatMenu menu = new FloatMenu(list);
+                    FloatMenu menu = new FloatMenuSearchable(list);
                     Find.WindowStack.Add(menu);
                 }
 
@@ -1827,7 +1853,7 @@ namespace FactionColonies
                     selectedSquad = squad;
                     selectedSquad.updateEquipmentTotalCost();
                 })));
-                FloatMenu selection = new FloatMenu(squads);
+                FloatMenu selection = new FloatMenuSearchable(squads);
                 Find.WindowStack.Add(selection);
             }
 
@@ -2034,7 +2060,7 @@ namespace FactionColonies
                     {
                         MilUnitFC newUnit = new MilUnitFC(false)
                         {
-                            name = $"New Unit {(util.units.Count() + 1).ToString()}"
+                            name = $"New Unit {util.units.Count() + 1}"
                         };
                         selectedText = newUnit.name;
                         selectedUnit = newUnit;
@@ -2047,27 +2073,42 @@ namespace FactionColonies
                 //Create list of selectable units
                 foreach (MilUnitFC unit in util.units)
                 {
+                    void action()
+                    {
+                        selectedText = unit.name;
+                        selectedUnit = unit;
+                    }
+
+                    //Prevent units being modified when their squads are deployed
+                    FactionFC factionFC = Find.World.GetComponent<FactionFC>();
+                    List<MilSquadFC> squadsContainingUnit = factionFC?.militaryCustomizationUtil?.squads.Where(squad => squad?.units != null && squad.units.Contains(unit)).ToList();
+                    List<SettlementFC> settlementsContainingSquad = factionFC?.settlements?.Where(settlement => settlement?.militarySquad?.outfit != null && squadsContainingUnit.Any(squad => settlement.militarySquad.outfit == squad)).ToList();
+
+                    if ((settlementsContainingSquad?.Count ?? 0) > 0)
+                    {
+                        if (settlementsContainingSquad.Any(settlement => settlement.militarySquad.isDeployed))
+                        {
+                            Units.Add(new FloatMenuOption(unit.name, delegate { Messages.Message("CantBeModified".Translate(unit.name, "ReasonDeployed".Translate()), MessageTypeDefOf.NeutralEvent, false); }));
+                            continue;
+                        }
+                        else if (settlementsContainingSquad.Any(settlement => settlement.isUnderAttack && settlementsContainingSquad.Contains(settlement.worldSettlement.defenderForce.homeSettlement)))
+                        {
+                            Units.Add(new FloatMenuOption(unit.name, delegate { Messages.Message("CantBeModified".Translate(unit.name, "ReasonDefending".Translate()), MessageTypeDefOf.NeutralEvent, false); }));
+                            continue;
+                        }
+                    } 
+                    
                     if (unit.defaultPawn.equipment.Primary != null)
                     {
-                        Units.Add(new FloatMenuOption(unit.name, delegate
-                        {
-                            //Unit is selected
-                            selectedText = unit.name;
-                            selectedUnit = unit;
-                        }, unit.defaultPawn.equipment.Primary.def));
+                        Units.Add(new FloatMenuOption(unit.name, action, unit.defaultPawn.equipment.Primary.def));
                     }
                     else
                     {
-                        Units.Add(new FloatMenuOption(unit.name, delegate
-                        {
-                            //Unit is selected
-                            selectedText = unit.name;
-                            selectedUnit = unit;
-                        }));
+                        Units.Add(new FloatMenuOption(unit.name, action));
                     }
                 }
 
-                FloatMenu selection = new FloatMenu(Units);
+                FloatMenu selection = new FloatMenuSearchable(Units);
                 Find.WindowStack.Add(selection);
             }
 
@@ -2176,7 +2217,7 @@ namespace FactionColonies
                 }
 
                 options.Sort(FactionColonies.CompareFloatMenuOption);
-                FloatMenu menu = new FloatMenu(options);
+                FloatMenu menu = new FloatMenuSearchable(options);
                 Find.WindowStack.Add(menu);
             }
 
@@ -2213,11 +2254,7 @@ namespace FactionColonies
             if (Widgets.ButtonInvisible(AnimalCompanion))
             {
                 List<FloatMenuOption> list = (from animal in DefDatabase<PawnKindDef>.AllDefs
-                    where animal.RaceProps.IsFlesh && animal.race.race.Animal &&
-                          animal.race.tradeTags != null &&
-                          !animal.race.tradeTags.Contains("AnimalMonster") &&
-                          !animal.race.tradeTags.Contains("AnimalGenetic") &&
-                          !animal.race.tradeTags.Contains("AnimalAlpha")
+                    where animal.IsAnimalAndAllowed()
                     select new FloatMenuOption(animal.LabelCap + " - Cost: " +
                                                Math.Floor(animal.race.BaseMarketValue *
                                                           FactionColonies.militaryAnimalCostMultiplier),
@@ -2234,7 +2271,7 @@ namespace FactionColonies
                     //unequip here
                     selectedUnit.animal = null;
                 }));
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
                 Find.WindowStack.Add(menu);
             }
 
@@ -2263,7 +2300,7 @@ namespace FactionColonies
                                     })).ToList();
 
                             stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                            FloatMenu stuffWindow = new FloatMenu(stuffList);
+                            FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                             Find.WindowStack.Add(stuffWindow);
                         }
                         else
@@ -2279,7 +2316,7 @@ namespace FactionColonies
 
                 list.Insert(0, new FloatMenuOption("Unequip", delegate { selectedUnit.unequipWeapon(); }));
 
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2325,7 +2362,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -2353,7 +2390,7 @@ namespace FactionColonies
                     }
                 }));
 
-                FloatMenu menu = new FloatMenu(headgearList);
+                FloatMenu menu = new FloatMenuSearchable(headgearList);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2400,7 +2437,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -2430,7 +2467,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2477,7 +2514,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -2507,7 +2544,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2554,7 +2591,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -2585,7 +2622,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2631,7 +2668,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -2661,7 +2698,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2706,7 +2743,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenu(stuffList);
+                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -2745,7 +2782,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenu(list);
+                FloatMenu menu = new FloatMenuSearchable(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -2901,7 +2938,7 @@ namespace FactionColonies
                     }));
                 }
 
-                FloatMenu selection = new FloatMenu(supports);
+                FloatMenu selection = new FloatMenuSearchable(supports);
                 Find.WindowStack.Add(selection);
             }
 
@@ -2991,7 +3028,6 @@ namespace FactionColonies
                     }
 
                     FloatMenu floatMenu = new FloatMenu(settlementList);
-                    floatMenu.vanishIfMouseDistant = true;
                     Find.WindowStack.Add(floatMenu);
                 }
 

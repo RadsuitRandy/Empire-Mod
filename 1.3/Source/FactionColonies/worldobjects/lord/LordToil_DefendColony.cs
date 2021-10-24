@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -15,9 +16,7 @@ namespace FactionColonies
 
         public override void UpdateAllDuties()
         {
-            foreach (Pawn pawn in lord.ownedPawns.Where(pawn => pawn.Faction == lord.faction &&
-                                                                (pawn.mindState.duty == null ||
-                                                                 pawn.mindState.duty.def.defName != "DefendColony")))
+            foreach (Pawn pawn in lord.ownedPawns.Where(pawn => pawn.mindState?.duty?.def.defName != "DefendColony"))
             {
                 pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("DefendColony"),
                     pawn.Position);
@@ -45,8 +44,10 @@ namespace FactionColonies
         static bool Prefix(ref JobDriver_Goto __instance)
         {
             Pawn pawn = __instance.pawn;
-            return !(pawn.Map.Parent is WorldSettlementFC settlementFc) || 
-                   settlementFc.supporting.Any(caravan => caravan.pawns.Contains(pawn));
+            //Log.Message("Can't leave due to supporting: " + settlementFc?.supporting.Any(caravan => caravan.pawns.Contains(pawn)));
+            //Log.Message("Can't leave due to defending:  " + settlementFc?.defenders.Contains(pawn));
+            //Log.Message("Is Mercenary: " + pawn.IsMercenary());
+            return !(pawn.IsMercenary() && pawn.Map.Parent is WorldSettlementFC);
         }
     }
 }
