@@ -32,6 +32,6 @@ namespace FactionColonies
             return new Job(DefDatabase<JobDef>.GetNamed("FCGotoAndDrop"), targetInfo);
         }
 
-        protected Danger maxDanger = Danger.Deadly;
+        protected Danger maxDanger = Danger.Some;
     }
 }

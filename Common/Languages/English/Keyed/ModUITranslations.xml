@@ -306,7 +306,7 @@
 	<transportingInjuredCaravan>A caravan is transporting injured colonists back to you after a successful settlement defence</transportingInjuredCaravan>
 	
 	<!-- Delivery -->
-	<deliveryPawnsInjured>The delivering pawns are engaging an enemy!</deliveryPawnsInjured>
-	<pawnsLeavingMap>The delivering pawns are leaving the map.</pawnsLeavingMap>
+	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
+	<pawnsLeavingMap>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMap>
 	
 </LanguageData>

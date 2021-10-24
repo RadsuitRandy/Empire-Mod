@@ -34,18 +34,30 @@ namespace FactionColonies
             stateGraph.AddToil(new LordToil_HuntEnemies(fallbackLocation));
             stateGraph.AddToil(new LordToil_TakeWoundedAndLeave());
 
+            
             stateGraph.AddTransition(new Transition(stateGraph.StartingToil, stateGraph.lordToils[1])
             {
                 triggers = new List<Trigger>
                 {
                     new Trigger_PawnHarmed(),
+                    new Trigger_Custom((TriggerSignal s) => Map.dangerWatcher.DangerRating == StoryDanger.High)
 
                 }, preActions = new List<TransitionAction>
                 {
                     new TransitionAction_Custom(delegate ()
                     {
-                        Messages.Message("deliveryPawnsInjured".Translate(), MessageTypeDefOf.NeutralEvent);
+                        Messages.Message("deliveryPawnsEngageEnemy".Translate(), MessageTypeDefOf.NeutralEvent);
                     })
+                }
+            });
+
+            stateGraph.AddTransition(new Transition(stateGraph.lordToils[1], stateGraph.lordToils[1], true)
+            {
+                triggers = new List<Trigger>
+                {
+                    new Trigger_PawnHarmed(),
+                    new Trigger_Custom((TriggerSignal s) => Map.dangerWatcher.DangerRating == StoryDanger.High)
+
                 }
             });
 
