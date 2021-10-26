@@ -17,6 +17,7 @@ namespace FactionColonies
 		private bool cellIsSet = false;
 		public IntVec3 deliveryCell;
 
+
 		public void SetCell()
 		{
 			if (!cellIsSet)
@@ -35,8 +36,6 @@ namespace FactionColonies
 				SetCell();
 				Pawn pawn = lord.ownedPawns[i];
 				pawn.mindState.canFleeIndividual = true;
-				TraverseParms traverseParms = DeliveryEvent.DeliveryTraverseParms;
-				traverseParms.pawn = pawn;
 				if (!NoPawnCarries)
 				{
 					if (i == 0)
@@ -48,6 +47,8 @@ namespace FactionColonies
 					}
 					else
 					{
+						TraverseParms traverseParms = DeliveryEvent.DeliveryTraverseParms;
+						traverseParms.pawn = pawn;
 						pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("FCFollowAndDeliverItem"))
 						{
 							focus = (lord.ownedPawns[0].carryTracker.CarriedThing == null) ? (LocalTargetInfo) deliveryCell : lord.ownedPawns[0]

@@ -20,6 +20,7 @@ namespace FactionColonies
 
         public override void ExposeData()
         {
+            base.ExposeData();
             Scribe_Values.Look(ref fallbackLocation, "fallbackLocation", default, false);
         }
 
