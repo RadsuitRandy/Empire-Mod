@@ -526,7 +526,11 @@ namespace FactionColonies
                             List<FloatMenuOption> list = new List<FloatMenuOption>();
                             list.Add(new FloatMenuOption(
                                 "ToggleAutoDefend".Translate(settlement.autoDefend.ToString()),
-                                delegate { settlement.autoDefend = !settlement.autoDefend; }));
+                                delegate 
+                                { 
+                                    settlement.autoDefend = !settlement.autoDefend;
+                                    Messages.Message("autoDefendWarning".Translate(), MessageTypeDefOf.CautionInput);
+                                }));
 
                             if (settlement.isUnderAttack)
                             {

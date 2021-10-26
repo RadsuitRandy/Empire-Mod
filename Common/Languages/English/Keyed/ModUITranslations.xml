@@ -309,4 +309,7 @@
 	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
 	<pawnsLeavingMap>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMap>
 	
+	<!-- Auto Defend Warning -->
+	<autoDefendWarning>Keep in mind that this setting is not the same as the automatic battle resolve setting found in the settings menu!</autoDefendWarning>
+	
 </LanguageData>
