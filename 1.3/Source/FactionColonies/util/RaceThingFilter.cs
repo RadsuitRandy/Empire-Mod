@@ -78,12 +78,14 @@ namespace FactionColonies.util
                 faction = DefDatabase<FactionDef>.GetNamed("PColony");
             }
 
+            bool anyExistWithCondition = DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && def.race.label == thingDef.label).Any(def => def.defaultFactionType == null || def.defaultFactionType.defName == "Empire" || def.defaultFactionType.techLevel <= factionFc.techLevel);
+
             if (allow)
             {
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
                 foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && def.race.label == thingDef.label))
-                {
-                    if (def.defaultFactionType == null || def.defaultFactionType.defName == "Empire") continue;
+                { 
+                    if (def.defaultFactionType == null || def.defaultFactionType.defName == "Empire" || (def.defaultFactionType.techLevel <= factionFc.techLevel && !anyExistWithCondition)) continue;
 
                     PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);
