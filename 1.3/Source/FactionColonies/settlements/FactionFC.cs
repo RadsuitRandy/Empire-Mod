@@ -138,6 +138,43 @@ namespace FactionColonies
             new FCPolicy(FCPolicyDefOf.empty), new FCPolicy(FCPolicyDefOf.empty)
         };
 
+        public Map TaxMap
+        {
+            get
+            {
+                Map map;
+                if (taxMap == null)
+                {
+                    if (Find.WorldObjects
+                            .SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation)?.Map ==
+                        null)
+                    {
+                        //if no tax map or no capital map is valid
+                        map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
+
+                        Log.Message(
+                            "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
+                            map.Parent.LabelCap);
+                    }
+                    else
+                    {
+                        //if no tax map or no capital map is valid
+                        map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
+
+                        Log.Message(
+                            "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
+                            map.Parent.LabelCap);
+                    }
+                }
+                else
+                {
+                    map = taxMap;
+                }
+
+                return map;
+            }
+        }
+
         //Research Trading
         public float tradedAmount;
 

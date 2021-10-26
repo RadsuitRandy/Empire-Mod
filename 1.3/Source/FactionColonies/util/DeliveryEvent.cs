@@ -58,7 +58,7 @@ namespace FactionColonies.util
 
 		public static void Action(List<Thing> things)
 		{
-			Map playerHomeMap = Find.World.GetComponent<FactionFC>().returnCapitalMap();
+			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
 			{
 				if (ModsConfig.RoyaltyActive)
