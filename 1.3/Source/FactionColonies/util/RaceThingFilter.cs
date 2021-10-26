@@ -117,7 +117,7 @@ namespace FactionColonies.util
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
                 foreach (PawnKindDef def in workList)
                 { 
-                    Log.Message(def.defaultFactionType.techLevel.ToString() + " == " + factionFc.techLevel.ToString() + " = " + (def.defaultFactionType.techLevel == factionFc.techLevel));
+                    //Log.Message(def.defaultFactionType.techLevel.ToString() + " == " + factionFc.techLevel.ToString() + " = " + (def.defaultFactionType.techLevel == factionFc.techLevel));
 
                     PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);
