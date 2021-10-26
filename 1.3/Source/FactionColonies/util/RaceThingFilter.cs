@@ -61,7 +61,7 @@ namespace FactionColonies.util
             }
 
             List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Any(thingDef => thingDef.label == def.race.label)))
+            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Contains(def.race)))
             {
                 if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                 races.Add(def.race.label);

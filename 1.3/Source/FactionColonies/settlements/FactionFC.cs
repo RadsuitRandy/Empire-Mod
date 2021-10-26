@@ -1495,6 +1495,7 @@ namespace FactionColonies
                 techLevel = TechLevel.Ultra;
                 factionDef.techLevel = TechLevel.Ultra;
                 Log.Message("Ultra");
+                raceFilter.FinalizeInit(this);
             }
             else if (!medievalOnly && DefDatabase<ResearchProjectDef>.GetNamed("Fabrication", false) != null &&
                      researchManager.GetProgress(DefDatabase<ResearchProjectDef>.GetNamed("Fabrication", false)) ==
@@ -1504,6 +1505,7 @@ namespace FactionColonies
                 techLevel = TechLevel.Spacer;
                 factionDef.techLevel = TechLevel.Spacer;
                 Log.Message("Spacer");
+                raceFilter.FinalizeInit(this);
             }
             else if (!medievalOnly && DefDatabase<ResearchProjectDef>.GetNamed("Electricity", false) != null &&
                      researchManager.GetProgress(DefDatabase<ResearchProjectDef>.GetNamed("Electricity", false)) ==
@@ -1513,6 +1515,7 @@ namespace FactionColonies
                 techLevel = TechLevel.Industrial;
                 factionDef.techLevel = TechLevel.Industrial;
                 Log.Message("Industrial");
+                raceFilter.FinalizeInit(this);
             }
             else if (DefDatabase<ResearchProjectDef>.GetNamed("Smithing", false) != null &&
                      researchManager.GetProgress(DefDatabase<ResearchProjectDef>.GetNamed("Smithing", false)) ==
@@ -1522,6 +1525,7 @@ namespace FactionColonies
                 techLevel = TechLevel.Medieval;
                 factionDef.techLevel = TechLevel.Medieval;
                 Log.Message("Medieval");
+                raceFilter.FinalizeInit(this);
             }
             else
             {
@@ -1529,6 +1533,7 @@ namespace FactionColonies
                 {
                     Log.Message("Neolithic");
                     techLevel = TechLevel.Neolithic;
+                    raceFilter.FinalizeInit(this);
                 }
             }
 
