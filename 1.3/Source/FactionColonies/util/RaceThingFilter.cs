@@ -83,9 +83,12 @@ namespace FactionColonies.util
                 workList = PawnKindDefsForTechLevel(temp);
             }
 
-            Log.Error("Couldn't find any PawnKindDefs for any allowed race on techlevel " + temp.ToString() + "! Trying " + (factionFc.techLevel + 1) + " next.");
-            temp = factionFc.techLevel + 1;
-            workList = PawnKindDefsForTechLevel(temp);
+            if (!workList.Any())
+            {
+                Log.Error("Couldn't find any PawnKindDefs for any allowed race on techlevel " + temp.ToString() + "! Trying " + (factionFc.techLevel + 1) + " next.");
+                temp = factionFc.techLevel + 1;
+                workList = PawnKindDefsForTechLevel(temp);
+            }
 
             while (!workList.Any() && temp != TechLevel.Archotech)
             {
