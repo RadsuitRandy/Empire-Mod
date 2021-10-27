@@ -71,10 +71,12 @@ namespace FactionColonies.util
             WorldSettlementTraderTracker.reloadTraderKind();
         }
 
+        private IEnumerable<PawnKindDef> DefaultList => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire");
         private IEnumerable<PawnKindDef> PawnKindDefsForTechLevel(TechLevel techLevel) => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire" && def.defaultFactionType.techLevel == techLevel);
-
         private IEnumerable<PawnKindDef> CheckAndFixWorkList(IEnumerable<PawnKindDef> workList)
         {
+            if (AllowedThingDefs.Count() == 0 || factionFc.techLevel == TechLevel.Undefined) return DefaultList;
+            
             TechLevel temp = factionFc.techLevel;
             while (!workList.Any() && temp != TechLevel.Undefined)
             {
@@ -100,7 +102,7 @@ namespace FactionColonies.util
             if (!workList.Any())
             {
                 Log.Error("Allowing all tech levels");
-                workList = DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire");
+                workList = DefaultList;
             }
             return workList;
         }
@@ -115,7 +117,7 @@ namespace FactionColonies.util
             if (allow)
             {
                 IEnumerable<PawnKindDef> workList = PawnKindDefsForTechLevel(factionFc.techLevel);
-                workList = CheckAndFixWorkList(workList);
+                workList = CheckAndFixWorkList(workList) ?? new List<PawnKindDef>();
 
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
                 foreach (PawnKindDef def in workList)
