@@ -76,33 +76,39 @@ namespace FactionColonies.util
         private IEnumerable<PawnKindDef> CheckAndFixWorkList(IEnumerable<PawnKindDef> workList)
         {
             if (AllowedThingDefs.Count() == 0 || factionFc.techLevel == TechLevel.Undefined) return DefaultList;
-            
-            TechLevel temp = factionFc.techLevel;
-            while (!workList.Any() && temp != TechLevel.Undefined)
+
+            List<TechLevel> triedLevels = new List<TechLevel>();
+
+            TechLevel tempLevel = factionFc.techLevel;
+            while (!workList.Any() && tempLevel != TechLevel.Undefined)
             {
-                Log.Error("Couldn't find any PawnKindDefs for any allowed race on techlevel " + temp.ToString() + "! Trying " + (temp - 1) + " next.");
-                temp -= 1;
-                workList = PawnKindDefsForTechLevel(temp);
+                triedLevels.Add(tempLevel);
+                tempLevel -= 1;
+                workList = PawnKindDefsForTechLevel(tempLevel);
             }
 
             if (!workList.Any())
             {
-                Log.Error("Couldn't find any PawnKindDefs for any allowed race on techlevel " + temp.ToString() + "! Trying " + (factionFc.techLevel + 1) + " next.");
-                temp = factionFc.techLevel + 1;
-                workList = PawnKindDefsForTechLevel(temp);
+                triedLevels.Add(tempLevel);
+                tempLevel = factionFc.techLevel + 1;
+                workList = PawnKindDefsForTechLevel(tempLevel);
             }
 
-            while (!workList.Any() && temp != TechLevel.Archotech)
+            while (!workList.Any() && tempLevel != TechLevel.Archotech)
             {
-                Log.Error("Couldn't find any PawnKindDefs for any allowed race on techlevel " + temp.ToString() + "! Trying " + (temp + 1) + " next.");
-                temp += 1;
-                workList = PawnKindDefsForTechLevel(temp);
+                triedLevels.Add(tempLevel);
+                tempLevel += 1;
+                workList = PawnKindDefsForTechLevel(tempLevel);
             }
 
             if (!workList.Any())
             {
-                Log.Error("Allowing all tech levels");
+                Log.Error("Couldn't find any PawnKindDefs for any techlevel with races " + string.Join(", ", AllowedThingDefs) + ". Allowing all races.");
                 workList = DefaultList;
+            }
+            else
+            {
+                Log.Error("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ".");
             }
             return workList;
         }
