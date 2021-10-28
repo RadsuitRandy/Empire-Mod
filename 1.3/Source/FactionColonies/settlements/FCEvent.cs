@@ -298,10 +298,6 @@ namespace FactionColonies
                 //Make custom event functions here
 
                 FCEvent evt = new FCEvent(true);
-                if (evt.def.defName == "settlementBeingAttacked")
-                {
-                    Log.Message("Found attacked FCEvent");
-                }
 
                 evt = events[i];
                 //remove event (stop spam?)
