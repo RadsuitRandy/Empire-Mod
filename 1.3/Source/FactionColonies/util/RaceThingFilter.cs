@@ -103,10 +103,10 @@ namespace FactionColonies.util
 
             if (!workList.Any())
             {
-                Log.Error("Couldn't find any PawnKindDefs for any techlevel with races " + string.Join(", ", AllowedThingDefs) + ". Allowing all races.");
+                Log.Error("Couldn't find any PawnKindDefs for any techlevel with the following races: " + string.Join(", ", AllowedThingDefs) + ". Allowing all races.");
                 workList = DefaultList;
             }
-            else
+            else if (triedLevels.Count != 0)
             {
                 Log.Error("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ".");
             }
