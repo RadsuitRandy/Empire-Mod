@@ -572,7 +572,7 @@ namespace FactionColonies
                 str =
                     "A new update for Empire has been released!  v.0.370\n The following abbreviated changes have occurred:";
                 str += "\n\n- A new tax delivery system (can be disabled in the settings)";
-                str += "\n\n- Fixed original colonists being unable to leave a settlement defence map";
+                str += "\n\n- Tax letters now combine items of the same type";
                 str += "\n\n- Fixed caravans vanishing on settlement defence";
                 str += "\n\n- Fixed invincible animals";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
