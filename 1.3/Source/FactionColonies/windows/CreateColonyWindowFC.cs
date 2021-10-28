@@ -74,7 +74,7 @@ namespace FactionColonies
             TextAnchor anchorBefore = Text.Anchor;
 
 
-            int silverToCreateSettlement = (int)(TraitUtilsFC.cycleTraits(new double(), "createSettlementMultiplier", Find.World.GetComponent<FactionFC>().traits, "multiply") * (FactionColonies.silverToCreateSettlement + (500 * (Find.World.GetComponent<FactionFC>().settlements.Count() + Find.World.GetComponent<FactionFC>().settlementCaravansList.Count())) + (TraitUtilsFC.cycleTraits(new double(), "createSettlementBaseCost", Find.World.GetComponent<FactionFC>().traits, "add"))));
+            int silverToCreateSettlement = (int)(TraitUtilsFC.cycleTraits(new double(), "createSettlementMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation) * (FactionColonies.silverToCreateSettlement + (500 * (Find.World.GetComponent<FactionFC>().settlements.Count() + Find.World.GetComponent<FactionFC>().settlementCaravansList.Count())) + (TraitUtilsFC.cycleTraits(new double(), "createSettlementBaseCost", Find.World.GetComponent<FactionFC>().traits, Operation.Addition))));
             if (faction.hasPolicy(FCPolicyDefOf.isolationist))
                 silverToCreateSettlement *= 2;
 
