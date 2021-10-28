@@ -117,6 +117,17 @@ namespace FactionColonies
             }
         }
 
+        internal void GainUnrestWithReason(Message message, double amount)
+        {
+            Messages.Message(message);
+            unrest += amount * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation);
+        }
+
+        internal void GainHappiness(double amount)
+        {
+            happiness -= 10 * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation);
+        }
+
         public void updateProfitAndProduction() //updates both profit and production
         {
             updateProduction();
@@ -132,20 +143,20 @@ namespace FactionColonies
             if (factionFc.hasPolicy(FCPolicyDefOf.isolationist))
                 isolationistExtraWorkers += 3;
             //Military Settlement Level
-            settlementMilitaryLevel = (settlementLevel - 1) + Convert.ToInt32(
-                TraitUtilsFC.cycleTraits(new double(), "militaryBaseLevel", traits, "add") +
+            settlementMilitaryLevel = settlementLevel - 1 + Convert.ToInt32(
+                TraitUtilsFC.cycleTraits(new double(), "militaryBaseLevel", traits, Operation.Addition) +
                 TraitUtilsFC.cycleTraits(new double(), "militaryBaseLevel", Find.World.GetComponent<FactionFC>().traits,
-                    "add"));
+                    Operation.Addition));
 
             //Worker Stats
             workersMax = (settlementLevel * (3 + isolationistExtraWorkers)) +
-                         (TraitUtilsFC.cycleTraits(new double(), "workerBaseMax", traits, "add") +
+                         (TraitUtilsFC.cycleTraits(new double(), "workerBaseMax", traits, Operation.Addition) +
                           TraitUtilsFC.cycleTraits(new double(), "workerBaseMax",
-                              Find.World.GetComponent<FactionFC>().traits, "add")) + returnMaxWorkersFromPrisoners();
+                              Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) + returnMaxWorkersFromPrisoners();
             workersUltraMax = (workersMax + 5 +
-                               (TraitUtilsFC.cycleTraits(new double(), "workerBaseOverMax", traits, "add") +
+                               (TraitUtilsFC.cycleTraits(new double(), "workerBaseOverMax", traits, Operation.Addition) +
                                 TraitUtilsFC.cycleTraits(new double(), "workerBaseOverMax",
-                                    Find.World.GetComponent<FactionFC>().traits, "add")) +
+                                    Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) +
                                returnOverMaxWorkersFromPrisoners());
         }
 
@@ -162,13 +173,13 @@ namespace FactionColonies
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
             double happinessGainMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "happinessGainedMultiplier", traits, "multiply") *
+                 TraitUtilsFC.cycleTraits(new double(), "happinessGainedMultiplier", traits, Operation.Multiplikation) *
                  TraitUtilsFC.cycleTraits(new double(), "happinessGainedMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                     Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation);
             double happinessLostMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", traits, "multiply") *
+                 TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", traits, Operation.Multiplikation) *
                  TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                     Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation);
 
             double policyIncrease = 0;
             if (factionfc.hasPolicy(FCPolicyDefOf.egalitarian) && trait_Egalitarian_TaxBreak_Enabled)
@@ -177,15 +188,15 @@ namespace FactionColonies
 
             happiness += happinessGainMultiplier * (policyIncrease + FactionColonies.happinessBaseGain +
                                                     TraitUtilsFC.cycleTraits(new double(), "happinessGainedBase",
-                                                        traits, "add") +
+                                                        traits, Operation.Addition) +
                                                     TraitUtilsFC.cycleTraits(new double(), "happinessGainedBase",
-                                                        Find.World.GetComponent<FactionFC>().traits, "add")
+                                                        Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add happiness where needed
             happiness -= happinessLostMultiplier * (FactionColonies.happinessBaseLost +
                                                     TraitUtilsFC.cycleTraits(new double(), "happinessLostBase", traits,
-                                                        "add") + TraitUtilsFC.cycleTraits(new double(),
+                                                        Operation.Addition) + TraitUtilsFC.cycleTraits(new double(),
                                                         "happinessLostBase",
-                                                        Find.World.GetComponent<FactionFC>().traits, "add")
+                                                        Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and remove happiness where needed
 
             happiness = Math.Round(happiness, 1);
@@ -204,23 +215,13 @@ namespace FactionColonies
         public void updateLoyalty()
         {
             double loyaltyGainMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedMultiplier", traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation));
             double loyaltyLostMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation));
 
-            loyalty += loyaltyGainMultiplier * (FactionColonies.loyaltyBaseGain +
-                                                TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedBase", traits,
-                                                    "add") + TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedBase",
-                                                    Find.World.GetComponent<FactionFC>().traits, "add")
+            loyalty += loyaltyGainMultiplier * (FactionColonies.loyaltyBaseGain + TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add loyalty where needed
-            loyalty -= loyaltyLostMultiplier * (FactionColonies.loyaltyBaseLost +
-                                                TraitUtilsFC.cycleTraits(new double(), "loyaltyLostBase", traits,
-                                                    "add") + TraitUtilsFC.cycleTraits(new double(), "loyaltyLostBase",
-                                                    Find.World.GetComponent<FactionFC>().traits, "add")
+            loyalty -= loyaltyLostMultiplier * (FactionColonies.loyaltyBaseLost + TraitUtilsFC.cycleTraits(new double(), "loyaltyLostBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "loyaltyLostBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and remove loyalty where needed
 
             loyalty = Math.Round(loyalty, 1);
@@ -243,10 +244,7 @@ namespace FactionColonies
             if (factionfc.hasPolicy(FCPolicyDefOf.egalitarian) && trait_Egalitarian_TaxBreak_Enabled)
                 policyIncrease = 2;
 
-            prosperity += (policyIncrease + FactionColonies.prosperityBaseRecovery +
-                           TraitUtilsFC.cycleTraits(new double(), "prosperityBaseRecovery", traits, "add") +
-                           TraitUtilsFC.cycleTraits(new double(), "prosperityBaseRecovery",
-                               Find.World.GetComponent<FactionFC>().traits, "add")
+            prosperity += (policyIncrease + FactionColonies.prosperityBaseRecovery + TraitUtilsFC.cycleTraits(new double(), "prosperityBaseRecovery", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "prosperityBaseRecovery", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add prosperity where needed
 
             prosperity = Math.Round(prosperity, 1);
@@ -265,23 +263,13 @@ namespace FactionColonies
         public void updateUnrest()
         {
             double unrestGainMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation));
             double unrestLostMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "unrestLostMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "unrestLostMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits(new double(), "unrestLostMultiplier", traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "unrestLostMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation));
 
-            unrest += unrestGainMultiplier * (FactionColonies.unrestBaseGain +
-                                              TraitUtilsFC.cycleTraits(new double(), "unrestGainedBase", traits,
-                                                  "add") + TraitUtilsFC.cycleTraits(new double(), "unrestGainedBase",
-                                                  Find.World.GetComponent<FactionFC>().traits, "add")
+            unrest += unrestGainMultiplier * (FactionColonies.unrestBaseGain + TraitUtilsFC.cycleTraits(new double(), "unrestGainedBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "unrestGainedBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add unrest where needed
-            unrest -= unrestLostMultiplier * (FactionColonies.unrestBaseLost +
-                                              TraitUtilsFC.cycleTraits(new double(), "unrestLostBase", traits, "add") +
-                                              TraitUtilsFC.cycleTraits(new double(), "unrestLostBase",
-                                                  Find.World.GetComponent<FactionFC>().traits, "add")
+            unrest -= unrestLostMultiplier * (FactionColonies.unrestBaseLost + TraitUtilsFC.cycleTraits(new double(), "unrestLostBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "unrestLostBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and remove unrest where needed
 
             unrest = Math.Round(unrest, 1);
@@ -327,17 +315,13 @@ namespace FactionColonies
                 resource.baseProduction = biomeDef.BaseProductionAdditive[(int) resourceType] +
                                           hillinessDef.BaseProductionAdditive[(int) resourceType] +
                                           TraitUtilsFC.cycleTraits(new double(), "productionBase" +
-                                              resourceType, traits, "add") +
+                                              resourceType, traits, Operation.Addition) +
                                           TraitUtilsFC.cycleTraits(new double(), "productionBase" +
-                                              resourceType, Find.World.GetComponent<FactionFC>().traits, "add");
+                                              resourceType, Find.World.GetComponent<FactionFC>().traits, Operation.Addition);
                 resource.baseProductionMultiplier = resourceMultiplier *
                                                     biomeDef.BaseProductionMultiplicative[(int) resourceType] *
                                                     hillinessDef.BaseProductionMultiplicative[(int) resourceType] *
-                                                    ((100 + egalitarianTaxBoost + isolationistTaxBoost +
-                                                      TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage",
-                                                          traits, "add") + TraitUtilsFC.cycleTraits(
-                                                          new double(), "taxBasePercentage",
-                                                          Find.World.GetComponent<FactionFC>().traits, "add")) / 100);
+                                                    ((100 + egalitarianTaxBoost + isolationistTaxBoost + TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) / 100);
 
 
                 //add up additive variables
@@ -369,10 +353,10 @@ namespace FactionColonies
                                                    tempMultiplier *
                                                    TraitUtilsFC.cycleTraits(new double(),
                                                        "productionMultiplier" + resourceType,
-                                                       traits, "multiply") *
+                                                       traits, Operation.Multiplikation) *
                                                    TraitUtilsFC.cycleTraits(new double(),
                                                        "productionMultiplier" + resourceType,
-                                                       Find.World.GetComponent<FactionFC>().traits, "multiply");
+                                                       Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation);
                 resource.endProduction = resource.endProductionMultiplier *
                                          ((resource.baseProduction + tempAdditive) *
                                           resource.assignedWorkers);
@@ -461,9 +445,9 @@ namespace FactionColonies
         public double getBaseWorkerCost()
         {
             return (LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().workerCost +
-                    (TraitUtilsFC.cycleTraits(new double(), "workerBaseCost", traits, "add") +
+                    (TraitUtilsFC.cycleTraits(new double(), "workerBaseCost", traits, Operation.Addition) +
                      TraitUtilsFC.cycleTraits(new double(), "workerBaseCost",
-                         Find.World.GetComponent<FactionFC>().traits, "add")));
+                         Find.World.GetComponent<FactionFC>().traits, Operation.Addition)));
             //add building/faction modifierse
         }
 
@@ -1618,13 +1602,7 @@ namespace FactionColonies
                     List<Thing> tmpList;
 
                     double production = resource.endProduction;
-                    production *= industriousTaxPercentageBoost * ((100 +
-                                                                    TraitUtilsFC.cycleTraits(new double(),
-                                                                        "taxBasePercentage", traits, "add") +
-                                                                    TraitUtilsFC.cycleTraits(new double(),
-                                                                        "taxBasePercentage",
-                                                                        Find.World.GetComponent<FactionFC>()
-                                                                            .traits, "add")) / 100);
+                    production *= industriousTaxPercentageBoost * ((100 + TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage", traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) / 100);
                     int assignedWorkers = resource.assignedWorkers;
 
                     //Create Temp Value
@@ -1640,8 +1618,8 @@ namespace FactionColonies
                             LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                                 .productionTitheMod, assignedWorkers, resourceType,
                             TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier",
-                                Find.World.GetComponent<FactionFC>().traits, "add") +
-                            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", traits, "add"), this);
+                                Find.World.GetComponent<FactionFC>().traits, Operation.Addition) +
+                            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", traits, Operation.Addition), this);
 
                         foreach (Thing thing in tmpList)
                         {

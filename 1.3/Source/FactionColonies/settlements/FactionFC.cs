@@ -778,65 +778,27 @@ namespace FactionColonies
                     !__instance.HostileTo(Faction.OfPlayer))
                 {
                     FactionFC faction = Find.World.GetComponent<FactionFC>();
-                    if (!faction.hasPolicy(FCPolicyDefOf.pacifist))
+                    if (!faction.hasPolicy(FCPolicyDefOf.pacifist) && dinfo != null)
                     {
-                        if (dinfo != null && (dinfo.Value.Category == DamageInfo.SourceCategory.Collapse))
+
+                        if (dinfo.Value.Category == DamageInfo.SourceCategory.Collapse)
                         {
-                            Messages.Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath);
-                            foreach (SettlementFC settlement in faction.settlements)
-                            {
-                                settlement.unrest += 5 *
-                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                                         settlement.traits, "multiply") *
-                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                                         faction.traits, "multiply");
-                                settlement.happiness -= 5 *
-                                                        TraitUtilsFC.cycleTraits(new double(),
-                                                            "happinessLostMultiplier", settlement.traits, "multiply") *
-                                                        TraitUtilsFC.cycleTraits(new double(),
-                                                            "happinessLostMultiplier", faction.traits, "multiply");
-                            }
+                            faction.GainUnrestForReason(new Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath), 5d);
+                            faction.GainHappiness(-5d);
                         }
-                        else if (dinfo != null &&
-                                 (dinfo.Value.Instigator == null || dinfo.Value.Instigator.Faction == null))
+                        else if (dinfo.Value.Instigator?.Faction != null)
                         {
-                            Pawn pawn = dinfo.Value.Instigator as Pawn;
-                            if (pawn == null || !pawn.RaceProps.Animal ||
+                            if (dinfo.Value.Instigator is Pawn pawn && !pawn.RaceProps.Animal &&
                                 pawn.mindState.mentalStateHandler.CurStateDef != MentalStateDefOf.ManhunterPermanent)
                             {
-                                Messages.Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath);
-                                foreach (SettlementFC settlement in faction.settlements)
-                                {
-                                    settlement.unrest += 5 *
-                                                         TraitUtilsFC.cycleTraits(new double(),
-                                                             "unrestGainedMultiplier", settlement.traits, "multiply") *
-                                                         TraitUtilsFC.cycleTraits(new double(),
-                                                             "unrestGainedMultiplier", faction.traits, "multiply");
-                                    settlement.happiness -= 5 *
-                                                            TraitUtilsFC.cycleTraits(new double(),
-                                                                "happinessLostMultiplier", settlement.traits,
-                                                                "multiply") * TraitUtilsFC.cycleTraits(new double(),
-                                                                "happinessLostMultiplier", faction.traits, "multiply");
-                                }
+                                faction.GainUnrestForReason(new Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath), 5d);
+                                faction.GainHappiness(-5d);
                             }
                         }
-                        else if (dinfo != null && dinfo.Value.Instigator != null &&
-                                 dinfo.Value.Instigator.Faction == Find.FactionManager.OfPlayer)
+                        else if (dinfo.Value.Instigator?.Faction == Find.FactionManager.OfPlayer)
                         {
-                            Messages.Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath);
-                            foreach (SettlementFC settlement in faction.settlements)
-                            {
-                                settlement.unrest += 5 *
-                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                                         settlement.traits, "multiply") *
-                                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                                         faction.traits, "multiply");
-                                settlement.happiness -= 5 *
-                                                        TraitUtilsFC.cycleTraits(new double(),
-                                                            "happinessLostMultiplier", settlement.traits, "multiply") *
-                                                        TraitUtilsFC.cycleTraits(new double(),
-                                                            "happinessLostMultiplier", faction.traits, "multiply");
-                            }
+                            faction.GainUnrestForReason(new Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath), 5d);
+                            faction.GainHappiness(-5d);
                         }
                     }
 
@@ -845,6 +807,31 @@ namespace FactionColonies
                 }
 
                 return true;
+            }
+        }
+
+        private void GainHappiness(double amount)
+        {
+            foreach (SettlementFC settlement in settlements)
+            {
+                settlement.happiness += amount *
+                                    TraitUtilsFC.cycleTraits(new double(),
+                                        "happinessLostMultiplier", settlement.traits,
+                                        Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(),
+                                        "happinessLostMultiplier", traits, Operation.Multiplikation);
+            }
+        }
+
+        private void GainUnrestForReason(Message msg, double amount)
+        {
+            Messages.Message(msg);
+            foreach (SettlementFC settlement in settlements)
+            {
+                settlement.unrest += amount *
+                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                         settlement.traits, Operation.Multiplikation) *
+                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
+                                         traits, Operation.Multiplikation);
             }
         }
 
@@ -901,25 +888,11 @@ namespace FactionColonies
         {
             static bool Prefix(ref Faction __instance, Pawn member, Faction violator)
             {
-                if (__instance.def.defName == "PColony" && violator == Find.FactionManager.OfPlayer)
+                if (__instance.def.defName == "PColony" && violator == Faction.OfPlayer)
                 {
-                    Messages.Message("CaptureOfFactionPawn".Translate(), MessageTypeDefOf.NegativeEvent);
-                    foreach (SettlementFC settlement in Find.World.GetComponent<FactionFC>().settlements)
-                    {
-                        settlement.unrest += 15 *
-                                             TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                                 settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(),
-                                                 "unrestGainedMultiplier", Find.World.GetComponent<FactionFC>().traits,
-                                                 "multiply");
-                        settlement.happiness -= 10 *
-                                                TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
-                                                    settlement.traits, "multiply") *
-                                                TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
-                                                    Find.World.GetComponent<FactionFC>().traits, "multiply");
-
-                        settlement.unrest = Math.Min(settlement.unrest, 100);
-                        settlement.happiness = Math.Max(settlement.happiness, 0);
-                    }
+                    FactionFC faction = Find.World.GetComponent<FactionFC>();
+                    faction.GainUnrestForReason(new Message("CaptureOfFactionPawn".Translate(), MessageTypeDefOf.NegativeEvent), 15d);
+                    faction.GainHappiness(-10d);
 
                     return false;
                 }
