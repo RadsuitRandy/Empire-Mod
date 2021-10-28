@@ -132,6 +132,9 @@ namespace FactionColonies
         public float factionXPCurrent;
         public float factionXPGoal = 100;
 
+        //Random Event
+        public float randomEventLastAdded = 0f;
+
         public List<FCPolicy> factionTraits = new List<FCPolicy>
         {
             new FCPolicy(FCPolicyDefOf.empty), new FCPolicy(FCPolicyDefOf.empty), new FCPolicy(FCPolicyDefOf.empty),
@@ -300,6 +303,8 @@ namespace FactionColonies
             //Research Trading
             Scribe_Values.Look(ref tradedAmount, "tradedAmount");
 
+            //Random Event
+            Scribe_Values.Look(ref randomEventLastAdded, "randomEventLastAddedTick");
         }
 
         public override void FinalizeInit()
@@ -2222,6 +2227,7 @@ namespace FactionColonies
             traitMercantileTradeCaravanTickDue = Find.TickManager.TicksGame + (int) (days * GenDate.TicksPerDay);
         }
 
+        private bool CanMakeRandomEventNow() => randomEventLastAdded - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent > 0 && LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillRandomEvent > 0 && Rand.Chance((randomEventLastAdded - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent) / (LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillRandomEvent - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent)) && FactionColonies.Settings().disableRandomEvents == false;
 
         public void StatTick()
         {
@@ -2239,35 +2245,23 @@ namespace FactionColonies
 
                     updateDailyResearch();
 
-
                     //Random event creation
-                    int tmpNum = Rand.Range(1, 100);
+                    FactionFC factionFC = Find.World.GetComponent<FactionFC>();
+                    
                     //Log.Message(tmpNum.ToString());
-                    if (tmpNum <= FactionColonies.randomEventChance &&
-                        FactionColonies.Settings().disableRandomEvents == false)
+                    if (CanMakeRandomEventNow())
                     {
                         FCEvent tmpEvt = FCEventMaker.MakeRandomEvent(FCEventMaker.returnRandomEvent(), null);
                         //Log.Message(tmpEvt.def.label);
                         if (tmpEvt != null)
                         {
-                            Find.World.GetComponent<FactionFC>().addEvent(tmpEvt);
-
+                            factionFC.addEvent(tmpEvt);
+                            randomEventLastAdded = 0f;
 
                             //letter code
-                            string settlementString = "";
-                            foreach (SettlementFC loc in tmpEvt.settlementTraitLocations)
-                            {
-                                if (settlementString == "")
-                                {
-                                    settlementString = settlementString + loc.name;
-                                }
-                                else
-                                {
-                                    settlementString = settlementString + ", " + loc.name;
-                                }
-                            }
+                            string settlementString = string.Join(", ", tmpEvt.settlementTraitLocations);
 
-                            if (settlementString != "")
+                            if (!settlementString.NullOrEmpty())
                             {
                                 Find.LetterStack.ReceiveLetter("Random Event",
                                     tmpEvt.def.desc + "\n This event is affecting the following settlements: " +
@@ -2280,7 +2274,10 @@ namespace FactionColonies
                             }
                         }
                     }
-
+                    else
+                    {
+                        randomEventLastAdded += 1f;
+                    }
 
                     dailyTimer += GenDate.TicksPerDay;
                     //Log.Message(Find.TickManager.TicksGame + " vs " + taxTimeDue + " - Taxing");

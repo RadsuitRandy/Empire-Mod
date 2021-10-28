@@ -1898,8 +1898,6 @@ namespace FactionColonies
         public double settlementBaseUpgradeCost = 1000;
         public int settlementMaxLevel = 10;
 
-        public static int randomEventChance = 25;
-
         public bool medievalTechOnly;
         public bool disableHostileMilitaryActions;
         public bool disableRandomEvents;
@@ -1910,6 +1908,9 @@ namespace FactionColonies
 
         public int minDaysTillMilitaryAction = 4;
         public int maxDaysTillMilitaryAction = 10;
+
+        public int minDaysTillRandomEvent = 0;
+        public int maxDaysTillRandomEvent = 6;
         public IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
 
         private static float plusOrMinusRandomAttackValue = 2;
@@ -1932,7 +1933,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref settlementsAutoBattle, "settlementsAutoBattle");
             Scribe_Values.Look(ref minDaysTillMilitaryAction, "minDaysTillMilitaryAction");
             Scribe_Values.Look(ref maxDaysTillMilitaryAction, "maxDaysTillMilitaryAction");
-
+            Scribe_Values.Look(ref minDaysTillRandomEvent, "minDaysTillRandomEvent", 0);
+            Scribe_Values.Look(ref maxDaysTillRandomEvent, "maxDaysTillRandomEvent", 6);
         }
     }
 
@@ -1960,8 +1962,9 @@ namespace FactionColonies
         bool settlementsAutoBattle;
         int minDaysTillMilitaryAction;
         int maxDaysTillMilitaryAction;
-        IntRange minMaxDaysTillMilitaryAction;
-        
+        IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
+        IntRange minMaxDaysTillRandomEvent = new IntRange(0, 6);
+
         public override void DoSettingsWindowContents(Rect inRect)
         {
             silverPerResource = settings.silverPerResource.ToString();
@@ -1974,9 +1977,9 @@ namespace FactionColonies
             disableHostileMilitaryActions = settings.disableHostileMilitaryActions;
             minDaysTillMilitaryAction = settings.minDaysTillMilitaryAction;
             maxDaysTillMilitaryAction = settings.maxDaysTillMilitaryAction;
-            minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
 
-            settings.minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
+            minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
+            minMaxDaysTillRandomEvent = new IntRange(settings.minDaysTillRandomEvent, settings.maxDaysTillRandomEvent);
 
             Listing_Standard listingStandard = new Listing_Standard();
             listingStandard.Begin(inRect);
@@ -2007,6 +2010,10 @@ namespace FactionColonies
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
             settings.maxDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.max;
+            listingStandard.Label("Min/Max Days Until Random Event");
+            listingStandard.IntRange(ref minMaxDaysTillRandomEvent, 0, 20);
+            settings.minDaysTillRandomEvent = minMaxDaysTillRandomEvent.min;
+            settings.maxDaysTillRandomEvent = Math.Max(1, minMaxDaysTillRandomEvent.max);
 
             if (listingStandard.ButtonText("Reset Settings"))
             {
@@ -2017,7 +2024,10 @@ namespace FactionColonies
                 settings.workerCost = blank.workerCost;
                 settings.medievalTechOnly = blank.medievalTechOnly;
                 settings.settlementMaxLevel = blank.settlementMaxLevel;
-                settings.minMaxDaysTillMilitaryAction = blank.minMaxDaysTillMilitaryAction;
+                settings.minDaysTillMilitaryAction = blank.minDaysTillMilitaryAction;
+                settings.maxDaysTillMilitaryAction = blank.maxDaysTillMilitaryAction;
+                settings.minDaysTillRandomEvent = blank.minDaysTillRandomEvent;
+                settings.maxDaysTillRandomEvent = blank.maxDaysTillRandomEvent;
                 settings.disableRandomEvents = blank.disableRandomEvents;
                 settings.deadPawnsIncreaseMilitaryCooldown = blank.deadPawnsIncreaseMilitaryCooldown;
                 settings.settlementsAutoBattle = true;
