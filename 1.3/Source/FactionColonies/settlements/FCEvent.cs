@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -329,23 +330,31 @@ namespace FactionColonies
                     case "taxColony" when faction.returnSettlementFCIDByLocation(evt.source, evt.planetName) == -1:
                         continue;
                     case "taxColony":
-                    {
-                        Messages.Message(
-                            "TaxesFrom".Translate() + " " + faction.getSettlementName(evt.source, evt.planetName) +
-                            " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
-                        string str = "TaxesFrom".Translate() + " " +
-                                     faction.getSettlementName(evt.source, evt.planetName) + " " +
-                                     "HaveBeenDelivered".Translate() + "!";
-
-                        foreach (Thing thing in evt.goods)
                         {
-                            str = str + "\n" + thing.LabelCap;
-                        }
+                            Messages.Message(
+                                "TaxesFrom".Translate() + " " + faction.getSettlementName(evt.source, evt.planetName) +
+                                " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
+                            string str = "TaxesFrom".Translate() + " " +
+                                            faction.getSettlementName(evt.source, evt.planetName) + " " +
+                                            "HaveBeenDelivered".Translate() + "!";
 
-                        Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(evt);
-                        break;
-                    }
+                            Dictionary<string, int> thingCountDic = new Dictionary<string, int>();
+                            foreach (Thing thing in evt.goods)
+                            {
+                                if (thingCountDic.ContainsKey(thing.LabelCapNoCount))
+                                {
+                                    thingCountDic[thing.LabelCapNoCount] += thing.stackCount;
+                                }
+                                else
+                                {
+                                    thingCountDic.Add(thing.LabelCapNoCount, thing.stackCount);
+                                }
+                            }
+
+                            Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + thingCountDic.ToLetterString(), LetterDefOf.PositiveEvent);
+                            PaymentUtil.deliverThings(evt);
+                            break;
+                        }
                     case "constructBuilding":
                         //Create building
                         faction.settlements[faction.returnSettlementFCIDByLocation(evt.source, evt.planetName)]
