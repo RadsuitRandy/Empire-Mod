@@ -2246,7 +2246,9 @@ namespace FactionColonies
                     randomEventLastAdded = 0f;
 
                     //letter code
-                    string settlementString = string.Join(", ", tmpEvt.settlementTraitLocations);
+                    List<string> settlements = new List<string>();
+                    tmpEvt.settlementTraitLocations.ForEach(settlement => settlements.Add(settlement.name));
+                    string settlementString = string.Join(", ", settlements);
 
                     if (!settlementString.NullOrEmpty())
                     {

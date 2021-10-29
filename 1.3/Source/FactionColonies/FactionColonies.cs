@@ -925,10 +925,8 @@ namespace FactionColonies
                 if (evtDef.isRandomEvent)
                     list.Add(new DebugMenuOption(evtDef.label, DebugMenuOptionMode.Action, delegate
                         {
-                            FCEvent evt;
-
                             Log.Message("Debug - Make Random Event - " + evtDef.label);
-                            evt = FCEventMaker.MakeRandomEvent(evtDef, null);
+                            FCEvent evt = FCEventMaker.MakeRandomEvent(evtDef, null);
                             if (evtDef.activateAtStart == false)
                             {
                                 FCEventMaker.MakeRandomEvent(evtDef, null);
@@ -936,18 +934,9 @@ namespace FactionColonies
                             }
 
                             //letter code
-                            string settlementString = "";
-                            foreach (SettlementFC loc in evt.settlementTraitLocations)
-                            {
-                                if (settlementString == "")
-                                {
-                                    settlementString += loc.name;
-                                }
-                                else
-                                {
-                                    settlementString += ", " + loc.name;
-                                }
-                            }
+                            List<string> settlements = new List<string>();
+                            evt.settlementTraitLocations.ForEach(settlement => settlements.Add(settlement.name));
+                            string settlementString = string.Join(", ", settlements);
 
                             if (settlementString != "")
                             {

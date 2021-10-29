@@ -203,11 +203,13 @@ namespace FactionColonies
 
         public static FCEvent MakeRandomEvent(FCEventDef def, List<SettlementFC> SettlementTraitLocations)
         {
-            FCEvent tempEvent = new FCEvent(true);
-            tempEvent.def = def;
-            tempEvent.timeTillTrigger = def.timeTillTrigger + Find.TickManager.TicksGame;
-            tempEvent.traits = def.traits;
-            tempEvent.settlementTraitLocations = new List<SettlementFC>();
+            FCEvent tempEvent = new FCEvent(true)
+            {
+                def = def,
+                timeTillTrigger = def.timeTillTrigger + Find.TickManager.TicksGame,
+                traits = def.traits,
+                settlementTraitLocations = new List<SettlementFC>()
+            };
 
 
             //if affects specific settlement(s) then get settlements.
