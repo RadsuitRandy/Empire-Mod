@@ -327,9 +327,6 @@ namespace FactionColonies
                         continue;
                     case "taxColony":
                         {
-                            Messages.Message(
-                                "TaxesFrom".Translate() + " " + faction.getSettlementName(evt.source, evt.planetName) +
-                                " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
                             string str = "TaxesFrom".Translate() + " " +
                                             faction.getSettlementName(evt.source, evt.planetName) + " " +
                                             "HaveBeenDelivered".Translate() + "!";
@@ -346,8 +343,9 @@ namespace FactionColonies
                                     thingCountDic.Add(thing.LabelCapNoCount, thing.stackCount);
                                 }
                             }
+                            Message msg = new Message(str, MessageTypeDefOf.PositiveEvent);
 
-                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + thingCountDic.ToLetterString(), LetterDefOf.PositiveEvent));
+                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + thingCountDic.ToLetterString(), LetterDefOf.PositiveEvent), msg);
                             break;
                         }
                     case "constructBuilding":

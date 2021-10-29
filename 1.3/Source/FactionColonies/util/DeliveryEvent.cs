@@ -51,23 +51,31 @@ namespace FactionColonies.util
 			mode = TraverseMode.ByPawn
 		};
 
-		public static void Action(FCEvent evt, Letter let = null)
+		public static void Action(FCEvent evt, Letter let = null, Message msg = null)
         {
-			Action(evt.goods, let);
+			Action(evt.goods, let, msg);
         }
 
-		private static void MakeDeliveryLetter(Letter let, List<Thing> things)
+		private static void MakeDeliveryLetterAndMessage(Letter let, Message msg, List<Thing> things)
 		{
-			if (let == null) return;
-			let.lookTargets = things;
-			Find.LetterStack.ReceiveLetter(let);
+			if (let != null)
+			{
+				let.lookTargets = things;
+				Find.LetterStack.ReceiveLetter(let);
+			}
+
+			if (msg != null)
+            {
+				msg.lookTargets = things;
+				Messages.Message(msg);
+            }
 		}
 
-		public static void Action(List<Thing> things, Letter let = null)
+		public static void Action(List<Thing> things, Letter let = null, Message msg = null)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 
-			MakeDeliveryLetter(let, things);
+			MakeDeliveryLetterAndMessage(let, msg, things);
 
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
 			{
