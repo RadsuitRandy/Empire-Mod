@@ -2233,9 +2233,7 @@ namespace FactionColonies
 
         private void MakeRandomEvent()
         {
-            Log.Message("Here");
             if (RandomEventsDisabledOrNoSettlements()) return;
-            Log.Message("daysLastAdded: " + randomEventLastAdded);
 
             //Log.Message(tmpNum.ToString());
             if (CanMakeRandomEventNow())
