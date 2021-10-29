@@ -177,6 +177,7 @@ namespace FactionColonies
             foreach (ResourceType resourceType in ResourceUtils.resourceTypes)
             {
                 ResourceFC resource = settlement.getResource(resourceType);
+                float rectY = scroll + y + 70 + (int)resourceType * (45 + spacing);
                 if ((int) resourceType * ScrollSpacing + scroll < 0)
                 {
                     //if outside view
@@ -204,22 +205,24 @@ namespace FactionColonies
                                     PaymentUtil.resetThingFilter(settlement, resourceType);
                                 }
 
-                                List<FloatMenuOption> options = new List<FloatMenuOption>();
-                                options.Add(new FloatMenuOption("Enable All",
+                                List<FloatMenuOption> options = new List<FloatMenuOption>
+                                {
+                                    new FloatMenuOption("Enable All",
                                     delegate
                                     {
                                         PaymentUtil.resetThingFilter(settlement, resourceType);
                                         resource.returnLowestCost();
-                                    }));
-                                options.Add(new FloatMenuOption("Disable All",
+                                    }),
+                                    new FloatMenuOption("Disable All",
                                     delegate
                                     {
                                         resource.filter.SetDisallowAll();
                                         resource.returnLowestCost();
-                                    }));
+                                    })
+                                };
                                 List<ThingDef> things = PaymentUtil.debugGenerateTithe(resourceType);
                                 
-                                foreach (ThingDef thing in things.Where(thing => !(thing.race != null && thing.race.Animal && thing.race.animalType == AnimalType.Dryad)))
+                                foreach (ThingDef thing in things.Where(thing => !(thing.race?.Animal ?? false && thing.race.animalType == AnimalType.Dryad)))
                                 {
                                     if (!FactionColonies.canCraftItem(thing))
                                     {
@@ -267,9 +270,9 @@ namespace FactionColonies
                     }
 
                     //Production Efficiency
-                    Widgets.DrawBox(new Rect(x + 80, scroll + y + 70 + (int) resourceType * (45 + spacing),
+                    Widgets.DrawBox(new Rect(x + 80, rectY,
                         100, 20));
-                    Widgets.FillableBar(new Rect(x + 80, scroll + y + 70 + (int) resourceType * (45 + spacing),
+                    Widgets.FillableBar(new Rect(x + 80, rectY,
                             100, 20),
                         (float) Math.Min(resource.baseProductionMultiplier, 1.0));
                     Widgets.Label(new Rect(x + 80, scroll + y + 90 + (int) resourceType * (45 + spacing),
@@ -302,25 +305,26 @@ namespace FactionColonies
                     }
 
                     //Base Production
-                    Widgets.Label(new Rect(x + 195, scroll + y + 70 + (int) resourceType * (45 + spacing), 45, 40),
+                    Widgets.Label(new Rect(x + 195, rectY, 45, 40),
                         FactionColonies.FloorStat(resource.baseProduction));
 
                     //Final Modifier
-                    Widgets.Label(new Rect(x + 250, scroll + y + 70 + (int) resourceType * (45 + spacing), 50, 40),
+                    Widgets.Label(new Rect(x + 250, rectY, 50, 40),
                         FactionColonies.FloorStat(resource.endProductionMultiplier));
 
                     //Final Base
-                    Widgets.Label(new Rect(x + 310, scroll + y + 70 + (int) resourceType * (45 + spacing), 45, 40),
+                    Widgets.Label(new Rect(x + 310, rectY, 45, 40),
                         (FactionColonies.FloorStat(resource.endProduction)));
 
                     //Est Income
-                    Widgets.Label(new Rect(x + 365, scroll + y + 70 + (int) resourceType * (45 + spacing), 45, 40),
+                    Widgets.Label(new Rect(x + 365, rectY, 45, 40),
                         (FactionColonies.FloorStat(resource.endProduction * LoadedModManager
                             .GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().silverPerResource)));
 
                     //Tithe Percentage
-                    Widgets.Label(new Rect(x + 420, scroll + y + 70 + (int) resourceType * (45 + spacing), 45, 40),
-                        FactionColonies.FloorStat(resource.taxPercentage) + "%");
+                    resource.returnTaxPercentage();
+                    string taxPercentage = FactionColonies.FloorStat(resource.taxPercentage) + "%";
+                    Widgets.Label(new Rect(x + 420, rectY, 45, 40), taxPercentage);
                 }
             }
 
