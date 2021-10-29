@@ -347,8 +347,7 @@ namespace FactionColonies
                                 }
                             }
 
-                            Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + thingCountDic.ToLetterString(), LetterDefOf.PositiveEvent);
-                            PaymentUtil.deliverThings(evt);
+                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + thingCountDic.ToLetterString(), LetterDefOf.PositiveEvent));
                             break;
                         }
                     case "constructBuilding":

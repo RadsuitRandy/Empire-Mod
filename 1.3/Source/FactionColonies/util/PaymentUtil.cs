@@ -124,9 +124,9 @@ namespace FactionColonies
             GenPlace.TryPlaceThing(thing, intvec, taxMap, ThingPlaceMode.Near);
         }
 
-        public static void deliverThings(FCEvent evt)
+        public static void deliverThings(FCEvent evt, Letter let = null)
         {
-            DeliveryEvent.Action(evt);
+            DeliveryEvent.Action(evt, let);
         }
 
 

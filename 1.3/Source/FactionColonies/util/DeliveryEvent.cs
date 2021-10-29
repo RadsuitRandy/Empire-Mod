@@ -51,14 +51,24 @@ namespace FactionColonies.util
 			mode = TraverseMode.ByPawn
 		};
 
-		public static void Action(FCEvent evt)
+		public static void Action(FCEvent evt, Letter let = null)
         {
-			Action(evt.goods);
+			Action(evt.goods, let);
         }
 
-		public static void Action(List<Thing> things)
+		private static void MakeDeliveryLetter(Letter let, List<Thing> things)
+		{
+			if (let == null) return;
+			let.lookTargets = things;
+			Find.LetterStack.ReceiveLetter(let);
+		}
+
+		public static void Action(List<Thing> things, Letter let = null)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
+
+			MakeDeliveryLetter(let, things);
+
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
 			{
 				if (ModsConfig.RoyaltyActive)
@@ -88,11 +98,12 @@ namespace FactionColonies.util
 				if (FactionColonies.Settings().disableTaxDeliveryCaravan)
                 {
 					things.ForEach(thing => PaymentUtil.placeThing(thing));
+					Find.LetterStack.ReceiveLetter(let);
 					return;
                 }
 
 				List<Pawn> pawns = new List<Pawn>();
-				while(things.Count() > 0)
+				while (things.Count() > 0)
 				{
 					Pawn pawn = PawnGenerator.GeneratePawn(Request);
 					Thing next = things.First();
