@@ -2227,7 +2227,52 @@ namespace FactionColonies
             traitMercantileTradeCaravanTickDue = Find.TickManager.TicksGame + (int) (days * GenDate.TicksPerDay);
         }
 
-        private bool CanMakeRandomEventNow() => randomEventLastAdded - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent > 0 && LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillRandomEvent > 0 && Rand.Chance((randomEventLastAdded - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent) / (LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillRandomEvent - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent)) && FactionColonies.Settings().disableRandomEvents == false;
+        private bool CanMakeRandomEventNow() => Rand.Chance((randomEventLastAdded - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent) / (LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillRandomEvent - LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillRandomEvent));
+
+        private bool RandomEventsDisabledOrNoSettlements() => Find.World.GetComponent<FactionFC>().settlements.Count == 0 || FactionColonies.Settings().disableRandomEvents;
+
+        private void MakeRandomEvent()
+        {
+            Log.Message("Here");
+            if (RandomEventsDisabledOrNoSettlements()) return;
+            Log.Message("daysLastAdded: " + randomEventLastAdded);
+
+            //Log.Message(tmpNum.ToString());
+            if (CanMakeRandomEventNow())
+            {
+                FCEvent tmpEvt = FCEventMaker.MakeRandomEvent(FCEventMaker.returnRandomEvent(), null);
+                //Log.Message(tmpEvt.def.label);
+                if (tmpEvt != null)
+                {
+                    Find.World.GetComponent<FactionFC>().addEvent(tmpEvt);
+                    randomEventLastAdded = 0f;
+
+                    //letter code
+                    string settlementString = string.Join(", ", tmpEvt.settlementTraitLocations);
+
+                    if (!settlementString.NullOrEmpty())
+                    {
+                        Find.LetterStack.ReceiveLetter("Random Event",
+                            tmpEvt.def.desc + "\n This event is affecting the following settlements: " +
+                            settlementString, LetterDefOf.NeutralEvent);
+                    }
+                    else
+                    {
+                        Find.LetterStack.ReceiveLetter("Random Event", tmpEvt.def.desc,
+                            LetterDefOf.NeutralEvent);
+                    }
+                }
+                else
+                {
+                    randomEventLastAdded += 1f;
+                }
+            }
+            else
+            {
+                randomEventLastAdded += 1f;
+            }
+
+        }
 
         public void StatTick()
         {
@@ -2246,38 +2291,7 @@ namespace FactionColonies
                     updateDailyResearch();
 
                     //Random event creation
-                    FactionFC factionFC = Find.World.GetComponent<FactionFC>();
-                    
-                    //Log.Message(tmpNum.ToString());
-                    if (CanMakeRandomEventNow())
-                    {
-                        FCEvent tmpEvt = FCEventMaker.MakeRandomEvent(FCEventMaker.returnRandomEvent(), null);
-                        //Log.Message(tmpEvt.def.label);
-                        if (tmpEvt != null)
-                        {
-                            factionFC.addEvent(tmpEvt);
-                            randomEventLastAdded = 0f;
-
-                            //letter code
-                            string settlementString = string.Join(", ", tmpEvt.settlementTraitLocations);
-
-                            if (!settlementString.NullOrEmpty())
-                            {
-                                Find.LetterStack.ReceiveLetter("Random Event",
-                                    tmpEvt.def.desc + "\n This event is affecting the following settlements: " +
-                                    settlementString, LetterDefOf.NeutralEvent);
-                            }
-                            else
-                            {
-                                Find.LetterStack.ReceiveLetter("Random Event", tmpEvt.def.desc,
-                                    LetterDefOf.NeutralEvent);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        randomEventLastAdded += 1f;
-                    }
+                    MakeRandomEvent();
 
                     dailyTimer += GenDate.TicksPerDay;
                     //Log.Message(Find.TickManager.TicksGame + " vs " + taxTimeDue + " - Taxing");
