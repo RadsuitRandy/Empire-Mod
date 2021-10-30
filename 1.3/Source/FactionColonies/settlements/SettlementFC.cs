@@ -938,7 +938,7 @@ namespace FactionColonies
                         faction.addExperienceToFactionLevel(5f);
                         List<Thing> loot = new List<Thing>();
 
-                        string text = "settlementDeliveringLoot".Translate();
+                        string text = "";
 
                         int num = new IntRange(1, 3).RandomInRange;
                         for (int i = 0; i <= num; i++)
