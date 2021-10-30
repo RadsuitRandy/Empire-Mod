@@ -407,7 +407,6 @@ namespace FactionColonies
         {
             List<Apparel> apparel = new List<Apparel>();
             List<ThingWithComps> equipment = new List<ThingWithComps>();
-            PawnKindDef kindDef = pawnKind;
 
             if (defaultPawn != null)
             {

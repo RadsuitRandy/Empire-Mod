@@ -24,11 +24,11 @@ namespace FactionColonies.util
 		}
 
 		public static void Action(FCEvent evt, Letter let = null, Message msg = null, bool CanUseShuttle = false)
-        {
+		{
 			Action(evt.goods, let, msg, CanUseShuttle || Find.World.GetComponent<FactionFC>().settlements.First(settlement => settlement.mapLocation == evt.source).traits.Contains(FCTraitEffectDefOf.shuttlePort), evt.source);
-        }
+		}
 
-		private static void MakeDeliveryLetterAndMessage(Letter let, Message msg, List<Thing> things)
+		private static void MakeDeliveryLetterAndMessage(Letter let, Message msg, List<Thing> things, int source)
 		{
 			try
 			{
@@ -36,18 +36,28 @@ namespace FactionColonies.util
 				{
 					let.lookTargets = things;
 					Find.LetterStack.ReceiveLetter(let);
-				}
+                }
+                else
+				{
+					FactionFC faction = Find.World.GetComponent<FactionFC>();
+					string str = "TaxesFrom".Translate() + "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
+					Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + things.ToLetterString(), LetterDefOf.PositiveEvent, things);
+                }
 
 				if (msg != null)
 				{
 					msg.lookTargets = things;
 					Messages.Message(msg);
-				}
+                }
+                else
+                {
+					Messages.Message("deliveryHoldUpArriving".Translate(), things, MessageTypeDefOf.PositiveEvent);
+                }
 			} 
 			catch
-            {
+			{
 				Log.ErrorOnce("MakeDeliveryLetterAndMessage failed to attach targets to the message", 908347458);
-            }
+			}
 		}
 
 		public static void Action(List<Thing> things, Letter let = null, Message msg = null, bool canUseShuttle = false, int source = -1)
@@ -58,14 +68,13 @@ namespace FactionColonies.util
 			{
 				if (ModsConfig.RoyaltyActive && canUseShuttle)
 				{
-
 					List<ShipLandingArea> landingZones = ShipLandingBeaconUtility.GetLandingZones(playerHomeMap);
 
 					IntVec3 landingCell = DropCellFinder.GetBestShuttleLandingSpot(playerHomeMap, Faction.OfPlayer);
 
 					if (!landingZones.Any() || landingZones.Any(zone => zone.Clear))
 					{
-						MakeDeliveryLetterAndMessage(let, msg, things);
+						MakeDeliveryLetterAndMessage(let, msg, things, source);
 						Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
 						TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
 
@@ -77,11 +86,11 @@ namespace FactionColonies.util
 						});
 					} 
 					else
-                    {
+					{
 						if (let != null && msg != null)
-                        {
+						{
 							Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
-                        }
+						}
 
 						if (source == -1) source = playerHomeMap.Tile;
 
@@ -100,19 +109,45 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					MakeDeliveryLetterAndMessage(let, msg, things);
+					MakeDeliveryLetterAndMessage(let, msg, things, source);
 					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
 				}
 			}
 			else
 			{
-				MakeDeliveryLetterAndMessage(let, msg, things);
 				if (FactionColonies.Settings().disableTaxDeliveryCaravan)
-                {
+				{
+					MakeDeliveryLetterAndMessage(let, msg, things, source);
 					things.ForEach(thing => PaymentUtil.placeThing(thing));
 					return;
-                }
+				}
 
+				if (playerHomeMap.dangerWatcher.DangerRating != StoryDanger.None)
+				{
+
+					if (let != null && msg != null)
+					{
+						Messages.Message(((string)"caravanDangerTooHighWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
+					}
+
+					if (source == -1) source = playerHomeMap.Tile;
+
+					DeliveryEventParams eventParams = new DeliveryEventParams
+					{
+						Location = Find.AnyPlayerHomeMap.Tile,
+						Source = source,
+						PlanetName = Find.World.info.name,
+						Contents = things,
+						CustomDescription = "caravanDangerTooHigh".Translate(),
+						timeTillTriger = Find.TickManager.TicksGame + 1000
+					};
+
+
+					CreateDeliveryEvent(eventParams);
+					return;
+				}
+
+				MakeDeliveryLetterAndMessage(let, msg, things, source);
 				List<Pawn> pawns = new List<Pawn>();
 				while (things.Count() > 0)
 				{
