@@ -34,5 +34,10 @@ namespace FactionColonies
 									!pawnKindDef.race.tradeTags.Contains("AnimalGenetic") &&
 									!pawnKindDef.race.tradeTags.Contains("AnimalAlpha");
 		}
+
+		public static int GetReasonableMercenaryAge(this PawnKindDef pawnKindDef)
+        {
+			return Rand.Range((int) Math.Ceiling(pawnKindDef.race.race.lifeExpectancy * 0.2625d), (int) Math.Floor(pawnKindDef.race.race.lifeExpectancy * 0.625d));
+		}
 	}
 }
