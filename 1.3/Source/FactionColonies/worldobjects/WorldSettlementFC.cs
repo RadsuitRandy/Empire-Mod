@@ -407,10 +407,10 @@ namespace FactionColonies
                     Source = settlement.mapLocation,
                     Contents = pawns,
                     CustomDescription = DeliveryEvent.ShuttleEventInjuredString,
-                    timeTillTriger = FactionColonies.ReturnTicksToArrive(Tile, Find.AnyPlayerHomeMap.Tile)
+                    timeTillTriger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(Tile, Find.AnyPlayerHomeMap.Tile)
                 };
 
-                if (pawns.Count() > 0) DeliveryEvent.CreateShuttleEvent(eventParams);
+                if (pawns.Count() > 0) DeliveryEvent.CreateDeliveryEvent(eventParams);
             }
 
             if (Map.mapPawns?.AllPawnsSpawned == null) return;

@@ -53,12 +53,12 @@ namespace FactionColonies.util
 
 		public static void Action(FCEvent evt)
 		{
-			Action(evt.goods);
+			Action(evt, null, null);
 		}
 
-		public static void Action(FCEvent evt, Letter let = null, Message msg = null)
+		public static void Action(FCEvent evt, Letter let = null, Message msg = null, bool CanUseShuttle = false)
         {
-			Action(evt.goods, let, msg);
+			Action(evt.goods, let, msg, CanUseShuttle || Find.World.GetComponent<FactionFC>().settlements.First(settlement => settlement.mapLocation == evt.source).traits.Contains(FCTraitEffectDefOf.shuttlePort), evt.source);
         }
 
 		private static void MakeDeliveryLetterAndMessage(Letter let, Message msg, List<Thing> things)
@@ -83,13 +83,13 @@ namespace FactionColonies.util
             }
 		}
 
-		public static void Action(List<Thing> things, Letter let = null, Message msg = null)
+		public static void Action(List<Thing> things, Letter let = null, Message msg = null, bool canUseShuttle = false, int source = -1)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
 			{
-				if (ModsConfig.RoyaltyActive)
+				if (ModsConfig.RoyaltyActive && canUseShuttle)
 				{
 
 					List<ShipLandingArea> landingZones = ShipLandingBeaconUtility.GetLandingZones(playerHomeMap);
@@ -115,17 +115,20 @@ namespace FactionColonies.util
                         {
 							Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
                         }
+
+						if (source == -1) source = playerHomeMap.Tile;
+
 						DeliveryEventParams eventParams = new DeliveryEventParams
 						{
 							Location = Find.AnyPlayerHomeMap.Tile,
-							Source = playerHomeMap.Tile,
+							Source = source,
 							PlanetName = Find.World.info.name,
 							Contents = things,
 							CustomDescription = "shuttleLandingBlocked".Translate(),
 							timeTillTriger = Find.TickManager.TicksGame + 1000
 						};
 
-						CreateShuttleEvent(eventParams);
+						CreateDeliveryEvent(eventParams);
 					}
 				}
 				else
@@ -168,7 +171,7 @@ namespace FactionColonies.util
 			}
 		}
 
-		public static void CreateShuttleEvent(DeliveryEventParams evtParams)
+		public static void CreateDeliveryEvent(DeliveryEventParams evtParams)
 		{
 			FCEvent evt = FCEventMaker.MakeEvent(FCEventDefOf.deliveryArrival);
 			evt.source = evtParams.Source;

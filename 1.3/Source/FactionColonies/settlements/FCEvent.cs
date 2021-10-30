@@ -394,16 +394,10 @@ namespace FactionColonies
                 }
                 else //if undefined event
                 {
-                    if (evt.def.goods.Count > 0)
-                    {
-                        PaymentUtil.deliverThings(evt);
-                    }
-
                     // Log.Message(temp.def.label + " " + temp.def.randomThingValue + " value:thing " + temp.def.randomThingType);
                     if (evt.def.randomThingValue > 0 && evt.def.randomThingType != "")
                     {
-                        List<Thing> list =
-                            PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
+                        List<Thing> list = PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
 
                         string str;
                         str = "GoodsReceivedFollowing".Translate(evt.def.label);
@@ -413,7 +407,12 @@ namespace FactionColonies
                         }
 
                         Find.LetterStack.ReceiveLetter("GoodsReceived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(list);
+                        evt.goods.AddRange(list);
+                    }
+
+                    if (evt.def.goods.Count > 0)
+                    {
+                        PaymentUtil.deliverThings(evt);
                     }
                 }
 

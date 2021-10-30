@@ -903,8 +903,19 @@ namespace FactionColonies
                                 Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
                             LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
 
-                        //deliver
-                        PaymentUtil.deliverThings(loot);
+                            //deliver
+
+                            DeliveryEventParams eventParams = new DeliveryEventParams
+                            {
+                                Location = Find.AnyPlayerHomeMap.Tile,
+                                Source = mapLocation,
+                                PlanetName = planetName,
+                                Contents = loot,
+                                CustomDescription = text,
+                                timeTillTriger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(mapLocation, Find.AnyPlayerHomeMap.Tile)
+                            };
+
+                            DeliveryEvent.CreateDeliveryEvent(eventParams);
                     }
                     else
                     {
@@ -942,9 +953,19 @@ namespace FactionColonies
                                 Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
                             LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
 
-                        //deliver
-                        PaymentUtil.deliverThings(loot);
-                    }
+                            //deliver
+                            DeliveryEventParams eventParams = new DeliveryEventParams
+                            {
+                                Location = Find.AnyPlayerHomeMap.Tile,
+                                Source = mapLocation,
+                                PlanetName = planetName,
+                                Contents = loot,
+                                CustomDescription = text,
+                                timeTillTriger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(mapLocation, Find.AnyPlayerHomeMap.Tile)
+                            };
+
+                            DeliveryEvent.CreateDeliveryEvent(eventParams);
+                        }
                     else if (winner == 1)
                     {
                         //if lost
