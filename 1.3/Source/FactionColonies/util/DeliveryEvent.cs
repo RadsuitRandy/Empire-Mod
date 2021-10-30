@@ -58,16 +58,23 @@ namespace FactionColonies.util
 
 		private static void MakeDeliveryLetterAndMessage(Letter let, Message msg, List<Thing> things)
 		{
-			if (let != null)
+			try
 			{
-				let.lookTargets = things;
-				Find.LetterStack.ReceiveLetter(let);
-			}
+				if (let != null)
+				{
+					let.lookTargets = things;
+					Find.LetterStack.ReceiveLetter(let);
+				}
 
-			if (msg != null)
+				if (msg != null)
+				{
+					msg.lookTargets = things;
+					Messages.Message(msg);
+				}
+			} 
+			catch
             {
-				msg.lookTargets = things;
-				Messages.Message(msg);
+				Log.ErrorOnce("MakeDeliveryLetterAndMessage failed to attach targets to the message", 908347458);
             }
 		}
 
