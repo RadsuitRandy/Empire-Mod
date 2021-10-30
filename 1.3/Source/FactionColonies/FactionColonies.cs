@@ -1975,7 +1975,7 @@ namespace FactionColonies
             listingStandard.IntEntry(ref settings.silverPerResource, ref silverPerResource);
             listingStandard.Label("Days between tax time");
             listingStandard.IntEntry(ref daysBetweenTaxes, ref timeBetweenTaxes);
-            settings.timeBetweenTaxes = daysBetweenTaxes * 60000;
+            settings.timeBetweenTaxes = Math.Max(1, daysBetweenTaxes) * 60000;
             listingStandard.Label("Production Tithe Modifier");
             listingStandard.IntEntry(ref settings.productionTitheMod, ref productionTitheMod);
             listingStandard.Label("Cost Per Worker");
