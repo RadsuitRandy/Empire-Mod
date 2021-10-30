@@ -130,8 +130,14 @@ namespace FactionColonies
                 icon = TexLoad.iconMilitary,
                 action = () =>
                 {
-                    startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation),
-                        () => { });
+                    if (FactionColonies.Settings().settlementsAutoBattle)
+                    {
+                        Messages.Message("autoBattleEnabledNoManualFight".Translate(), MessageTypeDefOf.RejectInput);
+                    }
+                    else
+                    {
+                        startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation), () => { });
+                    }
                 }
             };
 

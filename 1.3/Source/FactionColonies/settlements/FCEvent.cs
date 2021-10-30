@@ -873,7 +873,6 @@ namespace FactionColonies
         {
             if (!classToRun.NullOrEmpty() && !classMethodToRun.NullOrEmpty())
             {
-                Log.Message("Running action");
                 Type typ = null;
                 foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {
