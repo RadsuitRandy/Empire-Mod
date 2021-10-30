@@ -3,6 +3,7 @@ using RimWorld;
 using Verse;
 using Verse.AI.Group;
 using FactionColonies.util;
+using System.Linq;
 
 namespace FactionColonies
 {
@@ -47,7 +48,7 @@ namespace FactionColonies
 				{
 					new TransitionAction_Custom(delegate ()
 					{
-						Messages.Message("deliveryPawnsEngageEnemy".Translate(), MessageTypeDefOf.NeutralEvent);
+						Messages.Message("deliveryPawnsEngageEnemy".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
 					})
 				}
 			});
@@ -74,12 +75,30 @@ namespace FactionColonies
 					{
 						if (Map.HasWoundedForFaction(lord.faction))
 						{
-							Messages.Message("pawnsLeavingMapWithDowned".Translate(), MessageTypeDefOf.NeutralEvent);
+							Messages.Message("pawnsLeavingMapWithDowned".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
 						}
 						else
 						{
-							Messages.Message("pawnsLeavingMap".Translate(), MessageTypeDefOf.NeutralEvent);
+							Messages.Message("pawnsLeavingMap".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
 						}
+					})
+				}
+			});
+
+			stateGraph.AddTransition(new Transition(stateGraph.lordToils[0], stateGraph.lordToils[2])
+			{
+				triggers = new List<Trigger>
+				{
+					new Trigger_Custom(delegate(TriggerSignal signal) 
+					{
+						return lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null);
+					})
+				},
+				preActions = new List<TransitionAction>
+				{
+					new TransitionAction_Custom(delegate ()
+					{
+						Messages.Message("pawnsLeavingMapNoPath".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
 					})
 				}
 			});

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using FactionColonies.util;
 using RimWorld;
 using Verse;
@@ -16,7 +18,6 @@ namespace FactionColonies
 		private bool sendMessage = false;
 		private bool cellIsSet = false;
 		public IntVec3 deliveryCell;
-
 
 		public void SetCell()
 		{
