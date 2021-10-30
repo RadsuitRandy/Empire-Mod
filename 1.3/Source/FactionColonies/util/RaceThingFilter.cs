@@ -108,7 +108,7 @@ namespace FactionColonies.util
             }
             else if (triedLevels.Count != 0)
             {
-                Log.Error("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ".");
+                Log.Warning("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ". Empire will generate Pawns using the techlevel: " + tempLevel + ".");
             }
             return workList;
         }
