@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -659,51 +660,23 @@ namespace FactionColonies
 
 									faction.traitFeudalBoolCanUseMercenary = false;
 									faction.traitFeudalTickLastUsedMercenary = Find.TickManager.TicksGame;
-									List<PawnKindDef> listKindDef = new List<PawnKindDef>();
-									foreach (ThingDef def in Find.World.GetComponent<FactionFC>().raceFilter.AllowedThingDefs)
-									{
-										listKindDef.Add(def.race.AnyPawnKind);
-									}
-									PawnGroupMaker groupMaker = FactionColonies.getPlayerColonyFaction().def.pawnGroupMakers.RandomElement();
-									PawnGroupMakerParms group = new PawnGroupMakerParms();
-									group.groupKind = groupMaker.kindDef;
-									group.faction = FactionColonies.getPlayerColonyFaction();
-									group.dontUseSingleUseRocketLaunchers = true;
-									group.generateFightersOnly = true;
-									group.points = 2000;
-									
-									group.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
-									
 
-									PawnKindDef pawnkind = new PawnKindDef();
-									PawnKindDef kind = groupMaker.GeneratePawns(group).RandomElement().kindDef;
-									pawnkind = listKindDef.RandomElement();
+                                    PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest;
+									request.ColonistRelationChanceFactor = 20f;
+									Pawn pawn = PawnGenerator.GeneratePawn(request);
 
-									pawnkind.techHediffsTags = kind.techHediffsTags;
-									pawnkind.apparelTags = kind.apparelTags;
-									pawnkind.isFighter = kind.isFighter;
-									pawnkind.combatPower = kind.combatPower;
-									pawnkind.gearHealthRange = kind.gearHealthRange;
-									pawnkind.weaponTags = kind.weaponTags;
-									pawnkind.apparelMoney = kind.apparelMoney;
-									pawnkind.weaponMoney = kind.weaponMoney;
-									pawnkind.apparelAllowHeadgearChance = kind.apparelAllowHeadgearChance;
-									pawnkind.techHediffsMoney = kind.techHediffsMoney;
-									pawnkind.label = kind.label;
-
-									Pawn pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(pawnkind, Find.FactionManager.OfPlayer, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 20f));
-
-
-									IncidentParms parms = new IncidentParms();
-									parms.target = Find.CurrentMap;
-									parms.faction = FactionColonies.getPlayerColonyFaction();
-									parms.points = 999;
-									parms.raidArrivalModeForQuickMilitaryAid = true;
-									parms.raidNeverFleeIndividual = true;
-									parms.raidForceOneIncap = true;
-									parms.raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop;
-									parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
-									parms.raidArrivalModeForQuickMilitaryAid = true;
+                                    IncidentParms parms = new IncidentParms
+                                    {
+                                        target = Find.CurrentMap,
+                                        faction = FactionColonies.getPlayerColonyFaction(),
+                                        points = 999,
+                                        raidArrivalModeForQuickMilitaryAid = true,
+                                        raidNeverFleeIndividual = true,
+                                        raidForceOneIncap = true,
+                                        raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop,
+                                        raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
+                                    };
+                                    parms.raidArrivalModeForQuickMilitaryAid = true;
 									PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
 									worker.TryResolveRaidSpawnCenter(parms);
 									worker.Arrive(new List<Pawn> { pawn }, parms);
