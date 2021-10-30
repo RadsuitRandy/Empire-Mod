@@ -10,13 +10,27 @@ namespace FactionColonies
 	static class PawnKindDefExtensions
 	{
 		public static bool IsHumanLikeRace(this PawnKindDef pawnKindDef)
-        {
+		{
 			return pawnKindDef.race.race?.intelligence == Intelligence.Humanlike && pawnKindDef.race.BaseMarketValue != 0;
 		}
 
 		public static bool IsHumanlikeWithLabelRace(this PawnKindDef pawnKindDef)
-        {
+		{
 			return pawnKindDef?.race?.label != null && pawnKindDef.IsHumanLikeRace();
+		}
+
+		private static List<string> BlackListedTradeTags
+		{
+			get
+			{
+				return new List<string>() 
+				{
+					"AnimalDryad",
+					"AnimalMonster",
+					"AnimalGenetic",
+					"AnimalAlpha"
+				};
+			}
 		}
 
 		/// <summary>
@@ -29,14 +43,11 @@ namespace FactionColonies
 			return pawnKindDef.race.race.Animal && pawnKindDef.RaceProps.IsFlesh &&
 									pawnKindDef.race.race.animalType != AnimalType.Dryad &&
 									pawnKindDef.race.tradeTags != null &&
-									!pawnKindDef.race.tradeTags.Contains("AnimalDryad") &&
-									!pawnKindDef.race.tradeTags.Contains("AnimalMonster") &&
-									!pawnKindDef.race.tradeTags.Contains("AnimalGenetic") &&
-									!pawnKindDef.race.tradeTags.Contains("AnimalAlpha");
+									!pawnKindDef.race.tradeTags.Any(tag => BlackListedTradeTags.Contains(tag));
 		}
 
 		public static int GetReasonableMercenaryAge(this PawnKindDef pawnKindDef)
-        {
+		{
 			return Rand.Range((int) Math.Ceiling(pawnKindDef.race.race.lifeExpectancy * 0.2625d), (int) Math.Floor(pawnKindDef.race.race.lifeExpectancy * 0.625d));
 		}
 	}
