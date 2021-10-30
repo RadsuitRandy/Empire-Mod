@@ -936,7 +936,6 @@ namespace FactionColonies
                     {
                         //if won
                         faction.addExperienceToFactionLevel(5f);
-                        List<Thing> loot = new List<Thing>();
 
                         string text = "";
 
@@ -952,19 +951,6 @@ namespace FactionColonies
                             "RaidEnemySettlementSuccess".Translate(
                                 Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
                             LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
-
-                            //deliver
-                            DeliveryEventParams eventParams = new DeliveryEventParams
-                            {
-                                Location = Find.AnyPlayerHomeMap.Tile,
-                                Source = mapLocation,
-                                PlanetName = planetName,
-                                Contents = loot,
-                                CustomDescription = text,
-                                timeTillTriger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(mapLocation, Find.AnyPlayerHomeMap.Tile)
-                            };
-
-                            DeliveryEvent.CreateDeliveryEvent(eventParams);
                         }
                     else if (winner == 1)
                     {
