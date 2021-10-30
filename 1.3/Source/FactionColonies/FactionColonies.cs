@@ -566,21 +566,20 @@ namespace FactionColonies
 
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.372)
+            if (factionFC.updateVersion < 0.373)
             {
                 string str;
                 str =
-                    "A new update for Empire has been released!  v.0.370\n The following abbreviated changes have occurred:";
-                str += "\n\n- A new tax delivery system (can be disabled in the settings)";
-                str += "\n\n- Tax letters now combine items of the same type";
+                    "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
+                str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
+                str += "\n\n- Shuttles now land exactly like vanilla shuttles";
                 str += "\n\n- The chance for random events can now be adjusted in the settings";
                 str += "\n\n- Many bug fixes";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
-                str += "\n\n- I'm sorry for the bugs and the delay in fixing them - I've been kinda ill recently";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.372;
+                factionFC.updateVersion = 0.373;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
                 Find.LetterStack.ReceiveLetter("Manual Settlement is now disabled by default", 
                     "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
