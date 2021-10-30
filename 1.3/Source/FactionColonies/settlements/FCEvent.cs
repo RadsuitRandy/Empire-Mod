@@ -333,21 +333,9 @@ namespace FactionColonies
                                             faction.getSettlementName(evt.source, evt.planetName) + " " +
                                             "HaveBeenDelivered".Translate() + "!";
 
-                            Dictionary<string, int> thingCountDic = new Dictionary<string, int>();
-                            foreach (Thing thing in evt.goods)
-                            {
-                                if (thingCountDic.ContainsKey(thing.LabelCapNoCount))
-                                {
-                                    thingCountDic[thing.LabelCapNoCount] += thing.stackCount;
-                                }
-                                else
-                                {
-                                    thingCountDic.Add(thing.LabelCapNoCount, thing.stackCount);
-                                }
-                            }
                             Message msg = new Message(str, MessageTypeDefOf.PositiveEvent);
 
-                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + thingCountDic.ToLetterString(), LetterDefOf.PositiveEvent), msg);
+                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + evt.goods.ToLetterString(), LetterDefOf.PositiveEvent), msg);
                             break;
                         }
                     case "constructBuilding":
@@ -886,6 +874,7 @@ namespace FactionColonies
         {
             if (!classToRun.NullOrEmpty() && !classMethodToRun.NullOrEmpty())
             {
+                Log.Message("Running action");
                 Type typ = null;
                 foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {

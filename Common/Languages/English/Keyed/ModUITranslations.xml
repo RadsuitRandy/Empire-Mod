@@ -304,6 +304,7 @@
 	<transportingInjuredShuttle>A shuttle is transporting injured colonists back to you after a successful settlement defence</transportingInjuredShuttle>
 	<transportingInjuredDropPod>Drop pods are transporting injured colonists back to you after a successful settlement defence</transportingInjuredDropPod>
 	<transportingInjuredCaravan>A caravan is transporting injured colonists back to you after a successful settlement defence</transportingInjuredCaravan>
+	<shuttleLandingBlocked>A shuttle couldn't find a free landing spot and is waiting for one to be cleared.</shuttleLandingBlocked>
 	
 	<!-- Delivery -->
 	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>

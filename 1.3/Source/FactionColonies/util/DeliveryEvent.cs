@@ -51,6 +51,11 @@ namespace FactionColonies.util
 			mode = TraverseMode.ByPawn
 		};
 
+		public static void Action(FCEvent evt)
+		{
+			Action(evt.goods);
+		}
+
 		public static void Action(FCEvent evt, Letter let = null, Message msg = null)
         {
 			Action(evt.goods, let, msg);
@@ -82,35 +87,59 @@ namespace FactionColonies.util
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 
-			MakeDeliveryLetterAndMessage(let, msg, things);
-
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
 			{
 				if (ModsConfig.RoyaltyActive)
 				{
-					Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
-					TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
+
+					List<ShipLandingArea> landingZones = ShipLandingBeaconUtility.GetLandingZones(playerHomeMap);
 
 					IntVec3 landingCell = DropCellFinder.GetBestShuttleLandingSpot(playerHomeMap, Faction.OfPlayer);
 
-					transportShip.ArriveAt(landingCell, playerHomeMap.Parent);
-					transportShip.AddJobs(new ShipJobDef[]
+					if (!landingZones.Any() || landingZones.Any(zone => zone.Clear))
 					{
+						MakeDeliveryLetterAndMessage(let, msg, things);
+						Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
+						TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
+
+						transportShip.ArriveAt(landingCell, playerHomeMap.Parent);
+						transportShip.AddJobs(new ShipJobDef[]
+						{
 								ShipJobDefOf.Unload,
 								ShipJobDefOf.FlyAway
-					});
+						});
+					} 
+					else
+                    {
+						if (let != null && msg != null)
+                        {
+							Messages.Message("shuttleLandingBlocked".Translate(), MessageTypeDefOf.RejectInput);
+                        }
+						DeliveryEventParams eventParams = new DeliveryEventParams
+						{
+							Location = Find.AnyPlayerHomeMap.Tile,
+							Source = playerHomeMap.Tile,
+							PlanetName = Find.World.info.name,
+							Contents = things,
+							CustomDescription = "shuttleLandingBlocked".Translate(),
+							timeTillTriger = Find.TickManager.TicksGame + 1000
+						};
+
+						CreateShuttleEvent(eventParams);
+					}
 				}
 				else
 				{
+					MakeDeliveryLetterAndMessage(let, msg, things);
 					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
 				}
 			}
 			else
 			{
+				MakeDeliveryLetterAndMessage(let, msg, things);
 				if (FactionColonies.Settings().disableTaxDeliveryCaravan)
                 {
 					things.ForEach(thing => PaymentUtil.placeThing(thing));
-					Find.LetterStack.ReceiveLetter(let);
 					return;
                 }
 
