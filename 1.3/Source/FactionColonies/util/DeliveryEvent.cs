@@ -83,11 +83,8 @@ namespace FactionColonies.util
 				{
 					Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
 					TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
-					
-					if (!DropCellFinder.TryFindShipLandingArea(playerHomeMap, out IntVec3 landingCell, out _))
-					{
-						landingCell = ValidLandingCell(shuttle.def.size, playerHomeMap);
-					}
+
+					IntVec3 landingCell = DropCellFinder.GetBestShuttleLandingSpot(playerHomeMap, Faction.OfPlayer);
 
 					transportShip.ArriveAt(landingCell, playerHomeMap.Parent);
 					transportShip.AddJobs(new ShipJobDef[]
