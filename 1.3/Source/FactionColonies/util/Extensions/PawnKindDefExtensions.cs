@@ -46,9 +46,6 @@ namespace FactionColonies
 									!pawnKindDef.race.tradeTags.Any(tag => BlackListedTradeTags.Contains(tag));
 		}
 
-		public static int GetReasonableMercenaryAge(this PawnKindDef pawnKindDef)
-		{
-			return Rand.Range((int) Math.Ceiling(pawnKindDef.race.race.lifeExpectancy * 0.2625d), (int) Math.Floor(pawnKindDef.race.race.lifeExpectancy * 0.625d));
-		}
+		public static int GetReasonableMercenaryAge(this PawnKindDef pawnKindDef) => Rand.Range((int)Math.Ceiling(pawnKindDef.race.race.lifeExpectancy * 0.2625d), (int)Math.Floor(pawnKindDef.race.race.lifeExpectancy * 0.625d));
 	}
 }
