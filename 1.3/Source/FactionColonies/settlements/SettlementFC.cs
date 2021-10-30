@@ -887,9 +887,8 @@ namespace FactionColonies
 
                         List<Thing> loot = PaymentUtil.generateRaidLoot(lootLevel, tech);
 
-                        string text = "settlementDeliveredLoot".Translate();
-                        text = loot.Aggregate(text, 
-                            (current, thing) => current + thing.LabelCap + " x" + thing.stackCount + "\n ");
+                        string text = "settlementDeliveringLoot".Translate();
+                        text = loot.Aggregate(text, (current, thing) => current + thing.LabelCap + " " + thing.stackCount + "x\n ");
 
                         int num = new IntRange(0, 10).RandomInRange;
                         if (num <= 4 && getSlaves)
@@ -928,13 +927,13 @@ namespace FactionColonies
                         faction.addExperienceToFactionLevel(5f);
                         List<Thing> loot = new List<Thing>();
 
-                        string text = "settlementDeliveredLoot".Translate();
+                        string text = "settlementDeliveringLoot".Translate();
 
                         int num = new IntRange(1, 3).RandomInRange;
                         for (int i = 0; i <= num; i++)
                         {
                             Pawn prisoner = PaymentUtil.generatePrisoner(militaryEnemy);
-                            text = text + "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name) + "\n";
+                            text += "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name) + "\n";
                             addPrisoner(prisoner);
                         }
 

@@ -13,7 +13,6 @@
 <militarySent>Military Sent</militarySent>
 <militarySentToDefend>The military forces of {0} have been sent to defend {1}</militarySentToDefend>
 <militaryAlreadyAssigned>The military force is already assigned.</militaryAlreadyAssigned>
-<settlementDeliveredLoot>Your settlement has delivered the following loot to you: </settlementDeliveredLoot>
 <RaidLoot>Raid Loot</RaidLoot>
 <RaidEnemySettlementSuccess>The raid on {0} has been completed successfully</RaidEnemySettlementSuccess>
 <RaidFailure>Raid Failure</RaidFailure>

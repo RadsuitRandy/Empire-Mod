@@ -19,8 +19,7 @@
     <HasTithe>Has Tithe</HasTithe>
     <PayReceiveSilver>Pay/Receive Silver</PayReceiveSilver>
     <ResolveBill>Resolve Bill</ResolveBill>
-    <NotEnoughSilverOnMapToPayBill>You do not have enough silver on the current map to pay the bill
-    </NotEnoughSilverOnMapToPayBill>
+    <NotEnoughSilverOnMapToPayBill>You do not have enough silver on the current map to pay the bill</NotEnoughSilverOnMapToPayBill>
 
     <!-- Manual defense -->
     <DefendColony>Defend</DefendColony>
@@ -309,7 +308,9 @@
 	
 	<!-- Delivery -->
 	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
-	<pawnsLeavingMap>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMap>
+	<pawnsLeavingMap>The delivering pawns are leaving the map.</pawnsLeavingMap>
+	<pawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMapWithDowned>
+	<settlementDeliveringLoot>Your settlement is delivering the following loot to you: </settlementDeliveringLoot>
 	
 	<!-- Auto Defend Warning -->
 	<autoDefendWarning>Keep in mind that this setting is not the same as the automatic battle resolve setting found in the settings menu!</autoDefendWarning>
