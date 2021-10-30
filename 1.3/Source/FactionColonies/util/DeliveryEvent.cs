@@ -113,7 +113,7 @@ namespace FactionColonies.util
                     {
 						if (let != null && msg != null)
                         {
-							Messages.Message("shuttleLandingBlocked".Translate(), MessageTypeDefOf.RejectInput);
+							Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
                         }
 						DeliveryEventParams eventParams = new DeliveryEventParams
 						{

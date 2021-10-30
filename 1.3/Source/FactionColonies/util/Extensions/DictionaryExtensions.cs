@@ -23,7 +23,7 @@ namespace FactionColonies.util
 
             foreach (KeyValuePair<string, int> keyValuePair in thingCountDic)
             {
-                returnString += keyValuePair.Key.ToString() + " " + keyValuePair.Value.ToString() + "x";
+                returnString += keyValuePair.Key.ToString() + " " + keyValuePair.Value.ToString() + "x\n";
             }
 
             return returnString;
