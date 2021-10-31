@@ -37,23 +37,23 @@ namespace FactionColonies.util
 				{
 					let.lookTargets = things;
 					Find.LetterStack.ReceiveLetter(let);
-                }
-                else
+				}
+				else
 				{
 					FactionFC faction = Find.World.GetComponent<FactionFC>();
 					string str = "TaxesFrom".Translate() + faction.returnSettlementByLocation(source, Find.World.info.name) ?? "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
 					Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + things.ToLetterString(), LetterDefOf.PositiveEvent, things);
-                }
+				}
 
 				if (msg != null)
 				{
 					msg.lookTargets = things;
 					Messages.Message(msg);
-                }
-                else
-                {
+				}
+				else
+				{
 					Messages.Message("deliveryHoldUpArriving".Translate(), things, MessageTypeDefOf.PositiveEvent);
-                }
+				}
 			} 
 			catch
 			{
@@ -173,7 +173,7 @@ namespace FactionColonies.util
 		public static TaxDeliveryMode TaxDeliveryModeForSettlement(bool canUseShuttle)
 		{ 
 			if (FactionColonies.Settings().forcedTaxDeliveryMode != default)
-            {
+			{
 				return FactionColonies.Settings().forcedTaxDeliveryMode;
 			}
 
@@ -211,7 +211,7 @@ namespace FactionColonies.util
 				}
 			} 
 			catch(Exception e)
-            {
+			{
 				Log.ErrorOnce("Critical delivery failure, spawning things on tax spot instead! Message: " + e.Message + " StackTrace: " + e.StackTrace + " Source: " + e.Source, 77239232);
 				things.ForEach(thing => PaymentUtil.placeThing(thing));
 			}
@@ -247,7 +247,7 @@ namespace FactionColonies.util
 				return "transportingInjuredCaravan".Translate();
 			}
 		}
-
+		
 		public static IntVec3 GetDeliveryCell(TraverseParms traverseParms, Map map)
 		{
 			if (!PaymentUtil.checkForTaxSpot(map, out IntVec3 intVec3))
@@ -297,11 +297,11 @@ namespace FactionColonies.util
 	}
 
 	public enum TaxDeliveryMode
-    {
+	{
 		None,
 		TaxSpot,
 		Caravan,
 		DropPod,
 		Shuttle
-    }
+	}
 }
