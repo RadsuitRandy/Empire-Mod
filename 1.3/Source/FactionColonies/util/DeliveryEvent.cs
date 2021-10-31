@@ -89,7 +89,7 @@ namespace FactionColonies.util
 					{
 						if (let != null && msg != null)
 						{
-							Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
+							Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", " "), MessageTypeDefOf.RejectInput);
 						}
 
 						if (source == -1) source = playerHomeMap.Tile;
@@ -141,7 +141,6 @@ namespace FactionColonies.util
 						CustomDescription = "caravanDangerTooHigh".Translate(),
 						timeTillTriger = Find.TickManager.TicksGame + 1000
 					};
-
 
 					CreateDeliveryEvent(eventParams);
 					return;
