@@ -16,5 +16,6 @@
 		</traits>
 		<upkeep>200</upkeep>
 		<iconPath>GUI/Buildings/ShuttlePort</iconPath>
+		<requiresRoyality>true</requiresRoyality>
 	</FactionColonies.BuildingFCDef>
 </Defs>
