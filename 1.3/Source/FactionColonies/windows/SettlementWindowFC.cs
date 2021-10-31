@@ -222,7 +222,7 @@ namespace FactionColonies
                                 };
                                 List<ThingDef> things = PaymentUtil.debugGenerateTithe(resourceType);
                                 
-                                foreach (ThingDef thing in things.Where(thing => !(thing.race?.Animal ?? false && thing.race.animalType == AnimalType.Dryad)))
+                                foreach (ThingDef thing in things.Where(thing => thing.race?.animalType != AnimalType.Dryad))
                                 {
                                     if (!FactionColonies.canCraftItem(thing))
                                     {
