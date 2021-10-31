@@ -212,7 +212,7 @@ namespace FactionColonies.util
 			} 
 			catch(Exception e)
             {
-				Log.Error("Critical delivery failure, spawning things on tax spot instead! Message: " + e.Message + " StackTrace: " + e.StackTrace + " Source: " + e.Source);
+				Log.ErrorOnce("Critical delivery failure, spawning things on tax spot instead! Message: " + e.Message + " StackTrace: " + e.StackTrace + " Source: " + e.Source, 77239232);
 				things.ForEach(thing => PaymentUtil.placeThing(thing));
 			}
 		}
