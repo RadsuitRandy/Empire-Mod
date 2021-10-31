@@ -40,7 +40,7 @@ namespace FactionColonies.util
                 else
 				{
 					FactionFC faction = Find.World.GetComponent<FactionFC>();
-					string str = "TaxesFrom".Translate() + "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
+					string str = "TaxesFrom".Translate() + faction.returnSettlementByLocation(source, Find.World.info.name) ?? "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
 					Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + things.ToLetterString(), LetterDefOf.PositiveEvent, things);
                 }
 
@@ -60,116 +60,152 @@ namespace FactionColonies.util
 			}
 		}
 
-		public static void Action(List<Thing> things, Letter let = null, Message msg = null, bool canUseShuttle = false, int source = -1)
+		private static void SendShuttle(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
+			List<ShipLandingArea> landingZones = ShipLandingBeaconUtility.GetLandingZones(playerHomeMap);
+
+			IntVec3 landingCell = DropCellFinder.GetBestShuttleLandingSpot(playerHomeMap, Faction.OfPlayer);
+
+			if (!landingZones.Any() || landingZones.Any(zone => zone.Clear))
+			{
+				MakeDeliveryLetterAndMessage(let, msg, things, source);
+				Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
+				TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
+
+				transportShip.ArriveAt(landingCell, playerHomeMap.Parent);
+				transportShip.AddJobs(new ShipJobDef[]
+				{
+								ShipJobDefOf.Unload,
+								ShipJobDefOf.FlyAway
+				});
+			}
+			else
+			{
+				if (let != null && msg != null)
+				{
+					Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", " "), MessageTypeDefOf.RejectInput);
+				}
+
+				if (source == -1) source = playerHomeMap.Tile;
+
+				DeliveryEventParams eventParams = new DeliveryEventParams
+				{
+					Location = Find.AnyPlayerHomeMap.Tile,
+					Source = source,
+					PlanetName = Find.World.info.name,
+					Contents = things,
+					CustomDescription = "shuttleLandingBlocked".Translate(),
+					timeTillTriger = Find.TickManager.TicksGame + 1000
+				};
+
+				CreateDeliveryEvent(eventParams);
+			}
+		}
+
+		private static void SendDropPod(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		{
+			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
+			MakeDeliveryLetterAndMessage(let, msg, things, source);
+			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
+		}
+
+		private static void SpawnOnTaxSpot(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		{
+			MakeDeliveryLetterAndMessage(let, msg, things, source);
+			things.ForEach(thing => PaymentUtil.placeThing(thing));
+		}
+
+		private static void SendCaravan(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		{
+			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
+			if (playerHomeMap.dangerWatcher.DangerRating != StoryDanger.None)
+			{
+
+				if (let != null && msg != null)
+				{
+					Messages.Message(((string)"caravanDangerTooHighWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
+				}
+
+				if (source == -1) source = playerHomeMap.Tile;
+
+				DeliveryEventParams eventParams = new DeliveryEventParams
+				{
+					Location = Find.AnyPlayerHomeMap.Tile,
+					Source = source,
+					PlanetName = Find.World.info.name,
+					Contents = things,
+					CustomDescription = "caravanDangerTooHigh".Translate(),
+					timeTillTriger = Find.TickManager.TicksGame + 1000
+				};
+
+				CreateDeliveryEvent(eventParams);
+				return;
+			}
+
+			MakeDeliveryLetterAndMessage(let, msg, things, source);
+			List<Pawn> pawns = new List<Pawn>();
+			while (things.Count() > 0)
+			{
+				Pawn pawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
+				Thing next = things.First();
+
+				if (pawn.carryTracker.innerContainer.TryAdd(next))
+				{
+					things.Remove(next);
+				}
+
+				pawns.Add(pawn);
+			}
+
+			PawnsArrivalModeWorker_EdgeWalkIn pawnsArrivalModeWorker = new PawnsArrivalModeWorker_EdgeWalkIn();
+			IncidentParms parms = StorytellerUtility.DefaultParmsNow(IncidentCategoryDefOf.FactionArrival, playerHomeMap);
+			parms.spawnRotation = Rot4.FromAngleFlat((((Map)parms.target).Center - parms.spawnCenter).AngleFlat);
+
+			RCellFinder.TryFindRandomPawnEntryCell(out parms.spawnCenter, playerHomeMap, CellFinder.EdgeRoadChance_Friendly);
+
+			pawnsArrivalModeWorker.Arrive(pawns, parms);
+			LordMaker.MakeNewLord(FCPawnGenerator.WorkerOrMilitaryRequest.Faction, new LordJob_DeliverSupplies(parms.spawnCenter), playerHomeMap, pawns);
+
+		}
+
+		public static TaxDeliveryMode TaxDeliveryModeForSettlement(bool canUseShuttle)
+		{ 
+			if (FactionColonies.Settings().forcedTaxDeliveryMode != default)
+            {
+				return FactionColonies.Settings().forcedTaxDeliveryMode;
+			}
 
 			if (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod").IsFinished)
 			{
 				if (ModsConfig.RoyaltyActive && canUseShuttle)
 				{
-					List<ShipLandingArea> landingZones = ShipLandingBeaconUtility.GetLandingZones(playerHomeMap);
-
-					IntVec3 landingCell = DropCellFinder.GetBestShuttleLandingSpot(playerHomeMap, Faction.OfPlayer);
-
-					if (!landingZones.Any() || landingZones.Any(zone => zone.Clear))
-					{
-						MakeDeliveryLetterAndMessage(let, msg, things, source);
-						Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
-						TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
-
-						transportShip.ArriveAt(landingCell, playerHomeMap.Parent);
-						transportShip.AddJobs(new ShipJobDef[]
-						{
-								ShipJobDefOf.Unload,
-								ShipJobDefOf.FlyAway
-						});
-					} 
-					else
-					{
-						if (let != null && msg != null)
-						{
-							Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", " "), MessageTypeDefOf.RejectInput);
-						}
-
-						if (source == -1) source = playerHomeMap.Tile;
-
-						DeliveryEventParams eventParams = new DeliveryEventParams
-						{
-							Location = Find.AnyPlayerHomeMap.Tile,
-							Source = source,
-							PlanetName = Find.World.info.name,
-							Contents = things,
-							CustomDescription = "shuttleLandingBlocked".Translate(),
-							timeTillTriger = Find.TickManager.TicksGame + 1000
-						};
-
-						CreateDeliveryEvent(eventParams);
-					}
+					return TaxDeliveryMode.Shuttle;
 				}
-				else
-				{
-					MakeDeliveryLetterAndMessage(let, msg, things, source);
-					DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
-				}
+				return TaxDeliveryMode.DropPod;
 			}
-			else
-			{
-				if (FactionColonies.Settings().disableTaxDeliveryCaravan)
-				{
-					MakeDeliveryLetterAndMessage(let, msg, things, source);
-					things.ForEach(thing => PaymentUtil.placeThing(thing));
-					return;
-				}
+			return TaxDeliveryMode.Caravan;
+		}
 
-				if (playerHomeMap.dangerWatcher.DangerRating != StoryDanger.None)
-				{
+		public static void Action(List<Thing> things, Letter let = null, Message msg = null, bool canUseShuttle = false, int source = -1)
+		{
+			TaxDeliveryMode taxDeliveryMode = TaxDeliveryModeForSettlement(canUseShuttle);
 
-					if (let != null && msg != null)
-					{
-						Messages.Message(((string)"caravanDangerTooHighWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
-					}
-
-					if (source == -1) source = playerHomeMap.Tile;
-
-					DeliveryEventParams eventParams = new DeliveryEventParams
-					{
-						Location = Find.AnyPlayerHomeMap.Tile,
-						Source = source,
-						PlanetName = Find.World.info.name,
-						Contents = things,
-						CustomDescription = "caravanDangerTooHigh".Translate(),
-						timeTillTriger = Find.TickManager.TicksGame + 1000
-					};
-
-					CreateDeliveryEvent(eventParams);
-					return;
-				}
-
-				MakeDeliveryLetterAndMessage(let, msg, things, source);
-				List<Pawn> pawns = new List<Pawn>();
-				while (things.Count() > 0)
-				{
-					Pawn pawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
-					Thing next = things.First();
-
-					if (pawn.carryTracker.innerContainer.TryAdd(next))
-					{
-						things.Remove(next);
-					}
-
-					pawns.Add(pawn);
-				}
-
-				PawnsArrivalModeWorker_EdgeWalkIn pawnsArrivalModeWorker = new PawnsArrivalModeWorker_EdgeWalkIn();
-				IncidentParms parms = StorytellerUtility.DefaultParmsNow(IncidentCategoryDefOf.FactionArrival, playerHomeMap);
-				parms.spawnRotation = Rot4.FromAngleFlat((((Map)parms.target).Center - parms.spawnCenter).AngleFlat);
-
-				RCellFinder.TryFindRandomPawnEntryCell(out parms.spawnCenter, playerHomeMap, CellFinder.EdgeRoadChance_Friendly);
-
-				pawnsArrivalModeWorker.Arrive(pawns, parms);
-				LordMaker.MakeNewLord(FCPawnGenerator.WorkerOrMilitaryRequest.Faction, new LordJob_DeliverSupplies(parms.spawnCenter), playerHomeMap, pawns);
-			}
+            switch (taxDeliveryMode)
+            {
+				case TaxDeliveryMode.Caravan:
+					SendCaravan(things, let, msg, source);
+					break;
+				case TaxDeliveryMode.DropPod:
+					SendDropPod(things, let, msg, source);
+					break;
+				case TaxDeliveryMode.Shuttle:
+					SendShuttle(things, let, msg, source);
+					break;
+				default:
+					SpawnOnTaxSpot(things, let, msg, source);
+					break;
+            }
 		}
 
 		public static void CreateDeliveryEvent(DeliveryEventParams evtParams)
@@ -250,4 +286,13 @@ namespace FactionColonies.util
 			return validCells.RandomElement();
 		}
 	}
+
+	public enum TaxDeliveryMode
+    {
+		None,
+		TaxSpot,
+		Caravan,
+		DropPod,
+		Shuttle
+    }
 }

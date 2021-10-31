@@ -580,8 +580,9 @@ namespace FactionColonies
                     "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
                 str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
                 str += "\n\n- Shuttles now land exactly like vanilla shuttles";
-                str += "\n\n- The chance for random events can now be adjusted in the settings";
+                str += "\n\n- Added new building: Shuttle Port. The art for this building was made by turkler!";
                 str += "\n\n- Many bug fixes";
+                str += "\n\n- Maybe fixed empty tax deliveries";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
@@ -1896,7 +1897,7 @@ namespace FactionColonies
         public bool disableForcedPausingDuringEvents = true;
         public bool deadPawnsIncreaseMilitaryCooldown;
         public bool settlementsAutoBattle;
-        public bool disableTaxDeliveryCaravan;
+        public TaxDeliveryMode forcedTaxDeliveryMode;
 
         public int minDaysTillMilitaryAction = 4;
         public int maxDaysTillMilitaryAction = 10;
@@ -1920,7 +1921,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref medievalTechOnly, "medievalTechOnly");
             Scribe_Values.Look(ref disableHostileMilitaryActions, "disableHostileMilitaryActions");
             Scribe_Values.Look(ref disableRandomEvents, "disableRandomEvents");
-            Scribe_Values.Look(ref disableTaxDeliveryCaravan, "disableTaxDeliveryCaravan", false);
+            Scribe_Values.Look(ref forcedTaxDeliveryMode, "forcedTaxDeliveryMode", default);
             Scribe_Values.Look(ref deadPawnsIncreaseMilitaryCooldown, "deadPawnsIncreaseMilitaryCooldown");
             Scribe_Values.Look(ref settlementsAutoBattle, "settlementsAutoBattle");
             Scribe_Values.Look(ref minDaysTillMilitaryAction, "minDaysTillMilitaryAction");
@@ -1956,6 +1957,36 @@ namespace FactionColonies
         int maxDaysTillMilitaryAction;
         IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
         IntRange minMaxDaysTillRandomEvent = new IntRange(0, 6);
+
+        private FloatMenuOption ShuttleOption
+        {
+            get
+            {
+                if (ModLister.IdeologyInstalled)
+                {
+                    return new FloatMenuOption("taxDeliveryModeShuttleDesc".Translate(), delegate () {settings.forcedTaxDeliveryMode = TaxDeliveryMode.Shuttle;});
+                }
+                else 
+                { 
+                    return new FloatMenuOption("taxDeliveryModeShuttleUnavailableDesc".Translate(), null); 
+                }
+            }
+        }
+
+        private List<FloatMenuOption> Options
+        {
+            get
+            {
+                return new List<FloatMenuOption>() 
+                {
+                    new FloatMenuOption("taxDeliveryModeDefaultDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = default;}),
+                    new FloatMenuOption("taxDeliveryModeTaxSpotDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = TaxDeliveryMode.TaxSpot;}),
+                    new FloatMenuOption("taxDeliveryModeCaravanDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = TaxDeliveryMode.Caravan;}),
+                    new FloatMenuOption("taxDeliveryModeDropPodDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = TaxDeliveryMode.DropPod;}),
+                    ShuttleOption
+                };
+            }
+        }
 
         public override void DoSettingsWindowContents(Rect inRect)
         {
@@ -1996,8 +2027,7 @@ namespace FactionColonies
                 ref settings.disableForcedPausingDuringEvents);
             listingStandard.CheckboxLabeled("Automatically Resolve Battles",
                 ref settings.settlementsAutoBattle);
-            listingStandard.CheckboxLabeled("Disable Tax Delivery Caravan",
-                ref settings.disableTaxDeliveryCaravan);
+            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(Options));
             listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
@@ -2024,7 +2054,7 @@ namespace FactionColonies
                 settings.deadPawnsIncreaseMilitaryCooldown = blank.deadPawnsIncreaseMilitaryCooldown;
                 settings.settlementsAutoBattle = true;
                 settings.disableForcedPausingDuringEvents = blank.disableForcedPausingDuringEvents;
-                settings.disableTaxDeliveryCaravan = blank.disableTaxDeliveryCaravan;
+                settings.forcedTaxDeliveryMode = blank.forcedTaxDeliveryMode;
             }
 
             listingStandard.End();

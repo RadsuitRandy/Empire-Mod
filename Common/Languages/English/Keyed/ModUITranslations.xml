@@ -309,6 +309,14 @@
 	<caravanDangerTooHighWithItems>A caravan is waiting with it's delivery until your map is clear of danger. They carry: {0}.</caravanDangerTooHighWithItems>
 	
 	<!-- Delivery -->
+	<selectTaxDeliveryModeButton>Forced Tax Delivery Mode: </selectTaxDeliveryModeButton>
+	<taxDeliveryModeDefaultDesc>None. Delivery depends on technology and settlement buildings</taxDeliveryModeDefaultDesc>
+	<taxDeliveryModeTaxSpotDesc>TaxSpot. Delivery spawns on the tax spot</taxDeliveryModeTaxSpotDesc>
+	<taxDeliveryModeCaravanDesc>Caravan. Delivery is always brought by a caravan</taxDeliveryModeCaravanDesc>
+	<taxDeliveryModeDropPodDesc>DropPod. Delivery is always arrives in drop pods</taxDeliveryModeDropPodDesc>
+	<taxDeliveryModeShuttleDesc>Shuttle. Delivery always arrives by shuttle</taxDeliveryModeShuttleDesc>
+	<taxDeliveryModeShuttleUnavailableDesc>Shuttle. Unavailable due to royality not being present</taxDeliveryModeShuttleUnavailableDesc>
+	
 	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
 	<pawnsLeavingMap>The delivering pawns are leaving the map.</pawnsLeavingMap>
 	<pawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</pawnsLeavingMapNoPath>
