@@ -1962,7 +1962,7 @@ namespace FactionColonies
         {
             get
             {
-                if (ModLister.IdeologyInstalled)
+                if (ModsConfig.RoyaltyActive)
                 {
                     return new FloatMenuOption("taxDeliveryModeShuttleDesc".Translate(), delegate () {settings.forcedTaxDeliveryMode = TaxDeliveryMode.Shuttle;});
                 }
