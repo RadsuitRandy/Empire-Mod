@@ -734,7 +734,7 @@ namespace FactionColonies
 			Widgets.Label(new Rect(195, 300, 115, 20), Convert.ToInt32(faction.profit) + " " + "Silver".Translate().ToLower());
 
 			Widgets.Label(new Rect(195, 315, 115, 30), "TimeTillTax".Translate() + ":");
-			Widgets.Label(new Rect(195, 340, 115, 20), (faction.taxTimeDue-Find.TickManager.TicksGame).ToStringTicksToDays());
+			Widgets.Label(new Rect(195, 340, 115, 20), Math.Max(0, faction.taxTimeDue-Find.TickManager.TicksGame).ToStringTicksToDays());
 		}
 	
 		private void scrollWindow(float num)
