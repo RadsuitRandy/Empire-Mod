@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using Verse;
@@ -110,12 +111,6 @@ namespace FactionColonies.util
 			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
 		}
 
-		private static void SpawnOnTaxSpot(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
-		{
-			MakeDeliveryLetterAndMessage(let, msg, things, source);
-			things.ForEach(thing => PaymentUtil.placeThing(thing));
-		}
-
 		private static void SendCaravan(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
@@ -169,6 +164,12 @@ namespace FactionColonies.util
 
 		}
 
+		private static void SpawnOnTaxSpot(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		{
+			MakeDeliveryLetterAndMessage(let, msg, things, source);
+			things.ForEach(thing => PaymentUtil.placeThing(thing));
+		}
+
 		public static TaxDeliveryMode TaxDeliveryModeForSettlement(bool canUseShuttle)
 		{ 
 			if (FactionColonies.Settings().forcedTaxDeliveryMode != default)
@@ -189,23 +190,31 @@ namespace FactionColonies.util
 
 		public static void Action(List<Thing> things, Letter let = null, Message msg = null, bool canUseShuttle = false, int source = -1)
 		{
-			TaxDeliveryMode taxDeliveryMode = TaxDeliveryModeForSettlement(canUseShuttle);
+			try
+			{
+				TaxDeliveryMode taxDeliveryMode = TaxDeliveryModeForSettlement(canUseShuttle);
 
-            switch (taxDeliveryMode)
+				switch (taxDeliveryMode)
+				{
+					case TaxDeliveryMode.Caravan:
+						SendCaravan(things, let, msg, source);
+						break;
+					case TaxDeliveryMode.DropPod:
+						SendDropPod(things, let, msg, source);
+						break;
+					case TaxDeliveryMode.Shuttle:
+						SendShuttle(things, let, msg, source);
+						break;
+					default:
+						SpawnOnTaxSpot(things, let, msg, source);
+						break;
+				}
+			} 
+			catch(Exception e)
             {
-				case TaxDeliveryMode.Caravan:
-					SendCaravan(things, let, msg, source);
-					break;
-				case TaxDeliveryMode.DropPod:
-					SendDropPod(things, let, msg, source);
-					break;
-				case TaxDeliveryMode.Shuttle:
-					SendShuttle(things, let, msg, source);
-					break;
-				default:
-					SpawnOnTaxSpot(things, let, msg, source);
-					break;
-            }
+				Log.Error("Critical delivery failure, spawning things on tax spot instead! Message: " + e.Message + " StackTrace: " + e.StackTrace + " Source: " + e.Source);
+				things.ForEach(thing => PaymentUtil.placeThing(thing));
+			}
 		}
 
 		public static void CreateDeliveryEvent(DeliveryEventParams evtParams)
