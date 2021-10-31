@@ -4,6 +4,7 @@ using Verse;
 using Verse.AI.Group;
 using FactionColonies.util;
 using System.Linq;
+using Verse.AI;
 
 namespace FactionColonies
 {
@@ -25,6 +26,8 @@ namespace FactionColonies
 			base.ExposeData();
 			Scribe_Values.Look(ref fallbackLocation, "fallbackLocation", default, false);
 		}
+
+		private bool CanNotReach() => lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null) && lord.ownedPawns[0].mindState?.duty.def != DutyDefOf.ExitMapBestAndDefendSelf && lord.ownedPawns[0].CanReach(lord.ownedPawns[0].CurJob.targetA, PathEndMode.OnCell, PawnUtility.ResolveMaxDanger(lord.ownedPawns[0], Danger.Some), false, false, TraverseMode.ByPawn);
 
 		public override StateGraph CreateGraph()
 		{
@@ -91,7 +94,7 @@ namespace FactionColonies
 				{
 					new Trigger_Custom(delegate(TriggerSignal signal) 
 					{
-						return lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null);
+						return CanNotReach();
 					})
 				},
 				preActions = new List<TransitionAction>
