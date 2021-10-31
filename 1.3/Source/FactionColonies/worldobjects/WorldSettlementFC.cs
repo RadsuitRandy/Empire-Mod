@@ -77,6 +77,98 @@ namespace FactionColonies
 
         public int NextRestockTick => trader.NextRestockTick;
 
+        private Command_Action DefendColonyAction => new Command_Action
+        {
+            defaultLabel = "DefendColony".Translate(),
+            defaultDesc = "DefendColonyDesc".Translate(),
+            icon = TexLoad.iconMilitary,
+            action = delegate
+            {
+                if (FactionColonies.Settings().settlementsAutoBattle)
+                {
+                    Messages.Message("autoBattleEnabledNoManualFight".Translate(), MessageTypeDefOf.RejectInput);
+                }
+                else
+                {
+                    startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation), () => { });
+                }
+            }
+        };
+
+        private string FoundSettlementString(SettlementFC settlement) => settlement.name + " " + "ShortMilitary".Translate() + " " + settlement.settlementMilitaryLevel + " - " + "FCAvailable".Translate() + ": " + (!settlement.isMilitaryBusySilent()).ToString();
+
+        private void ChangeDefendingForceAction(FCEvent evt)
+        {
+            FactionFC faction = Find.World.GetComponent<FactionFC>();
+            List<FloatMenuOption> settlementList = new List<FloatMenuOption>
+            {
+                new FloatMenuOption
+                (
+                    "ResetToHomeSettlement".Translate(settlement.settlementMilitaryLevel),
+                    delegate 
+                    { 
+                        MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement); 
+                    },
+                    MenuOptionPriority.High
+                )
+            };
+
+
+            settlementList.AddRange
+                (
+                    from foundSettlement in faction.settlements
+                    where foundSettlement.isMilitaryValid() && foundSettlement != settlement
+                    select new FloatMenuOption
+                    (
+                        FoundSettlementString(foundSettlement), 
+                        delegate
+                        {
+                            if (!foundSettlement.isMilitaryBusy())
+                            {
+                                MilitaryUtilFC.changeDefendingMilitaryForce(evt, foundSettlement);
+                            }
+                        }
+                    )
+                );
+
+            if (settlementList.Count == 0)
+            {
+                settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
+            }
+
+            FloatMenu floatMenu2 = new FloatMenu(settlementList)
+            {
+                vanishIfMouseDistant = true
+            };
+            Find.WindowStack.Add(floatMenu2);
+        }
+
+        private Command_Action ChangeDefenderAction => new Command_Action
+        {
+            defaultLabel = "DefendSettlement".Translate(),
+            defaultDesc = "",
+            icon = TexLoad.iconCustomize,
+            action = delegate
+            {
+                List<FloatMenuOption> list = new List<FloatMenuOption>();
+                FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation);
+                if (evt == null) return;
+
+                list.Add(new FloatMenuOption("SettlementDefendingInformation".Translate(
+                        evt.militaryForceDefending.homeSettlement.name,
+                        evt.militaryForceDefending.militaryLevel), null,
+                        MenuOptionPriority.High));
+
+                list.Add(new FloatMenuOption("ChangeDefendingForce".Translate(), () => ChangeDefendingForceAction(evt)));
+
+                FloatMenu floatMenu = new FloatMenu(list)
+                {
+                    vanishIfMouseDistant = true
+                };
+                Find.WindowStack.Add(floatMenu);
+            }
+        };
+
         public override void PostMake()
         {
             trader = new WorldSettlementTraderTracker(this);
@@ -122,97 +214,13 @@ namespace FactionColonies
 
         public override IEnumerable<Gizmo> GetGizmos()
         {
+
             if (!settlement.isUnderAttack) yield break;
-            yield return new Command_Action
-            {
-                defaultLabel = "DefendColony".Translate(),
-                defaultDesc = "DefendColonyDesc".Translate(),
-                icon = TexLoad.iconMilitary,
-                action = () =>
-                {
-                    if (FactionColonies.Settings().settlementsAutoBattle)
-                    {
-                        Messages.Message("autoBattleEnabledNoManualFight".Translate(), MessageTypeDefOf.RejectInput);
-                    }
-                    else
-                    {
-                        startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation), () => { });
-                    }
-                }
-            };
+            yield return DefendColonyAction;
 
-            FactionFC faction = Find.World.GetComponent<FactionFC>();
+            if (attackers.Any()) yield break;
 
-            if (attackers.Any())
-            {
-                yield break;
-            }
-
-            yield return new Command_Action
-            {
-                defaultLabel = "DefendSettlement".Translate(),
-                defaultDesc = "",
-                icon = TexLoad.iconCustomize,
-                action = delegate
-                {
-                    List<FloatMenuOption> list = new List<FloatMenuOption>();
-
-                    FCEvent evt = MilitaryUtilFC.returnMilitaryEventByLocation(settlement.mapLocation);
-                    if (evt == null) return;
-                    list.Add(new FloatMenuOption(
-                        "SettlementDefendingInformation".Translate(
-                            evt.militaryForceDefending.homeSettlement.name,
-                            evt.militaryForceDefending.militaryLevel), null,
-                        MenuOptionPriority.High));
-                    list.Add(new FloatMenuOption("ChangeDefendingForce".Translate(), delegate
-                    {
-                        List<FloatMenuOption> settlementList = new List<FloatMenuOption>
-                        {
-                            new FloatMenuOption(
-                                "ResetToHomeSettlement".Translate(settlement.settlementMilitaryLevel),
-                                delegate { MilitaryUtilFC.changeDefendingMilitaryForce(evt, settlement); },
-                                MenuOptionPriority.High)
-                        };
-
-
-                        settlementList.AddRange(from foundSettlement in faction.settlements
-                                                where foundSettlement.isMilitaryValid() && foundSettlement != settlement
-                                                select new FloatMenuOption(foundSettlement.name + " " +
-                                                                           "ShortMilitary".Translate() + " " +
-                                                                           foundSettlement.settlementMilitaryLevel + " - " +
-                                                                           "FCAvailable".Translate() + ": " +
-                                                                           (!foundSettlement.isMilitaryBusySilent()).ToString(), delegate
-                                                {
-                                                    if (foundSettlement.isMilitaryBusy())
-                                                    {
-                                                        //military is busy
-                                                    }
-                                                    else
-                                                    {
-                                                        MilitaryUtilFC.changeDefendingMilitaryForce(evt, foundSettlement);
-                                                    }
-                                                }));
-
-                        if (settlementList.Count == 0)
-                        {
-                            settlementList.Add(
-                                new FloatMenuOption("NoValidMilitaries".Translate(), null));
-                        }
-
-                        FloatMenu floatMenu2 = new FloatMenu(settlementList)
-                        {
-                            vanishIfMouseDistant = true
-                        };
-                        Find.WindowStack.Add(floatMenu2);
-                    }));
-
-                    FloatMenu floatMenu = new FloatMenu(list)
-                    {
-                        vanishIfMouseDistant = true
-                    };
-                    Find.WindowStack.Add(floatMenu);
-                }
-            };
+            yield return ChangeDefenderAction;
         }
 
         public void CaravanDefend(Caravan caravan)
