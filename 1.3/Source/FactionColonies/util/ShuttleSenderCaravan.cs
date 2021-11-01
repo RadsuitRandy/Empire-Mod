@@ -26,14 +26,9 @@ namespace FactionColonies.util
 
         public void Launch(int destinationTile, TransportPodsArrivalAction arrivalAction)
         {
-            Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
-            shuttle.TryGetComp<CompShuttle>().permitShuttle = true;
-            TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, null, shuttle);
-
             ActiveDropPod activeDropPod = (ActiveDropPod)ThingMaker.MakeThing(ThingDefOf.ActiveDropPod);
             activeDropPod.Contents = new ActiveDropPodInfo();
             activeDropPod.Contents.innerContainer.TryAddRangeOrTransfer(caravan.GetDirectlyHeldThings(), true, true);
-            int groupID = transportShip.TransporterComp.groupID;
 
             TravelingTransportPods travelingTransportPods = (TravelingTransportPods)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.TravelingShuttle);
             travelingTransportPods.Tile = Tile;
