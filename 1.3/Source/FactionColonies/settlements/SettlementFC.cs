@@ -102,6 +102,14 @@ namespace FactionColonies
             if (trait_Egalitarian_TaxBreak_Enabled &&
                 tick >= trait_Egalitarian_TaxBreak_Tick + GenDate.TicksPerDay * 10)
                 trait_Egalitarian_TaxBreak_Enabled = false;
+
+            if (lastShuttleUsesTick < (tick - GenDate.TicksPerDay * 5))
+            {
+                int temp = 0;
+                buildings.ForEach(building => temp += building.shuttleUses);
+                worldSettlement.shuttleUsesRemaining = temp;
+                lastShuttleUsesTick = tick;
+            }
         }
 
         public void initBaseProduction()
@@ -577,6 +585,9 @@ namespace FactionColonies
             //Traits
             Scribe_Values.Look(ref trait_Egalitarian_TaxBreak_Tick, "trait_Egalitarian_TaxBreak_Tick");
             Scribe_Values.Look(ref trait_Egalitarian_TaxBreak_Enabled, "trait_Egalitarian_TaxBreak_Enabled");
+
+            //Shuttles
+            Scribe_Values.Look(ref lastShuttleUsesTick, "lastShuttleUsesTick");
         }
 
         //Settlement Base Info
@@ -634,6 +645,9 @@ namespace FactionColonies
         //Trait stuff
         public int trait_Egalitarian_TaxBreak_Tick;
         public bool trait_Egalitarian_TaxBreak_Enabled;
+
+        //shuttle stuff
+        public int lastShuttleUsesTick = 0;
 
 
         //public static Biome biome;

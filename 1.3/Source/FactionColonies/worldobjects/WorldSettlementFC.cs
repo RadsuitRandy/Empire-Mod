@@ -10,6 +10,7 @@ using Verse;
 using Verse.AI.Group;
 using Verse.Sound;
 using FactionColonies.util;
+using RimWorld.QuestGen;
 
 namespace FactionColonies
 {
@@ -22,18 +23,13 @@ namespace FactionColonies
             BindingFlags.NonPublic | BindingFlags.Instance);
 
         public WorldSettlementTraderTracker trader;
-
         public SettlementFC settlement;
-
         public List<Pawn> attackers = new List<Pawn>();
-
         public List<Pawn> defenders = new List<Pawn>();
-
         public List<CaravanSupporting> supporting = new List<CaravanSupporting>();
-
         public militaryForce defenderForce;
-
         public militaryForce attackerForce;
+        public int shuttleUsesRemaining = 0;
 
         public string Name
         {
@@ -169,6 +165,59 @@ namespace FactionColonies
             }
         };
 
+        public Command_Action RequestShuttleAction => new Command_Action
+        {
+            defaultLabel = "shuttlePortCallShuttleLabel".Translate(),
+            defaultDesc = "shuttlePortCallShuttleDesc".Translate(shuttleUsesRemaining, 2),
+            icon = ContentFinder<Texture2D>.Get("UI/Commands/CallShuttle", true),
+            action = delegate
+            {
+                if (shuttleUsesRemaining < 2)
+                {
+                    Messages.Message("notEnoughShuttleUsesRemaining".Translate(), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
+                Find.WorldSelector.ClearSelection();
+                ShuttleSender sender = new ShuttleSender(Tile, this);
+                Find.WorldTargeter.BeginTargeting(sender.PerformActionWithTarget, true, CompLaunchable.TargeterMouseAttachment, false, sender.DrawWorldRadiusRing, sender.DisplayTargetInformation, sender.ChoseWorldTarget);
+            }
+        }; 
+        
+        public Command_Action RequestShuttleForCaravanAction => new Command_Action
+        {
+            defaultLabel = "shuttlePortCallShuttleForCaravanLabel".Translate(),
+            defaultDesc = "shuttlePortCallShuttleDesc".Translate(shuttleUsesRemaining, 1),
+            icon = ContentFinder<Texture2D>.Get("UI/Commands/CallShuttle", true),
+
+            action = delegate
+            {
+                if (shuttleUsesRemaining < 1)
+                {
+                    Messages.Message("noShuttleUsesRemaining".Translate(), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
+                List<Caravan> caravans = Find.World.worldObjects.Caravans.Where(caravan => caravan.Faction == Faction.OfPlayer).ToList();
+                List<FloatMenuOption> options = new List<FloatMenuOption>();
+
+                caravans.ForEach(caravan => options.Add(new FloatMenuOption(caravan.Label, delegate
+                {
+                    ShuttleSenderCaravan sender = new ShuttleSenderCaravan(caravan.Tile, caravan, this);
+
+                    CameraJumper.TryJump(caravan);
+                    Find.WorldSelector.ClearSelection();
+                    int tile = caravan.Tile;
+                    Find.WorldTargeter.BeginTargeting(sender.ChoseWorldTarget, true, CompLaunchable.TargeterMouseAttachment, true, delegate
+                    {
+                        GenDraw.DrawWorldRadiusRing(tile, sender.ShuttleRange);
+                    }, (GlobalTargetInfo target) => sender.TargetingLabelGetter(target, tile, sender.ShuttleRange, Gen.YieldSingle(caravan), sender.Launch), null);
+                })));
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+        };
+
         public override void PostMake()
         {
             trader = new WorldSettlementTraderTracker(this);
@@ -210,10 +259,14 @@ namespace FactionColonies
             Scribe_Deep.Look(ref defenderForce, "defenderForce");
             Scribe_Deep.Look(ref attackerForce, "attackerForce");
             Scribe_Deep.Look(ref trader, "trader");
+            Scribe_Values.Look(ref shuttleUsesRemaining, "shuttleUsesRemaining");
         }
 
         public override IEnumerable<Gizmo> GetGizmos()
         {
+            bool containsShuttlePort = settlement.buildings.Contains(BuildingFCDefOf.shuttlePort);
+            if (containsShuttlePort) yield return RequestShuttleAction;
+            if (containsShuttlePort) yield return RequestShuttleForCaravanAction;
 
             if (!settlement.isUnderAttack) yield break;
             yield return DefendColonyAction;

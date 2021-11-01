@@ -14,8 +14,9 @@
 		<traits>
 			<li>shuttlePort</li>
 		</traits>
-		<upkeep>200</upkeep>
+		<upkeep>1000</upkeep>
 		<iconPath>GUI/Buildings/ShuttlePort</iconPath>
+		<shuttleUses>3</shuttleUses>
 		<requiresRoyality>true</requiresRoyality>
 	</FactionColonies.BuildingFCDef>
 </Defs>
