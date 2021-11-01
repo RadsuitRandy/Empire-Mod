@@ -412,7 +412,7 @@ namespace FactionColonies
                                         .SelectMany(map => map.listerBuildings.allBuildingsColonist)
                                         .OfType<Building_Bed>())
                                     {
-                                        if (!Enumerable.Any(bed.OwnersForReading, pawn => pawn == pawn)) continue;
+                                        if (!Enumerable.Any(bed.OwnersForReading, bedPawn => bedPawn == bedPawn)) continue;
                                         bed.ForPrisoners = false;
                                         bed.ForPrisoners = true;
                                     }
