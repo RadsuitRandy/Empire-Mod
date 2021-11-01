@@ -581,7 +581,8 @@ namespace FactionColonies
                 str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
                 str += "\n\n- Shuttles now land exactly like vanilla shuttles";
                 str += "\n\n- Added new building: Shuttle Port. The art for this building was made by turkler!";
-                str += "\n\n- Many bug fixes";
+                str += "\n\n- Shuttles are now locked behind the shuttle port building";
+                str += "\n\n- Added a new setting to force specific delivery modes, including the old legacy spawning on the tax spot";
                 str += "\n\n- Maybe fixed empty tax deliveries";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
