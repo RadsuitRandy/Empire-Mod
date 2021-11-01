@@ -1632,7 +1632,7 @@ namespace FactionColonies
 
         public static int ReturnTicksToArrive(int currentTile, int destinationTile)
         {
-            bool hasShuttles = Find.World.GetComponent<FactionFC>().returnSettlementByLocation(currentTile, Find.World.info.name).buildings.Contains(BuildingFCDefOf.shuttlePort);
+            bool hasShuttles = Find.World.GetComponent<FactionFC>().returnSettlementByLocation(currentTile, Find.World.info.name)?.buildings.Contains(BuildingFCDefOf.shuttlePort) ?? false;
             bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                 .medievalTechOnly;
             ResearchProjectDef def = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false);
