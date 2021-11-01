@@ -381,7 +381,7 @@ namespace FactionColonies
         {
             static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
             {
-                Pawn instance = __instance;
+                Pawn pawn = __instance;
                 if (__instance.guest == null || !__instance.guest.IsPrisoner || !__instance.guest.PrisonerIsSecure ||
                     !Find.World.GetComponent<FactionFC>().settlements.Any()) return;
 
@@ -394,19 +394,25 @@ namespace FactionColonies
                         icon = TexLoad.iconMilitary,
                         action = delegate
                         {
+                            if (pawn.Map.dangerWatcher.DangerRating != StoryDanger.None)
+                            {
+                                Messages.Message("cantSendWithDangerLevel".Translate(pawn.Map.dangerWatcher.DangerRating.ToString()), MessageTypeDefOf.RejectInput);
+                                return;
+                            }
+
                             List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>()
                                 .settlements.Select(settlement => new FloatMenuOption(settlement.name + 
                                     " - Settlement Level : " + settlement.settlementLevel + 
                                     " - Prisoners: " + settlement.prisonerList.Count(), delegate
                                 {
                                     //disappear colonist
-                                    FactionColonies.sendPrisoner(instance, settlement);
+                                    FactionColonies.sendPrisoner(pawn, settlement);
 
                                     foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome)
                                         .SelectMany(map => map.listerBuildings.allBuildingsColonist)
                                         .OfType<Building_Bed>())
                                     {
-                                        if (!Enumerable.Any(bed.OwnersForReading, pawn => pawn == instance)) continue;
+                                        if (!Enumerable.Any(bed.OwnersForReading, pawn => pawn == pawn)) continue;
                                         bed.ForPrisoners = false;
                                         bed.ForPrisoners = true;
                                     }

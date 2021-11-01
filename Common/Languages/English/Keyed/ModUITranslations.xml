@@ -291,6 +291,9 @@
 	<commandLeave>Leave</commandLeave>
 	<leaveSuccess>{0} are now leaving the map. {1} dead.</leaveSuccess>
 	
+	<!-- Send Prisoner to settlement -->
+	<cantSendWithDangerLevel>You can't send a prisoner to your settlements when the map has a danger level of {0}!</cantSendWithDangerLevel>
+	
 	<!-- CallInAlliedForces -->
 	<selectDeploymentPosition>Select Deployment Position</selectDeploymentPosition>
 	<selectedPosOutOfBounds>The position you selected is out of bounds for this map!</selectedPosOutOfBounds>
