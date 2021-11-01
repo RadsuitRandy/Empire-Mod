@@ -108,7 +108,7 @@ namespace FactionColonies.util
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 			MakeDeliveryLetterAndMessage(let, msg, things, source);
-			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, true, false);
+			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, false, false);
 		}
 
 		private static void SendCaravan(List<Thing> things, Letter let = null, Message msg = null, int source = -1)

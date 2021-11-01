@@ -65,7 +65,6 @@ namespace FactionColonies
 				}
 			});
 
-
 			stateGraph.AddTransition(new Transition(stateGraph.lordToils[1], stateGraph.lordToils[2])
 			{
 				triggers = new List<Trigger>
