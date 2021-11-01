@@ -218,6 +218,17 @@ namespace FactionColonies
             }
         };
 
+        public Command_Action OpenSettlementWindowAction => new Command_Action
+        {
+            defaultLabel = "openSettlementWindowDefaultLabel".Translate(),
+            defaultDesc = "openSettlementWindowDefaultDesc".Translate(),
+            icon = ContentFinder<Texture2D>.Get("UI/Icons/QuestionMark", true),
+            action = delegate
+            {
+                Find.WindowStack.Add(new SettlementWindowFc(settlement));
+            }
+        };
+
         public override void PostMake()
         {
             trader = new WorldSettlementTraderTracker(this);
@@ -264,16 +275,12 @@ namespace FactionColonies
 
         public override IEnumerable<Gizmo> GetGizmos()
         {
+            yield return OpenSettlementWindowAction;
+            if (settlement.isUnderAttack) yield return DefendColonyAction;
+            if (settlement.isUnderAttack && !attackers.Any()) yield return ChangeDefenderAction;
             bool containsShuttlePort = settlement.buildings.Contains(BuildingFCDefOf.shuttlePort);
             if (containsShuttlePort) yield return RequestShuttleAction;
             if (containsShuttlePort) yield return RequestShuttleForCaravanAction;
-
-            if (!settlement.isUnderAttack) yield break;
-            yield return DefendColonyAction;
-
-            if (attackers.Any()) yield break;
-
-            yield return ChangeDefenderAction;
         }
 
         public void CaravanDefend(Caravan caravan)
