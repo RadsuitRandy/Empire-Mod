@@ -649,8 +649,7 @@ namespace FactionColonies
             }
 
             tmp.location = faction.capitalLocation;
-            tmp.timeTillTrigger = Find.TickManager.TicksGame +
-                                  FactionColonies.ReturnTicksToArrive(tmp.source, tmp.location);
+            tmp.timeTillTrigger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(tmp.source, tmp.location);
             tmp.hasCustomDescription = true;
             //add tithe
             tmp.goods = bill.taxes.itemTithes;

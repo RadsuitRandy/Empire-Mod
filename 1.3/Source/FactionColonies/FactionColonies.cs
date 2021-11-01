@@ -1632,6 +1632,7 @@ namespace FactionColonies
 
         public static int ReturnTicksToArrive(int currentTile, int destinationTile)
         {
+            bool hasShuttles = Find.World.GetComponent<FactionFC>().returnSettlementByLocation(currentTile, Find.World.info.name).buildings.Contains(BuildingFCDefOf.shuttlePort);
             bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                 .medievalTechOnly;
             ResearchProjectDef def = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false);
@@ -1640,7 +1641,7 @@ namespace FactionColonies
 
             if (currentTile == -1 || destinationTile == -1)
             {
-                if (!medievalOnly && def != null && Find.ResearchManager.GetProgress(def) == def.baseCost)
+                if (!medievalOnly && def != null && def.IsFinished)
                 {
                     //if have research pod tech
                     return 30000;
@@ -1662,13 +1663,14 @@ namespace FactionColonies
                 }
             }
 
-            if (!medievalOnly && def != null && Find.ResearchManager.GetProgress(def) == def.baseCost &&
-                ticksToArrive > 30000)
+            if (!medievalOnly && def != null && def.IsFinished)
             {
-                //if have research pod tech
-                return 30000;
+                if (hasShuttles)
+                {
+                    return ticksToArrive / 4;
+                }
+                return ticksToArrive / 2;
             }
-
             return ticksToArrive;
         }
 
