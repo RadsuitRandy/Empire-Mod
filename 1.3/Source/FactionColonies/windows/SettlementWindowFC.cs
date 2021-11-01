@@ -715,11 +715,11 @@ namespace FactionColonies
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
             Widgets.Label(new Rect(x + 5, y + 60, 150, 20),
-                "TaxBase".Translate() + ": " + 100 + egalitarianTaxBoost + isolationistTaxBoost +
+                "TaxBase".Translate() + ": " + (((100 + egalitarianTaxBoost + isolationistTaxBoost) +
                                                  TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage",
                                                      settlement.traits, Operation.Addition) + TraitUtilsFC.cycleTraits(new double(),
                                                      "taxBasePercentage", Find.World.GetComponent<FactionFC>().traits,
-                                                     Operation.Addition).ToString() + "%");
+                                                     Operation.Addition))).ToString() + "%");
         }
 
         public void DrawEconomicStats(int x, int y, int length, int size)
