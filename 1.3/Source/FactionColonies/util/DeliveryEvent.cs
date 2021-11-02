@@ -237,6 +237,7 @@ namespace FactionColonies.util
 			evt.timeTillTrigger = evtParams.timeTillTrigger;
 			evt.let = evtParams.let;
 			evt.msg = evtParams.msg;
+			evt.isDelayed = evtParams.isDelayed;
 
 			Find.World.GetComponent<FactionFC>().addEvent(evt);
 		}
