@@ -1,4 +1,6 @@
-﻿using RimWorld;
+﻿using System.Collections.Generic;
+using System.Linq;
+using RimWorld;
 using Verse;
 
 namespace FactionColonies.util
@@ -36,5 +38,7 @@ namespace FactionColonies.util
             }
             return true;
         }
+
+        public static bool HasWoundedForFaction(this Map map, Faction forFaction) => map.mapPawns.SpawnedDownedPawns.Any(pawn => pawn.Faction == forFaction && !pawn.IsPrisoner);
     }
 }

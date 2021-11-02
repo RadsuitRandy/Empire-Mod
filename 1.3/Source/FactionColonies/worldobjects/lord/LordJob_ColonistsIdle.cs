@@ -5,10 +5,6 @@ namespace FactionColonies
 {
     class LordJob_ColonistsIdle : LordJob
     {
-        public LordJob_ColonistsIdle()
-        {
-        }
-
         public override bool AddFleeToil => false;
         public override bool AllowStartNewGatherings => false;
         public override bool AlwaysShowWeapon => true;

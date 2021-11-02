@@ -25,7 +25,7 @@ namespace FactionColonies
             {
                 return new Job(DefDatabase<JobDef>.GetNamed("FCFollowCloseAndCarry"), targetInfo)
                 {
-                    followRadius = 10,
+                    followRadius = 4,
                 };
             }
 

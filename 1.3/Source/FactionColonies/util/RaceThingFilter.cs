@@ -61,7 +61,7 @@ namespace FactionColonies.util
             }
 
             List<string> races = new List<string>();
-            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Any(thingDef => thingDef.label == def.race.label)))
+            foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Contains(def.race)))
             {
                 if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                 races.Add(def.race.label);
@@ -69,6 +69,86 @@ namespace FactionColonies.util
             }
 
             WorldSettlementTraderTracker.reloadTraderKind();
+        }
+
+        private IEnumerable<PawnKindDef> DefaultList => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire");
+        private IEnumerable<PawnKindDef> PawnKindDefsForTechLevel(TechLevel techLevel) => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire" && def.defaultFactionType.techLevel == techLevel);
+        private IEnumerable<PawnKindDef> CheckAndFixWorkList(IEnumerable<PawnKindDef> workList)
+        {
+            if (AllowedThingDefs.Count() == 0 || factionFc.techLevel == TechLevel.Undefined) return DefaultList;
+
+            List<TechLevel> triedLevels = new List<TechLevel>();
+
+            TechLevel tempLevel = factionFc.techLevel;
+            while (!workList.Any() && tempLevel != TechLevel.Undefined)
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel -= 1;
+                workList = PawnKindDefsForTechLevel(tempLevel);
+            }
+
+            if (!workList.Any())
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel = factionFc.techLevel + 1;
+                workList = PawnKindDefsForTechLevel(tempLevel);
+            }
+
+            while (!workList.Any() && tempLevel != TechLevel.Archotech)
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel += 1;
+                workList = PawnKindDefsForTechLevel(tempLevel);
+            }
+
+            if (!workList.Any())
+            {
+                Log.Error("Couldn't find any PawnKindDefs for any techlevel with the following races: " + string.Join(", ", AllowedThingDefs) + ". Allowing all races.");
+                workList = DefaultList;
+            }
+            else if (triedLevels.Count != 0)
+            {
+                Log.Warning("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ". Empire will generate pawns using the techlevel: " + tempLevel + ".");
+            }
+            return workList;
+        }
+
+        private IEnumerable<PawnKindDef> GenerateTradersIfMissing(IEnumerable<PawnKindDef> workList)
+        {
+            List<TechLevel> triedLevels = new List<TechLevel>();
+
+            TechLevel tempLevel = factionFc.techLevel;
+            while (!workList.Any(def => def.trader) && tempLevel != TechLevel.Undefined)
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel -= 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
+            }
+
+            if (!workList.Any(def => def.trader))
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel = factionFc.techLevel + 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
+            }
+
+            while (!workList.Any(def => def.trader && tempLevel != TechLevel.Archotech))
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel += 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
+            }
+
+            if (!workList.Any(def => def.trader))
+            {
+                Log.Error("Couldn't find any trader PawnKindDefs for any techlevel with the following races: " + string.Join(", ", AllowedThingDefs) + ". Allowing traders of all races and tech levels.");
+                workList.Concat(DefaultList.Where(def => def.trader));
+            }
+            else if (triedLevels.Count != 0)
+            {
+                Log.Warning("Couldn't find any trader PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ". Empire will generate traders using the techlevel: " + tempLevel + ".");
+            }
+            return workList;
         }
 
         public new bool SetAllow(ThingDef thingDef, bool allow)
@@ -80,10 +160,14 @@ namespace FactionColonies.util
 
             if (allow)
             {
+                IEnumerable<PawnKindDef> workList = PawnKindDefsForTechLevel(factionFc.techLevel);
+                workList = CheckAndFixWorkList(workList) ?? new List<PawnKindDef>();
+                workList = GenerateTradersIfMissing(workList);
+
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && def.race.label == thingDef.label))
-                {
-                    if (def.defaultFactionType == null || def.defaultFactionType.defName == "Empire") continue;
+                foreach (PawnKindDef def in workList)
+                { 
+                    //Log.Message(def.defaultFactionType.techLevel.ToString() + " == " + factionFc.techLevel.ToString() + " = " + (def.defaultFactionType.techLevel == factionFc.techLevel));
 
                     PawnGenOption type = new PawnGenOption {kind = def, selectionWeight = 1};
                     faction.pawnGroupMakers[2].options.Add(type);

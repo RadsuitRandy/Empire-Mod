@@ -19,8 +19,7 @@
     <HasTithe>Has Tithe</HasTithe>
     <PayReceiveSilver>Pay/Receive Silver</PayReceiveSilver>
     <ResolveBill>Resolve Bill</ResolveBill>
-    <NotEnoughSilverOnMapToPayBill>You do not have enough silver on the current map to pay the bill
-    </NotEnoughSilverOnMapToPayBill>
+    <NotEnoughSilverOnMapToPayBill>You do not have enough silver on the current map to pay the bill</NotEnoughSilverOnMapToPayBill>
 
     <!-- Manual defense -->
     <DefendColony>Defend</DefendColony>
@@ -292,6 +291,9 @@
 	<commandLeave>Leave</commandLeave>
 	<leaveSuccess>{0} are now leaving the map. {1} dead.</leaveSuccess>
 	
+	<!-- Send Prisoner to settlement -->
+	<cantSendWithDangerLevel>You can't send a prisoner to your settlements when the map has a danger level of {0}!</cantSendWithDangerLevel>
+	
 	<!-- CallInAlliedForces -->
 	<selectDeploymentPosition>Select Deployment Position</selectDeploymentPosition>
 	<selectedPosOutOfBounds>The position you selected is out of bounds for this map!</selectedPosOutOfBounds>
@@ -304,9 +306,49 @@
 	<transportingInjuredShuttle>A shuttle is transporting injured colonists back to you after a successful settlement defence</transportingInjuredShuttle>
 	<transportingInjuredDropPod>Drop pods are transporting injured colonists back to you after a successful settlement defence</transportingInjuredDropPod>
 	<transportingInjuredCaravan>A caravan is transporting injured colonists back to you after a successful settlement defence</transportingInjuredCaravan>
+	<shuttleLandingBlockedWithItems>A shuttle couldn't find a free landing spot and is waiting for one to be cleared. It contains: {0}.</shuttleLandingBlockedWithItems>
+	<shuttleLandingBlocked>A shuttle couldn't find a free landing spot and is waiting for one to be cleared.</shuttleLandingBlocked>
+	<caravanDangerTooHigh>A caravan is waiting with it's delivery until your map is clear of danger.</caravanDangerTooHigh>
+	<caravanDangerTooHighWithItems>A caravan is waiting with it's delivery until your map is clear of danger. They carry: {0}.</caravanDangerTooHighWithItems>
 	
 	<!-- Delivery -->
+	<selectTaxDeliveryModeButton>Forced Tax Delivery Mode: </selectTaxDeliveryModeButton>
+	<taxDeliveryModeDefaultDesc>None. Delivery depends on technology and settlement buildings</taxDeliveryModeDefaultDesc>
+	<taxDeliveryModeTaxSpotDesc>TaxSpot. Delivery spawns on the tax spot</taxDeliveryModeTaxSpotDesc>
+	<taxDeliveryModeCaravanDesc>Caravan. Delivery is always brought by a caravan</taxDeliveryModeCaravanDesc>
+	<taxDeliveryModeDropPodDesc>DropPod. Delivery is always arrives in drop pods</taxDeliveryModeDropPodDesc>
+	<taxDeliveryModeShuttleDesc>Shuttle. Delivery always arrives by shuttle</taxDeliveryModeShuttleDesc>
+	<taxDeliveryModeShuttleUnavailableDesc>Shuttle. Unavailable due to royality not being present</taxDeliveryModeShuttleUnavailableDesc>
+	
 	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
-	<pawnsLeavingMap>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMap>
+	<pawnsLeavingMap>The delivering pawns are leaving the map.</pawnsLeavingMap>
+	<pawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</pawnsLeavingMapNoPath>
+	<pawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMapWithDowned>
+	<settlementDeliveringLoot>Your settlement is delivering the following loot to you: </settlementDeliveringLoot>
+	<deliveryHoldUpArriving>A delivery that was forced to wait has arrived!</deliveryHoldUpArriving>
+	<aSettlement> a settlement </aSettlement>
+	
+	<!-- Shuttle Port -->
+	<shuttlePortCallShuttleLabel>Request a shuttle</shuttlePortCallShuttleLabel>
+	<shuttlePortCallShuttleDesc>Ask your settlement to send you a shuttle that can transport a caravan:\n {0} uses remaining (Costs {1})</shuttlePortCallShuttleDesc>
+	<targetAnythingWithColonists>Target anything with free colonists to send the shuttle</targetAnythingWithColonists>
+	<requestShuttleToCaravan>Request a shuttle for this caravan</requestShuttleToCaravan>
+	<requestShuttleToColony>Request a shuttle for this colony</requestShuttleToColony>
+	<requestShuttleToMap>Request a shuttle for this map</requestShuttleToMap>
+
+	<shuttlePortCallShuttleForCaravanLabel>Request a shuttle for a caravan</shuttlePortCallShuttleForCaravanLabel>
+	<targetAnyWorldObject>Target any world object you want to send the shuttle to:\n {0} uses remaining (Costs {1})</targetAnyWorldObject>
+	<sendCaravanHere>Send the caravan here</sendCaravanHere>
+
+	<noShuttleUsesRemaining>No shuttle uses remaining in this tax period!</noShuttleUsesRemaining>
+	<notEnoughShuttleUsesRemaining>Not enough shuttle uses remaining in this tax period!</notEnoughShuttleUsesRemaining>
+
+	<!-- Open Colony Window Action -->
+	<openSettlementWindowDefaultLabel>See settlement information</openSettlementWindowDefaultLabel>
+	<openSettlementWindowDefaultDesc>Opens the settlements colony window</openSettlementWindowDefaultDesc>
+	
+	<!-- Auto Defend Warning -->
+	<autoDefendWarning>Keep in mind that this setting is not the same as the automatic battle resolve setting found in the settings menu!</autoDefendWarning>
+	<autoBattleEnabledNoManualFight>You can't manually fight battles if automatic battle resolve is enabled!</autoBattleEnabledNoManualFight>
 	
 </LanguageData>

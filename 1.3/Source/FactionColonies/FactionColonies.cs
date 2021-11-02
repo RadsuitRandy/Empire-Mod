@@ -566,27 +566,34 @@ namespace FactionColonies
 
             Log.Message("Empire - Testing for update change");
 
-
-            //Add update letter/checker here!!
             if (factionFC.updateVersion < 0.370)
             {
-                string str;
-                str =
-                    "A new update for Empire has been released!  v.0.370\n The following abbreviated changes have occurred:";
-                str += "\n\n- A new tax delivery system (can be disabled in the settings)";
-                str += "\n\n- Fixed original colonists being unable to leave a settlement defence map";
-                str += "\n\n- Fixed caravans vanishing on settlement defence";
-                str += "\n\n- Fixed invincible animals";
-                str += "\n\n- All of the code for this update has been developed by Danimineiro";
-                str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
-                str += "\n\n- I'm sorry for the bugs and the delay in fixing them - I've been kinda ill recently";
-                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
-
                 factionFC.updateVersion = 0.370;
-                Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
-                Find.LetterStack.ReceiveLetter("Manual Settlement is now disabled by default", 
+                Find.LetterStack.ReceiveLetter("Manual Settlement Defence is now disabled by default",
                     "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
+            }
+
+            //Add update letter/checker here!!
+            if (factionFC.updateVersion < 0.373)
+            {
+                string str;
+                str =        "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
+                str += "\n\n- Added new building: Shuttle Port (Techlevel: Spacer). The art for this building was made by turkler and some text written by Shalax!";
+                str += "\n\n- The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!";
+                str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
+                str += "\n\n- Shuttles now land exactly like vanilla shuttles";
+                str += "\n\n- Shuttles are now locked behind the shuttle port building";
+                str += "\n\n- Added a button to settlements on the world map that also opens the settlements window";
+                str += "\n\n- Added a new setting to force specific delivery modes, including the old legacy spawning on the tax spot";
+                str += "\n\n- Maybe fixed empty tax deliveries";
+                str += "\n\n- Changed new military/worker pawns to spawn at a reasonable age (no more child soldiers, sorry)";
+                str += "\n\n- All of the code for this update has been developed by Danimineiro";
+                str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
+                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+
+                factionFC.updateVersion = 0.373;
+                Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
             }
@@ -927,10 +934,8 @@ namespace FactionColonies
                 if (evtDef.isRandomEvent)
                     list.Add(new DebugMenuOption(evtDef.label, DebugMenuOptionMode.Action, delegate
                         {
-                            FCEvent evt;
-
                             Log.Message("Debug - Make Random Event - " + evtDef.label);
-                            evt = FCEventMaker.MakeRandomEvent(evtDef, null);
+                            FCEvent evt = FCEventMaker.MakeRandomEvent(evtDef, null);
                             if (evtDef.activateAtStart == false)
                             {
                                 FCEventMaker.MakeRandomEvent(evtDef, null);
@@ -938,18 +943,9 @@ namespace FactionColonies
                             }
 
                             //letter code
-                            string settlementString = "";
-                            foreach (SettlementFC loc in evt.settlementTraitLocations)
-                            {
-                                if (settlementString == "")
-                                {
-                                    settlementString += loc.name;
-                                }
-                                else
-                                {
-                                    settlementString += ", " + loc.name;
-                                }
-                            }
+                            List<string> settlements = new List<string>();
+                            evt.settlementTraitLocations.ForEach(settlement => settlements.Add(settlement.name));
+                            string settlementString = string.Join(", ", settlements);
 
                             if (settlementString != "")
                             {
@@ -1640,6 +1636,7 @@ namespace FactionColonies
 
         public static int ReturnTicksToArrive(int currentTile, int destinationTile)
         {
+            bool hasShuttles = Find.World.GetComponent<FactionFC>().returnSettlementByLocation(currentTile, Find.World.info.name)?.buildings.Contains(BuildingFCDefOf.shuttlePort) ?? false;
             bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                 .medievalTechOnly;
             ResearchProjectDef def = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false);
@@ -1648,7 +1645,7 @@ namespace FactionColonies
 
             if (currentTile == -1 || destinationTile == -1)
             {
-                if (!medievalOnly && def != null && Find.ResearchManager.GetProgress(def) == def.baseCost)
+                if (!medievalOnly && def != null && def.IsFinished)
                 {
                     //if have research pod tech
                     return 30000;
@@ -1670,13 +1667,14 @@ namespace FactionColonies
                 }
             }
 
-            if (!medievalOnly && def != null && Find.ResearchManager.GetProgress(def) == def.baseCost &&
-                ticksToArrive > 30000)
+            if (!medievalOnly && def != null && def.IsFinished)
             {
-                //if have research pod tech
-                return 30000;
+                if (hasShuttles)
+                {
+                    return ticksToArrive / 4;
+                }
+                return ticksToArrive / 2;
             }
-
             return ticksToArrive;
         }
 
@@ -1900,18 +1898,19 @@ namespace FactionColonies
         public double settlementBaseUpgradeCost = 1000;
         public int settlementMaxLevel = 10;
 
-        public static int randomEventChance = 25;
-
         public bool medievalTechOnly;
         public bool disableHostileMilitaryActions;
         public bool disableRandomEvents;
         public bool disableForcedPausingDuringEvents = true;
         public bool deadPawnsIncreaseMilitaryCooldown;
         public bool settlementsAutoBattle;
-        public bool disableTaxDeliveryCaravan;
+        public TaxDeliveryMode forcedTaxDeliveryMode;
 
         public int minDaysTillMilitaryAction = 4;
         public int maxDaysTillMilitaryAction = 10;
+
+        public int minDaysTillRandomEvent = 0;
+        public int maxDaysTillRandomEvent = 6;
         public IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
 
         private static float plusOrMinusRandomAttackValue = 2;
@@ -1929,12 +1928,13 @@ namespace FactionColonies
             Scribe_Values.Look(ref medievalTechOnly, "medievalTechOnly");
             Scribe_Values.Look(ref disableHostileMilitaryActions, "disableHostileMilitaryActions");
             Scribe_Values.Look(ref disableRandomEvents, "disableRandomEvents");
-            Scribe_Values.Look(ref disableTaxDeliveryCaravan, "disableTaxDeliveryCaravan", false);
+            Scribe_Values.Look(ref forcedTaxDeliveryMode, "forcedTaxDeliveryMode", default);
             Scribe_Values.Look(ref deadPawnsIncreaseMilitaryCooldown, "deadPawnsIncreaseMilitaryCooldown");
             Scribe_Values.Look(ref settlementsAutoBattle, "settlementsAutoBattle");
             Scribe_Values.Look(ref minDaysTillMilitaryAction, "minDaysTillMilitaryAction");
             Scribe_Values.Look(ref maxDaysTillMilitaryAction, "maxDaysTillMilitaryAction");
-
+            Scribe_Values.Look(ref minDaysTillRandomEvent, "minDaysTillRandomEvent", 0);
+            Scribe_Values.Look(ref maxDaysTillRandomEvent, "maxDaysTillRandomEvent", 6);
         }
     }
 
@@ -1962,8 +1962,39 @@ namespace FactionColonies
         bool settlementsAutoBattle;
         int minDaysTillMilitaryAction;
         int maxDaysTillMilitaryAction;
-        IntRange minMaxDaysTillMilitaryAction;
-        
+        IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
+        IntRange minMaxDaysTillRandomEvent = new IntRange(0, 6);
+
+        private FloatMenuOption ShuttleOption
+        {
+            get
+            {
+                if (ModsConfig.RoyaltyActive)
+                {
+                    return new FloatMenuOption("taxDeliveryModeShuttleDesc".Translate(), delegate () {settings.forcedTaxDeliveryMode = TaxDeliveryMode.Shuttle;});
+                }
+                else 
+                { 
+                    return new FloatMenuOption("taxDeliveryModeShuttleUnavailableDesc".Translate(), null); 
+                }
+            }
+        }
+
+        private List<FloatMenuOption> Options
+        {
+            get
+            {
+                return new List<FloatMenuOption>() 
+                {
+                    new FloatMenuOption("taxDeliveryModeDefaultDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = default;}),
+                    new FloatMenuOption("taxDeliveryModeTaxSpotDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = TaxDeliveryMode.TaxSpot;}),
+                    new FloatMenuOption("taxDeliveryModeCaravanDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = TaxDeliveryMode.Caravan;}),
+                    new FloatMenuOption("taxDeliveryModeDropPodDesc".Translate(), delegate() {settings.forcedTaxDeliveryMode = TaxDeliveryMode.DropPod;}),
+                    ShuttleOption
+                };
+            }
+        }
+
         public override void DoSettingsWindowContents(Rect inRect)
         {
             silverPerResource = settings.silverPerResource.ToString();
@@ -1976,9 +2007,9 @@ namespace FactionColonies
             disableHostileMilitaryActions = settings.disableHostileMilitaryActions;
             minDaysTillMilitaryAction = settings.minDaysTillMilitaryAction;
             maxDaysTillMilitaryAction = settings.maxDaysTillMilitaryAction;
-            minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
 
-            settings.minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
+            minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
+            minMaxDaysTillRandomEvent = new IntRange(settings.minDaysTillRandomEvent, settings.maxDaysTillRandomEvent);
 
             Listing_Standard listingStandard = new Listing_Standard();
             listingStandard.Begin(inRect);
@@ -1986,7 +2017,7 @@ namespace FactionColonies
             listingStandard.IntEntry(ref settings.silverPerResource, ref silverPerResource);
             listingStandard.Label("Days between tax time");
             listingStandard.IntEntry(ref daysBetweenTaxes, ref timeBetweenTaxes);
-            settings.timeBetweenTaxes = daysBetweenTaxes * 60000;
+            settings.timeBetweenTaxes = Math.Max(1, daysBetweenTaxes) * 60000;
             listingStandard.Label("Production Tithe Modifier");
             listingStandard.IntEntry(ref settings.productionTitheMod, ref productionTitheMod);
             listingStandard.Label("Cost Per Worker");
@@ -2003,12 +2034,15 @@ namespace FactionColonies
                 ref settings.disableForcedPausingDuringEvents);
             listingStandard.CheckboxLabeled("Automatically Resolve Battles",
                 ref settings.settlementsAutoBattle);
-            listingStandard.CheckboxLabeled("Disable Tax Delivery Caravan",
-                ref settings.disableTaxDeliveryCaravan);
+            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(Options));
             listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
             settings.maxDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.max;
+            listingStandard.Label("Min/Max Days Until Random Event");
+            listingStandard.IntRange(ref minMaxDaysTillRandomEvent, 0, 20);
+            settings.minDaysTillRandomEvent = minMaxDaysTillRandomEvent.min;
+            settings.maxDaysTillRandomEvent = Math.Max(1, minMaxDaysTillRandomEvent.max);
 
             if (listingStandard.ButtonText("Reset Settings"))
             {
@@ -2019,12 +2053,15 @@ namespace FactionColonies
                 settings.workerCost = blank.workerCost;
                 settings.medievalTechOnly = blank.medievalTechOnly;
                 settings.settlementMaxLevel = blank.settlementMaxLevel;
-                settings.minMaxDaysTillMilitaryAction = blank.minMaxDaysTillMilitaryAction;
+                settings.minDaysTillMilitaryAction = blank.minDaysTillMilitaryAction;
+                settings.maxDaysTillMilitaryAction = blank.maxDaysTillMilitaryAction;
+                settings.minDaysTillRandomEvent = blank.minDaysTillRandomEvent;
+                settings.maxDaysTillRandomEvent = blank.maxDaysTillRandomEvent;
                 settings.disableRandomEvents = blank.disableRandomEvents;
                 settings.deadPawnsIncreaseMilitaryCooldown = blank.deadPawnsIncreaseMilitaryCooldown;
                 settings.settlementsAutoBattle = true;
                 settings.disableForcedPausingDuringEvents = blank.disableForcedPausingDuringEvents;
-                settings.disableTaxDeliveryCaravan = blank.disableTaxDeliveryCaravan;
+                settings.forcedTaxDeliveryMode = blank.forcedTaxDeliveryMode;
             }
 
             listingStandard.End();

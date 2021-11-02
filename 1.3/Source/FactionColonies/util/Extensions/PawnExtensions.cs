@@ -54,8 +54,6 @@ namespace FactionColonies.util
 
 		public static void Scarify(this Pawn pawn)
 		{
-			if (!ModLister.CheckIdeology("Scarification")) return;
-
 			int num = 0;
 			using (List<Hediff>.Enumerator enumerator = pawn.health.hediffSet.hediffs.GetEnumerator())
 			{

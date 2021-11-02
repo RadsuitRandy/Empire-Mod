@@ -6,7 +6,7 @@
 			<subNodes>
 				<li Class="FactionColonies.JobGiver_GotoAndDrop"/>
 				<li Class="JobGiver_WanderNearDutyLocation">
-					<wanderRadius>1</wanderRadius>
+					<wanderRadius>0</wanderRadius>
 				</li>
 			</subNodes>
 		</thinkNode>
@@ -18,7 +18,7 @@
 			<subNodes>
 				<li Class="FactionColonies.JobGiver_GotoAndDrop"/>
 				<li Class="JobGiver_WanderNearDutyLocation">
-					<wanderRadius>7</wanderRadius>
+					<wanderRadius>10</wanderRadius>
 				</li>
 			</subNodes>
 		</thinkNode>

@@ -145,11 +145,11 @@ namespace FactionColonies
     public class FCTraitEffectDefOf
     {
 
+        public static FCTraitEffectDef shuttlePort;
+
         static FCTraitEffectDefOf()
         {
             DefOfHelper.EnsureInitializedInCtor(typeof(FCTraitEffectDefOf));
         }
     }
-
-
 }
