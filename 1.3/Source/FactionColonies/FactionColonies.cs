@@ -576,14 +576,16 @@ namespace FactionColonies
             if (factionFC.updateVersion < 0.373)
             {
                 string str;
-                str =
-                    "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
+                str =        "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
+                str += "\n\n- Added new building: Shuttle Port. The art for this building was made by turkler and some text written by Shalax!";
+                str += "\n\n- The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!";
                 str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
                 str += "\n\n- Shuttles now land exactly like vanilla shuttles";
-                str += "\n\n- Added new building: Shuttle Port. The art for this building was made by turkler!";
                 str += "\n\n- Shuttles are now locked behind the shuttle port building";
+                str += "\n\n- Added a button to settlements on the world map that also opens the settlements window";
                 str += "\n\n- Added a new setting to force specific delivery modes, including the old legacy spawning on the tax spot";
                 str += "\n\n- Maybe fixed empty tax deliveries";
+                str += "\n\n- Changed new military/worker pawns to spawn at a reasonable age (no more child soldiers, sorry)";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
