@@ -919,14 +919,14 @@ namespace FactionColonies
 
                             //deliver
 
-                            DeliveryEventParams eventParams = new DeliveryEventParams
+                            FCEvent eventParams = new FCEvent()
                             {
-                                Location = Find.AnyPlayerHomeMap.Tile,
-                                Source = mapLocation,
-                                PlanetName = planetName,
-                                Contents = loot,
-                                CustomDescription = text,
-                                timeTillTriger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(mapLocation, Find.AnyPlayerHomeMap.Tile)
+                                location = Find.AnyPlayerHomeMap.Tile,
+                                source = mapLocation,
+                                planetName = planetName,
+                                goods = loot,
+                                customDescription = text,
+                                timeTillTrigger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(mapLocation, Find.AnyPlayerHomeMap.Tile)
                             };
 
                             DeliveryEvent.CreateDeliveryEvent(eventParams);

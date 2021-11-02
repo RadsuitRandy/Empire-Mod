@@ -19,6 +19,19 @@ namespace FactionColonies.util
 			mode = TraverseMode.ByPawn
 		};
 
+		public static void Action(List<Thing> things)
+		{
+			CreateDeliveryEvent(new FCEvent()
+			{
+				source = -1,
+				goods = things,
+				customDescription = "",
+				timeTillTrigger = Find.TickManager.TicksGame + 10,
+				let = null,
+				msg = null
+			}); 
+		}
+
 		public static void Action(FCEvent evt)
 		{
 			Action(evt, null, null);
@@ -26,33 +39,35 @@ namespace FactionColonies.util
 
 		public static void Action(FCEvent evt, Letter let = null, Message msg = null, bool CanUseShuttle = false)
 		{
-			Action(evt.goods, let, msg, CanUseShuttle || Find.World.GetComponent<FactionFC>().settlements.First(settlement => settlement.mapLocation == evt.source).traits.Contains(FCTraitEffectDefOf.shuttlePort), evt.source);
+			evt.let = let;
+			evt.msg = msg;
+			Action(evt, CanUseShuttle || Find.World.GetComponent<FactionFC>().settlements.First(settlement => settlement.mapLocation == evt.source).traits.Contains(FCTraitEffectDefOf.shuttlePort));
 		}
 
-		private static void MakeDeliveryLetterAndMessage(Letter let, Message msg, List<Thing> things, int source)
+		private static void MakeDeliveryLetterAndMessage(FCEvent evt)
 		{
 			try
 			{
-				if (let != null)
+				if (evt.let != null)
 				{
-					let.lookTargets = things;
-					Find.LetterStack.ReceiveLetter(let);
+					evt.let.lookTargets = evt.goods;
+					Find.LetterStack.ReceiveLetter(evt.let);
 				}
 				else
 				{
 					FactionFC faction = Find.World.GetComponent<FactionFC>();
-					string str = "TaxesFrom".Translate() + faction.returnSettlementByLocation(source, Find.World.info.name) ?? "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
-					Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + things.ToLetterString(), LetterDefOf.PositiveEvent, things);
+					string str = "TaxesFrom".Translate() + faction.returnSettlementByLocation(evt.source, Find.World.info.name) ?? "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
+					Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + evt.goods.ToLetterString(), LetterDefOf.PositiveEvent, evt.goods);
 				}
 
-				if (msg != null)
+				if (evt.msg != null)
 				{
-					msg.lookTargets = things;
-					Messages.Message(msg);
+					evt.msg.lookTargets = evt.goods;
+					Messages.Message(evt.msg);
 				}
 				else
 				{
-					Messages.Message("deliveryHoldUpArriving".Translate(), things, MessageTypeDefOf.PositiveEvent);
+					Messages.Message("deliveryHoldUpArriving".Translate(), evt.goods, MessageTypeDefOf.PositiveEvent);
 				}
 			} 
 			catch
@@ -61,7 +76,7 @@ namespace FactionColonies.util
 			}
 		}
 
-		private static void SendShuttle(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		private static void SendShuttle(FCEvent evt)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 			List<ShipLandingArea> landingZones = ShipLandingBeaconUtility.GetLandingZones(playerHomeMap);
@@ -70,9 +85,9 @@ namespace FactionColonies.util
 
 			if (!landingZones.Any() || landingZones.Any(zone => zone.Clear))
 			{
-				MakeDeliveryLetterAndMessage(let, msg, things, source);
+				MakeDeliveryLetterAndMessage(evt);
 				Thing shuttle = ThingMaker.MakeThing(ThingDefOf.Shuttle);
-				TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, things, shuttle);
+				TransportShip transportShip = TransportShipMaker.MakeTransportShip(TransportShipDefOf.Ship_Shuttle, evt.goods, shuttle);
 
 				transportShip.ArriveAt(landingCell, playerHomeMap.Parent);
 				transportShip.AddJobs(new ShipJobDef[]
@@ -83,79 +98,63 @@ namespace FactionColonies.util
 			}
 			else
 			{
-				if (let != null && msg != null)
+				if (!evt.isDelayed)
 				{
-					Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(things.ToLetterString())).Replace("\n", " "), MessageTypeDefOf.RejectInput);
+					Messages.Message(((string)"shuttleLandingBlockedWithItems".Translate(evt.goods.ToLetterString())).Replace("\n", " "), MessageTypeDefOf.RejectInput);
+					evt.isDelayed = true;
 				}
 
-				if (source == -1) source = playerHomeMap.Tile;
+				if (evt.source == -1) evt.source = playerHomeMap.Tile;
 
-				DeliveryEventParams eventParams = new DeliveryEventParams
-				{
-					Location = Find.AnyPlayerHomeMap.Tile,
-					Source = source,
-					PlanetName = Find.World.info.name,
-					Contents = things,
-					CustomDescription = "shuttleLandingBlocked".Translate(),
-					timeTillTriger = Find.TickManager.TicksGame + 1000
-				};
-
-				CreateDeliveryEvent(eventParams);
+				evt.timeTillTrigger = Find.TickManager.TicksGame + 1000;
+				CreateDeliveryEvent(evt);
 			}
 		}
 
-		private static void SendDropPod(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		private static void SendDropPod(FCEvent evt)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
-			MakeDeliveryLetterAndMessage(let, msg, things, source);
-			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, false, false);
+			MakeDeliveryLetterAndMessage(evt);
+			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, evt.goods, 110, false, false, false, false);
 		}
 
-		private static bool DoDelayCaravanDueToDanger(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
-        {
+		private static bool DoDelayCaravanDueToDanger(FCEvent evt)
+		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 			if (playerHomeMap.dangerWatcher.DangerRating != StoryDanger.None)
 			{
 
-				if (let != null && msg != null)
+				if (!evt.isDelayed)
 				{
-					Messages.Message(((string)"caravanDangerTooHighWithItems".Translate(things.ToLetterString())).Replace("\n", ""), MessageTypeDefOf.RejectInput);
+					Messages.Message(((string)"caravanDangerTooHighWithItems".Translate(evt.goods.ToLetterString())).Replace("\n", " "), MessageTypeDefOf.RejectInput);
+					evt.isDelayed = true;
 				}
 
-				if (source == -1) source = playerHomeMap.Tile;
+				if (evt.source == -1) evt.source = playerHomeMap.Tile;
 
-				DeliveryEventParams eventParams = new DeliveryEventParams
-				{
-					Location = Find.AnyPlayerHomeMap.Tile,
-					Source = source,
-					PlanetName = Find.World.info.name,
-					Contents = things,
-					CustomDescription = "caravanDangerTooHigh".Translate(),
-					timeTillTriger = Find.TickManager.TicksGame + 1000
-				};
-
-				CreateDeliveryEvent(eventParams);
+				evt.timeTillTrigger = Find.TickManager.TicksGame + 1000;
+				CreateDeliveryEvent(evt);
 				return true;
 			}
 
 			return false;
 		}
 
-		private static void SendCaravan(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		private static void SendCaravan(FCEvent evt)
 		{
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
-			if (DoDelayCaravanDueToDanger(things, let, msg, source)) return;
+			if (DoDelayCaravanDueToDanger(evt)) return;
 
-			MakeDeliveryLetterAndMessage(let, msg, things, source);
+			MakeDeliveryLetterAndMessage(evt);
 			List<Pawn> pawns = new List<Pawn>();
-			while (things.Count() > 0)
+			while (evt.goods.Count() > 0)
 			{
 				Pawn pawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
-				Thing next = things.First();
+				Thing next = evt.goods.First();
 
 				if (pawn.carryTracker.innerContainer.TryAdd(next))
 				{
-					things.Remove(next);
+					evt.goods.Remove(next);
 				}
 
 				pawns.Add(pawn);
@@ -172,10 +171,10 @@ namespace FactionColonies.util
 
 		}
 
-		private static void SpawnOnTaxSpot(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		private static void SpawnOnTaxSpot(FCEvent evt)
 		{
-			MakeDeliveryLetterAndMessage(let, msg, things, source);
-			things.ForEach(thing => PaymentUtil.placeThing(thing));
+			MakeDeliveryLetterAndMessage(evt);
+			evt.goods.ForEach(thing => PaymentUtil.placeThing(thing));
 		}
 
 		public static TaxDeliveryMode TaxDeliveryModeForSettlement(bool canUseShuttle)
@@ -196,7 +195,7 @@ namespace FactionColonies.util
 			return TaxDeliveryMode.Caravan;
 		}
 
-		public static void Action(List<Thing> things, Letter let = null, Message msg = null, bool canUseShuttle = false, int source = -1)
+		public static void Action(FCEvent evt, bool canUseShuttle = false)
 		{
 			try
 			{
@@ -205,37 +204,39 @@ namespace FactionColonies.util
 				switch (taxDeliveryMode)
 				{
 					case TaxDeliveryMode.Caravan:
-						SendCaravan(things, let, msg, source);
+						SendCaravan(evt);
 						break;
 					case TaxDeliveryMode.DropPod:
-						SendDropPod(things, let, msg, source);
+						SendDropPod(evt);
 						break;
 					case TaxDeliveryMode.Shuttle:
-						SendShuttle(things, let, msg, source);
+						SendShuttle(evt);
 						break;
 					default:
-						SpawnOnTaxSpot(things, let, msg, source);
+						SpawnOnTaxSpot(evt);
 						break;
 				}
 			} 
 			catch(Exception e)
 			{
 				Log.ErrorOnce("Critical delivery failure, spawning things on tax spot instead! Message: " + e.Message + " StackTrace: " + e.StackTrace + " Source: " + e.Source, 77239232);
-				things.ForEach(thing => PaymentUtil.placeThing(thing));
+				evt.goods.ForEach(thing => PaymentUtil.placeThing(thing));
 			}
 		}
 
-		public static void CreateDeliveryEvent(DeliveryEventParams evtParams)
+		public static void CreateDeliveryEvent(FCEvent evtParams)
 		{
 			FCEvent evt = FCEventMaker.MakeEvent(FCEventDefOf.deliveryArrival);
-			evt.source = evtParams.Source;
-			evt.goods = evtParams.Contents.ToList();
+			evt.source = evtParams.source;
+			evt.goods = evtParams.goods;
 			evt.classToRun = "FactionColonies.util.DeliveryEvent";
 			evt.classMethodToRun = "Action";
 			evt.passEventToClassMethodToRun = true;
-			evt.customDescription = evtParams.CustomDescription;
+			evt.customDescription = evtParams.customDescription;
 			evt.hasCustomDescription = true;
-			evt.timeTillTrigger = evtParams.timeTillTriger;
+			evt.timeTillTrigger = evtParams.timeTillTrigger;
+			evt.let = evtParams.let;
+			evt.msg = evtParams.msg;
 
 			Find.World.GetComponent<FactionFC>().addEvent(evt);
 		}
@@ -311,35 +312,5 @@ namespace FactionColonies.util
 		Caravan,
 		DropPod,
 		Shuttle
-	}
-
-	public struct DeliveryEventParams
-	{
-		static DeliveryEventParams()
-		{
-
-		}
-
-		public int Location; //destination
-		public string PlanetName;
-		public int Source; //source location
-		public string CustomDescription;
-		public IEnumerable<Thing> Contents;
-		public int timeTillTriger;
-		public bool HasDestination
-		{
-			get
-			{
-				return Location != -1;
-			}
-		}
-
-		public bool HasCustomDescription
-		{
-			get
-			{
-				return !CustomDescription.NullOrEmpty();
-			}
-		}
 	}
 }
