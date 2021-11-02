@@ -111,8 +111,8 @@ namespace FactionColonies.util
 			DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(playerHomeMap), playerHomeMap, things, 110, false, false, false, false);
 		}
 
-		private static void SendCaravan(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
-		{
+		private static bool DoDelayCaravanDueToDanger(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+        {
 			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
 			if (playerHomeMap.dangerWatcher.DangerRating != StoryDanger.None)
 			{
@@ -135,8 +135,16 @@ namespace FactionColonies.util
 				};
 
 				CreateDeliveryEvent(eventParams);
-				return;
+				return true;
 			}
+
+			return false;
+		}
+
+		private static void SendCaravan(List<Thing> things, Letter let = null, Message msg = null, int source = -1)
+		{
+			Map playerHomeMap = Find.World.GetComponent<FactionFC>().TaxMap;
+			if (DoDelayCaravanDueToDanger(things, let, msg, source)) return;
 
 			MakeDeliveryLetterAndMessage(let, msg, things, source);
 			List<Pawn> pawns = new List<Pawn>();
@@ -303,5 +311,35 @@ namespace FactionColonies.util
 		Caravan,
 		DropPod,
 		Shuttle
+	}
+
+	public struct DeliveryEventParams
+	{
+		static DeliveryEventParams()
+		{
+
+		}
+
+		public int Location; //destination
+		public string PlanetName;
+		public int Source; //source location
+		public string CustomDescription;
+		public IEnumerable<Thing> Contents;
+		public int timeTillTriger;
+		public bool HasDestination
+		{
+			get
+			{
+				return Location != -1;
+			}
+		}
+
+		public bool HasCustomDescription
+		{
+			get
+			{
+				return !CustomDescription.NullOrEmpty();
+			}
+		}
 	}
 }

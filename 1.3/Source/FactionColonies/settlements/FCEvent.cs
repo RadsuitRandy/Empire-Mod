@@ -695,36 +695,6 @@ namespace FactionColonies
         }
     }
 
-    public struct DeliveryEventParams
-    {
-        static DeliveryEventParams()
-        {
-            
-        }
-
-        public int Location; //destination
-        public string PlanetName;
-        public int Source; //source location
-        public string CustomDescription;
-        public IEnumerable<Thing> Contents;
-        public int timeTillTriger;
-        public bool HasDestination
-        {
-            get
-            {
-                return Location != -1;
-            }
-        }
-
-        public bool HasCustomDescription
-        {
-            get
-            {
-                return !CustomDescription.NullOrEmpty();
-            }
-        }
-    }
-
     public class FCEvent : IExposable, ILoadReferenceable
     {
         public FCEvent()
