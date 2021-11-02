@@ -763,6 +763,9 @@ namespace FactionColonies
             Scribe_Values.Look(ref classToRun, "classToRun");
             Scribe_Values.Look(ref classMethodToRun, "classMethodToRun");
             Scribe_Values.Look(ref passEventToClassMethodToRun, "passEventToClassMethodToRun");
+            Scribe_Deep.Look(ref msg, "msg");
+            Scribe_Deep.Look(ref let, "let");
+            Scribe_Values.Look(ref isDelayed, "isDelayed", false);
 
             //Military stuff
             Scribe_Deep.Look(ref militaryForceAttacking, "militaryForceAttacking");
@@ -788,6 +791,10 @@ namespace FactionColonies
         public bool hasCustomDescription;
         public string customDescription = "";
 
+        //Delivery things
+        public Message msg = null;
+        public Letter let = null;
+        public bool isDelayed = false;
 
         //Random Event Information
         public bool isRandomEvent;
