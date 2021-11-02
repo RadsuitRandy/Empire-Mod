@@ -577,7 +577,7 @@ namespace FactionColonies
             {
                 string str;
                 str =        "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
-                str += "\n\n- Added new building: Shuttle Port. The art for this building was made by turkler and some text written by Shalax!";
+                str += "\n\n- Added new building: Shuttle Port (Techlevel: Spacer). The art for this building was made by turkler and some text written by Shalax!";
                 str += "\n\n- The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!";
                 str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
                 str += "\n\n- Shuttles now land exactly like vanilla shuttles";
