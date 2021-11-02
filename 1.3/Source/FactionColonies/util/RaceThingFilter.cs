@@ -108,7 +108,45 @@ namespace FactionColonies.util
             }
             else if (triedLevels.Count != 0)
             {
-                Log.Warning("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ". Empire will generate Pawns using the techlevel: " + tempLevel + ".");
+                Log.Warning("Couldn't find any PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ". Empire will generate pawns using the techlevel: " + tempLevel + ".");
+            }
+            return workList;
+        }
+
+        private IEnumerable<PawnKindDef> GenerateTradersIfMissing(IEnumerable<PawnKindDef> workList)
+        {
+            List<TechLevel> triedLevels = new List<TechLevel>();
+
+            TechLevel tempLevel = factionFc.techLevel;
+            while (!workList.Any(def => def.trader) && tempLevel != TechLevel.Undefined)
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel -= 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
+            }
+
+            if (!workList.Any(def => def.trader))
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel = factionFc.techLevel + 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
+            }
+
+            while (!workList.Any(def => def.trader && tempLevel != TechLevel.Archotech))
+            {
+                triedLevels.Add(tempLevel);
+                tempLevel += 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
+            }
+
+            if (!workList.Any(def => def.trader))
+            {
+                Log.Error("Couldn't find any trader PawnKindDefs for any techlevel with the following races: " + string.Join(", ", AllowedThingDefs) + ". Allowing traders of all races and tech levels.");
+                workList.Concat(DefaultList.Where(def => def.trader));
+            }
+            else if (triedLevels.Count != 0)
+            {
+                Log.Warning("Couldn't find any trader PawnKindDefs for techlevels: " + string.Join(", ", triedLevels) + " with races " + string.Join(", ", AllowedThingDefs) + ". Empire will generate traders using the techlevel: " + tempLevel + ".");
             }
             return workList;
         }
@@ -124,6 +162,7 @@ namespace FactionColonies.util
             {
                 IEnumerable<PawnKindDef> workList = PawnKindDefsForTechLevel(factionFc.techLevel);
                 workList = CheckAndFixWorkList(workList) ?? new List<PawnKindDef>();
+                workList = GenerateTradersIfMissing(workList);
 
                 //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
                 foreach (PawnKindDef def in workList)

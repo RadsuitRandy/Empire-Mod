@@ -374,8 +374,7 @@ namespace FactionColonies
             }
         }
 
-        public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(
-            Caravan caravan)
+        public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Caravan caravan)
         {
             if (!settlement.isUnderAttack)
             {
