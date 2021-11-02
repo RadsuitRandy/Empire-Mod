@@ -26,7 +26,7 @@ namespace FactionColonies.util
                 returnString += keyValuePair.Key.ToString() + " " + keyValuePair.Value.ToString() + "x\n";
             }
 
-            return returnString;
+            return returnString.TrimEnd('\n');
         }
     }
 }
