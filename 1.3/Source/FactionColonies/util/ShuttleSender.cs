@@ -13,6 +13,7 @@ namespace FactionColonies.util
 		protected readonly int Tile = -1;
 		public readonly int ShuttleRange = 70;
 		public WorldSettlementFC settlementFC = null;
+		public static readonly int cost = 1;
 
 		public ShuttleSender(int Tile, WorldSettlementFC settlementFC)
 		{
@@ -36,12 +37,10 @@ namespace FactionColonies.util
 			{
 				ShipJobDefOf.WaitForever,
 				ShipJobDefOf.Unload,
-				ShipJobDefOf.WaitForever,
-				ShipJobDefOf.Unload,
 				ShipJobDefOf.FlyAway
 			});
 
-			settlementFC.shuttleUsesRemaining -= 2;
+			settlementFC.shuttleUsesRemaining -= cost;
 			CameraJumper.TryJump(landingCell, target.Map);
 			return transportShip;
 		}
@@ -66,8 +65,8 @@ namespace FactionColonies.util
 			{
 				return null;
 			}
-			int num = Find.WorldGrid.TraversalDistanceBetween(tile, target.Tile, true, int.MaxValue);
-			if (ShuttleRange > 0 && num > ShuttleRange)
+
+			if (ShuttleRange > 0 && Find.WorldGrid.TraversalDistanceBetween(tile, target.Tile, true, int.MaxValue) > ShuttleRange)
 			{
 				GUI.color = ColorLibrary.RedReadable;
 				return "TransportPodDestinationBeyondMaximumRange".Translate();

@@ -168,7 +168,7 @@ namespace FactionColonies
         public Command_Action RequestShuttleAction => new Command_Action
         {
             defaultLabel = "shuttlePortCallShuttleLabel".Translate(),
-            defaultDesc = "shuttlePortCallShuttleDesc".Translate(shuttleUsesRemaining, 2),
+            defaultDesc = "shuttlePortCallShuttleDesc".Translate(shuttleUsesRemaining, ShuttleSender.cost),
             icon = ContentFinder<Texture2D>.Get("UI/Commands/CallShuttle", true),
             action = delegate
             {
@@ -187,7 +187,7 @@ namespace FactionColonies
         public Command_Action RequestShuttleForCaravanAction => new Command_Action
         {
             defaultLabel = "shuttlePortCallShuttleForCaravanLabel".Translate(),
-            defaultDesc = "shuttlePortCallShuttleDesc".Translate(shuttleUsesRemaining, 1),
+            defaultDesc = "shuttlePortCallShuttleDesc".Translate(shuttleUsesRemaining, ShuttleSenderCaravan.cost),
             icon = ContentFinder<Texture2D>.Get("UI/Commands/CallShuttle", true),
 
             action = delegate
