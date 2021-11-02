@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FactionColonies.util;
 using RimWorld;
 using Verse;
 
@@ -127,9 +128,9 @@ namespace FactionColonies
 
             }
 
-            Messages.Message("NotEnoughSilverForBill".Translate() + " " + settlement.name + ". " + "ConfiscatedTithes".Translate() + "." + " " + "UnpaidTitheEffect".Translate(), MessageTypeDefOf.NegativeEvent);
-            settlement.unrest += 10 * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", factionfc.traits, "multiply");
-            settlement.happiness -= 10 * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", settlement.traits, "multiply") * TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", factionfc.traits, "multiply");
+            string messageString = "NotEnoughSilverForBill".Translate() + " " + settlement.name + ". " + "ConfiscatedTithes".Translate() + "." + " " + "UnpaidTitheEffect".Translate();
+            settlement.GainUnrestWithReason(new Message(messageString, MessageTypeDefOf.NegativeEvent), 10d);
+            settlement.GainHappiness(-10d);
             factionfc.Bills.Remove(this);
             return false;
         }

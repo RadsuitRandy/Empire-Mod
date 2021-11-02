@@ -407,7 +407,6 @@ namespace FactionColonies
         {
             List<Apparel> apparel = new List<Apparel>();
             List<ThingWithComps> equipment = new List<ThingWithComps>();
-            PawnKindDef kindDef = pawnKind;
 
             if (defaultPawn != null)
             {
@@ -430,14 +429,7 @@ namespace FactionColonies
                 defaultPawn.Destroy();
             }
 
-            defaultPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: kindDef,
-                faction: FactionColonies.getPlayerColonyFaction(), context: PawnGenerationContext.NonPlayer, 
-                tile: -1, forceGenerateNewPawn: false, newborn: false, allowDead: false, allowDowned: false, 
-                canGeneratePawnRelations: true, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0, 
-                forceAddFreeWarmLayerIfNeeded: false, allowGay: false, allowFood: false, allowAddictions: false, 
-                inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false,
-                worldPawnFactionDoesntMatter: false, biocodeWeaponChance: 0, extraPawnForExtraRelationChance: null, 
-                relationWithExtraPawnChanceFactor: 0));
+            defaultPawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
             defaultPawn.health.forceIncap = true;
             defaultPawn.mindState.canFleeIndividual = false;
             defaultPawn.apparel.DestroyAll();
@@ -863,15 +855,7 @@ namespace FactionColonies
 
         public void createNewAnimal(ref Mercenary merc, PawnKindDef race)
         {
-            Pawn newPawn;
-            newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: race, 
-                faction: FactionColonies.getPlayerColonyFaction(), context: PawnGenerationContext.NonPlayer, tile: -1, 
-                forceGenerateNewPawn: false, newborn: false, allowDead: false, allowDowned: false, 
-                canGeneratePawnRelations: false, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0, 
-                forceAddFreeWarmLayerIfNeeded: false, allowGay: false, allowFood: false, allowAddictions: false, 
-                inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false, 
-                worldPawnFactionDoesntMatter: false, biocodeWeaponChance: 0, extraPawnForExtraRelationChance: null, 
-                relationWithExtraPawnChanceFactor: 0));
+            Pawn newPawn = PawnGenerator.GeneratePawn(FCPawnGenerator.AnimalRequest(race));
             //merc = (Mercenary)newPawn;
 
             merc.squad = this;
@@ -889,14 +873,7 @@ namespace FactionColonies
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             }
 
-            Pawn newPawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: raceChoice,
-                faction: FactionColonies.getPlayerColonyFaction(), context: PawnGenerationContext.NonPlayer, tile: -1,
-                forceGenerateNewPawn: false, newborn: false, allowDead: false, allowDowned: false,
-                canGeneratePawnRelations: false, mustBeCapableOfViolence: true, colonistRelationChanceFactor: 0,
-                forceAddFreeWarmLayerIfNeeded: false, allowGay: false, allowFood: false, allowAddictions: false,
-                inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false,
-                worldPawnFactionDoesntMatter: false, biocodeWeaponChance: 0, extraPawnForExtraRelationChance: null,
-                relationWithExtraPawnChanceFactor: 0));
+            Pawn newPawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
             newPawn.apparel?.DestroyAll();
             newPawn.equipment?.DestroyAllEquipment();
             //merc = (Mercenary)newPawn;

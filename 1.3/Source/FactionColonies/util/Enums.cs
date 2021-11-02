@@ -20,4 +20,10 @@
         CaptureEnemySettlement,
         DefendFriendlySettlement
     }
+
+    public enum Operation
+    {
+        Addition,
+        Multiplikation
+    }
 }

@@ -9,7 +9,6 @@ namespace FactionColonies
     {
         public void ExposeData()
         {
-
             Scribe_Values.Look(ref desc, "desc");
             Scribe_Values.Look(ref cost, "cost");
             Scribe_Values.Look(ref techLevel, "techLevel");
@@ -18,6 +17,10 @@ namespace FactionColonies
             Scribe_Collections.Look(ref applicableBiomes, "applicableBiomes", LookMode.Value);
             Scribe_Values.Look(ref upkeep, "upkeep");
             Scribe_Values.Look(ref iconPath, "iconPath");
+            Scribe_Values.Look(ref shuttleUses, "shuttleUses");
+            Scribe_Values.Look(ref requiresRoyality, "requiresRoyality");
+            Scribe_Values.Look(ref requiresIdeology, "requiresIdeology");
+            Scribe_Collections.Look(ref requiredModsID, "requiredMods", LookMode.Value);
         }
 
         public string desc;
@@ -29,6 +32,10 @@ namespace FactionColonies
         public int upkeep;
         public string iconPath = "GUI/unrest";
         public Texture2D iconLoaded;
+        public int shuttleUses = 0;
+        public bool requiresRoyality = false;
+        public bool requiresIdeology = false;
+        public List<string> requiredModsID = new List<string>();
         //public required research
 
         public Texture2D icon
@@ -49,7 +56,7 @@ namespace FactionColonies
             }
         }
 
-
+        public bool RequiredModsLoaded => (ModsConfig.RoyaltyActive || !requiresRoyality) && (ModsConfig.IdeologyActive || !requiresIdeology) && requiredModsID.TrueForAll(mod => ModsConfig.IsActive(mod));
     }
 
     [DefOf]
@@ -58,6 +65,7 @@ namespace FactionColonies
         public static BuildingFCDef Empty;
         public static BuildingFCDef Construction;
         public static BuildingFCDef artilleryOutpost;
+        public static BuildingFCDef shuttlePort;
         static BuildingFCDefOf()
         {
             DefOfHelper.EnsureInitializedInCtor(typeof(BuildingFCDefOf));

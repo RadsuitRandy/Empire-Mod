@@ -113,48 +113,20 @@ namespace FactionColonies
 
         public static void placeThing(Thing thing)
         {
-            Map map;
-            Map taxMap = Find.World.GetComponent<FactionFC>().taxMap;
-            if (taxMap == null)
-            {
-                if (Find.WorldObjects
-                        .SettlementAt(Find.World.GetComponent<FactionFC>().capitalLocation)?.Map ==
-                    null)
-                {
-                    //if no tax map or no capital map is valid
-                    map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
-
-                    Log.Message(
-                        "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
-                        map.Parent.LabelCap);
-                }
-                else
-                {
-                    //if no tax map or no capital map is valid
-                    map = Find.CurrentMap.IsPlayerHome ? Find.CurrentMap : Find.AnyPlayerHomeMap;
-
-                    Log.Message(
-                        "Unable to find a player-set tax map or a valid location for the capital. Please open the faction main menu tab and set the capital and tax map. Taxes were sent to the following random PlayerHomeMap " +
-                        map.Parent.LabelCap);
-                }
-            }
-            else
-            {
-                map = taxMap;
-            }
+            Map taxMap = Find.World.GetComponent<FactionFC>().TaxMap;
 
             IntVec3 intvec;
-            if (checkForTaxSpot(map, out intvec) != true)
+            if (checkForTaxSpot(taxMap, out intvec) != true)
             {
-                intvec = DropCellFinder.TradeDropSpot(map);
+                intvec = DropCellFinder.TradeDropSpot(taxMap);
             }
 
-            GenPlace.TryPlaceThing(thing, intvec, map, ThingPlaceMode.Near);
+            GenPlace.TryPlaceThing(thing, intvec, taxMap, ThingPlaceMode.Near);
         }
 
-        public static void deliverThings(FCEvent evt)
+        public static void deliverThings(FCEvent evt, Letter let = null, Message msg = null)
         {
-            DeliveryEvent.Action(evt);
+            DeliveryEvent.Action(evt, let, msg);
         }
 
 

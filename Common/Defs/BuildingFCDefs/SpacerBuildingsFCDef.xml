@@ -12,6 +12,7 @@
 		</traits>
 		<iconPath>GUI/Buildings/IntergalacticMarket</iconPath>
 	</FactionColonies.BuildingFCDef>
+	
 	<FactionColonies.BuildingFCDef>
 		<defName>glitterworldResearchFacility</defName> <!--Name of Def -->
 		<label>Glitterworld Research Facility</label> <!--Lable of Def -->
@@ -25,6 +26,7 @@
 		<upkeep>400</upkeep>
 		<iconPath>GUI/Buildings/GlitterworldResearchFacility</iconPath>
 	</FactionColonies.BuildingFCDef>
+	
 	<FactionColonies.BuildingFCDef>
 		<defName>automatedDefenseSystems</defName> <!--Name of Def -->
 		<label>Automated Defense Systems</label> <!--Lable of Def -->
@@ -38,5 +40,4 @@
 		<upkeep>400</upkeep>
 		<iconPath>GUI/Buildings/AutomatedDefenseSystems</iconPath>
 	</FactionColonies.BuildingFCDef>
-
 </Defs>

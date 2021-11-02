@@ -164,7 +164,7 @@ namespace FactionColonies
         {
             factionfc = Find.World.GetComponent<FactionFC>();
             buildingList = new List<BuildingFCDef>();
-            foreach (BuildingFCDef building in DefDatabase<BuildingFCDef>.AllDefsListForReading)
+            foreach (BuildingFCDef building in DefDatabase<BuildingFCDef>.AllDefsListForReading.Where(def => def.RequiredModsLoaded))
             {
                 if(building.defName != "Empty" && building.defName != "Construction")
                 {

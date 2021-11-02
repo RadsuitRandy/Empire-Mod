@@ -80,7 +80,7 @@ namespace FactionColonies
         {
             get
             {
-                return !BaseTraderKinds.Any() ? null : BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count];
+                return BaseTraderKinds.Any() ? BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count] : null;
             }
         }
 
@@ -100,15 +100,15 @@ namespace FactionColonies
             : (string) "SettlementTrader".Translate((NamedArgument) settlement.LabelCap,
                 (NamedArgument) settlement.Faction.Name);
 
+        private bool HasStockTraderKindWillTrade => stock == null || stock.InnerListForReading.Any(x => TraderKind.WillTrade(x.def));
+
         public virtual bool CanTradeNow
         {
             get
             {
-                if (TraderKind == null)
-                    return false;
-                return stock == null ||
-                       stock.InnerListForReading.Any(x =>
-                           TraderKind.WillTrade(x.def));
+                if (TraderKind == null) return false;
+                Log.Message("HasStockTraderKindWillTrade" + HasStockTraderKindWillTrade);
+                return HasStockTraderKindWillTrade;
             }
         }
 

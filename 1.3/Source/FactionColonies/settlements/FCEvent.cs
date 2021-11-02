@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -202,11 +203,13 @@ namespace FactionColonies
 
         public static FCEvent MakeRandomEvent(FCEventDef def, List<SettlementFC> SettlementTraitLocations)
         {
-            FCEvent tempEvent = new FCEvent(true);
-            tempEvent.def = def;
-            tempEvent.timeTillTrigger = def.timeTillTrigger + Find.TickManager.TicksGame;
-            tempEvent.traits = def.traits;
-            tempEvent.settlementTraitLocations = new List<SettlementFC>();
+            FCEvent tempEvent = new FCEvent(true)
+            {
+                def = def,
+                timeTillTrigger = def.timeTillTrigger + Find.TickManager.TicksGame,
+                traits = def.traits,
+                settlementTraitLocations = new List<SettlementFC>()
+            };
 
 
             //if affects specific settlement(s) then get settlements.
@@ -297,10 +300,6 @@ namespace FactionColonies
                 //Make custom event functions here
 
                 FCEvent evt = new FCEvent(true);
-                if (evt.def.defName == "settlementBeingAttacked")
-                {
-                    Log.Message("Found attacked FCEvent");
-                }
 
                 evt = events[i];
                 //remove event (stop spam?)
@@ -329,23 +328,16 @@ namespace FactionColonies
                     case "taxColony" when faction.returnSettlementFCIDByLocation(evt.source, evt.planetName) == -1:
                         continue;
                     case "taxColony":
-                    {
-                        Messages.Message(
-                            "TaxesFrom".Translate() + " " + faction.getSettlementName(evt.source, evt.planetName) +
-                            " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
-                        string str = "TaxesFrom".Translate() + " " +
-                                     faction.getSettlementName(evt.source, evt.planetName) + " " +
-                                     "HaveBeenDelivered".Translate() + "!";
-
-                        foreach (Thing thing in evt.goods)
                         {
-                            str = str + "\n" + thing.LabelCap;
-                        }
+                            string str = "TaxesFrom".Translate() + " " +
+                                            faction.getSettlementName(evt.source, evt.planetName) + " " +
+                                            "HaveBeenDelivered".Translate() + "!";
 
-                        Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(evt);
-                        break;
-                    }
+                            Message msg = new Message(str, MessageTypeDefOf.PositiveEvent);
+
+                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + evt.goods.ToLetterString(), LetterDefOf.PositiveEvent), msg);
+                            break;
+                        }
                     case "constructBuilding":
                         //Create building
                         faction.settlements[faction.returnSettlementFCIDByLocation(evt.source, evt.planetName)]
@@ -402,16 +394,10 @@ namespace FactionColonies
                 }
                 else //if undefined event
                 {
-                    if (evt.def.goods.Count > 0)
-                    {
-                        PaymentUtil.deliverThings(evt);
-                    }
-
                     // Log.Message(temp.def.label + " " + temp.def.randomThingValue + " value:thing " + temp.def.randomThingType);
                     if (evt.def.randomThingValue > 0 && evt.def.randomThingType != "")
                     {
-                        List<Thing> list =
-                            PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
+                        List<Thing> list = PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
 
                         string str;
                         str = "GoodsReceivedFollowing".Translate(evt.def.label);
@@ -421,7 +407,12 @@ namespace FactionColonies
                         }
 
                         Find.LetterStack.ReceiveLetter("GoodsReceived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(list);
+                        evt.goods.AddRange(list);
+                    }
+
+                    if (evt.def.goods.Count > 0)
+                    {
+                        PaymentUtil.deliverThings(evt);
                     }
                 }
 
@@ -658,8 +649,7 @@ namespace FactionColonies
             }
 
             tmp.location = faction.capitalLocation;
-            tmp.timeTillTrigger = Find.TickManager.TicksGame +
-                                  FactionColonies.ReturnTicksToArrive(tmp.source, tmp.location);
+            tmp.timeTillTrigger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(tmp.source, tmp.location);
             tmp.hasCustomDescription = true;
             //add tithe
             tmp.goods = bill.taxes.itemTithes;
@@ -702,36 +692,6 @@ namespace FactionColonies
             }
 
             faction.Bills.Remove(bill);
-        }
-    }
-
-    public struct DeliveryEventParams
-    {
-        static DeliveryEventParams()
-        {
-            
-        }
-
-        public int Location; //destination
-        public string PlanetName;
-        public int Source; //source location
-        public string CustomDescription;
-        public IEnumerable<Thing> Contents;
-        public int timeTillTriger;
-        public bool HasDestination
-        {
-            get
-            {
-                return Location != -1;
-            }
-        }
-
-        public bool HasCustomDescription
-        {
-            get
-            {
-                return !CustomDescription.NullOrEmpty();
-            }
         }
     }
 
@@ -803,6 +763,9 @@ namespace FactionColonies
             Scribe_Values.Look(ref classToRun, "classToRun");
             Scribe_Values.Look(ref classMethodToRun, "classMethodToRun");
             Scribe_Values.Look(ref passEventToClassMethodToRun, "passEventToClassMethodToRun");
+            Scribe_Deep.Look(ref msg, "msg");
+            Scribe_Deep.Look(ref let, "let");
+            Scribe_Values.Look(ref isDelayed, "isDelayed", false);
 
             //Military stuff
             Scribe_Deep.Look(ref militaryForceAttacking, "militaryForceAttacking");
@@ -828,6 +791,10 @@ namespace FactionColonies
         public bool hasCustomDescription;
         public string customDescription = "";
 
+        //Delivery things
+        public Message msg = null;
+        public Letter let = null;
+        public bool isDelayed = false;
 
         //Random Event Information
         public bool isRandomEvent;

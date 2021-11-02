@@ -8,14 +8,26 @@ namespace FactionColonies
 {
     public class LordJob_DefendColony : LordJob
     {
-        private readonly Dictionary<Pawn, Pawn> mounts;
+        private Dictionary<Pawn, Pawn> mounts;
+        private List<Pawn> mountsKeys = new List<Pawn>();
+        private List<Pawn> mountsValues = new List<Pawn>();
         private readonly HashSet<Pawn> readded = new HashSet<Pawn>();
+
+        public LordJob_DefendColony()
+        {
+        }
 
         public LordJob_DefendColony(Dictionary<Pawn, Pawn> mounts)
         {
             this.mounts = mounts;
         }
-        
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Collections.Look(ref mounts, "mounts", LookMode.Reference, LookMode.Reference, ref mountsKeys, ref mountsValues);
+        }
+
         public override bool AddFleeToil => false;
         public override bool AllowStartNewGatherings => false;
         public override bool AlwaysShowWeapon => true;
