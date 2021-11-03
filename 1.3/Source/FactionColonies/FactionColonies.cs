@@ -573,10 +573,10 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.373)
+            if (factionFC.updateVersion < 0.374)
             {
                 string str;
-                str =        "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
+                str =        "A new update for Empire has been released!  v.0.374\n The following abbreviated changes have occurred:";
                 str += "\n\n- Added new building: Shuttle Port (Techlevel: Spacer). The art for this building was made by turkler and some text written by Shalax!";
                 str += "\n\n- The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!";
                 str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
@@ -590,7 +590,7 @@ namespace FactionColonies
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.373;
+                factionFC.updateVersion = 0.374;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
