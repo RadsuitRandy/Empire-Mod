@@ -80,7 +80,7 @@ namespace FactionColonies.util
             List<TechLevel> triedLevels = new List<TechLevel>();
 
             TechLevel tempLevel = factionFc.techLevel;
-            while (!workList.Any() && tempLevel != TechLevel.Undefined)
+            while (!workList.Any() && tempLevel > TechLevel.Undefined)
             {
                 triedLevels.Add(tempLevel);
                 tempLevel -= 1;
@@ -94,7 +94,7 @@ namespace FactionColonies.util
                 workList = PawnKindDefsForTechLevel(tempLevel);
             }
 
-            while (!workList.Any() && tempLevel != TechLevel.Archotech)
+            while (!workList.Any() && tempLevel <= TechLevel.Archotech)
             {
                 triedLevels.Add(tempLevel);
                 tempLevel += 1;
@@ -118,7 +118,7 @@ namespace FactionColonies.util
             List<TechLevel> triedLevels = new List<TechLevel>();
 
             TechLevel tempLevel = factionFc.techLevel;
-            while (!workList.Any(def => def.trader) && tempLevel != TechLevel.Undefined)
+            while (!workList.Any(def => def.trader) && tempLevel > TechLevel.Undefined)
             {
                 triedLevels.Add(tempLevel);
                 tempLevel -= 1;
@@ -132,7 +132,7 @@ namespace FactionColonies.util
                 workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(def => def.trader));
             }
 
-            while (!workList.Any(def => def.trader && tempLevel != TechLevel.Archotech))
+            while (!workList.Any(def => def.trader) && tempLevel <= TechLevel.Archotech)
             {
                 triedLevels.Add(tempLevel);
                 tempLevel += 1;
