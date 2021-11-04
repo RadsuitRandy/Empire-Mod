@@ -682,8 +682,7 @@ namespace FactionColonies
 									worker.Arrive(new List<Pawn> { pawn }, parms);
 
 									Find.LetterStack.ReceiveLetter("FCMercenaryJoined".Translate(), "FCMercenaryJoinedText".Translate(pawn.NameFullColored), LetterDefOf.PositiveEvent, new LookTargets(pawn));
-
-
+									pawn.SetFaction(Faction.OfPlayer);
 								}
 								else
 								{
