@@ -19,11 +19,11 @@ namespace FactionColonies.util
 			mode = TraverseMode.ByPawn
 		};
 
-		public static void Action(List<Thing> things)
+		public static void Action(List<Thing> things, int source)
 		{
 			CreateDeliveryEvent(new FCEvent()
 			{
-				source = -1,
+				source = source,
 				goods = things,
 				customDescription = "",
 				timeTillTrigger = Find.TickManager.TicksGame + 10,
@@ -34,14 +34,14 @@ namespace FactionColonies.util
 
 		public static void Action(FCEvent evt)
 		{
-			Action(evt, null, null);
+			Action(evt, Find.World.GetComponent<FactionFC>().settlements.FirstOrFallback(settlement => settlement.mapLocation == evt.source)?.traits.Contains(FCTraitEffectDefOf.shuttlePort) ?? false);
 		}
 
 		public static void Action(FCEvent evt, Letter let = null, Message msg = null, bool CanUseShuttle = false)
 		{
 			evt.let = let;
 			evt.msg = msg;
-			Action(evt, CanUseShuttle || Find.World.GetComponent<FactionFC>().settlements.First(settlement => settlement.mapLocation == evt.source).traits.Contains(FCTraitEffectDefOf.shuttlePort));
+			Action(evt, CanUseShuttle || (Find.World.GetComponent<FactionFC>().settlements.FirstOrFallback(settlement => settlement.mapLocation == evt.source)?.traits.Contains(FCTraitEffectDefOf.shuttlePort) ?? false));
 		}
 
 		private static void MakeDeliveryLetterAndMessage(FCEvent evt)
@@ -55,9 +55,7 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					FactionFC faction = Find.World.GetComponent<FactionFC>();
-					string str = "TaxesFrom".Translate() + faction.returnSettlementByLocation(evt.source, Find.World.info.name) ?? "aSettlement".Translate() + "HaveBeenDelivered".Translate() + "!";
-					Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str + "\n" + evt.goods.ToLetterString(), LetterDefOf.PositiveEvent, evt.goods);
+					Find.LetterStack.ReceiveLetter("GoodsReceivedFollowing".Translate(), evt.goods.ToLetterString(), LetterDefOf.PositiveEvent, evt.goods);
 				}
 
 				if (evt.msg != null)
@@ -67,7 +65,7 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					Messages.Message("deliveryHoldUpArriving".Translate(), evt.goods, MessageTypeDefOf.PositiveEvent);
+					Messages.Message("deliveryHeldUpArriving".Translate(), evt.goods, MessageTypeDefOf.PositiveEvent);
 				}
 			} 
 			catch

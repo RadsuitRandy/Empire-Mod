@@ -325,7 +325,7 @@
 	<pawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</pawnsLeavingMapNoPath>
 	<pawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMapWithDowned>
 	<settlementDeliveringLoot>Your settlement is delivering the following loot to you: </settlementDeliveringLoot>
-	<deliveryHoldUpArriving>A delivery that was forced to wait has arrived!</deliveryHoldUpArriving>
+	<deliveryHeldUpArriving>A delivery that was forced to wait has arrived!</deliveryHeldUpArriving>
 	<aSettlement> a settlement </aSettlement>
 	
 	<!-- Shuttle Port -->
