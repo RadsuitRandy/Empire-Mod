@@ -73,9 +73,11 @@ namespace FactionColonies.util
 
         private IEnumerable<PawnKindDef> DefaultList => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire");
         private IEnumerable<PawnKindDef> PawnKindDefsForTechLevel(TechLevel techLevel) => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire" && def.defaultFactionType.techLevel == techLevel);
+
+        private bool FactionProbablyNotGeneratedYet => AllowedThingDefs.Count() == 0 || factionFc.techLevel == TechLevel.Undefined;
         private IEnumerable<PawnKindDef> CheckAndFixWorkList(IEnumerable<PawnKindDef> workList)
         {
-            if (AllowedThingDefs.Count() == 0 || factionFc.techLevel == TechLevel.Undefined) return DefaultList;
+            if (FactionProbablyNotGeneratedYet) return DefaultList;
 
             List<TechLevel> triedLevels = new List<TechLevel>();
 
@@ -115,6 +117,8 @@ namespace FactionColonies.util
 
         private IEnumerable<PawnKindDef> GenerateTradersIfMissing(IEnumerable<PawnKindDef> workList)
         {
+            if (FactionProbablyNotGeneratedYet) return DefaultList;
+
             List<TechLevel> triedLevels = new List<TechLevel>();
 
             TechLevel tempLevel = factionFc.techLevel;
