@@ -408,11 +408,9 @@ namespace FactionColonies
                                     //disappear colonist
                                     FactionColonies.sendPrisoner(pawn, settlement);
 
-                                    foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome)
-                                        .SelectMany(map => map.listerBuildings.allBuildingsColonist)
-                                        .OfType<Building_Bed>())
+                                    foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome).SelectMany(map => map.listerBuildings.allBuildingsColonist).OfType<Building_Bed>())
                                     {
-                                        if (!Enumerable.Any(bed.OwnersForReading, bedPawn => bedPawn == bedPawn)) continue;
+                                        if (!Enumerable.Any(bed.OwnersForReading, bedPawn => bedPawn == pawn)) continue;
                                         bed.ForPrisoners = false;
                                         bed.ForPrisoners = true;
                                     }

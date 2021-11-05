@@ -177,7 +177,6 @@ namespace FactionColonies
                     Widgets.Label(baseRect.CopyAndShift(xMod * 2f, 0f), ((titheAddBaseProductionCurBiome + titheAddBaseProductionCurHilli) * (titheMultBaseProductionCurBiome * titheMultBaseProductionCurHilli)).ToString());
                 }
             }
-
         }
 
         private void DrawCreateSettlementButton()
@@ -229,10 +228,7 @@ namespace FactionColonies
 
         private bool PlayerHasEnoughSilver(StringBuilder reason)
         {
-            if (PaymentUtil.getSilver() >= settlementCreationCost)
-            {
-                return true;
-            }
+            if (PaymentUtil.getSilver() >= settlementCreationCost) return true;
 
             reason?.Append("NotEnoughSilverToSettle".Translate() + "!");
             return false;
