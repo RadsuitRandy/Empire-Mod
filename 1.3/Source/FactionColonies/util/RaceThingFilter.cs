@@ -12,6 +12,14 @@ namespace FactionColonies.util
         private FactionFC factionFc;
         private MilitaryCustomizationUtil militaryUtil;
 
+        private enum MissingType
+        {
+            Undefined,
+            FCTrader,
+            FCFighter,
+            FCNonMercenary
+        }
+
         public RaceThingFilter()
         {
         }
@@ -117,7 +125,7 @@ namespace FactionColonies.util
             return workList;
         }
 
-        private IEnumerable<PawnKindDef> GenerateIfMissing(IEnumerable<PawnKindDef> workList, Func<PawnKindDef, bool> predicate, string missingLabel)
+        private IEnumerable<PawnKindDef> GenerateIfMissing(IEnumerable<PawnKindDef> workList, Func<PawnKindDef, bool> predicate, MissingType type, ThingDef race)
         {
             if (FactionProbablyNotGeneratedYet) return DefaultList;
 
@@ -145,26 +153,44 @@ namespace FactionColonies.util
                 workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(predicate));
             }
 
+            string missingLabel0 = ResolveTypeToLabel0(type);
+            string missingLabel1 = ResolveTypeToLabel1(type);
             if (!workList.Any(predicate))
             {
-                Messages.Message("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel, string.Join(", ", AllowedThingDefs)), MessageTypeDefOf.RejectInput);
-                Log.Error("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel, string.Join(", ", AllowedThingDefs)));
+                Messages.Message("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, string.Join(", ", AllowedThingDefs), missingLabel1), MessageTypeDefOf.RejectInput);
+                Log.Error("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, string.Join(", ", AllowedThingDefs), missingLabel1));
                 workList.Concat(DefaultList.Where(predicate));
             }
             else if (triedLevels.Count != 0)
             {
-                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel, string.Join(", ", triedLevels), string.Join(", ", AllowedThingDefs), tempLevel.ToString()));
+                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, string.Join(", ", triedLevels), string.Join(", ", AllowedThingDefs), missingLabel1, tempLevel.ToString()));
             }
             return workList;
+        }
+
+        private string ResolveTypeToLabel0(MissingType type)
+        {
+            if (type == MissingType.Undefined) return " ";
+            return " " + type.ToString().Translate() + " ";
+        }
+
+        private string ResolveTypeToLabel1(MissingType type)
+        {
+            if (type == MissingType.Undefined) return " " + "FCPawns".Translate() + " ";
+            return ResolveTypeToLabel0(type);
         }
 
         private void RefreshPawnGroupMakers()
         {
             IEnumerable<PawnKindDef> workList = PawnKindDefsForTechLevel(factionFc.techLevel);
-            workList = CheckAndFixWorkList(workList) ?? new List<PawnKindDef>();
-            workList = GenerateIfMissing(workList, def => def.trader, "Trader");
-            workList = GenerateIfMissing(workList, def => def.isFighter, "Fighter");
-            workList = GenerateIfMissing(workList, def => def.label != "mercenary", "Non Mercenary");
+
+            foreach (ThingDef race in AllowedThingDefs)
+            {
+                workList = GenerateIfMissing(workList, def => def.race == race, MissingType.Undefined, race);
+                workList = GenerateIfMissing(workList, def => def.trader && def.race == race, MissingType.FCTrader, race);
+                workList = GenerateIfMissing(workList, def => def.isFighter && def.race == race, MissingType.FCFighter, race);
+                workList = GenerateIfMissing(workList, def => def.label != "mercenary" && def.race == race, MissingType.FCNonMercenary, race);
+            }
 
             //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
             foreach (PawnKindDef def in workList)
