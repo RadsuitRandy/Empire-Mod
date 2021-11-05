@@ -486,13 +486,15 @@ namespace FactionColonies
 
                         if (buttons[i] == "FCSpecialActions".Translate())
                         {
-                            List<FloatMenuOption> list = new List<FloatMenuOption>();
-                            //Add to all
-                            list.Add(new FloatMenuOption("GoToLocation".Translate(), delegate
+                            List<FloatMenuOption> list = new List<FloatMenuOption>
                             {
-                                Find.WindowStack.TryRemove(this);
-                                settlement.goTo();
-                            }));
+                                //Add to all
+                                new FloatMenuOption("GoToLocation".Translate(), delegate
+                                {
+                                    Find.WindowStack.TryRemove(this);
+                                    settlement.goTo();
+                                })
+                            };
 
 
                             if (factionfc.hasPolicy(FCPolicyDefOf.authoritarian))
@@ -522,19 +524,21 @@ namespace FactionColonies
 
                         if (buttons[i] == "PrisonersMenu".Translate())
                         {
-                            Find.WindowStack.Add(new FCPrisonerMenu(settlement)); //put prisoner window here.
+                            Find.WindowStack.Add(new FCPrisonerMenu(settlement));
                         }
 
                         if (buttons[i] == "Military".Translate())
                         {
-                            List<FloatMenuOption> list = new List<FloatMenuOption>();
-                            list.Add(new FloatMenuOption(
+                            List<FloatMenuOption> list = new List<FloatMenuOption>
+                            {
+                                new FloatMenuOption(
                                 "ToggleAutoDefend".Translate(settlement.autoDefend.ToString()),
-                                delegate 
-                                { 
+                                delegate
+                                {
                                     settlement.autoDefend = !settlement.autoDefend;
                                     Messages.Message("autoDefendWarning".Translate(), MessageTypeDefOf.CautionInput);
-                                }));
+                                })
+                            };
 
                             if (settlement.isUnderAttack)
                             {
@@ -584,22 +588,18 @@ namespace FactionColonies
                                         settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
                                     }
 
-                                    FloatMenu floatMenu2 = new FloatMenu(settlementList) {vanishIfMouseDistant = true};
-                                    Find.WindowStack.Add(floatMenu2);
+                                    Find.WindowStack.Add(new FloatMenuSearchable(settlementList) { vanishIfMouseDistant = true });
 
 
                                     //set to raid settlement here
                                 }));
 
-
-                                FloatMenu floatMenu = new FloatMenu(list) {vanishIfMouseDistant = true};
-                                Find.WindowStack.Add(floatMenu);
+                                Find.WindowStack.Add(new FloatMenu(list));
                             }
                             else
                             {
                                 list.Add(new FloatMenuOption("SettlementNotBeingAttacked".Translate(), null));
-                                FloatMenu menu = new FloatMenu(list);
-                                Find.WindowStack.Add(menu);
+                                Find.WindowStack.Add(new FloatMenu(list));
                             }
                         }
                     }

@@ -1935,7 +1935,7 @@ namespace FactionColonies
                         //Option to clear unit slot
                         List<FloatMenuOption> units = new List<FloatMenuOption>
                         {
-                            new FloatMenuOption("Clear Unit Slot", delegate
+                            new FloatMenuOption("clearUnitSlot".Translate(), delegate
                             {
                                 //Log.Message(selectedSquad.units.Count().ToString());
                                 //Log.Message(click.ToString());
@@ -1955,7 +1955,7 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        FloatMenu selection = new FloatMenu(units);
+                        FloatMenu selection = new FloatMenuSearchable(units);
                         Find.WindowStack.Add(selection);
                     }
 
