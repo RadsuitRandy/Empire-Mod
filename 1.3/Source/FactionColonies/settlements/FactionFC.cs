@@ -385,43 +385,36 @@ namespace FactionColonies
                 if (__instance.guest == null || !__instance.guest.IsPrisoner || !__instance.guest.PrisonerIsSecure ||
                     !Find.World.GetComponent<FactionFC>().settlements.Any()) return;
 
-                __result = __result.Concat(new[]
+                __result = __result.Append(new Command_Action
                 {
-                    new Command_Action
+                    defaultLabel = "SendToSettlement".Translate(),
+                    defaultDesc = "",
+                    icon = TexLoad.iconMilitary,
+                    action = delegate
                     {
-                        defaultLabel = "SendToSettlement".Translate(),
-                        defaultDesc = "",
-                        icon = TexLoad.iconMilitary,
-                        action = delegate
+                        if (pawn.Map.dangerWatcher.DangerRating != StoryDanger.None)
                         {
-                            if (pawn.Map.dangerWatcher.DangerRating != StoryDanger.None)
-                            {
-                                Messages.Message("cantSendWithDangerLevel".Translate(pawn.Map.dangerWatcher.DangerRating.ToString()), MessageTypeDefOf.RejectInput);
-                                return;
-                            }
-
-                            List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>()
-                                .settlements.Select(settlement => new FloatMenuOption(settlement.name + 
-                                    " - Settlement Level : " + settlement.settlementLevel + 
-                                    " - Prisoners: " + settlement.prisonerList.Count(), delegate
-                                {
-                                    //disappear colonist
-                                    FactionColonies.sendPrisoner(pawn, settlement);
-
-                                    foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome).SelectMany(map => map.listerBuildings.allBuildingsColonist).OfType<Building_Bed>())
-                                    {
-                                        if (!Enumerable.Any(bed.OwnersForReading, bedPawn => bedPawn == pawn)) continue;
-                                        bed.ForPrisoners = false;
-                                        bed.ForPrisoners = true;
-                                    }
-                                })).ToList();
-
-                            FloatMenu floatMenu2 = new FloatMenu(settlementList)
-                            {
-                                vanishIfMouseDistant = true
-                            };
-                            Find.WindowStack.Add(floatMenu2);
+                            Messages.Message("cantSendWithDangerLevel".Translate(pawn.Map.dangerWatcher.DangerRating.ToString()), MessageTypeDefOf.RejectInput);
+                            return;
                         }
+
+                        List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>().settlements.Select(settlement => new FloatMenuOption(settlement.name + " - Settlement Level : " + settlement.settlementLevel + " - Prisoners: " + settlement.prisonerList.Count(), delegate
+                        {
+                            //disappear colonist
+                            FactionColonies.sendPrisoner(pawn, settlement);
+
+                            foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome).SelectMany(map => map.listerBuildings.allBuildingsColonist).OfType<Building_Bed>().Where(bed => bed.OwnersForReading.Any(bedPawn => bedPawn == pawn)))
+                            {
+                                bed.ForPrisoners = false;
+                                bed.ForPrisoners = true;
+                            }
+                        })).ToList();
+
+                        FloatMenu floatMenu2 = new FloatMenu(settlementList)
+                        {
+                            vanishIfMouseDistant = true
+                        };
+                        Find.WindowStack.Add(floatMenu2);
                     }
                 });
             }
