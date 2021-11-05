@@ -358,4 +358,11 @@
 	<!-- Squad creation menu -->
 	<clearUnitSlot>Clear Unit Slot</clearUnitSlot>
 	
+	<!-- RaceThingFilter -->
+	<noPawnKindDefOfRaceWarning>Couldn't find any PawnKindDefs for techlevels: {0} with races {1}. Empire will generate pawns using the techlevel: {2}.</noPawnKindDefOfRaceWarning>
+	<noPawnKindDefOfTypeOfRaceWarning>Couldn't find any {0} PawnKindDefs for techlevels: {1} with races {2}. Empire will generate {0} using the techlevel: {3}.</noPawnKindDefOfTypeOfRaceWarning>
+	<noPawnKindDefOfRaceError>Couldn't find any PawnKindDefs for any techlevel with the following races: {0}. Allowing all races.</noPawnKindDefOfRaceError>
+	<noPawnKindDefOfTypeOfRaceError>Couldn't find any {0} PawnKindDefs for any techlevel with the following races: {1}. Allowing {0} of all races and tech levels.</noPawnKindDefOfTypeOfRaceError>
+	
+
 </LanguageData>
