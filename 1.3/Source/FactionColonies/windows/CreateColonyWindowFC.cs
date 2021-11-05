@@ -66,8 +66,8 @@ namespace FactionColonies
             //Upper menu
             Widgets.DrawMenuSection(new Rect(5, 45, 258, 220));
 
-            DrawLabelBox(10, 50, 100, 100, "TravelTime".Translate(), timeToTravel.ToStringTicksToDays());
-            DrawLabelBox(153, 50, 100, 100, "InitialCost".Translate(), settlementCreationCost + " " + "Silver".Translate());
+            DrawLabelBox(new Rect(10, 50, 100, 100), "TravelTime".Translate(), timeToTravel.ToStringTicksToDays());
+            DrawLabelBox(new Rect(153, 50, 100, 100), "InitialCost".Translate(), settlementCreationCost + " " + "Silver".Translate());
 
 
             //Lower Menu label
@@ -118,29 +118,26 @@ namespace FactionColonies
         private void CalculateSettlementCreationCost()
         {
             settlementCreationCost = SettlementCreationBaseCost;
-            
+
             if (faction.hasPolicy(FCPolicyDefOf.isolationist)) settlementCreationCost *= 2;
 
-            if (faction.hasPolicy(FCPolicyDefOf.expansionist))
+            if (!faction.hasPolicy(FCPolicyDefOf.expansionist)) return;
+
+            if (!faction.settlements.Any() && !faction.settlementCaravansList.Any())
             {
-                if (!faction.settlements.Any() && !faction.settlementCaravansList.Any())
-                {
-                    traitExpansionistReducedFee = false;
-                    settlementCreationCost = 0;
-                }
-                else
-                {
-                    if (faction.traitExpansionistTickLastUsedSettlementFeeReduction == -1 || (faction.traitExpansionistBoolCanUseSettlementFeeReduction))
-                    {
-                        traitExpansionistReducedFee = true;
-                        settlementCreationCost /= 2;
-                    }
-                    else
-                    {
-                        traitExpansionistReducedFee = false;
-                    }
-                }
+                traitExpansionistReducedFee = false;
+                settlementCreationCost = 0;
+                return;
             }
+
+            if (faction.traitExpansionistTickLastUsedSettlementFeeReduction == -1 || (faction.traitExpansionistBoolCanUseSettlementFeeReduction))
+            {
+                traitExpansionistReducedFee = true;
+                settlementCreationCost /= 2;
+                return;
+            }
+
+            traitExpansionistReducedFee = false;
         }
         
         private void DrawProduction()
@@ -188,66 +185,72 @@ namespace FactionColonies
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
             int buttonLength = 130;
-            if (Widgets.ButtonText(new Rect((InitialSize.x - 32 - buttonLength) / 2f, 535, buttonLength, 32),
-                "Settle".Translate() + ": (" + settlementCreationCost + ")")) //add inital cost
-            { //if click button to settle
-                if (PaymentUtil.getSilver() >= settlementCreationCost) //if have enough monies to make new settlement
-                {
-                    StringBuilder reason = new StringBuilder();
-                    if (!WorldTileChecker.IsValidTileForNewSettlement(currentTileSelected, reason) || faction.checkSettlementCaravansList(currentTileSelected.ToString()))
-                    {
-                        //Alert Error to User
-                        Messages.Message(reason.ToString(), MessageTypeDefOf.RejectInput);
-                    }
-                    else
-                    {   //Else if valid tile
+            if (Widgets.ButtonText(new Rect((InitialSize.x - 32 - buttonLength) / 2f, 535, buttonLength, 32), "Settle".Translate() + ": (" + settlementCreationCost + ")")) //add inital cost
+            {
+                if (!CanCreateSettlementHere()) return;
 
-                        PaymentUtil.paySilver(settlementCreationCost);
-                        //if PROCESS MONEY HERE
+                PaymentUtil.paySilver(settlementCreationCost);
 
-                        if (traitExpansionistReducedFee)
-                        {
-                            faction.traitExpansionistTickLastUsedSettlementFeeReduction = Find.TickManager.TicksGame;
-                            faction.traitExpansionistBoolCanUseSettlementFeeReduction = false;
-                        }
+                //create settle event
+                FCEvent evt = FCEventMaker.MakeEvent(FCEventDefOf.settleNewColony);
+                evt.location = currentTileSelected;
+                evt.planetName = Find.World.info.name;
+                evt.timeTillTrigger = Find.TickManager.TicksGame + timeToTravel;
+                evt.source = faction.capitalLocation;
+                faction.addEvent(evt);
 
-                        //create settle event
-                        FCEvent tmp = FCEventMaker.MakeEvent(FCEventDefOf.settleNewColony);
-                        tmp.location = currentTileSelected;
-                        tmp.planetName = Find.World.info.name;
-                        tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToTravel;
-                        tmp.source = faction.capitalLocation;
-                        faction.addEvent(tmp);
+                faction.settlementCaravansList.Add(evt.location.ToString());
+                Messages.Message("CaravanSentToLocation".Translate() + " " + (evt.timeTillTrigger - Find.TickManager.TicksGame).ToStringTicksToDays() + "!", MessageTypeDefOf.PositiveEvent);
 
-                        faction.settlementCaravansList.Add(tmp.location.ToString());
-                        Messages.Message("CaravanSentToLocation".Translate()
-                                         + " " + (tmp.timeTillTrigger
-                                                  - Find.TickManager.TicksGame).ToStringTicksToDays() + "!",
-                            MessageTypeDefOf.PositiveEvent);
-                        // when event activate FactionColonies.createPlayerColonySettlement(currentTileSelected);
-                    }
-                }
-                else
-                {  //if don't have enough monies to make settlement
-                    Messages.Message("NotEnoughSilverToSettle".Translate() + "!", MessageTypeDefOf.NeutralEvent);
-                }
+                DoPostEventCreationTraitThings();
             }
-
         }
 
-        public void DrawLabelBox(int x, int y, int length, int height, string text1, string text2)
+        private bool CanCreateSettlementHere()
+        {
+            StringBuilder reason = new StringBuilder();
+            if (!WorldTileChecker.IsValidTileForNewSettlement(currentTileSelected, reason) || faction.checkSettlementCaravansList(currentTileSelected.ToString()) || !PlayerHasEnoughSilver(reason))
+            {
+                Messages.Message(reason.ToString(), MessageTypeDefOf.RejectInput);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void DoPostEventCreationTraitThings()
+        {
+            if (traitExpansionistReducedFee)
+            {
+                faction.traitExpansionistTickLastUsedSettlementFeeReduction = Find.TickManager.TicksGame;
+                faction.traitExpansionistBoolCanUseSettlementFeeReduction = false;
+            }
+        }
+
+        private bool PlayerHasEnoughSilver(StringBuilder reason)
+        {
+            if (PaymentUtil.getSilver() >= settlementCreationCost)
+            {
+                return true;
+            }
+
+            reason?.Append("NotEnoughSilverToSettle".Translate() + "!");
+            return false;
+        }
+
+        public void DrawLabelBox(Rect rect, string text1, string text2)
         {
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
             //Draw highlight
-            Widgets.DrawHighlight(new Rect(x, y+height/8, length, height / 4f));
-            Widgets.Label(new Rect(x, y, length, height / 2f), text1);
+            Widgets.DrawHighlight(new Rect(rect.x, rect.y + rect.height /8, rect.width, rect.height / 4f));
+            Widgets.Label(new Rect(rect.x, rect.y, rect.width, rect.height / 2f), text1);
 
             //divider
-            Widgets.DrawLineHorizontal(x + 5, y + height / 2, length - 10);
+            Widgets.DrawLineHorizontal(rect.x + 5, rect.y + rect.height / 2, rect.width - 10);
 
             //Bottom Text - Gamers Rise Up
-            Widgets.Label(new Rect(x, y + height / 2, length, height / 2f), text2);
+            Widgets.Label(new Rect(rect.x, rect.y + rect.height / 2, rect.width, rect.height / 2f), text2);
         }
     }
 }
