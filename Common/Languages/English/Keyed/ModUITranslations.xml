@@ -359,9 +359,11 @@
 	<clearUnitSlot>Clear Unit Slot</clearUnitSlot>
 	
 	<!-- RaceThingFilter -->
-	<noPawnKindDefOfTypeOfRaceWarning>Couldn't find any{0}PawnKindDefs for techlevels: {1} with races {2}. Empire will generate{3}using the techlevel: {4}.</noPawnKindDefOfTypeOfRaceWarning>
-	<noPawnKindDefOfTypeOfRaceError>Couldn't find any{0}PawnKindDefs for any techlevel with the following races: {1}. Allowing{2}of all races and tech levels.</noPawnKindDefOfTypeOfRaceError>
+	<noPawnKindDefOfTypeOfRaceWarning>Couldn't find any{0}PawnKindDefs for techlevels: {1} with the {2} race. Empire will generate {2}{3}using the techlevel: {4}.</noPawnKindDefOfTypeOfRaceWarning>
+	<noPawnKindDefOfTypeOfRaceError>Couldn't find any{0}PawnKindDefs for any techlevel with the {1} race. They will not be able to be generated!</noPawnKindDefOfTypeOfRaceError>
 
+	<missingPawnKindDefsCriticalError>The races you selected are missing critical PawnKindDefs! Your faction may generate Humans to fill the gap.</missingPawnKindDefsCriticalError>
+	
 	<FCPawns>Pawns</FCPawns>
 	<FCTrader>Trader</FCTrader>
 	<FCFighter>Fighter</FCFighter>

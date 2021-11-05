@@ -12,6 +12,8 @@ namespace FactionColonies.util
         private FactionFC factionFc;
         private MilitaryCustomizationUtil militaryUtil;
 
+        private bool HasMissingPawnKindDefTypes => !faction.pawnGroupMakers[1].traders.Any() || !faction.pawnGroupMakers[0].options.Any() || !faction.pawnGroupMakers[3].options.Any() || WorldSettlementTraderTracker.BaseTraderKinds == null || !WorldSettlementTraderTracker.BaseTraderKinds.Any();
+
         private enum MissingType
         {
             Undefined,
@@ -154,16 +156,16 @@ namespace FactionColonies.util
             }
 
             string missingLabel0 = ResolveTypeToLabel0(type);
-            string missingLabel1 = ResolveTypeToLabel1(type);
             if (!workList.Any(predicate))
             {
-                Messages.Message("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, string.Join(", ", AllowedThingDefs), missingLabel1), MessageTypeDefOf.RejectInput);
-                Log.Error("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, string.Join(", ", AllowedThingDefs), missingLabel1));
+                Messages.Message("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, race.label.CapitalizeFirst()), MessageTypeDefOf.RejectInput);
+                Log.Warning("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, race.label.CapitalizeFirst()));
                 workList.Concat(DefaultList.Where(predicate));
             }
             else if (triedLevels.Count != 0)
             {
-                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, string.Join(", ", triedLevels), string.Join(", ", AllowedThingDefs), missingLabel1, tempLevel.ToString()));
+                string missingLabel1 = ResolveTypeToLabel1(type);
+                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, string.Join(", ", triedLevels), race.label.CapitalizeFirst(), missingLabel1, tempLevel.ToString()));
             }
             return workList;
         }
@@ -192,11 +194,32 @@ namespace FactionColonies.util
                 workList = GenerateIfMissing(workList, def => def.label != "mercenary" && def.race == race, MissingType.FCNonMercenary, race);
             }
 
-            //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
+            GeneratePawnGenOptions(workList);
+
+            if (!HasMissingPawnKindDefTypes) return;
+
+            Messages.Message("missingPawnKindDefsCriticalError".Translate(), MessageTypeDefOf.NegativeEvent);
+            Log.Error("missingPawnKindDefsCriticalError".Translate());
+            workList = GenerateIfMissing(workList, def => def.race == ThingDefOf.Human, MissingType.Undefined, ThingDefOf.Human);
+            FlushGroupMakers();
+            GeneratePawnGenOptions(workList);
+        }
+
+        private void FlushGroupMakers()
+        {
+            faction.pawnGroupMakers[0].options = new List<PawnGenOption>();
+            faction.pawnGroupMakers[1].options = new List<PawnGenOption>();
+            faction.pawnGroupMakers[3].options = new List<PawnGenOption>();
+            faction.pawnGroupMakers[1].guards = new List<PawnGenOption>();
+            faction.pawnGroupMakers[1].traders = new List<PawnGenOption>();
+        }
+
+        private void GeneratePawnGenOptions(IEnumerable<PawnKindDef> workList)
+        {
             foreach (PawnKindDef def in workList)
             {
                 //Log.Message(def.defaultFactionType.techLevel.ToString() + " == " + factionFc.techLevel.ToString() + " = " + (def.defaultFactionType.techLevel == factionFc.techLevel));
-
+                //0 = combat, 1 = trader, 2 = settlement, 3 = peaceful
                 PawnGenOption type = new PawnGenOption { kind = def, selectionWeight = 1 };
                 faction.pawnGroupMakers[2].options.Add(type);
                 if (def.label != "mercenary")
@@ -216,6 +239,7 @@ namespace FactionColonies.util
                     faction.pawnGroupMakers[1].traders.Add(type);
                 }
             }
+
         }
 
         public new bool SetAllow(ThingDef thingDef, bool allow)
