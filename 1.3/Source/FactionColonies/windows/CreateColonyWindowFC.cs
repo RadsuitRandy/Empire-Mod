@@ -18,14 +18,19 @@ namespace FactionColonies
         public bool traitExpansionistReducedFee;
         public int timeToTravel = -1;
 
+        private int settlementCreationCost = 0;
+        private readonly FactionFC faction = null;
+
+        private int SettlementCreationBaseCost => (int)(TraitUtilsFC.cycleTraits(new double(), "createSettlementMultiplier", faction.traits, Operation.Multiplikation) * (FactionColonies.silverToCreateSettlement + (500 * (faction.settlements.Count() + faction.settlementCaravansList.Count())) + (TraitUtilsFC.cycleTraits(new double(), "createSettlementBaseCost", faction.traits, Operation.Addition))));
+
         public CreateColonyWindowFc()
         {
             forcePause = false;
             draggable = false;
             preventCameraMotion = false;
             doCloseX = true;
-            windowRect = new Rect(UI.screenWidth - InitialSize.x, (UI.screenHeight - InitialSize.y) / 2f - (UI.screenHeight/8f), 
-                InitialSize.x, InitialSize.y);
+            windowRect = new Rect(UI.screenWidth - InitialSize.x, (UI.screenHeight - InitialSize.y) / 2f - (UI.screenHeight/8f), InitialSize.x, InitialSize.y);
+            faction = Find.World.GetComponent<FactionFC>();
         }
 
 
@@ -39,64 +44,16 @@ namespace FactionColonies
         //Drawing
         public override void DoWindowContents(Rect inRect)
         {
-            FactionFC faction = Find.World.GetComponent<FactionFC>();
-
             faction.roadBuilder.DrawPaths();
 
-            if (Find.WorldSelector.selectedTile != -1 && Find.WorldSelector.selectedTile != currentTileSelected)
-            {
-                currentTileSelected = Find.WorldSelector.selectedTile;
-                //Log.Message("Current: " + currentTileSelected + ", Selected: " + Find.WorldSelector.selectedTile);
-                currentBiomeSelected = DefDatabase<BiomeResourceDef>.GetNamed(
-                    Find.WorldGrid.tiles[currentTileSelected].biome.ToString(), false);
-                //default biome
-                if (currentBiomeSelected == default(BiomeResourceDef))
-                {
-                    //Log Modded Biome
-                    currentBiomeSelected = BiomeResourceDefOf.defaultBiome;
-                }
-                currentHillinessSelected = DefDatabase<BiomeResourceDef>.GetNamed(
-                    Find.WorldGrid.tiles[currentTileSelected].hilliness.ToString());
-                if (currentBiomeSelected.canSettle && currentHillinessSelected.canSettle && currentTileSelected != 1)
-                {
-                    timeToTravel = FactionColonies.ReturnTicksToArrive(
-                        Find.World.GetComponent<FactionFC>().capitalLocation, currentTileSelected);
-                }
-                else
-                {
-                    timeToTravel = 0;
-                }
-            }
-
+            GetTileData();
 
             //grab before anchor/font
             GameFont fontBefore = Text.Font;
             TextAnchor anchorBefore = Text.Anchor;
 
-
-            int silverToCreateSettlement = (int)(TraitUtilsFC.cycleTraits(new double(), "createSettlementMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplikation) * (FactionColonies.silverToCreateSettlement + (500 * (Find.World.GetComponent<FactionFC>().settlements.Count() + Find.World.GetComponent<FactionFC>().settlementCaravansList.Count())) + (TraitUtilsFC.cycleTraits(new double(), "createSettlementBaseCost", Find.World.GetComponent<FactionFC>().traits, Operation.Addition))));
-            if (faction.hasPolicy(FCPolicyDefOf.isolationist))
-                silverToCreateSettlement *= 2;
-
-            if (faction.hasPolicy(FCPolicyDefOf.expansionist)){
-                if (!faction.settlements.Any() && !faction.settlementCaravansList.Any())
-                {
-                    traitExpansionistReducedFee = false;
-                    silverToCreateSettlement = 0;
-                } else
-                {
-                    if (faction.traitExpansionistTickLastUsedSettlementFeeReduction == -1 || (faction.traitExpansionistBoolCanUseSettlementFeeReduction))
-                    {
-                        traitExpansionistReducedFee = true;
-                        silverToCreateSettlement /= 2;
-                    } else
-                    {
-                        traitExpansionistReducedFee = false;
-                    }
-                }
-            }
-
-
+            CalculateSettlementCreationCost();
+            
             //Draw Label
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleCenter;
@@ -110,7 +67,7 @@ namespace FactionColonies
             Widgets.DrawMenuSection(new Rect(5, 45, 258, 220));
 
             DrawLabelBox(10, 50, 100, 100, "TravelTime".Translate(), timeToTravel.ToStringTicksToDays());
-            DrawLabelBox(153, 50, 100, 100, "InitialCost".Translate(), silverToCreateSettlement + " " + "Silver".Translate());
+            DrawLabelBox(153, 50, 100, 100, "InitialCost".Translate(), settlementCreationCost + " " + "Silver".Translate());
 
 
             //Lower Menu label
@@ -124,6 +81,70 @@ namespace FactionColonies
 
 
             //Draw production
+            DrawProduction();
+            DrawCreateSettlementButton();
+
+            //reset anchor/font
+            Text.Font = fontBefore;
+            Text.Anchor = anchorBefore;
+        }
+
+        private void GetTileData()
+        {
+            if (Find.WorldSelector.selectedTile != -1 && Find.WorldSelector.selectedTile != currentTileSelected)
+            {
+                currentTileSelected = Find.WorldSelector.selectedTile;
+                //Log.Message("Current: " + currentTileSelected + ", Selected: " + Find.WorldSelector.selectedTile);
+                currentBiomeSelected = DefDatabase<BiomeResourceDef>.GetNamed(Find.WorldGrid.tiles[currentTileSelected].biome.ToString(), false);
+                //default biome
+                if (currentBiomeSelected == default(BiomeResourceDef))
+                {
+                    //Log Modded Biome
+                    currentBiomeSelected = BiomeResourceDefOf.defaultBiome;
+                }
+
+                currentHillinessSelected = DefDatabase<BiomeResourceDef>.GetNamed(Find.WorldGrid.tiles[currentTileSelected].hilliness.ToString());
+                if (currentBiomeSelected.canSettle && currentHillinessSelected.canSettle && currentTileSelected != 1)
+                {
+                    timeToTravel = FactionColonies.ReturnTicksToArrive(faction.capitalLocation, currentTileSelected);
+                }
+                else
+                {
+                    timeToTravel = 0;
+                }
+            }
+        }
+
+        private void CalculateSettlementCreationCost()
+        {
+            settlementCreationCost = SettlementCreationBaseCost;
+            
+            if (faction.hasPolicy(FCPolicyDefOf.isolationist)) settlementCreationCost *= 2;
+
+            if (faction.hasPolicy(FCPolicyDefOf.expansionist))
+            {
+                if (!faction.settlements.Any() && !faction.settlementCaravansList.Any())
+                {
+                    traitExpansionistReducedFee = false;
+                    settlementCreationCost = 0;
+                }
+                else
+                {
+                    if (faction.traitExpansionistTickLastUsedSettlementFeeReduction == -1 || (faction.traitExpansionistBoolCanUseSettlementFeeReduction))
+                    {
+                        traitExpansionistReducedFee = true;
+                        settlementCreationCost /= 2;
+                    }
+                    else
+                    {
+                        traitExpansionistReducedFee = false;
+                    }
+                }
+            }
+        }
+        
+        private void DrawProduction()
+        {
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
 
@@ -138,7 +159,7 @@ namespace FactionColonies
                 {
                     int titheTypeInt = (int)titheType;
                     int baseHeight = 15;
-                    if(Widgets.ButtonImage(new Rect(20, 335 + titheTypeInt * (5 + baseHeight), baseHeight, baseHeight), faction.returnResource(titheType).getIcon()))
+                    if (Widgets.ButtonImage(new Rect(20, 335 + titheTypeInt * (5 + baseHeight), baseHeight, baseHeight), faction.returnResource(titheType).getIcon()))
                     {
                         string label = faction.returnResource(titheType).label;
 
@@ -160,29 +181,28 @@ namespace FactionColonies
                 }
             }
 
+        }
 
-
-
-            //Settle button
+        private void DrawCreateSettlementButton()
+        {
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
             int buttonLength = 130;
-            if(Widgets.ButtonText(new Rect((InitialSize.x - 32 - buttonLength)/2f, 535, buttonLength, 32), 
-                "Settle".Translate() + ": (" + silverToCreateSettlement + ")")) //add inital cost
+            if (Widgets.ButtonText(new Rect((InitialSize.x - 32 - buttonLength) / 2f, 535, buttonLength, 32),
+                "Settle".Translate() + ": (" + settlementCreationCost + ")")) //add inital cost
             { //if click button to settle
-                if (PaymentUtil.getSilver() >= silverToCreateSettlement) //if have enough monies to make new settlement
+                if (PaymentUtil.getSilver() >= settlementCreationCost) //if have enough monies to make new settlement
                 {
                     StringBuilder reason = new StringBuilder();
-                    if (currentTileSelected == -1 || util.WorldTileChecker.AnyWorldSettlementFCAtOrAdjacent(currentTileSelected, reason) || !TileFinder.IsValidTileForNewSettlement(currentTileSelected, reason) ||
-                        Find.World.GetComponent<FactionFC>().checkSettlementCaravansList(currentTileSelected.ToString()))
+                    if (!WorldTileChecker.IsValidTileForNewSettlement(currentTileSelected, reason) || faction.checkSettlementCaravansList(currentTileSelected.ToString()))
                     {
                         //Alert Error to User
-                        Messages.Message(reason.ToString(), MessageTypeDefOf.NegativeEvent);
+                        Messages.Message(reason.ToString(), MessageTypeDefOf.RejectInput);
                     }
                     else
                     {   //Else if valid tile
 
-                        PaymentUtil.paySilver(silverToCreateSettlement);
+                        PaymentUtil.paySilver(settlementCreationCost);
                         //if PROCESS MONEY HERE
 
                         if (traitExpansionistReducedFee)
@@ -196,25 +216,23 @@ namespace FactionColonies
                         tmp.location = currentTileSelected;
                         tmp.planetName = Find.World.info.name;
                         tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToTravel;
-                        tmp.source = Find.World.GetComponent<FactionFC>().capitalLocation;
-                        Find.World.GetComponent<FactionFC>().addEvent(tmp);
+                        tmp.source = faction.capitalLocation;
+                        faction.addEvent(tmp);
 
-                        Find.World.GetComponent<FactionFC>().settlementCaravansList.Add(tmp.location.ToString());
-                        Messages.Message("CaravanSentToLocation".Translate() 
+                        faction.settlementCaravansList.Add(tmp.location.ToString());
+                        Messages.Message("CaravanSentToLocation".Translate()
                                          + " " + (tmp.timeTillTrigger
-                                                  -Find.TickManager.TicksGame).ToStringTicksToDays() + "!", 
+                                                  - Find.TickManager.TicksGame).ToStringTicksToDays() + "!",
                             MessageTypeDefOf.PositiveEvent);
                         // when event activate FactionColonies.createPlayerColonySettlement(currentTileSelected);
                     }
-                } else
+                }
+                else
                 {  //if don't have enough monies to make settlement
                     Messages.Message("NotEnoughSilverToSettle".Translate() + "!", MessageTypeDefOf.NeutralEvent);
                 }
             }
 
-            //reset anchor/font
-            Text.Font = fontBefore;
-            Text.Anchor = anchorBefore;
         }
 
         public void DrawLabelBox(int x, int y, int length, int height, string text1, string text2)

@@ -120,6 +120,8 @@
     <SelectTile>Select a tile to create the colony</SelectTile>
     <SetAsFactionCapital>{0} has been set as the faction capital</SetAsFactionCapital>
 	<NoFactionForMilitary>You cannot make a military without a faction!</NoFactionForMilitary>
+	<selectedInvalidTile>You can't build a settlement here!</selectedInvalidTile>
+	
     <!--<Faction>Faction</Faction>-->
     <Colonies>Colonies</Colonies>
     <Bills>Bills</Bills>
@@ -166,6 +168,7 @@
     </NotEnoughSilverConstructBuilding>
     <BuildingBeingBuiltAlreadyType>There is already a building of that type being built</BuildingBeingBuiltAlreadyType>
     <BuildingAlreadyConstructed>There is already a building being constructed there</BuildingAlreadyConstructed>
+	
     <!-- WorldSettlementFC -->
     <SettlementUnderAttack>That settlement is under attack</SettlementUnderAttack>
     <EndingAttack>Ending attack...</EndingAttack>
@@ -238,13 +241,14 @@
 	<CantBeModified>{0} can't be modified: {1}</CantBeModified>
 	<ReasonDeployed>A squad containing it is deployed</ReasonDeployed>
 	<ReasonDefending>A squad containing it is defending a settlement</ReasonDefending>
+	
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
     <Date>Date</Date>
     <Tithe>Tithe</Tithe>
+	
     <!--<Value>Value</Value>-->
     <View>View</View>
-
 
     <!-- taxWindowFC -->
     <SettlementTaxCollection>Settlements Tax Collection</SettlementTaxCollection>
