@@ -429,7 +429,10 @@ namespace FactionColonies
                 defaultPawn.Destroy();
             }
 
-            defaultPawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
+            PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest;
+            request.KindDef = pawnKind;
+
+            defaultPawn = PawnGenerator.GeneratePawn(request);
             defaultPawn.health.forceIncap = true;
             defaultPawn.mindState.canFleeIndividual = false;
             defaultPawn.apparel.DestroyAll();
@@ -2170,22 +2173,18 @@ namespace FactionColonies
                 List<string> races = new List<string>();
                 List<FloatMenuOption> options = new List<FloatMenuOption>();
 
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                    def?.race?.label != null && 
-                    def.race.race?.intelligence == Intelligence.Humanlike &&
-                    !races.Contains(def.race.label) && def.race.BaseMarketValue != 0 && 
-                    faction.raceFilter.Allows(def.race)))
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && !races.Contains(def.race.label) && faction.raceFilter.Allows(def.race)))
                 {
                     if (def.race == ThingDefOf.Human && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);
-                    options.Add(new FloatMenuOption(
-                        def.race.label.CapitalizeFirst() + " - Cost: " + Math.Floor(def.race.BaseMarketValue *
-                            FactionColonies.militaryRaceCostMultiplier), delegate
-                        {
-                            selectedUnit.pawnKind = def;
-                            selectedUnit.generateDefaultPawn();
-                            selectedUnit.changeTick();
-                        }));
+
+                    string optionStr = def.race.label.CapitalizeFirst() + " - Cost: " + Math.Floor(def.race.BaseMarketValue * FactionColonies.militaryRaceCostMultiplier);
+                    options.Add(new FloatMenuOption(optionStr, delegate
+                    {
+                        selectedUnit.pawnKind = def;
+                        selectedUnit.generateDefaultPawn();
+                        selectedUnit.changeTick();
+                    }));
                 }
 
                 if (!options.Any())
