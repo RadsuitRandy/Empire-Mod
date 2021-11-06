@@ -60,27 +60,32 @@ namespace FactionColonies.util
             this.factionFc = factionFc;
             militaryUtil = factionFc.militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
-
             faction.pawnGroupMakers = emptyList.ListFullCopy();
 
-            if (AllowedDefCount == 0)
-            {
-                SetAllow(DefDatabase<PawnKindDef>.AllDefsListForReading.First(def => def.IsHumanlikeWithLabelRace()).race, true);
-            }
+            if (AllowedDefCount == 0) SetAllow(DefDatabase<PawnKindDef>.AllDefsListForReading.First(def => def.IsHumanlikeWithLabelRace()).race, true);
 
-            foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
-            {
-                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
-            }
+            RefreshAnimalRaces();
+            RefreshHumanRaces();
 
+            WorldSettlementTraderTracker.reloadTraderKind();
+        }
+
+        private void RefreshAnimalRaces()
+        {
+            foreach (PawnKindDef animalKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
+            {
+                faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = animalKindDef, selectionWeight = 1 });
+            }
+        }
+
+        private void RefreshHumanRaces()
+        {
             List<string> races = new List<string>();
             foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Contains(def.race)))
             {
                 races.Add(def.race.label);
                 SetAllow(def.race, true);
             }
-
-            WorldSettlementTraderTracker.reloadTraderKind();
         }
 
         private IEnumerable<PawnKindDef> DefaultList => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire");
@@ -92,29 +97,7 @@ namespace FactionColonies.util
         {
             if (FactionProbablyNotGeneratedYet) return DefaultList;
 
-            List<TechLevel> triedLevels = new List<TechLevel>();
-
-            TechLevel tempLevel = factionFc.techLevel;
-            while (!workList.Any(predicate) && tempLevel > TechLevel.Undefined)
-            {
-                triedLevels.Add(tempLevel);
-                tempLevel -= 1;
-                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(predicate));
-            }
-
-            if (!workList.Any(predicate))
-            {
-                triedLevels.Add(tempLevel);
-                tempLevel = factionFc.techLevel + 1;
-                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(predicate));
-            }
-
-            while (!workList.Any(predicate) && tempLevel <= TechLevel.Archotech)
-            {
-                triedLevels.Add(tempLevel);
-                tempLevel += 1;
-                workList = workList.Concat(PawnKindDefsForTechLevel(tempLevel).Where(predicate));
-            }
+            GetWorkListUsing(workList, predicate, out List<TechLevel> triedLevels, out TechLevel successLevel);
 
             string missingLabel0 = ResolveTypeToLabel0(type);
             if (!workList.Any(predicate))
@@ -126,8 +109,36 @@ namespace FactionColonies.util
             else if (triedLevels.Count != 0)
             {
                 string missingLabel1 = ResolveTypeToLabel1(type);
-                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, string.Join(", ", triedLevels), race.label.CapitalizeFirst(), missingLabel1, tempLevel.ToString()));
+                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, string.Join(", ", triedLevels), race.label.CapitalizeFirst(), missingLabel1, successLevel.ToString()));
             }
+            return workList;
+        }
+
+        private IEnumerable<PawnKindDef> GetWorkListUsing(IEnumerable<PawnKindDef> workList, Func<PawnKindDef, bool> predicate, out List<TechLevel> triedLevels, out TechLevel successLevel)
+        {
+            triedLevels = new List<TechLevel>();
+            successLevel = factionFc.techLevel;
+            while (!workList.Any(predicate) && successLevel > TechLevel.Undefined)
+            {
+                triedLevels.Add(successLevel);
+                successLevel -= 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(successLevel).Where(predicate));
+            }
+
+            if (!workList.Any(predicate))
+            {
+                triedLevels.Add(successLevel);
+                successLevel = factionFc.techLevel + 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(successLevel).Where(predicate));
+            }
+
+            while (!workList.Any(predicate) && successLevel <= TechLevel.Archotech)
+            {
+                triedLevels.Add(successLevel);
+                successLevel += 1;
+                workList = workList.Concat(PawnKindDefsForTechLevel(successLevel).Where(predicate));
+            }
+
             return workList;
         }
 
@@ -205,48 +216,48 @@ namespace FactionColonies.util
             if (allow)
             {
                 RefreshPawnGroupMakers();
-            }
-            else
-            {
-                faction.pawnGroupMakers.ForEach(groupMaker =>
-                {
-                    groupMaker.options.RemoveAll(
-                        type => type.kind.race.label.Equals(thingDef.label));
-                    groupMaker.traders.RemoveAll(
-                        type => type.kind.race.label.Equals(thingDef.label));
-                    groupMaker.guards.RemoveAll(
-                        type => type.kind.race.label.Equals(thingDef.label));
-                });
-
-
-                WorldSettlementTraderTracker.reloadTraderKind();
-                RefreshPawnGroupMakers();
-
-                foreach (MercenarySquadFC mercenarySquadFc in militaryUtil.mercenarySquads)
-                {
-                    List<Mercenary> newMercs = new List<Mercenary>();
-                    foreach (Mercenary mercenary in mercenarySquadFc.mercenaries)
-                    {
-                        if (!Allows(mercenary.pawn.kindDef.race))
-                        {
-                            Mercenary merc = mercenary;
-                            mercenarySquadFc.createNewPawn(ref merc,
-                                faction.pawnGroupMakers[0].options.RandomElement().kind);
-                            newMercs.Add(merc);
-                        }
-                        else
-                        {
-                            newMercs.Add(mercenary);
-                        }
-                    }
-
-                    mercenarySquadFc.mercenaries = newMercs;
-                }
-
                 return true;
             }
-            
+
+            RemovePawnGenOptions(thingDef);
             return true;
+        }
+
+        private void RemovePawnGenOptions(ThingDef thingDef)
+        {
+            faction.pawnGroupMakers.ForEach(groupMaker =>
+            {
+                groupMaker.options.RemoveAll(type => type.kind.race.label.Equals(thingDef.label));
+                groupMaker.traders.RemoveAll(type => type.kind.race.label.Equals(thingDef.label));
+                groupMaker.guards.RemoveAll(type => type.kind.race.label.Equals(thingDef.label));
+            });
+
+
+            WorldSettlementTraderTracker.reloadTraderKind();
+            RefreshPawnGroupMakers();
+            RefreshMarcenaryPawnGenOptions();
+        }
+
+        private void RefreshMarcenaryPawnGenOptions()
+        {
+            foreach (MercenarySquadFC mercenarySquadFc in militaryUtil.mercenarySquads)
+            {
+                List<Mercenary> newMercs = new List<Mercenary>();
+                foreach (Mercenary mercenary in mercenarySquadFc.mercenaries)
+                {
+                    if (!Allows(mercenary.pawn.kindDef.race))
+                    {
+                        Mercenary merc = mercenary;
+                        mercenarySquadFc.createNewPawn(ref merc, faction.pawnGroupMakers[0].options.RandomElement().kind);
+                        newMercs.Add(merc);
+                    }
+                    else
+                    {
+                        newMercs.Add(mercenary);
+                    }
+                }
+                mercenarySquadFc.mercenaries = newMercs;
+            }
         }
     }
 }
