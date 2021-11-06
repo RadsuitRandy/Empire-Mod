@@ -97,7 +97,7 @@ namespace FactionColonies.util
         {
             if (FactionProbablyNotGeneratedYet) return DefaultList;
 
-            GetWorkListUsing(workList, predicate, out List<TechLevel> triedLevels, out TechLevel successLevel);
+            workList = GetWorkListUsing(workList, predicate, out List<TechLevel> triedLevels, out TechLevel successLevel);
 
             string missingLabel0 = ResolveTypeToLabel0(type);
             if (!workList.Any(predicate))
