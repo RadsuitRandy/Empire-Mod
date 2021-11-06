@@ -235,12 +235,45 @@
     <Upkeep>Upkeep</Upkeep>
     <CostPerWorker>Cost Per Worker</CostPerWorker>
 
-    <!--MilitaryCustomizationWindowFC-->
+    <!--MilitaryCustomizationWindowFC Customize Unit-->
     <ExportedUnit>Exported Unit</ExportedUnit>
     <ExportedSquad>Exported Squad</ExportedSquad>
 	<CantBeModified>{0} can't be modified: {1}</CantBeModified>
 	<ReasonDeployed>A squad containing it is deployed</ReasonDeployed>
 	<ReasonDefending>A squad containing it is defending a settlement</ReasonDefending>
+	<importUnit>Import Unit</importUnit>
+	
+	<!-- Outfit Slots-->
+	<fcLabelHead>Head</fcLabelHead>
+	<fcLabelShirt>Shirt</fcLabelShirt>
+	<fcLabelChest>Chest</fcLabelChest>
+	<fcLabelOver>Over</fcLabelOver>
+	<fcLabelBelt>Belt</fcLabelBelt>
+	<fcLabelPants>Pants</fcLabelPants>
+	<fcLabelWeapon>Weapon</fcLabelWeapon>
+	<fcLabelAnimal>Animal</fcLabelAnimal>
+
+	<!-- Function Buttons -->
+	<resetUnitToDefaultButton>Reset to default</resetUnitToDefaultButton>
+	<deleteUnitButton>Delete unit</deleteUnitButton>
+	<selectAUnitButton>Select a unit</selectAUnitButton>
+	<rollANewUnitButton>Roll a new pawn</rollANewUnitButton>
+	<changeUnitRaceButton>Change race</changeUnitRaceButton>
+	<exportUnitButton>Export unit</exportUnitButton>
+	
+	<!-- Checkbox labels -->
+	<unitIsCivilianLabel>is Civilian</unitIsCivilianLabel>
+	<unitIsTraderLabel>is Trader</unitIsTraderLabel>
+	
+	<!-- Generic labels -->
+	<totalEquipmentCostLabel>Total Equipment Cost: </totalEquipmentCostLabel>
+	
+	<!-- FloatMenuOptions -->
+	<unitActionUnequipThing>Unequip</unitActionUnequipThing>
+	
+	<!-- Errors -->
+	<changeUnitRaceNoRaces>No available races</changeUnitRaceNoRaces>
+	
 	
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
