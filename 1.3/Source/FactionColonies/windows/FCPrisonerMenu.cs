@@ -243,7 +243,9 @@ namespace FactionColonies
                             prisoner.prisoner.health = new Pawn_HealthTracker(prisoner.prisoner);
                             prisoner.healthTracker = new Pawn_HealthTracker(prisoner.prisoner);
                         }
-                        HealthUtility.DamageUntilDowned(prisoner.prisoner, false);
+
+                        if (!HealthUtility.TryAnesthetize(prisoner.prisoner)) HealthUtility.DamageUntilDowned(prisoner.prisoner, false);
+
                         if (prisoner.prisoner.guest == null)
                         {
                             prisoner.prisoner.guest = new Pawn_GuestTracker();
