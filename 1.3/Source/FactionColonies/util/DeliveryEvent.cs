@@ -19,7 +19,7 @@ namespace FactionColonies.util
 			mode = TraverseMode.ByPawn
 		};
 
-		public static void Action(List<Thing> things, int source)
+		public static void CreateDeliveryEvent(List<Thing> things, int source, Letter let = null, Message msg = null)
 		{
 			CreateDeliveryEvent(new FCEvent()
 			{
@@ -27,8 +27,8 @@ namespace FactionColonies.util
 				goods = things,
 				customDescription = "",
 				timeTillTrigger = Find.TickManager.TicksGame + 10,
-				let = null,
-				msg = null
+				let = let,
+				msg = msg
 			}); 
 		}
 
