@@ -8,7 +8,7 @@ using Verse;
 using Unity;
 using UnityEngine;
 using System.Reflection;
-
+using FactionColonies.util;
 
 namespace FactionColonies
 {
@@ -254,11 +254,15 @@ namespace FactionColonies
                         FieldInfo hostFaction = typeof(Pawn_GuestTracker).GetField("hostFactionInt", BindingFlags.NonPublic | BindingFlags.Instance);
                         hostFaction.SetValue(prisoner.prisoner.guest, Find.FactionManager.OfPlayer);
 
-                        List<Thing> things = new List<Thing>();
-                        things.Add(prisoner.prisoner);
-                        Map map = faction.returnCapitalMap();
-                        if (map != null)
-                            DropPodUtility.DropThingsNear(DropCellFinder.TradeDropSpot(map), Find.CurrentMap, things);
+                        DeliveryEvent.CreateDeliveryEvent(new FCEvent
+                        {
+                                location = Find.AnyPlayerHomeMap.Tile,
+                                source = settlement.mapLocation,
+                                planetName = settlement.planetName,
+                                goods = new List<Thing> { prisoner.prisoner },
+                                customDescription = "aPrisonerIsBeingDeliveredToYou".Translate(),
+                                timeTillTrigger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(settlement.mapLocation, Find.AnyPlayerHomeMap.Tile)
+                        });
 
                         //reset window
                         prisoners.Remove(prisoner);

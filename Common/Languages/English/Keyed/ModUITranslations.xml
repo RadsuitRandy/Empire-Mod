@@ -364,6 +364,8 @@
 	<settlementDeliveringLoot>Your settlement is delivering the following loot to you: </settlementDeliveringLoot>
 	<deliveryHeldUpArriving>A delivery that was forced to wait has arrived!</deliveryHeldUpArriving>
 	<aSettlement> a settlement </aSettlement>
+
+	<aPrisonerIsBeingDeliveredToYou>A prisoner is being delivered to you</aPrisonerIsBeingDeliveredToYou>
 	
 	<!-- Shuttle Port -->
 	<shuttlePortCallShuttleLabel>Request a shuttle</shuttlePortCallShuttleLabel>
