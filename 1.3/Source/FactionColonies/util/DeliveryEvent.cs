@@ -55,7 +55,7 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					Find.LetterStack.ReceiveLetter("GoodsReceivedFollowing".Translate(), evt.goods.ToLetterString(), LetterDefOf.PositiveEvent, evt.goods);
+					Find.LetterStack.ReceiveLetter("GoodsReceivedFollowing".Translate(evt.def.label.ToLower()), evt.goods.ToLetterString(), LetterDefOf.PositiveEvent, evt.goods);
 				}
 
 				if (evt.msg != null)
