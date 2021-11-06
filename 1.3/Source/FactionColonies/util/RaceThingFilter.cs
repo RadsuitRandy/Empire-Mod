@@ -14,6 +14,27 @@ namespace FactionColonies.util
 
         private bool HasMissingPawnKindDefTypes => !faction.pawnGroupMakers[1].traders.Any() || !faction.pawnGroupMakers[0].options.Any() || !faction.pawnGroupMakers[3].options.Any() || WorldSettlementTraderTracker.BaseTraderKinds == null || !WorldSettlementTraderTracker.BaseTraderKinds.Any();
 
+
+        private static readonly List<PawnGroupMaker> emptyList = new List<PawnGroupMaker> 
+        { 
+            new PawnGroupMaker
+            {
+                kindDef = PawnGroupKindDefOf.Combat
+            },
+            new PawnGroupMaker
+            {
+                kindDef = PawnGroupKindDefOf.Trader
+            },
+            new PawnGroupMaker
+            {
+                kindDef = PawnGroupKindDefOf.Settlement
+            },
+            new PawnGroupMaker
+            {
+                kindDef = PawnGroupKindDefOf.Peaceful
+            }
+        };
+
         private enum MissingType
         {
             Undefined,
@@ -40,33 +61,14 @@ namespace FactionColonies.util
             militaryUtil = factionFc.militaryCustomizationUtil;
             faction = DefDatabase<FactionDef>.GetNamed("PColony");
 
-            faction.pawnGroupMakers = new List<PawnGroupMaker>
-            {
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Combat
-                },
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Trader
-                },
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Settlement
-                },
-                new PawnGroupMaker
-                {
-                    kindDef = PawnGroupKindDefOf.Peaceful
-                }
-            };
+            faction.pawnGroupMakers = emptyList.ListFullCopy();
 
             if (AllowedDefCount == 0)
             {
                 SetAllow(DefDatabase<PawnKindDef>.AllDefsListForReading.First(def => def.IsHumanlikeWithLabelRace()).race, true);
             }
 
-            foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind =>
-                kind.RaceProps.packAnimal))
+            foreach (PawnKindDef pawnKindDef in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(kind => kind.RaceProps.packAnimal))
             {
                 faction.pawnGroupMakers[1].carriers.Add(new PawnGenOption { kind = pawnKindDef, selectionWeight = 1 });
             }
@@ -74,7 +76,6 @@ namespace FactionColonies.util
             List<string> races = new List<string>();
             foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label) && AllowedThingDefs.Contains(def.race)))
             {
-                if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                 races.Add(def.race.label);
                 SetAllow(def.race, true);
             }
@@ -86,46 +87,6 @@ namespace FactionColonies.util
         private IEnumerable<PawnKindDef> PawnKindDefsForTechLevel(TechLevel techLevel) => DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && AllowedThingDefs.Contains(def.race) && def.defaultFactionType != null && def.defaultFactionType.defName != "Empire" && def.defaultFactionType.techLevel == techLevel);
 
         private bool FactionProbablyNotGeneratedYet => AllowedThingDefs.Count() == 0 || factionFc.techLevel == TechLevel.Undefined;
-        private IEnumerable<PawnKindDef> CheckAndFixWorkList(IEnumerable<PawnKindDef> workList)
-        {
-            if (FactionProbablyNotGeneratedYet) return DefaultList;
-
-            List<TechLevel> triedLevels = new List<TechLevel>();
-
-            TechLevel tempLevel = factionFc.techLevel;
-            while (!workList.Any() && tempLevel > TechLevel.Undefined)
-            {
-                triedLevels.Add(tempLevel);
-                tempLevel -= 1;
-                workList = PawnKindDefsForTechLevel(tempLevel);
-            }
-
-            if (!workList.Any())
-            {
-                triedLevels.Add(tempLevel);
-                tempLevel = factionFc.techLevel + 1;
-                workList = PawnKindDefsForTechLevel(tempLevel);
-            }
-
-            while (!workList.Any() && tempLevel <= TechLevel.Archotech)
-            {
-                triedLevels.Add(tempLevel);
-                tempLevel += 1;
-                workList = PawnKindDefsForTechLevel(tempLevel);
-            }
-
-            if (!workList.Any())
-            {
-                Messages.Message("noPawnKindDefOfRaceError".Translate(string.Join(", ", AllowedThingDefs)), MessageTypeDefOf.RejectInput);
-                Log.Error("noPawnKindDefOfRaceError".Translate(string.Join(", ", AllowedThingDefs)));
-                workList = DefaultList;
-            }
-            else if (triedLevels.Count != 0)
-            {
-                Log.Warning("noPawnKindDefOfRaceWarning".Translate(string.Join(", ", triedLevels), string.Join(", ", AllowedThingDefs), tempLevel.ToString()));
-            }
-            return workList;
-        }
 
         private IEnumerable<PawnKindDef> GenerateIfMissing(IEnumerable<PawnKindDef> workList, Func<PawnKindDef, bool> predicate, MissingType type, ThingDef race)
         {
@@ -201,17 +162,8 @@ namespace FactionColonies.util
             Messages.Message("missingPawnKindDefsCriticalError".Translate(), MessageTypeDefOf.NegativeEvent);
             Log.Error("missingPawnKindDefsCriticalError".Translate());
             workList = GenerateIfMissing(workList, def => def.race == ThingDefOf.Human, MissingType.Undefined, ThingDefOf.Human);
-            FlushGroupMakers();
+            faction.pawnGroupMakers = emptyList.ListFullCopy();
             GeneratePawnGenOptions(workList);
-        }
-
-        private void FlushGroupMakers()
-        {
-            faction.pawnGroupMakers[0].options = new List<PawnGenOption>();
-            faction.pawnGroupMakers[1].options = new List<PawnGenOption>();
-            faction.pawnGroupMakers[3].options = new List<PawnGenOption>();
-            faction.pawnGroupMakers[1].guards = new List<PawnGenOption>();
-            faction.pawnGroupMakers[1].traders = new List<PawnGenOption>();
         }
 
         private void GeneratePawnGenOptions(IEnumerable<PawnKindDef> workList)
