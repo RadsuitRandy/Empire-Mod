@@ -63,10 +63,8 @@ namespace FactionColonies.util
 					evt.msg.lookTargets = evt.goods;
 					Messages.Message(evt.msg);
 				}
-				else
-				{
-					Messages.Message("deliveryHeldUpArriving".Translate(), evt.goods, MessageTypeDefOf.PositiveEvent);
-				}
+				
+				if (evt.isDelayed) Messages.Message("deliveryHeldUpArriving".Translate(), evt.goods, MessageTypeDefOf.PositiveEvent);
 			} 
 			catch
 			{
