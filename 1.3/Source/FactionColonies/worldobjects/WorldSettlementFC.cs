@@ -210,8 +210,8 @@ namespace FactionColonies
                     int tile = caravan.Tile;
                     Find.WorldTargeter.BeginTargeting(sender.ChoseWorldTarget, true, CompLaunchable.TargeterMouseAttachment, true, delegate
                     {
-                        GenDraw.DrawWorldRadiusRing(tile, sender.ShuttleRange);
-                    }, (GlobalTargetInfo target) => sender.TargetingLabelGetter(target, tile, sender.ShuttleRange, Gen.YieldSingle(caravan), sender.Launch), null);
+                        GenDraw.DrawWorldRadiusRing(tile, ShuttleSenderCaravan.ShuttleRange);
+                    }, (GlobalTargetInfo target) => sender.TargetingLabelGetter(target, tile, ShuttleSenderCaravan.ShuttleRange, Gen.YieldSingle(caravan), sender.Launch), null);
                 })));
 
                 if (options.Count == 0) options.Add(new FloatMenuOption("noCaravansToSendShuttleTo".Translate(), null));
