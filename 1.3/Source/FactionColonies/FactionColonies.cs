@@ -1616,12 +1616,11 @@ namespace FactionColonies
             bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
             bool podsResearched = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false;
 
-            if (medievalOnly) goto skip;
-
-            if (!(currentTile, destinationTile).AreValidTiles()) return podsResearched ? 30000 : 600000;
-            if (podsResearched) return Find.WorldGrid.TraversalDistanceBetween(currentTile, destinationTile) * (tilesInShuttleRange ? 5 : 10);
-
-            skip:
+            if (!medievalOnly)
+            {
+                if (!(currentTile, destinationTile).AreValidTiles()) return podsResearched ? 30000 : 600000;
+                if (podsResearched) return Find.WorldGrid.TraversalDistanceBetween(currentTile, destinationTile) * (tilesInShuttleRange ? 5 : 10);
+            }
 
             using (WorldPath tempPath = Find.WorldPathFinder.FindPath(currentTile, destinationTile, null))
             {
