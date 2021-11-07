@@ -5,7 +5,7 @@ using Verse;
 
 namespace FactionColonies.util
 {
-    static class MapAndCellExtensions
+    static class MapCellAndTileExtensions
     {
         public static bool CellBlockedByThing(this IntVec3 targetCell, Map map)
         {
