@@ -1631,49 +1631,25 @@ namespace FactionColonies
             return y.getTotalProfit().CompareTo(x.getTotalProfit());
         }
 
-
         public static int ReturnTicksToArrive(int currentTile, int destinationTile)
         {
-            bool hasShuttles = Find.World.GetComponent<FactionFC>().returnSettlementByLocation(currentTile, Find.World.info.name)?.buildings.Contains(BuildingFCDefOf.shuttlePort) ?? false;
-            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
-                .medievalTechOnly;
-            ResearchProjectDef def = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false);
-            int ticksToArrive = -1;
+            bool tilesInShuttleRange = (currentTile, destinationTile).AreTilesInAnyShuttleRange();
+            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
+            bool podsResearched = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false;
 
+            if (medievalOnly) goto skip;
 
-            if (currentTile == -1 || destinationTile == -1)
-            {
-                if (!medievalOnly && def != null && def.IsFinished)
-                {
-                    //if have research pod tech
-                    return 30000;
-                }
+            if (!(currentTile, destinationTile).AreValidTiles()) return podsResearched ? 30000 : 600000;
+            if (podsResearched) return Find.WorldGrid.TraversalDistanceBetween(currentTile, destinationTile) * (tilesInShuttleRange ? 5 : 10);
 
-                return 600000;
-            }
+            skip:
 
             using (WorldPath tempPath = Find.WorldPathFinder.FindPath(currentTile, destinationTile, null))
             {
-                if (tempPath == WorldPath.NotFound)
-                {
-                    ticksToArrive = 600000;
-                }
-                else
-                {
-                    ticksToArrive = CaravanArrivalTimeEstimator.EstimatedTicksToArrive(currentTile, destinationTile,
-                        tempPath, 0f, CaravanTicksPerMoveUtility.GetTicksPerMove(null), Find.TickManager.TicksAbs);
-                }
-            }
+                if (tempPath == WorldPath.NotFound) return 600000;
 
-            if (!medievalOnly && def != null && def.IsFinished)
-            {
-                if (hasShuttles)
-                {
-                    return ticksToArrive / 4;
-                }
-                return ticksToArrive / 2;
+                return CaravanArrivalTimeEstimator.EstimatedTicksToArrive(currentTile, destinationTile, tempPath, 0f, CaravanTicksPerMoveUtility.GetTicksPerMove(null), Find.TickManager.TicksAbs);
             }
-            return ticksToArrive;
         }
 
         public static void sendPrisoner(Pawn prisoner, SettlementFC settlement)
