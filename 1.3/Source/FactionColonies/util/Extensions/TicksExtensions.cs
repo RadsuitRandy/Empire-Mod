@@ -17,7 +17,7 @@ namespace FactionColonies.util
             while (minutes.Length < 2) minutes = "0" + minutes;
             while (seconds.Length < 2) seconds = "0" + seconds;
 
-            if (ticks < 60000) return minutes + ":" + seconds + " mins/secs";
+            if (ticks < 60000) return minutes + ":" + seconds + " mins:secs";
             return GenDate.ToStringTicksToDays(ticks);
         }
 
