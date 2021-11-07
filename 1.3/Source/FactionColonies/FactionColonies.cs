@@ -8,7 +8,6 @@ using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 using Verse;
 using Verse.AI;
 
