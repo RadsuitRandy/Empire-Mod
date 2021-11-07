@@ -1191,8 +1191,7 @@ namespace FactionColonies
                 if (DropPod)
                 {
                     parms.spawnCenter = dropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,
-                        settlement.militarySquad.AllEquippedMercenaryPawns);
+                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,settlement.militarySquad.AllEquippedMercenaryPawns);
                 }
                 else
                 {
