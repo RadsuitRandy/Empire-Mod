@@ -8,7 +8,6 @@ using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 using Verse;
 using Verse.AI;
 
@@ -116,8 +115,6 @@ namespace FactionColonies
                         settlement.buildings.Add(BuildingFCDefOf.Empty);
                     }
                 }
-                
-                IncidentDef
 
                 factionFC.power = new ResourceFC(0, ResourceType.Power);
                 factionFC.medicine = new ResourceFC(0, ResourceType.Medicine);
