@@ -572,12 +572,13 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.375)
+            if (factionFC.updateVersion < 0.376)
             {
                 string str;
                 str =        "A new update for Empire has been released!  v.0.375\n The following abbreviated changes have occurred:";
                 str += "\n\n- changed a few floatmenus to be searchable";
                 str += "\n\n- changed how remaining time is displayed when the remaining time is less than a day";
+                str += "\n\n- fixed a NullException for Linux users";
                 str += "\n\n- fixed new units can have biocoded weapons with 0 cost";
                 str += "\n\n- fixed military or worker pawns can generate without being able to be violent";
                 str += "\n\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
@@ -592,7 +593,7 @@ namespace FactionColonies
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.375;
+                factionFC.updateVersion = 0.376;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
