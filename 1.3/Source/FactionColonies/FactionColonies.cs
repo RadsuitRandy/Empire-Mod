@@ -572,24 +572,27 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.374)
+            if (factionFC.updateVersion < 0.375)
             {
                 string str;
-                str =        "A new update for Empire has been released!  v.0.374\n The following abbreviated changes have occurred:";
-                str += "\n\n- Added new building: Shuttle Port (Techlevel: Spacer). The art for this building was made by turkler and some text written by Shalax!";
-                str += "\n\n- The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!";
-                str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
-                str += "\n\n- Shuttles now land exactly like vanilla shuttles";
-                str += "\n\n- Shuttles are now locked behind the shuttle port building";
-                str += "\n\n- Added a button to settlements on the world map that also opens the settlements window";
-                str += "\n\n- Added a new setting to force specific delivery modes, including the old legacy spawning on the tax spot";
-                str += "\n\n- Maybe fixed empty tax deliveries";
-                str += "\n\n- Changed new military/worker pawns to spawn at a reasonable age (no more child soldiers, sorry)";
-                str += "\n\n- All of the code for this update has been developed by Danimineiro";
+                str =        "A new update for Empire has been released!  v.0.375\n The following abbreviated changes have occurred:";
+                str += "\n\n- changed a few floatmenus to be searchable";
+                str += "\n\n- changed how remaining time is displayed when the remaining time is less than a day";
+                str += "\n\n- fixed new units can have biocoded weapons with 0 cost";
+                str += "\n\n- fixed military or worker pawns can generate without being able to be violent";
+                str += "\n\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
+                str += "\n\n- fixed selecting a race during unit creation doesn't work";
+                str += "\n\n- fixed random event goods not being send";
+                str += "\n\n- fixed mercenary not joining the player when they should";
+                str += "\n\n- fixed some race combinations don't generate PawnGenOptions for all races selected";
+                str += "\n\n- fixed a bug where some races couldn't be removed from the Race Filter";
+                str += "\n\n- fixed Race filter error showing on new saves unnecessarily";
+                str += "\n\n- added translatability to some strings";
+                str += "\n\n- All of the code for this update has been developed by Danimineiro and Big_Bad_E";
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.374;
+                factionFC.updateVersion = 0.375;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
