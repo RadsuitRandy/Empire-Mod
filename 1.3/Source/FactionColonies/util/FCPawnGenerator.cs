@@ -35,6 +35,7 @@ namespace FactionColonies.util
 				request.KindDef = FactionColonies.getPlayerColonyFaction()?.RandomPawnKind() ?? DefDatabase<FactionDef>.GetNamed("PColony").pawnGroupMakers.RandomElement().options.RandomElement().kind;
 				request.Faction = FactionColonies.getPlayerColonyFaction();
 				request.FixedBiologicalAge = request.KindDef.GetReasonableMercenaryAge();
+				request.MustBeCapableOfViolence = true;
 
 				return request;
 			}

@@ -682,12 +682,11 @@ namespace FactionColonies
 									worker.Arrive(new List<Pawn> { pawn }, parms);
 
 									Find.LetterStack.ReceiveLetter("FCMercenaryJoined".Translate(), "FCMercenaryJoinedText".Translate(pawn.NameFullColored), LetterDefOf.PositiveEvent, new LookTargets(pawn));
-
-
+									pawn.SetFaction(Faction.OfPlayer);
 								}
 								else
 								{
-									Messages.Message("FCActionMercenaryOnCooldown".Translate(((faction.traitFeudalTickLastUsedMercenary + GenDate.TicksPerSeason) - Find.TickManager.TicksGame).ToStringTicksToDays()), MessageTypeDefOf.RejectInput);
+									Messages.Message("FCActionMercenaryOnCooldown".Translate(((faction.traitFeudalTickLastUsedMercenary + GenDate.TicksPerSeason) - Find.TickManager.TicksGame).ToTimeString()), MessageTypeDefOf.RejectInput);
 								}
 							}));
 
@@ -734,7 +733,7 @@ namespace FactionColonies
 			Widgets.Label(new Rect(195, 300, 115, 20), Convert.ToInt32(faction.profit) + " " + "Silver".Translate().ToLower());
 
 			Widgets.Label(new Rect(195, 315, 115, 30), "TimeTillTax".Translate() + ":");
-			Widgets.Label(new Rect(195, 340, 115, 20), Math.Max(0, faction.taxTimeDue-Find.TickManager.TicksGame).ToStringTicksToDays());
+			Widgets.Label(new Rect(195, 340, 115, 20), Math.Max(0, faction.taxTimeDue-Find.TickManager.TicksGame).ToTimeString());
 		}
 	
 		private void scrollWindow(float num)

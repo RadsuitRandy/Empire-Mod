@@ -120,6 +120,8 @@
     <SelectTile>Select a tile to create the colony</SelectTile>
     <SetAsFactionCapital>{0} has been set as the faction capital</SetAsFactionCapital>
 	<NoFactionForMilitary>You cannot make a military without a faction!</NoFactionForMilitary>
+	<selectedInvalidTile>You can't build a settlement here!</selectedInvalidTile>
+	
     <!--<Faction>Faction</Faction>-->
     <Colonies>Colonies</Colonies>
     <Bills>Bills</Bills>
@@ -166,6 +168,7 @@
     </NotEnoughSilverConstructBuilding>
     <BuildingBeingBuiltAlreadyType>There is already a building of that type being built</BuildingBeingBuiltAlreadyType>
     <BuildingAlreadyConstructed>There is already a building being constructed there</BuildingAlreadyConstructed>
+	
     <!-- WorldSettlementFC -->
     <SettlementUnderAttack>That settlement is under attack</SettlementUnderAttack>
     <EndingAttack>Ending attack...</EndingAttack>
@@ -232,19 +235,53 @@
     <Upkeep>Upkeep</Upkeep>
     <CostPerWorker>Cost Per Worker</CostPerWorker>
 
-    <!--MilitaryCustomizationWindowFC-->
+    <!--MilitaryCustomizationWindowFC Customize Unit-->
     <ExportedUnit>Exported Unit</ExportedUnit>
     <ExportedSquad>Exported Squad</ExportedSquad>
 	<CantBeModified>{0} can't be modified: {1}</CantBeModified>
 	<ReasonDeployed>A squad containing it is deployed</ReasonDeployed>
 	<ReasonDefending>A squad containing it is defending a settlement</ReasonDefending>
+	<importUnit>Import Unit</importUnit>
+	
+	<!-- Outfit Slots-->
+	<fcLabelHead>Head</fcLabelHead>
+	<fcLabelShirt>Shirt</fcLabelShirt>
+	<fcLabelChest>Chest</fcLabelChest>
+	<fcLabelOver>Over</fcLabelOver>
+	<fcLabelBelt>Belt</fcLabelBelt>
+	<fcLabelPants>Pants</fcLabelPants>
+	<fcLabelWeapon>Weapon</fcLabelWeapon>
+	<fcLabelAnimal>Animal</fcLabelAnimal>
+
+	<!-- Function Buttons -->
+	<resetUnitToDefaultButton>Reset to default</resetUnitToDefaultButton>
+	<deleteUnitButton>Delete unit</deleteUnitButton>
+	<selectAUnitButton>Select a unit</selectAUnitButton>
+	<rollANewUnitButton>Roll a new pawn</rollANewUnitButton>
+	<changeUnitRaceButton>Change race</changeUnitRaceButton>
+	<exportUnitButton>Export unit</exportUnitButton>
+	
+	<!-- Checkbox labels -->
+	<unitIsCivilianLabel>is Civilian</unitIsCivilianLabel>
+	<unitIsTraderLabel>is Trader</unitIsTraderLabel>
+	
+	<!-- Generic labels -->
+	<totalEquipmentCostLabel>Total Equipment Cost: </totalEquipmentCostLabel>
+	
+	<!-- FloatMenuOptions -->
+	<unitActionUnequipThing>Unequip</unitActionUnequipThing>
+	
+	<!-- Errors -->
+	<changeUnitRaceNoRaces>No available races</changeUnitRaceNoRaces>
+	
+	
     <!-- taxReportFactionWindowFC -->
     <FactionTaxReports>Faction Tax Reports</FactionTaxReports>
     <Date>Date</Date>
     <Tithe>Tithe</Tithe>
+	
     <!--<Value>Value</Value>-->
     <View>View</View>
-
 
     <!-- taxWindowFC -->
     <SettlementTaxCollection>Settlements Tax Collection</SettlementTaxCollection>
@@ -325,8 +362,10 @@
 	<pawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</pawnsLeavingMapNoPath>
 	<pawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMapWithDowned>
 	<settlementDeliveringLoot>Your settlement is delivering the following loot to you: </settlementDeliveringLoot>
-	<deliveryHoldUpArriving>A delivery that was forced to wait has arrived!</deliveryHoldUpArriving>
+	<deliveryHeldUpArriving>A delivery that was forced to wait has arrived!</deliveryHeldUpArriving>
 	<aSettlement> a settlement </aSettlement>
+
+	<aPrisonerIsBeingDeliveredToYou>A prisoner is being delivered to you</aPrisonerIsBeingDeliveredToYou>
 	
 	<!-- Shuttle Port -->
 	<shuttlePortCallShuttleLabel>Request a shuttle</shuttlePortCallShuttleLabel>
@@ -340,6 +379,7 @@
 	<targetAnyWorldObject>Target any world object you want to send the shuttle to:\n {0} uses remaining (Costs {1})</targetAnyWorldObject>
 	<sendCaravanHere>Send the caravan here</sendCaravanHere>
 
+	<noCaravansToSendShuttleTo>There are no caravans to send a shuttle to!</noCaravansToSendShuttleTo>
 	<noShuttleUsesRemaining>No shuttle uses remaining in this tax period!</noShuttleUsesRemaining>
 	<notEnoughShuttleUsesRemaining>Not enough shuttle uses remaining in this tax period!</notEnoughShuttleUsesRemaining>
 
@@ -351,4 +391,25 @@
 	<autoDefendWarning>Keep in mind that this setting is not the same as the automatic battle resolve setting found in the settings menu!</autoDefendWarning>
 	<autoBattleEnabledNoManualFight>You can't manually fight battles if automatic battle resolve is enabled!</autoBattleEnabledNoManualFight>
 	
+	<!-- Squad creation menu -->
+	<clearUnitSlot>Clear Unit Slot</clearUnitSlot>
+	
+	<!-- RaceThingFilter -->
+	<noPawnKindDefOfTypeOfRaceWarning>Couldn't find any{0}PawnKindDefs for techlevels: {1} with the {2} race. Empire will generate {2}{3}using the techlevel: {4}.</noPawnKindDefOfTypeOfRaceWarning>
+	<noPawnKindDefOfTypeOfRaceError>Couldn't find any{0}PawnKindDefs for any techlevel with the {1} race. They will not be able to be generated!</noPawnKindDefOfTypeOfRaceError>
+
+	<missingPawnKindDefsCriticalError>The races you selected are missing critical PawnKindDefs! Your faction may generate Humans to fill the gap.</missingPawnKindDefsCriticalError>
+	
+	<FCPawns>Pawns</FCPawns>
+	<FCTrader>Trader</FCTrader>
+	<FCFighter>Fighter</FCFighter>
+	<FCNonMercenary>Non Mercenary</FCNonMercenary>
+	
+	<!-- Squad Deployment Options -->
+	<dropPodDeploymentOption>Drop-Pod</dropPodDeploymentOption>
+	<walkIntoMapDeploymentOption>Walk into Map</walkIntoMapDeploymentOption>
+	<dropPodDeploymentOptionUnavailableReasonMedieval> disabled because "Medieval Tech Only" is enabled</dropPodDeploymentOptionUnavailableReasonMedieval>
+	<dropPodDeploymentOptionUnavailableReasonTech> unavailable without the {0} research</dropPodDeploymentOptionUnavailableReasonTech>
+	<errorDropPodResearchCouldNotBeFound>The drop pod research could not be found! Are you running a mod list that removes it?</errorDropPodResearchCouldNotBeFound>
+
 </LanguageData>

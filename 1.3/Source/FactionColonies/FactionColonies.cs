@@ -575,10 +575,10 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.373)
+            if (factionFC.updateVersion < 0.374)
             {
                 string str;
-                str =        "A new update for Empire has been released!  v.0.373\n The following abbreviated changes have occurred:";
+                str =        "A new update for Empire has been released!  v.0.374\n The following abbreviated changes have occurred:";
                 str += "\n\n- Added new building: Shuttle Port (Techlevel: Spacer). The art for this building was made by turkler and some text written by Shalax!";
                 str += "\n\n- The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!";
                 str += "\n\n- Shuttle tax delivery now waits for landing spots to be cleared";
@@ -592,7 +592,7 @@ namespace FactionColonies
                 str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.373;
+                factionFC.updateVersion = 0.374;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
@@ -1168,7 +1168,6 @@ namespace FactionColonies
                 raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop,
                 raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
             };
-            parms.raidArrivalModeForQuickMilitaryAid = true;
 
             settlement.militarySquad.updateSquadStats(settlement.settlementMilitaryLevel);
             settlement.militarySquad.resetNeeds();
@@ -1194,8 +1193,7 @@ namespace FactionColonies
                 if (DropPod)
                 {
                     parms.spawnCenter = dropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,
-                        settlement.militarySquad.AllEquippedMercenaryPawns);
+                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,settlement.militarySquad.AllEquippedMercenaryPawns);
                 }
                 else
                 {
@@ -1205,30 +1203,14 @@ namespace FactionColonies
                     //Log.Message(settlement.militarySquad.DeployedMercenaries.Count().ToString());
 
 
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries)
+                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries.Concat(settlement.militarySquad.DeployedMercenaryAnimals))
                     {
                         merc.pawn.mindState.forcedGotoPosition = dropPosition;
                         JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby =
-                            jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
+                        ThinkResult resultStandby = jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
                         bool isValidStandby = resultStandby.IsValid;
                         if (isValidStandby)
                         {
-                            //Log.Message("valid");
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaryAnimals)
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby =
-                            jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            //Log.Message("valid");
                             merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
                         }
                     }
@@ -1239,9 +1221,7 @@ namespace FactionColonies
                 settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(),
-                    "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,
-                    new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
+                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
                 //MilitaryAI.SquadAI(ref settlement.militarySquad);
 
                 DebugTools.curTool = null;
@@ -1633,49 +1613,25 @@ namespace FactionColonies
             return y.getTotalProfit().CompareTo(x.getTotalProfit());
         }
 
-
         public static int ReturnTicksToArrive(int currentTile, int destinationTile)
         {
-            bool hasShuttles = Find.World.GetComponent<FactionFC>().returnSettlementByLocation(currentTile, Find.World.info.name)?.buildings.Contains(BuildingFCDefOf.shuttlePort) ?? false;
-            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
-                .medievalTechOnly;
-            ResearchProjectDef def = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false);
-            int ticksToArrive = -1;
+            bool tilesInShuttleRange = (currentTile, destinationTile).AreTilesInAnyShuttleRange();
+            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
+            bool podsResearched = DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false;
 
+            if (medievalOnly) goto skip;
 
-            if (currentTile == -1 || destinationTile == -1)
-            {
-                if (!medievalOnly && def != null && def.IsFinished)
-                {
-                    //if have research pod tech
-                    return 30000;
-                }
+            if (!(currentTile, destinationTile).AreValidTiles()) return podsResearched ? 30000 : 600000;
+            if (podsResearched) return Find.WorldGrid.TraversalDistanceBetween(currentTile, destinationTile) * (tilesInShuttleRange ? 5 : 10);
 
-                return 600000;
-            }
+            skip:
 
             using (WorldPath tempPath = Find.WorldPathFinder.FindPath(currentTile, destinationTile, null))
             {
-                if (tempPath == WorldPath.NotFound)
-                {
-                    ticksToArrive = 600000;
-                }
-                else
-                {
-                    ticksToArrive = CaravanArrivalTimeEstimator.EstimatedTicksToArrive(currentTile, destinationTile,
-                        tempPath, 0f, CaravanTicksPerMoveUtility.GetTicksPerMove(null), Find.TickManager.TicksAbs);
-                }
-            }
+                if (tempPath == WorldPath.NotFound) return 600000;
 
-            if (!medievalOnly && def != null && def.IsFinished)
-            {
-                if (hasShuttles)
-                {
-                    return ticksToArrive / 4;
-                }
-                return ticksToArrive / 2;
+                return CaravanArrivalTimeEstimator.EstimatedTicksToArrive(currentTile, destinationTile, tempPath, 0f, CaravanTicksPerMoveUtility.GetTicksPerMove(null), Find.TickManager.TicksAbs);
             }
-            return ticksToArrive;
         }
 
         public static void sendPrisoner(Pawn prisoner, SettlementFC settlement)

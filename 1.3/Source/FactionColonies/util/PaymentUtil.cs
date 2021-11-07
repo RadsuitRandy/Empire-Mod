@@ -130,9 +130,9 @@ namespace FactionColonies
         }
 
 
-        public static void deliverThings(List<Thing> things)
+        public static void deliverThings(List<Thing> things, int source, Letter let = null, Message msg = null)
         {
-            DeliveryEvent.Action(things);
+            DeliveryEvent.CreateDeliveryEvent(things, source, let, msg);
         }
 
         public static bool paySilver(int amount)

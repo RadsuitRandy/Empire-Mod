@@ -399,20 +399,14 @@ namespace FactionColonies
                     {
                         List<Thing> list = PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
 
-                        string str;
-                        str = "GoodsReceivedFollowing".Translate(evt.def.label);
-                        foreach (Thing thing in list)
-                        {
-                            str = str + "\n" + thing.LabelCap;
-                        }
+                        string str = "GoodsReceivedFollowing".Translate(evt.def.label);
 
-                        Find.LetterStack.ReceiveLetter("GoodsReceived".Translate(), str, LetterDefOf.PositiveEvent);
+                        str = list.Aggregate(str, (before, after) => before + "\n" + after.LabelCap);
+
                         evt.goods.AddRange(list);
-                    }
 
-                    if (evt.def.goods.Count > 0)
-                    {
-                        PaymentUtil.deliverThings(evt);
+                        evt.let = LetterMaker.MakeLetter("GoodsReceived".Translate(), str, LetterDefOf.PositiveEvent);
+                        if (list.Count > 0) DeliveryEvent.CreateDeliveryEvent(evt);
                     }
                 }
 
@@ -421,7 +415,7 @@ namespace FactionColonies
                 {
                     List<Thing> list = evt.def.loot.Select(thing => ThingMaker.MakeThing(thing)).ToList();
 
-                    PaymentUtil.deliverThings(list);
+                    PaymentUtil.deliverThings(list, evt.source);
                 }
 
                 if (evt.loot.Any())
@@ -433,7 +427,7 @@ namespace FactionColonies
                         //list.Add(ThingMaker.MakeThing(thing));
                     }
 
-                    PaymentUtil.deliverThings(list);
+                    PaymentUtil.deliverThings(list, evt.source);
                 }
 
 
