@@ -106,9 +106,9 @@ namespace FactionColonies
 
             double militaryLevel = settlement.settlementMilitaryLevel + militaryLevelBonus + homeForceLevel;
             double efficiency =
-                TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency", faction.traits,
-                    Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "militaryMultiplierCombatEfficiency",
-                    settlement.traits, Operation.Multiplikation);
+                TraitUtilsFC.cycleTraits("militaryMultiplierCombatEfficiency", faction.traits,
+                    Operation.Multiplication) * TraitUtilsFC.cycleTraits("militaryMultiplierCombatEfficiency",
+                    settlement.traits, Operation.Multiplication);
             if (isAttacking && faction.hasPolicy(FCPolicyDefOf.militaristic)) 
                 efficiency *= 1.2;
             militaryForce returnForce = new militaryForce(militaryLevel, efficiency, settlement,

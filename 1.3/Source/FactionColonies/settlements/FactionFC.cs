@@ -817,10 +817,8 @@ namespace FactionColonies
             foreach (SettlementFC settlement in settlements)
             {
                 settlement.happiness += amount *
-                                    TraitUtilsFC.cycleTraits(new double(),
-                                        "happinessLostMultiplier", settlement.traits,
-                                        Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(),
-                                        "happinessLostMultiplier", traits, Operation.Multiplikation);
+                                    TraitUtilsFC.cycleTraits("happinessLostMultiplier", settlement.traits,
+                                        Operation.Multiplication) * TraitUtilsFC.cycleTraits("happinessLostMultiplier", traits, Operation.Multiplication);
             }
         }
 
@@ -830,10 +828,10 @@ namespace FactionColonies
             foreach (SettlementFC settlement in settlements)
             {
                 settlement.unrest += amount *
-                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                         settlement.traits, Operation.Multiplikation) *
-                                     TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                                         traits, Operation.Multiplikation);
+                                     TraitUtilsFC.cycleTraits("unrestGainedMultiplier",
+                                         settlement.traits, Operation.Multiplication) *
+                                     TraitUtilsFC.cycleTraits("unrestGainedMultiplier",
+                                         traits, Operation.Multiplication);
             }
         }
 

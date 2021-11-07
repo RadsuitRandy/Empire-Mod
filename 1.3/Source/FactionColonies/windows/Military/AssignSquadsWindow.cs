@@ -12,12 +12,12 @@ namespace FactionColonies
     {
         private MilitaryCustomizationUtil util;
         private FactionFC faction;
-        
+
         public float settlementMaxScroll;
         public int settlementHeight;
         public int settlementYSpacing;
         public int settlementWindowHeight = 500;
-        
+
         public AssignSquadsWindow(MilitaryCustomizationUtil util, FactionFC faction)
         {
             this.util = util;
@@ -160,16 +160,16 @@ namespace FactionColonies
                 {
                     if (!(settlement.isMilitaryBusy()) && settlement.isMilitarySquadValid())
                     {
-
                         Find.WindowStack.Add(new FloatMenu(DeploymentOptions(settlement)));
                     }
-                    else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() && faction.hasPolicy(FCPolicyDefOf.militaristic))
+                    else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() &&
+                             faction.hasPolicy(FCPolicyDefOf.militaristic))
                     {
                         if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <=
                             Find.TickManager.TicksGame)
                         {
-                            int cost = (int) Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *
-                                                        .2);
+                            int cost = (int)Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *
+                                                       .2);
                             List<FloatMenuOption> options = new List<FloatMenuOption>();
 
                             options.Add(new FloatMenuOption("Deploy Secondary Squad - $" + cost + " silver",
@@ -185,8 +185,10 @@ namespace FactionColonies
                                             Find.WindowStack.currentlyDrawnWindow.Close();
                                         }));
                                         //check if medieval only
-                                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
-                                        if (!medievalOnly && (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false))
+                                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
+                                            .GetSettings<FactionColonies>().medievalTechOnly;
+                                        if (!medievalOnly && (DefDatabase<ResearchProjectDef>
+                                            .GetNamed("TransportPod", false)?.IsFinished ?? false))
                                         {
                                             deploymentOptions.Add(new FloatMenuOption("Drop-Pod", delegate
                                             {
@@ -199,7 +201,8 @@ namespace FactionColonies
                                     }
                                     else
                                     {
-                                        Messages.Message("NotEnoughSilverToDeploySquad".Translate(), MessageTypeDefOf.RejectInput);
+                                        Messages.Message("NotEnoughSilverToDeploySquad".Translate(),
+                                            MessageTypeDefOf.RejectInput);
                                     }
                                 }));
 
@@ -320,27 +323,29 @@ namespace FactionColonies
                 scrollWindow(Event.current.delta.y, settlementMaxScroll);
             }
         }
-        
+
         private FloatMenuOption DropPodDeploymentOption(SettlementFC settlement)
         {
-            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
+            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
+                .medievalTechOnly;
             if (!medievalOnly && (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false))
             {
-                return new FloatMenuOption("dropPodDeploymentOption".Translate(), delegate
-                {
-                    FactionColonies.CallinAlliedForces(settlement, true);
-                });
+                return new FloatMenuOption("dropPodDeploymentOption".Translate(),
+                    delegate { FactionColonies.CallinAlliedForces(settlement, true); });
             }
 
-            return new FloatMenuOption("dropPodDeploymentOption".Translate() + (medievalOnly ? "dropPodDeploymentOptionUnavailableReasonMedieval".Translate() : "dropPodDeploymentOptionUnavailableReasonTech".Translate(DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.label ?? "errorDropPodResearchCouldNotBeFound".Translate())), null);
+            return new FloatMenuOption(
+                "dropPodDeploymentOption".Translate() + (medievalOnly
+                    ? "dropPodDeploymentOptionUnavailableReasonMedieval".Translate()
+                    : "dropPodDeploymentOptionUnavailableReasonTech".Translate(
+                        DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.label ??
+                        "errorDropPodResearchCouldNotBeFound".Translate())), null);
         }
 
         private List<FloatMenuOption> DeploymentOptions(SettlementFC settlement) => new List<FloatMenuOption>
         {
-            new FloatMenuOption("walkIntoMapDeploymentOption".Translate(), delegate
-            {
-                FactionColonies.CallinAlliedForces(settlement, false);
-            }),
+            new FloatMenuOption("walkIntoMapDeploymentOption".Translate(),
+                delegate { FactionColonies.CallinAlliedForces(settlement, false); }),
             DropPodDeploymentOption(settlement)
         };
     }

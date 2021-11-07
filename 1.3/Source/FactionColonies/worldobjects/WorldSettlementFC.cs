@@ -773,13 +773,12 @@ namespace FactionColonies
             {
                 //get multipliers
                 double happinessLostMultiplier =
-                    (TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
-                        settlement.traits, Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(),
-                        "happinessLostMultiplier", faction.traits, Operation.Multiplikation));
+                    (TraitUtilsFC.cycleTraits("happinessLostMultiplier",
+                        settlement.traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("happinessLostMultiplier", faction.traits, Operation.Multiplication));
                 double loyaltyLostMultiplier =
-                    (TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", settlement.traits,
-                        Operation.Multiplikation) * TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier",
-                        faction.traits, Operation.Multiplikation));
+                    (TraitUtilsFC.cycleTraits("loyaltyLostMultiplier", settlement.traits,
+                        Operation.Multiplication) * TraitUtilsFC.cycleTraits("loyaltyLostMultiplier",
+                        faction.traits, Operation.Multiplication));
 
                 int muliplier = 1;
                 if (faction.hasPolicy(FCPolicyDefOf.feudal))
