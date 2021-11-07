@@ -30,6 +30,28 @@ namespace FactionColonies
         public int settlementYSpacing;
         public int settlementWindowHeight = 500;
 
+        private List<FloatMenuOption> DeploymentOptions(SettlementFC settlement) => new List<FloatMenuOption>
+        {
+            new FloatMenuOption("walkIntoMapDeploymentOption".Translate(), delegate
+            {
+                FactionColonies.CallinAlliedForces(settlement, false);
+            }),
+            DropPodDeploymentOption(settlement)
+        };
+
+        private FloatMenuOption DropPodDeploymentOption(SettlementFC settlement)
+        {
+            bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
+            if (!medievalOnly && (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false))
+            {
+                return new FloatMenuOption("dropPodDeploymentOption".Translate(), delegate
+                {
+                    FactionColonies.CallinAlliedForces(settlement, true);
+                });
+            }
+
+            return new FloatMenuOption("dropPodDeploymentOption".Translate() + (medievalOnly ? "dropPodDeploymentOptionUnavailableReasonMedieval".Translate() : "dropPodDeploymentOptionUnavailableReasonTech".Translate(DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.label ?? "errorDropPodResearchCouldNotBeFound".Translate())), null);
+        }
 
         public override Vector2 InitialSize
         {
@@ -301,31 +323,10 @@ namespace FactionColonies
                 {
                     if (!(settlement.isMilitaryBusy()) && settlement.isMilitarySquadValid())
                     {
-                        List<FloatMenuOption> options = new List<FloatMenuOption>();
-                        options.Add(new FloatMenuOption("Walk into map", delegate
-                        {
-                            FactionColonies.CallinAlliedForces(settlement, false);
-                            Find.WindowStack.currentlyDrawnWindow.Close();
-                        }));
-                        //check if medieval only
-                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
-                            .GetSettings<FactionColonies>().medievalTechOnly;
-                        if (!medievalOnly &&
-                            Find.ResearchManager.GetProgress(
-                                DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)) ==
-                            DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false).baseCost)
-                        {
-                            options.Add(new FloatMenuOption("Drop-Pod", delegate
-                            {
-                                FactionColonies.CallinAlliedForces(settlement, true);
-                                Find.WindowStack.currentlyDrawnWindow.Close();
-                            }));
-                        }
 
-                        Find.WindowStack.Add(new FloatMenu(options));
+                        Find.WindowStack.Add(new FloatMenu(DeploymentOptions(settlement)));
                     }
-                    else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() &&
-                             faction.hasPolicy(FCPolicyDefOf.militaristic))
+                    else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() && faction.hasPolicy(FCPolicyDefOf.militaristic))
                     {
                         if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <=
                             Find.TickManager.TicksGame)
@@ -339,35 +340,29 @@ namespace FactionColonies
                                 {
                                     if (PaymentUtil.getSilver() >= cost)
                                     {
-                                        List<FloatMenuOption> deployment = new List<FloatMenuOption>();
+                                        List<FloatMenuOption> deploymentOptions = new List<FloatMenuOption>();
 
-                                        deployment.Add(new FloatMenuOption("Walk into map", delegate
+                                        deploymentOptions.Add(new FloatMenuOption("Walk into map", delegate
                                         {
                                             FactionColonies.CallinAlliedForces(settlement, false, cost);
                                             Find.WindowStack.currentlyDrawnWindow.Close();
                                         }));
                                         //check if medieval only
-                                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>()
-                                            .GetSettings<FactionColonies>().medievalTechOnly;
-                                        if (!medievalOnly &&
-                                            Find.ResearchManager.GetProgress(
-                                                DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)) ==
-                                            DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)
-                                                .baseCost)
+                                        bool medievalOnly = LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().medievalTechOnly;
+                                        if (!medievalOnly && (DefDatabase<ResearchProjectDef>.GetNamed("TransportPod", false)?.IsFinished ?? false))
                                         {
-                                            deployment.Add(new FloatMenuOption("Drop-Pod", delegate
+                                            deploymentOptions.Add(new FloatMenuOption("Drop-Pod", delegate
                                             {
                                                 FactionColonies.CallinAlliedForces(settlement, true, cost);
                                                 Find.WindowStack.currentlyDrawnWindow.Close();
                                             }));
                                         }
 
-                                        Find.WindowStack.Add(new FloatMenu(deployment));
+                                        Find.WindowStack.Add(new FloatMenu(deploymentOptions));
                                     }
                                     else
                                     {
-                                        Messages.Message("NotEnoughSilverToDeploySquad".Translate(),
-                                            MessageTypeDefOf.RejectInput);
+                                        Messages.Message("NotEnoughSilverToDeploySquad".Translate(), MessageTypeDefOf.RejectInput);
                                     }
                                 }));
 
@@ -648,7 +643,7 @@ namespace FactionColonies
                         //Option to clear unit slot
                         List<FloatMenuOption> units = new List<FloatMenuOption>
                         {
-                            new FloatMenuOption("Clear Unit Slot", delegate
+                            new FloatMenuOption("clearUnitSlot".Translate(), delegate
                             {
                                 //Log.Message(selectedSquad.units.Count().ToString());
                                 //Log.Message(click.ToString());
@@ -668,7 +663,7 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        FloatMenu selection = new FloatMenu(units);
+                        FloatMenu selection = new FloatMenuSearchable(units);
                         Find.WindowStack.Add(selection);
                     }
 
@@ -802,7 +797,7 @@ namespace FactionColonies
                 Find.WindowStack.Add(selection);
             }
 
-            if (Widgets.ButtonText(importButton, "Import Unit"))
+            if (Widgets.ButtonText(importButton, "importUnit".Translate()))
             {
                 Find.WindowStack.Add(new Dialog_ManageUnitExportsFC(
                     FactionColoniesMilitary.SavedUnits.ToList()));
@@ -819,31 +814,31 @@ namespace FactionColonies
             Text.Anchor = TextAnchor.UpperCenter;
 
             //if unit is not selected
-            Widgets.Label(new Rect(new Vector2(ApparelHead.x, ApparelHead.y - 15), ApparelHead.size), "Head");
+            Widgets.Label(new Rect(new Vector2(ApparelHead.x, ApparelHead.y - 15), ApparelHead.size), "fcLabelHead".Translate());
             Widgets.DrawMenuSection(ApparelHead);
             Widgets.Label(
                 new Rect(new Vector2(ApparelTorsoSkin.x, ApparelTorsoSkin.y - 15), ApparelTorsoSkin.size),
-                "Shirt");
+                "fcLabelShirt".Translate());
             Widgets.DrawMenuSection(ApparelTorsoSkin);
             Widgets.Label(
                 new Rect(new Vector2(ApparelTorsoMiddle.x, ApparelTorsoMiddle.y - 15), ApparelTorsoMiddle.size),
-                "Chest");
+                "fcLabelChest".Translate());
             Widgets.DrawMenuSection(ApparelTorsoMiddle);
             Widgets.Label(
                 new Rect(new Vector2(ApparelTorsoShell.x, ApparelTorsoShell.y - 15), ApparelTorsoShell.size),
-                "Over");
+                "fcLabelOver".Translate());
             Widgets.DrawMenuSection(ApparelTorsoShell);
-            Widgets.Label(new Rect(new Vector2(ApparelBelt.x, ApparelBelt.y - 15), ApparelBelt.size), "Belt");
+            Widgets.Label(new Rect(new Vector2(ApparelBelt.x, ApparelBelt.y - 15), ApparelBelt.size), "fcLabelBelt".Translate());
             Widgets.DrawMenuSection(ApparelBelt);
-            Widgets.Label(new Rect(new Vector2(ApparelLegs.x, ApparelLegs.y - 15), ApparelLegs.size), "Pants");
+            Widgets.Label(new Rect(new Vector2(ApparelLegs.x, ApparelLegs.y - 15), ApparelLegs.size), "fcLabelPants".Translate());
             Widgets.DrawMenuSection(ApparelLegs);
             Widgets.Label(
                 new Rect(new Vector2(EquipmentWeapon.x, EquipmentWeapon.y - 15), EquipmentWeapon.size),
-                "Weapon");
+                "fcLabelWeapon".Translate());
             Widgets.DrawMenuSection(EquipmentWeapon);
             Widgets.Label(
                 new Rect(new Vector2(AnimalCompanion.x, AnimalCompanion.y - 15), AnimalCompanion.size),
-                "Animal");
+                "fcLabelAnimal".Translate());
             Widgets.DrawMenuSection(AnimalCompanion);
 
             //Reset Text anchor and font
@@ -855,17 +850,17 @@ namespace FactionColonies
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.UpperCenter;
 
-            if (Widgets.ButtonText(ResetButton, "Reset to Default"))
+            if (Widgets.ButtonText(ResetButton, "resetUnitToDefaultButton".Translate()))
             {
                 selectedUnit.unequipAllEquipment();
             }
 
-            if (Widgets.ButtonText(DeleteButton, "Delete Unit"))
+            if (Widgets.ButtonText(DeleteButton, "deleteUnitButton".Translate()))
             {
                 selectedUnit.removeUnit();
                 util.checkMilitaryUtilForErrors();
                 selectedUnit = null;
-                selectedText = "Select A Unit";
+                selectedText = "selectAUnitButton".Translate();
 
                 //Reset Text anchor and font
                 Text.Font = fontBefore;
@@ -873,37 +868,33 @@ namespace FactionColonies
                 return;
             }
 
-            if (Widgets.ButtonText(RollNewPawn, "Roll New Pawn"))
+            if (Widgets.ButtonText(RollNewPawn, "rollANewUnitButton".Translate()))
             {
                 selectedUnit.generateDefaultPawn();
             }
 
-            if (Widgets.ButtonText(ChangeRace, "Change Race"))
+            if (Widgets.ButtonText(ChangeRace, "changeUnitRaceButton".Translate()))
             {
                 List<string> races = new List<string>();
                 List<FloatMenuOption> options = new List<FloatMenuOption>();
 
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                    def?.race?.label != null && 
-                    def.race.race?.intelligence == Intelligence.Humanlike &&
-                    !races.Contains(def.race.label) && def.race.BaseMarketValue != 0 && 
-                    faction.raceFilter.Allows(def.race)))
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanLikeRace() && !races.Contains(def.race.label) && faction.raceFilter.Allows(def.race)))
                 {
-                    if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
+                    if (def.race == ThingDefOf.Human && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);
-                    options.Add(new FloatMenuOption(
-                        def.race.label.CapitalizeFirst() + " - Cost: " + Math.Floor(def.race.BaseMarketValue *
-                            FactionColonies.militaryRaceCostMultiplier), delegate
-                        {
-                            selectedUnit.pawnKind = def;
-                            selectedUnit.generateDefaultPawn();
-                            selectedUnit.changeTick();
-                        }));
+
+                    string optionStr = def.race.label.CapitalizeFirst() + " - Cost: " + Math.Floor(def.race.BaseMarketValue * FactionColonies.militaryRaceCostMultiplier);
+                    options.Add(new FloatMenuOption(optionStr, delegate
+                    {
+                        selectedUnit.pawnKind = def;
+                        selectedUnit.generateDefaultPawn();
+                        selectedUnit.changeTick();
+                    }));
                 }
 
                 if (!options.Any())
                 {
-                    options.Add(new FloatMenuOption("No available races", null));
+                    options.Add(new FloatMenuOption("changeUnitRaceNoRaces".Translate(), null));
                 }
 
                 options.Sort(FactionColonies.CompareFloatMenuOption);
@@ -911,7 +902,7 @@ namespace FactionColonies
                 Find.WindowStack.Add(menu);
             }
 
-            if (Widgets.ButtonText(SavePawn, "Export Unit"))
+            if (Widgets.ButtonText(SavePawn, "exportUnitButton".Translate()))
             {
                 // TODO: confirm
                 FactionColoniesMilitary.SaveUnit(new SavedUnitFC(selectedUnit));
@@ -921,8 +912,8 @@ namespace FactionColonies
             //Unit Name
             selectedUnit.name = Widgets.TextField(nameTextField, selectedUnit.name);
 
-            Widgets.CheckboxLabeled(isCivilian, "is Civilian", ref selectedUnit.isCivilian);
-            Widgets.CheckboxLabeled(isTrader, "is Trader", ref selectedUnit.isTrader);
+            Widgets.CheckboxLabeled(isCivilian, "unitIsCivilianLabel".Translate(), ref selectedUnit.isCivilian);
+            Widgets.CheckboxLabeled(isTrader, "unitIsTraderLabel".Translate(), ref selectedUnit.isTrader);
             selectedUnit.setTrader(selectedUnit.isTrader);
             selectedUnit.setCivilian(selectedUnit.isCivilian);
 
@@ -956,7 +947,7 @@ namespace FactionColonies
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //unequip here
                     selectedUnit.animal = null;
@@ -1004,7 +995,7 @@ namespace FactionColonies
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate { selectedUnit.unequipWeapon(); }));
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate { selectedUnit.unequipWeapon(); }));
 
                 FloatMenu menu = new FloatMenuSearchable(list);
 
@@ -1069,7 +1060,7 @@ namespace FactionColonies
 
                 headgearList.Sort(FactionColonies.CompareFloatMenuOption);
 
-                headgearList.Insert(0, new FloatMenuOption("Unequip", delegate
+                headgearList.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //Remove old
                     foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel
@@ -1144,7 +1135,7 @@ namespace FactionColonies
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //Remove old
                     foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
@@ -1221,7 +1212,7 @@ namespace FactionColonies
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //Remove old
                     foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
@@ -1299,7 +1290,7 @@ namespace FactionColonies
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //Remove old
                     foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
@@ -1375,7 +1366,7 @@ namespace FactionColonies
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //Remove old
                     foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
@@ -1460,7 +1451,7 @@ namespace FactionColonies
 
                 list.Sort(FactionColonies.CompareFloatMenuOption);
 
-                list.Insert(0, new FloatMenuOption("Unequip", delegate
+                list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate
                 {
                     //Remove old
                     foreach (Apparel apparel in selectedUnit.defaultPawn.apparel.WornApparel)
@@ -1555,7 +1546,7 @@ namespace FactionColonies
             }
 
             totalCost = (float) Math.Ceiling(totalCost);
-            Widgets.Label(EquipmentTotalCost, "Total Equipment Cost: " + totalCost);
+            Widgets.Label(EquipmentTotalCost, "totalEquipmentCostLabel".Translate() + totalCost);
         }
 
 

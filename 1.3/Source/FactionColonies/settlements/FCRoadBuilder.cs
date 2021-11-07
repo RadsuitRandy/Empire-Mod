@@ -177,7 +177,7 @@ namespace FactionColonies
 
         public void DrawPaths()
         {
-            this.GetRoadQueue(Find.World.info.name).DrawPaths();
+            GetRoadQueue(Find.World.info.name).DrawPaths();
         }
 
         /// <summary>
