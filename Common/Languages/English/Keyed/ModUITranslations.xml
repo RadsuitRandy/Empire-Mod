@@ -379,6 +379,7 @@
 	<targetAnyWorldObject>Target any world object you want to send the shuttle to:\n {0} uses remaining (Costs {1})</targetAnyWorldObject>
 	<sendCaravanHere>Send the caravan here</sendCaravanHere>
 
+	<noCaravansToSendShuttleTo>There are no caravans to send a shuttle to!</noCaravansToSendShuttleTo>
 	<noShuttleUsesRemaining>No shuttle uses remaining in this tax period!</noShuttleUsesRemaining>
 	<notEnoughShuttleUsesRemaining>Not enough shuttle uses remaining in this tax period!</notEnoughShuttleUsesRemaining>
 

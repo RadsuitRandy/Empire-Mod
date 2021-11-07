@@ -214,6 +214,8 @@ namespace FactionColonies
                     }, (GlobalTargetInfo target) => sender.TargetingLabelGetter(target, tile, sender.ShuttleRange, Gen.YieldSingle(caravan), sender.Launch), null);
                 })));
 
+                if (options.Count == 0) options.Add(new FloatMenuOption("noCaravansToSendShuttleTo".Translate(), null));
+
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         };
