@@ -573,7 +573,7 @@ namespace FactionColonies
 						}
 						else
 						{
-							Find.WindowStack.Add(new militaryCustomizationWindowFC());
+							Find.WindowStack.Add(new MilitaryCustomizationWindowFc());
 						}
 					}
 
