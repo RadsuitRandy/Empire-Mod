@@ -750,6 +750,7 @@ namespace FactionColonies
                         selectedText = newUnit.name;
                         selectedUnit = newUnit;
                         util.units.Add(newUnit);
+                        newUnit.unequipAllEquipment();
                     })
                 };
 
