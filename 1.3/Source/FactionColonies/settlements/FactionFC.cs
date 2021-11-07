@@ -927,24 +927,17 @@ namespace FactionColonies
                 {
                     return true;
                 }
-
                 return false;
             }
 
-            var methods = typeof(FactionFC).Assembly.GetTypes()
-                    .Where(t => t.IsClass && !typeof(Delegate).IsAssignableFrom(t))
-                    .Where(t => t.GetCustomAttributes(typeof(HarmonyPatch)).Any())
-                    .SelectMany(t =>
-                    {
-                        HarmonyPatch patch = (HarmonyPatch) Attribute.GetCustomAttribute(t, typeof(HarmonyPatch));
-                        MethodInfo[] m = patch.info.declaringType.GetMethods(BindingFlags.Public |
-                                                                             BindingFlags.NonPublic |
-                                                                             BindingFlags.Instance |
-                                                                             BindingFlags.DeclaredOnly);
-                        return m.Where(met => met.Name == patch.info.methodName);
-                    })
-                    .Where(WouldCrash)
-                ;
+            var methods = typeof(FactionFC).Assembly.GetTypes().Where(t0 => t0 != null && t0.IsClass && !typeof(Delegate).IsAssignableFrom(t0) && t0.GetCustomAttributes(typeof(HarmonyPatch)).Any()).SelectMany(t1 =>
+            {
+                HarmonyPatch patch = (HarmonyPatch) Attribute.GetCustomAttribute(t1, typeof(HarmonyPatch));
+                MethodInfo[] m = patch?.info?.declaringType?.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                if (m == null) return new List<MethodInfo>();
+
+                return m.Where(met => met.Name == patch.info.methodName);
+            }).Where(WouldCrash);
 
             foreach (MethodInfo i in methods)
             {
