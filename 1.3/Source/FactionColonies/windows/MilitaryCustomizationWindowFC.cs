@@ -1737,7 +1737,7 @@ namespace FactionColonies
                                         Messages.Message(
                                             "That firesupport option is on cooldown for another " +
                                             (settlement.artilleryTimer - Find.TickManager.TicksGame)
-                                            .ToTimeString(), MessageTypeDefOf.RejectInput);
+                                            .ToStringTicksToDays(), MessageTypeDefOf.RejectInput);
                                     }
                                 }
                                 else

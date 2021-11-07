@@ -1166,7 +1166,6 @@ namespace FactionColonies
                 raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop,
                 raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
             };
-            parms.raidArrivalModeForQuickMilitaryAid = true;
 
             settlement.militarySquad.updateSquadStats(settlement.settlementMilitaryLevel);
             settlement.militarySquad.resetNeeds();
@@ -1203,30 +1202,14 @@ namespace FactionColonies
                     //Log.Message(settlement.militarySquad.DeployedMercenaries.Count().ToString());
 
 
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries)
+                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries.Concat(settlement.militarySquad.DeployedMercenaryAnimals))
                     {
                         merc.pawn.mindState.forcedGotoPosition = dropPosition;
                         JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby =
-                            jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
+                        ThinkResult resultStandby = jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
                         bool isValidStandby = resultStandby.IsValid;
                         if (isValidStandby)
                         {
-                            //Log.Message("valid");
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaryAnimals)
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby =
-                            jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            //Log.Message("valid");
                             merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
                         }
                     }
@@ -1237,9 +1220,7 @@ namespace FactionColonies
                 settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(),
-                    "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,
-                    new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
+                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
                 //MilitaryAI.SquadAI(ref settlement.militarySquad);
 
                 DebugTools.curTool = null;

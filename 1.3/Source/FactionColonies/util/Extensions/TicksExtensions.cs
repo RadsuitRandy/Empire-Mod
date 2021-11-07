@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RimWorld;
+﻿using RimWorld;
 
 namespace FactionColonies.util
 {
@@ -20,6 +15,5 @@ namespace FactionColonies.util
             if (ticks < 60000) return minutes + ":" + seconds + " mins:secs";
             return GenDate.ToStringTicksToDays(ticks);
         }
-
     }
 }
