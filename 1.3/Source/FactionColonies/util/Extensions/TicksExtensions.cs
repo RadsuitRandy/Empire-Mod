@@ -6,13 +6,21 @@ namespace FactionColonies.util
     {
         public static string ToTimeString(this int ticks)
         {
-            string minutes = "" + ticks / 3600;
-            string seconds = "" + ticks % 3600 / 60;
+            string hours = "" + ticks / 2500;
+            string fractionHours = "" + ticks % 2500 / 2500f;
 
-            while (minutes.Length < 2) minutes = "0" + minutes;
-            while (seconds.Length < 2) seconds = "0" + seconds;
+            if (fractionHours.Length > 3)
+            { 
+                fractionHours = fractionHours.Substring(2, 2); 
+            } 
+            else if (fractionHours.Length == 3)
+            {
+                fractionHours = fractionHours.Substring(2, 1) + "0";
+            }
 
-            if (ticks < 60000) return minutes + ":" + seconds + " mins:secs";
+            while (hours.Length < 2) hours = "0" + hours;
+
+            if (ticks < 60000) return hours + "." + fractionHours + " hours";
             return GenDate.ToStringTicksToDays(ticks);
         }
     }
