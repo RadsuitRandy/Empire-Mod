@@ -24,6 +24,6 @@
     public enum Operation
     {
         Addition,
-        Multiplikation
+        Multiplication
     }
 }

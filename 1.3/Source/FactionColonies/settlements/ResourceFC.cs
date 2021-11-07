@@ -52,8 +52,8 @@ namespace FactionColonies
                 (current, thing) => Math.Min(thing?.BaseMarketValue ?? 100, current));
             //Log.Message(minimum.ToString());
             taxMinimumToTithe = minimum + FactionColonies.Settings().productionTitheMod + 
-            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, Operation.Addition) + 
-            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", settlement.traits, Operation.Addition);
+            TraitUtilsFC.cycleTraits("taxBaseRandomModifier", Find.World.GetComponent<FactionFC>().traits, Operation.Addition) + 
+            TraitUtilsFC.cycleTraits("taxBaseRandomModifier", settlement.traits, Operation.Addition);
             return minimum;
         }
 
