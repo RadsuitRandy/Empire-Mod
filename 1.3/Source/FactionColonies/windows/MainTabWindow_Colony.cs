@@ -661,7 +661,7 @@ namespace FactionColonies
 									faction.traitFeudalBoolCanUseMercenary = false;
 									faction.traitFeudalTickLastUsedMercenary = Find.TickManager.TicksGame;
 
-                                    PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest;
+                                    PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest();
 									request.ColonistRelationChanceFactor = 20f;
 									Pawn pawn = PawnGenerator.GeneratePawn(request);
 

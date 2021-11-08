@@ -300,10 +300,7 @@ namespace FactionColonies
                 raceChoice = FactionColonies.getPlayerColonyFaction().RandomPawnKind();
             }
 
-            PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest;
-            request.KindDef = raceChoice;
-
-            Pawn newPawn = PawnGenerator.GeneratePawn(request);
+            Pawn newPawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest(raceChoice));
             newPawn.apparel?.DestroyAll();
             newPawn.equipment?.DestroyAllEquipment();
             //merc = (Mercenary)newPawn;

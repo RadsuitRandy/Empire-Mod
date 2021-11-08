@@ -145,7 +145,7 @@ namespace FactionColonies.util
 			List<Pawn> pawns = new List<Pawn>();
 			while (evt.goods.Count() > 0)
 			{
-				Pawn pawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest);
+				Pawn pawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest());
 				Thing next = evt.goods.First();
 
 				if (pawn.carryTracker.innerContainer.TryAdd(next))
@@ -163,7 +163,7 @@ namespace FactionColonies.util
 			RCellFinder.TryFindRandomPawnEntryCell(out parms.spawnCenter, playerHomeMap, CellFinder.EdgeRoadChance_Friendly);
 
 			pawnsArrivalModeWorker.Arrive(pawns, parms);
-			LordMaker.MakeNewLord(FCPawnGenerator.WorkerOrMilitaryRequest.Faction, new LordJob_DeliverSupplies(parms.spawnCenter), playerHomeMap, pawns);
+			LordMaker.MakeNewLord(FCPawnGenerator.WorkerOrMilitaryRequest().Faction, new LordJob_DeliverSupplies(parms.spawnCenter), playerHomeMap, pawns);
 
 		}
 

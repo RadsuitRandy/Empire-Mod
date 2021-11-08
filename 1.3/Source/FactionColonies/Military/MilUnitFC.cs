@@ -79,10 +79,7 @@ namespace FactionColonies
                 defaultPawn.Destroy();
             }
 
-            PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest;
-            request.KindDef = pawnKind;
-
-            defaultPawn = PawnGenerator.GeneratePawn(request);
+            defaultPawn = PawnGenerator.GeneratePawn(FCPawnGenerator.WorkerOrMilitaryRequest(pawnKind));
             defaultPawn.health.forceIncap = true;
             defaultPawn.mindState.canFleeIndividual = false;
             defaultPawn.apparel.DestroyAll();
