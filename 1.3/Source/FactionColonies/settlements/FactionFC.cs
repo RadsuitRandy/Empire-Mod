@@ -1028,7 +1028,7 @@ namespace FactionColonies
             FCEventMaker.ProcessEvents(in events);
             billUtility.processBills();
 
-            TickMecernaries();
+            FireSupportTick();
 
 
             //If Player Colony Faction does exists
@@ -1143,177 +1143,16 @@ namespace FactionColonies
             }
         }
 
-        public void TickMecernaries()
+        public void FireSupportTick()
         {
-            mercenaryTick++;
-            if (mercenaryTick > 120)
-            {
-                for (int i = 0; i < militaryCustomizationUtil.mercenarySquads.Count(); i++)
-                    //foreach (MercenarySquadFC squad in militaryCustomizationUtil.mercenarySquads)
-                {
-                    MercenarySquadFC squad = militaryCustomizationUtil.mercenarySquads[i];
-                    if (squad.isDeployed)
-                    {
-                        if (squad.DeployedMercenaries.Count > 0 && squad.isDeployed && squad.hasLord == false)
-                        {
-                            Log.Message("Pawn deployed, creating lord");
-                            Faction faction = FactionColonies.getPlayerColonyFaction();
-                            List<Pawn> pawns = new List<Pawn>();
-                            foreach (Mercenary pawn in squad.DeployedMercenaries)
-                            {
-                                pawn.pawn.mindState.canFleeIndividual = false;
-                                pawns.Add(pawn.pawn);
-                            }
-
-                            foreach (Mercenary pawn in squad.DeployedMercenaryAnimals)
-                            {
-                                pawn.pawn.mindState.canFleeIndividual = false;
-                                pawns.Add(pawn.pawn);
-                            }
-
-
-                            Lord lord = LordMaker.MakeNewLord(faction,
-                                new LordJob_AssistColony(faction, squad.DeployedMercenaries[0].pawn.DutyLocation()),
-                                squad.DeployedMercenaries[0].pawn.Map, pawns);
-                            squad.map = squad.DeployedMercenaries[0].pawn.Map;
-                            squad.lord = lord;
-
-
-                            squad.hasLord = true;
-                        }
-
-                        if (Find.WindowStack.IsOpen(typeof(EmpireUIMercenaryCommandMenu)) == false)
-                        {
-                            //Log.Message("Opening Window");
-                            // menu.focusWhenOpened = false;
-
-                            Find.WindowStack.Add(new EmpireUIMercenaryCommandMenu());
-                        }
-
-                        MilitaryAI.SquadAI(ref squad);
-                    }
-                }
-
-                mercenaryTick = 0;
-            }
-
             if (militaryCustomizationUtil.fireSupport == null)
             {
                 militaryCustomizationUtil.fireSupport = new List<MilitaryFireSupport>();
             }
 
             //Other functions
-            ResetFireSupport:
-            foreach (MilitaryFireSupport fireSupport in militaryCustomizationUtil.fireSupport)
-            {
-                if (fireSupport.ticksTillEnd <= Find.TickManager.TicksGame)
-                {
-                    militaryCustomizationUtil.fireSupport.Remove(fireSupport);
-                    goto ResetFireSupport;
-                }
-
-                //process firesupport
-                if (fireSupport.fireSupportType == "fireSupport")
-                {
-                    if ((fireSupport.timeRunning % 15) == 0 && fireSupport.timeRunning >= fireSupport.startupTime) //15
-                    {
-                        //Log.Message("Boom");
-                        IntVec3 spawnCenter =
-                            (from x in GenRadial.RadialCellsAround(fireSupport.location, fireSupport.accuracy, true)
-                                where x.InBounds(fireSupport.map)
-                                select x).RandomElementByWeight(x =>
-                                new SimpleCurve {new CurvePoint(0f, 1f), new CurvePoint(fireSupport.accuracy, 0.1f)}
-                                    .Evaluate(x.DistanceTo(fireSupport.location)));
-
-                        Map map = fireSupport.map;
-                        Thing launcher = null;
-                        ProjectileHitFlags hitFlags = ProjectileHitFlags.All;
-                        LocalTargetInfo info = new LocalTargetInfo(spawnCenter);
-                        ThingDef def = new ThingDef();
-                        ThingDef tempDef;
-                        if (FactionColonies.checkForMod("CETeam.CombatExtended"))
-                        {
-                            //if CE is on
-                            tempDef = fireSupport.expendProjectile();
-                            Type typeDef = FactionColonies.returnUnknownTypeFromName("CombatExtended.AmmoDef");
-                            var ammoSetDef = typeDef
-                                .GetProperty("AmmoSetDefs", BindingFlags.Public | BindingFlags.Instance)
-                                .GetValue(tempDef);
-                            Type ammoLink = FactionColonies.returnUnknownTypeFromName("CombatExtended.AmmoLink");
-                            var ammoLinkVar = ammoSetDef.GetType().GetProperty("Item")
-                                .GetValue(ammoSetDef, new object[] {0});
-                            //  Log.Message(ammoLinkVar.ToString());
-                            var ammoTypes = ammoLinkVar.GetType()
-                                .GetField("ammoTypes", BindingFlags.Public | BindingFlags.Instance)
-                                .GetValue(ammoLinkVar);
-                            //list of ammotypes
-                            int count = (int) ammoTypes.GetType().GetProperty("Count")
-                                .GetValue(ammoTypes, new object[] { });
-                            for (int k = 0; k < count; k++)
-                            {
-                                var ammoDefAmmo = ammoTypes.GetType().GetProperty("Item")
-                                    .GetValue(ammoTypes, new object[] {k});
-                                if (ammoDefAmmo.GetType().GetField("ammo", BindingFlags.Public | BindingFlags.Instance)
-                                    .GetValue(ammoDefAmmo).ToString() == tempDef.defName)
-                                {
-                                    def = (ThingDef) ammoDefAmmo.GetType()
-                                        .GetField("projectile", BindingFlags.Public | BindingFlags.Instance)
-                                        .GetValue(ammoDefAmmo);
-                                    break;
-                                }
-                            }
-
-
-                            Type type2 = FactionColonies.returnUnknownTypeFromName("CombatExtended.ProjectileCE");
-                            MethodInfo launch = type2.GetMethod("Launch",
-                                new[]
-                                {
-                                    typeof(Thing), typeof(Vector2), typeof(float), typeof(float), typeof(float),
-                                    typeof(float), typeof(Thing)
-                                });
-                            MethodInfo getShotAngle = type2.GetMethod("GetShotAngle",
-                                BindingFlags.Public | BindingFlags.Static);
-                            Thing thing = GenSpawn.Spawn(def, fireSupport.sourceLocation, map);
-
-                            PropertyInfo gravityProperty = type2.GetProperty("GravityFactor",
-                                BindingFlags.NonPublic | BindingFlags.Instance);
-
-                            Vector2 sourceVec = new Vector2(fireSupport.sourceLocation.x, fireSupport.sourceLocation.z);
-                            Vector2 destVec = new Vector2(spawnCenter.x, spawnCenter.z);
-                            Vector3 finalVector = (destVec - sourceVec);
-                            float magnitude = finalVector.magnitude;
-
-                            float gravity = (float) gravityProperty.GetValue(thing); //1.96f * 5;
-
-                            float shotRotation =
-                                (-90f + 57.29578f * Mathf.Atan2(finalVector.y, finalVector.x)) %
-                                360; //Vector2Utility.AngleTo(sourceVec, destVec);
-                            float shotHeight = 10f;
-                            float shotSpeed = 100f;
-                            float shotAngle = (float) getShotAngle.Invoke(null,
-                                BindingFlags.Public | BindingFlags.Static, null,
-                                new object[] {shotSpeed, magnitude, shotHeight, true, gravity}, null);
-
-
-                            launch.Invoke(thing,
-                                new object[]
-                                {
-                                    FactionColonies.getPlayerColonyFaction().leader, sourceVec, shotAngle, shotRotation,
-                                    shotHeight, shotSpeed, null
-                                });
-                        }
-                        else
-                        {
-                            def = fireSupport.expendProjectile().projectileWhenLoaded;
-                            Projectile projectile = (Projectile) GenSpawn.Spawn(def, fireSupport.sourceLocation, map);
-                            projectile.Launch(launcher, info, info, hitFlags);
-                        }
-                    }
-                }
-
-                // Log.Message("tick - " + fireSupport.timeRunning);
-                fireSupport.timeRunning++;
-            }
+            militaryCustomizationUtil.fireSupport = militaryCustomizationUtil.fireSupport.Where(support => !support.ShouldBeOver).ToList();
+            militaryCustomizationUtil.fireSupport.ForEach(support => support.Process());
         }
 
 
