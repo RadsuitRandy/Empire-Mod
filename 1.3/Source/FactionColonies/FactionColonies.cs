@@ -572,28 +572,26 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.376)
+            if (factionFC.updateVersion < 0.377)
             {
                 string str;
-                str =        "A new update for Empire has been released!  v.0.375\n The following abbreviated changes have occurred:";
-                str += "\n\n- changed a few floatmenus to be searchable";
-                str += "\n\n- changed how remaining time is displayed when the remaining time is less than a day";
-                str += "\n\n- fixed a NullException for Linux users";
-                str += "\n\n- fixed new units can have biocoded weapons with 0 cost";
-                str += "\n\n- fixed military or worker pawns can generate without being able to be violent";
-                str += "\n\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
-                str += "\n\n- fixed selecting a race during unit creation doesn't work";
-                str += "\n\n- fixed random event goods not being send";
-                str += "\n\n- fixed mercenary not joining the player when they should";
-                str += "\n\n- fixed some race combinations don't generate PawnGenOptions for all races selected";
-                str += "\n\n- fixed a bug where some races couldn't be removed from the Race Filter";
-                str += "\n\n- fixed Race filter error showing on new saves unnecessarily";
-                str += "\n\n- added translatability to some strings";
+                str =        "A new update for Empire has been released!  v.0.377\n The following abbreviated changes have occurred:";
+                str += "\n- [HOTFIX] Races no longer randomize anywhere";
+                str += "\n- [HOTFIX] When using military deployment, if you enable dev mode, you (should be able to) remove any deployed squad and the window instantly";
+                str += "\n- (a rework of the deployment system is going to follow in the next update)";
+                str += "\n- changed a few floatmenus to be searchable";
+                str += "\n- changed how remaining time is displayed when the remaining time is less than a day";
+                str += "\n- fixed a NullException for Linux users";
+                str += "\n- fixed new units can have biocoded weapons with 0 cost";
+                str += "\n- fixed military or worker pawns can generate without being able to be violent";
+                str += "\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
+                str += "\n- fixed selecting a race during unit creation doesn't work";
+                str += "\n- added translatability to some strings";
                 str += "\n\n- All of the code for this update has been developed by Danimineiro and Big_Bad_E";
-                str += "\n\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
-                str += "\n\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                str += "\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
+                str += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.376;
+                factionFC.updateVersion = 0.377;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
