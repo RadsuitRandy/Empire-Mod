@@ -33,7 +33,7 @@ namespace FactionColonies
         {
             get
             {
-                return new Vector2(200f, 200f);
+                return new Vector2(200f, 240f);
             }
         }
 
@@ -63,8 +63,9 @@ namespace FactionColonies
             Rect commandAttack = new Rect(0, rectBaseHeight, rectWidth, rectBaseHeight);
             Rect commandMove = new Rect(0, rectBaseHeight * 2, rectWidth, rectBaseHeight);
             Rect commandHeal = new Rect(0, rectBaseHeight * 3, rectWidth, rectBaseHeight);
+            Rect killWindow = new Rect(0, rectBaseHeight * 4, rectWidth, rectBaseHeight);
 
-            
+
             if (selectedSquad == null)
             {
                 squadText = "selectDeployedSquad".Translate();
@@ -134,13 +135,14 @@ namespace FactionColonies
                 }
             }
 
+
             //Example command:
 
             //DebugTool tool = null;
             //IntVec3 Position;
             //tool = new DebugTool("Select Drop Position", delegate ()
             //{
-             //   Position = UI.MouseCell();
+            //   Position = UI.MouseCell();
 
             //    selectedSquad.order = MilitaryOrders.Standby;
             //    selectedSquad.orderLocation = Position;
