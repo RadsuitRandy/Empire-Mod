@@ -135,6 +135,36 @@ namespace FactionColonies
                 }
             }
 
+            if (Prefs.DevMode)
+            {
+                if (Widgets.ButtonTextSubtle(killWindow, "[Debug] Remove all"))
+                {
+                    foreach (MercenarySquadFC squad in faction.militaryCustomizationUtil.DeployedSquads)
+                    {
+                        squad.order = MilitaryOrders.Leave;
+
+                        foreach (Mercenary merc in squad.mercenaries.Concat(squad.animals))
+                        {
+                            if (merc?.pawn?.Map != null)
+                            {
+                                merc?.animal?.pawn?.Destroy();
+                                merc.pawn.Destroy();
+                            }
+                        }
+
+                        try
+                        {
+                            foreach (Pawn pawn in Find.CurrentMap.mapPawns.SpawnedPawnsInFaction(FactionColonies.getPlayerColonyFaction()))
+                            {
+                                pawn.Destroy();
+                            }
+                        }
+                        catch { }
+
+                        squad.isDeployed = false;
+                    }
+                }
+            }
 
             //Example command:
 
