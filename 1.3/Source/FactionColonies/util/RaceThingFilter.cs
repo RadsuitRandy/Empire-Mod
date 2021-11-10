@@ -102,18 +102,13 @@ namespace FactionColonies.util
             string missingLabel0 = ResolveTypeToLabel0(type);
             if (!workList.Any(predicate))
             {
-                Messages.Message("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, 
-                    race.label.CapitalizeFirst()), MessageTypeDefOf.RejectInput);
-                Log.Warning("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, 
-                    race.label.CapitalizeFirst()));
+                Log.Warning("noPawnKindDefOfTypeOfRaceError".Translate(missingLabel0, race.label.CapitalizeFirst()));
                 workList = workList.Concat(DefaultList.Where(predicate));
             }
             else if (triedLevels.Count != 0)
             {
                 string missingLabel1 = ResolveTypeToLabel1(type);
-                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, 
-                    string.Join(", ", triedLevels), race.label.CapitalizeFirst(), 
-                    missingLabel1, successLevel.ToString()));
+                Log.Warning("noPawnKindDefOfTypeOfRaceWarning".Translate(missingLabel0, string.Join(", ", triedLevels), race.label.CapitalizeFirst(), missingLabel1, successLevel.ToString()));
             }
             return workList;
         }
