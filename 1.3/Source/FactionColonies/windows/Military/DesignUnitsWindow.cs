@@ -202,6 +202,7 @@ namespace FactionColonies
             if (Widgets.ButtonText(RollNewPawn, "rollANewUnitButton".Translate()))
             {
                 selectedUnit.generateDefaultPawn();
+                selectedUnit.unequipAllEquipment();
             }
 
             if (Widgets.ButtonText(ChangeRace, "changeUnitRaceButton".Translate()))
