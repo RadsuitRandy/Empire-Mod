@@ -16,8 +16,12 @@ namespace FactionColonies
         {
             return "SettlementFC_" + loadID;
         }
-        
-        //Required for saving/loading
+
+        public bool IsBeingUpgraded => Find.World.GetComponent<FactionFC>().events.Any(evt => evt.def == FCEventDefOf.upgradeSettlement && evt.location == mapLocation);
+
+        /// <summary>
+        /// Required for saving/loading
+        /// </summary>
         public SettlementFC()
         {
         }
