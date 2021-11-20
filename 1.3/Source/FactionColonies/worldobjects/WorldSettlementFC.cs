@@ -304,6 +304,10 @@ namespace FactionColonies
 
         public override IEnumerable<Gizmo> GetGizmos()
         {
+            foreach (Gizmo gizmo in base.GetGizmos())
+            {
+                yield return gizmo;
+            }
             yield return OpenSettlementWindowAction;
             if (settlement.isUnderAttack) yield return DefendColonyAction;
             if (settlement.isUnderAttack && !attackers.Any()) yield return ChangeDefenderAction;
