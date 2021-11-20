@@ -144,7 +144,7 @@ namespace FactionColonies
     {
         static bool Prefix(ref Faction __instance, Pawn member, Faction violator)
         {
-            if (__instance.def.defName == "PColony" && violator == Faction.OfPlayer)
+            if (__instance.def.defName == "PColony" && violator == Faction.OfPlayer && !member.IsSlaveOfColony)
             {
                 FactionFC faction = Find.World.GetComponent<FactionFC>();
                 faction.GainUnrestForReason(new Message("CaptureOfFactionPawn".Translate(), MessageTypeDefOf.NegativeEvent), 15d);

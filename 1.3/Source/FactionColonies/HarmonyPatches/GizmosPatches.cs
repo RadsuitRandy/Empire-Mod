@@ -9,7 +9,7 @@ using Verse;
 namespace FactionColonies
 {
     [HarmonyPatch(typeof(Pawn), "GetGizmos")]
-    class PawnGizmos
+    class PawnDraftGizmos
     {
         static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
