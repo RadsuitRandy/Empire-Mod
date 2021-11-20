@@ -1475,6 +1475,7 @@ namespace FactionColonies
 
         public static void removePlayerSettlement(SettlementFC settlement)
         {
+            settlement.PrepareDestroyWorldObject();
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             faction.settlements.Remove(settlement);
             Messages.Message("SettlementRemoved".Translate(settlement.name), MessageTypeDefOf.NegativeEvent);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
@@ -30,6 +31,32 @@ namespace FactionColonies
         public militaryForce defenderForce;
         public militaryForce attackerForce;
         public int shuttleUsesRemaining = 0;
+        /// <summary>
+        /// A flag meant to indicate whether or not this settlement is meant for actual destruction; used to override WorldObject.Destroy() for compatibility purposes
+        /// </summary>
+        private bool destroyFlag = false;
+        /// <summary>
+        /// Indicate that this should be destroyed when WorldObject.Destroy() is called
+        /// </summary>
+        public void PrepareDestroy()
+        {
+            this.destroyFlag = true;
+        }
+        /// <summary>
+        /// Compatibility focused: this object should only be destroyed very deliberately, else another object is likely trying to handle negative combat resolution against this settlement.
+        /// </summary>
+        public override void Destroy()
+        {
+            if (destroyFlag)
+            {
+                base.Destroy();
+            }
+
+            else
+            {
+                endBattle(false, 0);
+            }
+        }
 
         public string Name
         {
@@ -239,7 +266,7 @@ namespace FactionColonies
             def.expandingIconTexture = "FactionIcons/" + Find.World.GetComponent<FactionFC>().factionIconPath;
             traitCachedIcon.SetValue(def, ContentFinder<Texture2D>.Get(def.expandingIconTexture));
             base.PostMake();
-
+            
             attackers = new List<Pawn>();
             defenders = new List<Pawn>();
             supporting = new List<CaravanSupporting>();

@@ -705,7 +705,13 @@ namespace FactionColonies
         {
             return militaryBusy;
         }
-
+        /// <summary>
+        /// Compatibility focused: this object should only be destroyed very deliberately, else another object is likely trying to handle negative combat resolution against this settlement.
+        /// </summary>
+        public void PrepareDestroyWorldObject()
+        {
+            worldSettlement.PrepareDestroy();
+        }
 
         public bool isMilitaryValid()
         {
