@@ -56,6 +56,11 @@ namespace FactionColonies
 			}
 		};
 
+		/// <summary>
+		/// Transitions from fighting to leaving, when the map has been peaceful for 1000 ticks
+		/// </summary>
+		/// <param name="stateGraph"></param>
+		/// <returns></returns>
 		private Transition FightingToLeavingTransition(StateGraph stateGraph) => new Transition(stateGraph.lordToils[1], stateGraph.lordToils[2])
 		{
 			triggers = new List<Trigger>
@@ -85,7 +90,7 @@ namespace FactionColonies
 			StateGraph stateGraph = new StateGraph { StartingToil = new LordToil_DeliverSupplies() };
 
 			stateGraph.AddToil(new LordToil_HuntEnemies(fallbackLocation));
-			stateGraph.AddToil(new LordToil_TakeWoundedAndLeave());
+			stateGraph.AddToil(new LordToil_TakeWoundedAndLeave(new LordToilData_ExitMap() { canDig = false, locomotion = LocomotionUrgency.Jog, interruptCurrentJob = true }));
 
 			stateGraph.AddTransition(DeliveryToFightTransition(stateGraph));
 			stateGraph.AddTransition(RefreshFightTransition(stateGraph));

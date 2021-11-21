@@ -6,6 +6,19 @@ namespace FactionColonies
 {
     class LordToil_TakeWoundedAndLeave : LordToil
     {
+        protected LordToilData_ExitMap Data
+        {
+            get
+            {
+                return (LordToilData_ExitMap) data;
+            }
+        }
+
+        public LordToil_TakeWoundedAndLeave(LordToilData_ExitMap data)
+        {
+            this.data = data;
+        }
+
         public override bool AllowSatisfyLongNeeds
         {
             get
@@ -13,6 +26,7 @@ namespace FactionColonies
                 return false;
             }
         }
+
         public override bool AllowSelfTend
         {
             get
@@ -20,11 +34,14 @@ namespace FactionColonies
                 return false;
             }
         }
+
         public override void UpdateAllDuties()
         {
             for (int i = 0; i < lord.ownedPawns.Count; i++)
             {
-                lord.ownedPawns[i].mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("FCTakeWoundedAndLeave"));
+                lord.ownedPawns[i].mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("FCTakeWoundedAndLeave")) { locomotion = Data.locomotion, canDig = Data.canDig };
+
+                if (Data.interruptCurrentJob && lord.ownedPawns[i].jobs.curJob != null) lord.ownedPawns[i].jobs.EndCurrentJob(JobCondition.InterruptForced);
             }
         }
     }
