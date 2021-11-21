@@ -344,9 +344,10 @@ namespace FactionColonies
 
         private List<FloatMenuOption> DeploymentOptions(SettlementFC settlement) => new List<FloatMenuOption>
         {
-            new FloatMenuOption("walkIntoMapDeploymentOption".Translate(),
-                delegate { FactionColonies.CallinAlliedForces(settlement, false); }),
-            DropPodDeploymentOption(settlement)
+            new FloatMenuOption("walkIntoMapDeploymentOption".Translate(), delegate 
+            { 
+                FactionColonies.CallinAlliedForces(settlement, false); 
+            }), DropPodDeploymentOption(settlement)
         };
     }
 }
