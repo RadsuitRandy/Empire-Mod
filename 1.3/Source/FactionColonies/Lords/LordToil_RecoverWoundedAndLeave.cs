@@ -4,7 +4,7 @@ using Verse.AI.Group;
 
 namespace FactionColonies
 {
-    class LordToil_TakeWoundedAndLeave : LordToil
+    class LordToil_RecoverWoundedAndLeave : LordToil
     {
         protected LordToilData_ExitMap Data
         {
@@ -14,7 +14,7 @@ namespace FactionColonies
             }
         }
 
-        public LordToil_TakeWoundedAndLeave(LordToilData_ExitMap data)
+        public LordToil_RecoverWoundedAndLeave(LordToilData_ExitMap data)
         {
             this.data = data;
         }
