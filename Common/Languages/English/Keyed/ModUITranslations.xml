@@ -358,9 +358,9 @@
 	<taxDeliveryModeShuttleUnavailableDesc>Shuttle. Unavailable due to royality not being present</taxDeliveryModeShuttleUnavailableDesc>
 	
 	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
-	<pawnsLeavingMap>The delivering pawns are leaving the map.</pawnsLeavingMap>
-	<pawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</pawnsLeavingMapNoPath>
-	<pawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</pawnsLeavingMapWithDowned>
+	<deliveryPawnsLeavingMap>The delivering pawns are leaving the map.</deliveryPawnsLeavingMap>
+	<deliveryPawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</deliveryPawnsLeavingMapNoPath>
+	<deliveryPawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</deliveryPawnsLeavingMapWithDowned>
 	<settlementDeliveringLoot>Your settlement is delivering the following loot to you: </settlementDeliveringLoot>
 	<deliveryHeldUpArriving>A delivery that was forced to wait has arrived!</deliveryHeldUpArriving>
 	<aSettlement> a settlement </aSettlement>
@@ -411,5 +411,10 @@
 	<dropPodDeploymentOptionUnavailableReasonMedieval> disabled because "Medieval Tech Only" is enabled</dropPodDeploymentOptionUnavailableReasonMedieval>
 	<dropPodDeploymentOptionUnavailableReasonTech> unavailable without the {0} research</dropPodDeploymentOptionUnavailableReasonTech>
 	<errorDropPodResearchCouldNotBeFound>The drop pod research could not be found! Are you running a mod list that removes it?</errorDropPodResearchCouldNotBeFound>
-
+    
+	<!-- Military Deployment -->
+	<selectMilitaryMovePosition>Select Move Position</selectMilitaryMovePosition>
+	<debugRemoveAllCommand>[Debug] Remove all</debugRemoveAllCommand>
+	<militaryPawnsLeavingTimeOut>Your squad {0} is leaving, because it's available time ran out!</militaryPawnsLeavingTimeOut>
+	
 </LanguageData>

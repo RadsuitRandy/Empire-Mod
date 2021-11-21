@@ -29,6 +29,11 @@ namespace FactionColonies
 
 		private bool CanNotReach() => !lord.ownedPawns.NullOrEmpty() && lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null) && lord.ownedPawns[0].mindState?.duty.def != DutyDefOf.ExitMapBestAndDefendSelf && lord.ownedPawns[0].CanReach(lord.ownedPawns[0].CurJob.targetA, PathEndMode.OnCell, PawnUtility.ResolveMaxDanger(lord.ownedPawns[0], Danger.Some), false, false, TraverseMode.ByPawn);
 
+		/// <summary>
+		/// This <c>Transition</c> switches the delivery <c>Pawns</c> from delivery mode to fighting mode. It drops their items if they carry any and notifies the player of what's about to happen 
+		/// </summary>
+		/// <param name="stateGraph"></param>
+		/// <returns>the Transition</returns>
 		private Transition DeliveryToFightTransition(StateGraph stateGraph) => new Transition(stateGraph.StartingToil, stateGraph.lordToils[1])
 		{
 			triggers = new List<Trigger>(2)
@@ -36,17 +41,19 @@ namespace FactionColonies
 				new Trigger_PawnHarmed(),
 				new Trigger_Custom((TriggerSignal s) => Map.dangerWatcher.DangerRating == StoryDanger.High)
 			},
-			preActions = new List<TransitionAction>
+			preActions = new List<TransitionAction>(2)
 			{
+				new TransitionAction_Custom(() => lord.ownedPawns.ForEach(pawn => pawn.DropItem(pawn.Position, ThingPlaceMode.Direct, out _))),
 				new TransitionAction_Custom(() => Messages.Message("deliveryPawnsEngageEnemy".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent))
 			}
 		};
 
 		/// <summary>
 		/// This <c>Transition</c> fixes a bug, where sometimes some <c>Pawn</c>s don't get transitioned into this phase even though they should
+		/// tbh, I (dani) don't know if this is still needed, but it doesn't seem to hurt being there either
 		/// </summary>
 		/// <param name="stateGraph"></param>
-		/// <returns></returns>
+		/// <returns>the Transition</returns>
 		private Transition RefreshFightTransition(StateGraph stateGraph) => new Transition(stateGraph.lordToils[1], stateGraph.lordToils[1], true)
 		{
 			triggers = new List<Trigger>(2)
@@ -56,15 +63,20 @@ namespace FactionColonies
 			}
 		};
 
+		/// <summary>
+		/// Transitions from fighting to leaving, when the map has been peaceful for 1000 ticks
+		/// </summary>
+		/// <param name="stateGraph"></param>
+		/// <returns>the Transition</returns>
 		private Transition FightingToLeavingTransition(StateGraph stateGraph) => new Transition(stateGraph.lordToils[1], stateGraph.lordToils[2])
 		{
-			triggers = new List<Trigger>
+			triggers = new List<Trigger>(1)
 			{
 				new Trigger_TicksPassedAndNoRecentHarm(1000)
 			},
-			preActions = new List<TransitionAction>
+			preActions = new List<TransitionAction>(1)
 			{
-				new TransitionAction_Custom(() => Messages.Message(Map.HasWoundedForFaction(lord.faction) ? "pawnsLeavingMapWithDowned".Translate() : "pawnsLeavingMap".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent))
+				new TransitionAction_Custom(() => Messages.Message(Map.HasWoundedForFaction(lord.faction) ? "deliveryPawnsLeavingMapWithDowned".Translate() : "deliveryPawnsLeavingMap".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent))
 			}
 		};
 
@@ -73,11 +85,11 @@ namespace FactionColonies
 		/// Without this transition, pawns end up dropping their delivery and starving to death
 		/// </summary>
 		/// <param name="stateGraph"></param>
-		/// <returns></returns>
+		/// <returns>the Transition</returns>
 		private Transition CanNotDeliverToLeavingTransition(StateGraph stateGraph) => new Transition(stateGraph.lordToils[0], stateGraph.lordToils[2])
 		{
 			triggers = new List<Trigger>(1) { new Trigger_Custom((TriggerSignal _) => CanNotReach()) },
-			preActions = new List<TransitionAction>(1) { new TransitionAction_Custom(() => Messages.Message("pawnsLeavingMapNoPath".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent)) }
+			preActions = new List<TransitionAction>(1) { new TransitionAction_Custom(() => Messages.Message("deliveryPawnsLeavingMapNoPath".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent)) }
 		};
 
 		public override StateGraph CreateGraph()
@@ -85,7 +97,7 @@ namespace FactionColonies
 			StateGraph stateGraph = new StateGraph { StartingToil = new LordToil_DeliverSupplies() };
 
 			stateGraph.AddToil(new LordToil_HuntEnemies(fallbackLocation));
-			stateGraph.AddToil(new LordToil_TakeWoundedAndLeave());
+			stateGraph.AddToil(new LordToil_RecoverWoundedAndLeave(new LordToilData_ExitMap() { canDig = false, locomotion = LocomotionUrgency.Jog, interruptCurrentJob = true }));
 
 			stateGraph.AddTransition(DeliveryToFightTransition(stateGraph));
 			stateGraph.AddTransition(RefreshFightTransition(stateGraph));

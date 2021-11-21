@@ -21,7 +21,6 @@ namespace FactionColonies
         public bool isTraderCaravan;
         public bool isDeployed;
         public bool isExtraSquad;
-        public MilitaryOrders order;
         public int timeDeployed;
         public IntVec3 orderLocation;
         public bool hitMap;
@@ -51,7 +50,6 @@ namespace FactionColonies
             Scribe_Collections.Look(ref UsedApparelList, "UsedApparelList", LookMode.Reference);
             Scribe_References.Look(ref settlement, "Settlement");
             Scribe_Values.Look(ref tickChanged, "tickChanged");
-            Scribe_Values.Look(ref order, "order", MilitaryOrders.Undefinded);
             Scribe_Values.Look(ref timeDeployed, "timeDeployed", -1);
             Scribe_Values.Look(ref orderLocation, "orderLocation");
             Scribe_Values.Look(ref hasLord, "hasLord");

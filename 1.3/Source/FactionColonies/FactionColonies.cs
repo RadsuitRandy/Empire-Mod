@@ -10,6 +10,7 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace FactionColonies
 {
@@ -565,7 +566,6 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.370)
             {
-                factionFC.updateVersion = 0.370;
                 Find.LetterStack.ReceiveLetter("Manual Settlement Defence is now disabled by default",
                     "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
@@ -1192,32 +1192,17 @@ namespace FactionColonies
                 if (DropPod)
                 {
                     parms.spawnCenter = dropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,settlement.militarySquad.AllEquippedMercenaryPawns);
+                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, settlement.militarySquad.AllEquippedMercenaryPawns);
                 }
                 else
                 {
                     PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
                     worker.TryResolveRaidSpawnCenter(parms);
                     worker.Arrive(settlement.militarySquad.AllEquippedMercenaryPawns, parms);
-                    //Log.Message(settlement.militarySquad.DeployedMercenaries.Count().ToString());
-
-
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries.Concat(settlement.militarySquad.DeployedMercenaryAnimals))
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby = jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
                 }
 
                 settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 settlement.militarySquad.isDeployed = true;
-                settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
                 Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
@@ -1225,6 +1210,7 @@ namespace FactionColonies
 
                 DebugTools.curTool = null;
                 settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
+                LordMaker.MakeNewLord(getPlayerColonyFaction(), new LordJob_DeployMilitary(dropPosition, settlement.militarySquad), Find.CurrentMap, settlement.militarySquad.AllEquippedMercenaryPawns);
             });
             DebugTools.curTool = tool;
 
@@ -1304,7 +1290,6 @@ namespace FactionColonies
 
                 squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 squad.isDeployed = true;
-                squad.order = MilitaryOrders.Standby;
                 squad.orderLocation = DropPosition;
                 squad.timeDeployed = Find.TickManager.TicksGame;
                 Find.LetterStack.ReceiveLetter("Military Deployed",
@@ -1426,7 +1411,6 @@ namespace FactionColonies
                                 //List<Pawn> list2 = parms.raidStrategy.Worker.SpawnThreats(parms);
                                 //parms.raidArrivalMode.Worker.Arrive(list2, parms);
                                 settlement.militarySquad.isDeployed = true;
-                                settlement.militarySquad.order = MilitaryOrders.Standby;
                                 settlement.militarySquad.orderLocation = DropPosition;
                                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
 
