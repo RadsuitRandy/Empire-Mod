@@ -29,6 +29,11 @@ namespace FactionColonies
 
 		private bool CanNotReach() => !lord.ownedPawns.NullOrEmpty() && lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null) && lord.ownedPawns[0].mindState?.duty.def != DutyDefOf.ExitMapBestAndDefendSelf && lord.ownedPawns[0].CanReach(lord.ownedPawns[0].CurJob.targetA, PathEndMode.OnCell, PawnUtility.ResolveMaxDanger(lord.ownedPawns[0], Danger.Some), false, false, TraverseMode.ByPawn);
 
+		/// <summary>
+		/// This <c>Transition</c> switches the delivery <c>Pawns</c> from delivery mode to fighting mode. It drops their items if they carry any and notifies the player of what's about to happen 
+		/// </summary>
+		/// <param name="stateGraph"></param>
+		/// <returns></returns>
 		private Transition DeliveryToFightTransition(StateGraph stateGraph) => new Transition(stateGraph.StartingToil, stateGraph.lordToils[1])
 		{
 			triggers = new List<Trigger>(2)
@@ -38,12 +43,14 @@ namespace FactionColonies
 			},
 			preActions = new List<TransitionAction>
 			{
+				new TransitionAction_Custom(() => lord.ownedPawns.ForEach(pawn => pawn.DropItem(pawn.Position, ThingPlaceMode.Direct, out _))),
 				new TransitionAction_Custom(() => Messages.Message("deliveryPawnsEngageEnemy".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent))
 			}
 		};
 
 		/// <summary>
 		/// This <c>Transition</c> fixes a bug, where sometimes some <c>Pawn</c>s don't get transitioned into this phase even though they should
+		/// tbh, I (dani) don't know if this is still needed, but it doesn't seem to hurt being there either
 		/// </summary>
 		/// <param name="stateGraph"></param>
 		/// <returns></returns>
