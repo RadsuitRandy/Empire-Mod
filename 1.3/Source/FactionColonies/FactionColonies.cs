@@ -572,26 +572,26 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.377)
+            if (factionFC.updateVersion < 0.378)
             {
                 string str;
-                str =        "A new update for Empire has been released!  v.0.377\n The following abbreviated changes have occurred:";
-                str += "\n- [HOTFIX] Races no longer randomize anywhere";
-                str += "\n- [HOTFIX] When using military deployment, if you enable dev mode, you (should be able to) remove any deployed squad and the window instantly";
-                str += "\n- (a rework of the deployment system is going to follow in the next update)";
-                str += "\n- changed a few floatmenus to be searchable";
-                str += "\n- changed how remaining time is displayed when the remaining time is less than a day";
-                str += "\n- fixed a NullException for Linux users";
-                str += "\n- fixed new units can have biocoded weapons with 0 cost";
-                str += "\n- fixed military or worker pawns can generate without being able to be violent";
-                str += "\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
-                str += "\n- fixed selecting a race during unit creation doesn't work";
+                str =        "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                str += "\n- reworked military deployment";
+                str += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
+                str += "\n- --";
+                str += "\n- fixed pawns don't drop items if an enemy causes them to engage while the maps story danger isn't set to high";
+                str += "\n- fixed pawns dig through terrain trying to leave";
+                str += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
+                str += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
+                str += "\n- fixed newly rolled pawns can have biocoded weapons";
+                str += "\n- removed some Message spam";
+                str += "\n- added missing upkeep cost to string";
                 str += "\n- added translatability to some strings";
-                str += "\n\n- All of the code for this update has been developed by Danimineiro and Big_Bad_E";
+                str += "\n\n- All of the code for this update has been developed by Danimineiro";
                 str += "\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
                 str += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.377;
+                factionFC.updateVersion = 0.378;
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
 
                 Settings().settlementsAutoBattle = true;
