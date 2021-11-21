@@ -15,6 +15,9 @@ namespace FactionColonies
         readonly FactionFC faction;
         public MercenarySquadFC selectedSquad;
         public string squadText;
+        public IntVec3 currentOrderPosition;
+
+        public Dictionary<MercenarySquadFC, MilitaryOrder> squadMilitaryOrderDic = new Dictionary<MercenarySquadFC, MilitaryOrder>();
 
         public DeployedMilitaryCommandMenu()
         {
@@ -28,6 +31,8 @@ namespace FactionColonies
             doWindowBackground = false;
             preventCameraMotion = false;
             faction = Find.World.GetComponent<FactionFC>();
+
+            selectedSquad = faction.militaryCustomizationUtil.DeployedSquads.Where(squad => (squad.getSettlement != null)).RandomElementWithFallback();
         }
 
         public override Vector2 InitialSize
@@ -59,6 +64,9 @@ namespace FactionColonies
             }
             if (!list.Any())
             {
+                //This should never happen
+                Log.Error("No deployed squad, but window is still open? Closing..");
+                Close();
                 list.Add(new FloatMenuOption("noSquadsAvailable".Translate(), null));
             }
 
@@ -69,9 +77,8 @@ namespace FactionColonies
         {
             if (selectedSquad != null)
             {
-                selectedSquad.order = MilitaryOrders.Attack;
+                squadMilitaryOrderDic.SetOrAdd(selectedSquad, MilitaryOrder.Hunt);
                 Messages.Message("attackSuccess".Translate(selectedSquad.outfit.name), MessageTypeDefOf.NeutralEvent);
-                //selectedSquad.orderLocation = Position;
             }
         }
 
@@ -81,12 +88,12 @@ namespace FactionColonies
             {
                 DebugTool tool;
                 IntVec3 Position;
-                tool = new DebugTool("Select Move Position", delegate ()
+                tool = new DebugTool("selectMilitaryMovePosition".Translate(), delegate ()
                 {
                     Position = UI.MouseCell();
 
-                    selectedSquad.order = MilitaryOrders.Standby;
-                    selectedSquad.orderLocation = Position;
+                    squadMilitaryOrderDic.SetOrAdd(selectedSquad, MilitaryOrder.DefendPoint);
+                    currentOrderPosition = Position;
                     Messages.Message("moveSuccess".Translate(selectedSquad.outfit.name), MessageTypeDefOf.NeutralEvent);
 
                     DebugTools.curTool = null;
@@ -99,7 +106,8 @@ namespace FactionColonies
         {
             if (selectedSquad != null)
             {
-                selectedSquad.order = MilitaryOrders.Leave;
+                squadMilitaryOrderDic.SetOrAdd(selectedSquad, MilitaryOrder.RecoverWoundedAndLeave);
+                selectedSquad.isDeployed = false;
                 Messages.Message("commandLeave".Translate(selectedSquad.outfit.name, selectedSquad.dead), MessageTypeDefOf.NeutralEvent);
             }
         }
@@ -108,8 +116,6 @@ namespace FactionColonies
         {
             foreach (MercenarySquadFC squad in faction.militaryCustomizationUtil.DeployedSquads)
             {
-                squad.order = MilitaryOrders.Leave;
-
                 foreach (Mercenary merc in squad.mercenaries.Concat(squad.animals))
                 {
                     if (merc?.pawn?.Map != null)
@@ -158,7 +164,7 @@ namespace FactionColonies
             if (Widgets.ButtonTextSubtle(commandMove, "commandMove".Translate())) DoMoveCommand();
             if (Widgets.ButtonTextSubtle(commandHeal, "commandLeave".Translate())) DoLeaveCommand();
 
-            if (Prefs.DevMode) if (Widgets.ButtonTextSubtle(commandKillWindow, "[Debug] Remove all")) DoDebugCommand();
+            if (Prefs.DevMode) if (Widgets.ButtonTextSubtle(commandKillWindow, "debugRemoveAllCommand".Translate())) DoDebugCommand();
 
             //Example command:
 

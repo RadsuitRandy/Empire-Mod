@@ -760,7 +760,7 @@ namespace FactionColonies
             militaryLocation = location;
 
             if (enemy != null) militaryEnemy = enemy;
-            if (job != MilitaryJob.Deploy) Find.World.GetComponent<FactionFC>().militaryTargets.Add(location);
+            if (job != MilitaryJob.Deploy) factionfc.militaryTargets.Add(location);
 
             FCEvent tmp = null;
             switch (militaryJob)
@@ -787,11 +787,14 @@ namespace FactionColonies
                     break;
             }
 
-            tmp.hasCustomDescription = true;
-            tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
-            tmp.location = mapLocation;
-            tmp.planetName = Find.World.info.name;
-            factionfc.addEvent(tmp);
+            if (tmp != null)
+            {
+                tmp.hasCustomDescription = true;
+                tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
+                tmp.location = mapLocation;
+                tmp.planetName = Find.World.info.name;
+                factionfc.addEvent(tmp);
+            }
         }
 
         public Settlement returnMilitaryTarget()
