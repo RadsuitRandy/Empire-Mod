@@ -662,7 +662,7 @@ namespace FactionColonies
                 Widgets.DrawMenuSection(nBox);
                 if (i < settlement.NumberBuildings)
                 {
-                    if (Widgets.ButtonImage(nBuilding, building.icon))
+                    if (Widgets.ButtonImage(nBuilding, building.Icon))
                     {
                         //Find.WindowStack.Add(new listBuildingFC(building, i, settlement));
                         Find.WindowStack.Add(new FCBuildingWindow(settlement, i));

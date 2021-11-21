@@ -65,8 +65,7 @@ namespace FactionColonies
             base.OnAcceptKeyPressed();
             //faction.title = title;
             settlement.name = name;
-            WorldSettlementFC settlementFc =
-                Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(settlement.mapLocation);
+            WorldSettlementFC settlementFc = Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(settlement.mapLocation);
             if (settlementFc != null) settlementFc.Name = name;
         }
 
