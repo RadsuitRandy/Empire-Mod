@@ -11,10 +11,10 @@ using Verse.AI.Group;
 
 namespace FactionColonies
 {
-    class LordJob_DeployMilitary : LordJob
-    {
+	class LordJob_DeployMilitary : LordJob
+	{
 		private MercenarySquadFC squad;
-        private IntVec3 currentOrderPosition;
+		private IntVec3 currentOrderPosition;
 		private int whenToForceLeave;
 		private int timeDeployed = 0;
 		private DeployedMilitaryCommandMenu deployedMilitaryCommandMenu;
@@ -45,8 +45,8 @@ namespace FactionColonies
 		{
 			deployedMilitaryCommandMenu = new DeployedMilitaryCommandMenu();
 			if (!Find.WindowStack.IsOpen(typeof(DeployedMilitaryCommandMenu))) Find.WindowStack.Add(deployedMilitaryCommandMenu);
-			else deployedMilitaryCommandMenu = (DeployedMilitaryCommandMenu)Find.WindowStack.Windows.First(window => window.GetType() == typeof(DeployedMilitaryCommandMenu));
-			
+			else deployedMilitaryCommandMenu = (DeployedMilitaryCommandMenu) Find.WindowStack.Windows.First(window => window.GetType() == typeof(DeployedMilitaryCommandMenu));
+
 			deployedMilitaryCommandMenu.squadMilitaryOrderDic.SetOrAdd(squad, currentOrder);
 			deployedMilitaryCommandMenu.currentOrderPositionDic[squad] = currentOrderPosition;
 
@@ -63,11 +63,12 @@ namespace FactionColonies
 			Scribe_Values.Look(ref currentOrder, "currentOrder");
 			Scribe_References.Look(ref squad, "squad");
 
-			if (Scribe.mode == LoadSaveMode.LoadingVars) Init();
+			//PostLoadInit is the last loading pass
+			if (Scribe.mode == LoadSaveMode.PostLoadInit) Init();
 		}
 
 		private void UpdateOrderPosition()
-        {
+		{
 			currentOrderPosition = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
 			lordToil_DefendPoint.SetDefendPoint(deployedMilitaryCommandMenu.currentOrderPositionDic[squad]);
 			((LordToilData_HuntEnemies)lordToil_HuntEnemies.data).fallbackLocation = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
@@ -94,7 +95,7 @@ namespace FactionColonies
 						}) 
 					}
 				};
-            }
+			}
 		}
 
 		/// <summary>
@@ -144,9 +145,9 @@ namespace FactionColonies
 				preActions = new List<TransitionAction>(1)
 				{
 					new TransitionAction_Custom(UpdateOrderPosition)
-                }
+				}
 			};
-        }
+		}
 
 		/// <summary>
 		/// The Order of toils in the StateGraph MUST be the same as in the MilitaryOrder enum
@@ -166,15 +167,15 @@ namespace FactionColonies
 			return stateGraph;
 		}
 
-        public override void Notify_LordDestroyed()
-        {
+		public override void Notify_LordDestroyed()
+		{
 			if (squad.getSettlement.militarySquad == squad)
 			{
 				squad.getSettlement.cooldownMilitary();
 			}
 
 			squad.isDeployed = false;
-            base.Notify_LordDestroyed();
-        }
-    }
+			base.Notify_LordDestroyed();
+		}
+	}
 }
