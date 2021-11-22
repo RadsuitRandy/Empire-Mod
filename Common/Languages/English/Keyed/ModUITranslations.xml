@@ -353,7 +353,7 @@
 	<taxDeliveryModeDefaultDesc>None. Delivery depends on technology and settlement buildings</taxDeliveryModeDefaultDesc>
 	<taxDeliveryModeTaxSpotDesc>TaxSpot. Delivery spawns on the tax spot</taxDeliveryModeTaxSpotDesc>
 	<taxDeliveryModeCaravanDesc>Caravan. Delivery is always brought by a caravan</taxDeliveryModeCaravanDesc>
-	<taxDeliveryModeDropPodDesc>DropPod. Delivery is always arrives in drop pods</taxDeliveryModeDropPodDesc>
+	<taxDeliveryModeDropPodDesc>DropPod. Delivery always arrives in drop pods</taxDeliveryModeDropPodDesc>
 	<taxDeliveryModeShuttleDesc>Shuttle. Delivery always arrives by shuttle</taxDeliveryModeShuttleDesc>
 	<taxDeliveryModeShuttleUnavailableDesc>Shuttle. Unavailable due to royality not being present</taxDeliveryModeShuttleUnavailableDesc>
 	
