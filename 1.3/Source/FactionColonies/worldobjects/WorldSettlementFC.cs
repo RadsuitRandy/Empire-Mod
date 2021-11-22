@@ -15,6 +15,9 @@ using RimWorld.QuestGen;
 
 namespace FactionColonies
 {
+    /// <summary>
+    /// WorldObject that in many ways re-implements Settlement.cs from Rimworld.Planet. May cause compatibility issues with other mods that rely on finding Settlement objects on the world map. Recommend testing this extensively with mods like SoS2, RimWar, or any mods that modify, collect, or deep save world objects before publishing changes 
+    /// </summary>
     public class WorldSettlementFC : MapParent, ITrader, ITraderRestockingInfoProvider
     {
         public static readonly FieldInfo traitCachedIcon = typeof(WorldObjectDef).GetField("expandingIconTextureInt",
@@ -60,13 +63,22 @@ namespace FactionColonies
 
         public string Name
         {
-            get => settlement.name;
+            get
+            {
+                if(settlement == null)
+                {
+                    return "";
+                }
+
+                return settlement.name ?? (settlement.name = "");
+            }
             set => settlement.name = value;
         }
 
         public override string Label => Name;
 
-
+        
+        
         public TraderKindDef TraderKind
         {
             get
