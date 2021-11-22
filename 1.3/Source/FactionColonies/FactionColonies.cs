@@ -1209,7 +1209,7 @@ namespace FactionColonies
                 //MilitaryAI.SquadAI(ref settlement.militarySquad);
 
                 DebugTools.curTool = null;
-                settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
+                settlement.SendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
                 LordMaker.MakeNewLord(getPlayerColonyFaction(), new LordJob_DeployMilitary(dropPosition, settlement.militarySquad), Find.CurrentMap, settlement.militarySquad.AllEquippedMercenaryPawns);
             });
             DebugTools.curTool = tool;

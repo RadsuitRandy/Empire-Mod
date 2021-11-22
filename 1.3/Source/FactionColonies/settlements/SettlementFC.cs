@@ -749,7 +749,44 @@ namespace FactionColonies
             get { return (float) Math.Round(prosperity, 1); }
         }
 
-        public void sendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
+        private FCEvent CreateMilEventFromType(int location, int timeToFinish)
+        {
+            FCEvent evt = null;
+            switch (militaryJob)
+            {
+                case MilitaryJob.RaidEnemySettlement:
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.raidEnemySettlement);
+                    evt.customDescription = "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    break;
+
+                case MilitaryJob.EnslaveEnemySettlement:
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.enslaveEnemySettlement);
+                    evt.customDescription = "settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    break;
+
+                case MilitaryJob.CaptureEnemySettlement:
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.captureEnemySettlement);
+                    evt.customDescription = "settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (evt == null) return null;
+
+            evt.hasCustomDescription = true;
+            evt.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
+            evt.location = mapLocation;
+            evt.planetName = Find.World.info.name;
+
+            return evt;
+        }
+
+        public void SendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
             if (isMilitaryBusy() || isTargetOccupied(location)) return;
@@ -762,39 +799,7 @@ namespace FactionColonies
             if (enemy != null) militaryEnemy = enemy;
             if (job != MilitaryJob.Deploy) factionfc.militaryTargets.Add(location);
 
-            FCEvent tmp = null;
-            switch (militaryJob)
-            {
-                case MilitaryJob.RaidEnemySettlement:
-                    tmp = FCEventMaker.MakeEvent(FCEventDefOf.raidEnemySettlement);
-                    tmp.customDescription = "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label);
-                    Find.LetterStack.ReceiveLetter("Military Action", "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
-                    break;
-
-                case MilitaryJob.EnslaveEnemySettlement:
-                    tmp = FCEventMaker.MakeEvent(FCEventDefOf.enslaveEnemySettlement);
-                    tmp.customDescription ="settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label);
-                    Find.LetterStack.ReceiveLetter("Military Action","FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
-                    break;
-
-                case MilitaryJob.CaptureEnemySettlement:
-                    tmp = FCEventMaker.MakeEvent(FCEventDefOf.captureEnemySettlement);
-                    tmp.customDescription ="settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label);
-                    Find.LetterStack.ReceiveLetter("Military Action","FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (tmp != null)
-            {
-                tmp.hasCustomDescription = true;
-                tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
-                tmp.location = mapLocation;
-                tmp.planetName = Find.World.info.name;
-                factionfc.addEvent(tmp);
-            }
+            factionfc.addEvent(CreateMilEventFromType(location, timeToFinish));
         }
 
         public Settlement returnMilitaryTarget()

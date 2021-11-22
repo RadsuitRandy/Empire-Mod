@@ -139,7 +139,7 @@ namespace FactionColonies
 					{
 						RelationsUtilFC.attackFaction(faction);
 
-						settlement.sendMilitary(tile, Find.World.info.name, MilitaryJob.CaptureEnemySettlement, 60000, faction);
+						settlement.SendMilitary(tile, Find.World.info.name, MilitaryJob.CaptureEnemySettlement, 60000, faction);
 					}));
 				}
 			}
@@ -165,7 +165,7 @@ namespace FactionColonies
 					settlementList.Add(new FloatMenuOption("FCRaidFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
 					{
 						RelationsUtilFC.attackFaction(faction);
-						settlement.sendMilitary(tile, Find.World.info.name, MilitaryJob.RaidEnemySettlement, 60000, faction);
+						settlement.SendMilitary(tile, Find.World.info.name, MilitaryJob.RaidEnemySettlement, 60000, faction);
 					}));
 				}
 			}
@@ -192,7 +192,7 @@ namespace FactionColonies
 					settlementList.Add(new FloatMenuOption("FCEnslaveFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
 					{
 						RelationsUtilFC.attackFaction(faction);
-						settlement.sendMilitary(tile, Find.World.info.name, MilitaryJob.EnslaveEnemySettlement, 60000, faction);
+						settlement.SendMilitary(tile, Find.World.info.name, MilitaryJob.EnslaveEnemySettlement, 60000, faction);
 					}));
 				}
 			}
