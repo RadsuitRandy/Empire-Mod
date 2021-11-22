@@ -165,5 +165,16 @@ namespace FactionColonies
 
 			return stateGraph;
 		}
-	}
+
+        public override void Notify_LordDestroyed()
+        {
+			if (squad.getSettlement.militarySquad == squad)
+			{
+				squad.getSettlement.cooldownMilitary();
+			}
+
+			squad.isDeployed = false;
+            base.Notify_LordDestroyed();
+        }
+    }
 }
