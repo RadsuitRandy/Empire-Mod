@@ -60,7 +60,7 @@ namespace FactionColonies
 				{
 					if (!sendMessage) 
 					{
-						Messages.Message("pawnsLeavingMap".Translate(), MessageTypeDefOf.NeutralEvent);
+						Messages.Message("deliveryPawnsLeavingMap".Translate(), MessageTypeDefOf.NeutralEvent);
 						sendMessage = true;
 					}
 					pawn.mindState.duty = new PawnDuty(DutyDefOf.ExitMapBestAndDefendSelf);
