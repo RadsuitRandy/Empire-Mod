@@ -77,7 +77,6 @@ namespace FactionColonies
         static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
             Pawn pawn = __instance;
-            if (__instance.guest == null || !__instance.guest.IsPrisoner || !__instance.guest.PrisonerIsSecure || !Find.World.GetComponent<FactionFC>().settlements.Any()) return;
 
             __result = __result.Append(new Command_Action
             {
@@ -311,4 +310,7 @@ namespace FactionColonies
             }
         }
     }
+		private static bool IsPrisonerAndCanBeSend(Pawn pawn) => pawn.guest == null || !pawn.guest.IsPrisoner || !pawn.guest.PrisonerIsSecure || !QuestUtility.GetQuestRelatedGizmos(pawn).EnumerableNullOrEmpty();
+		/// <param name="prisoner"></param>
+		/// <returns>A <c>Command_Action</c> that sends the selected <paramref name="prisoner"/> to an empire settlementFC. Only displays if the <paramref name="prisoner"/> can be send.</returns>
 }
