@@ -1782,7 +1782,6 @@ namespace FactionColonies
         
         public static string getTownTitle(SettlementFC settlement)
         {
-            string title = "";
             double highest = 0;
             ResourceType? resourceKey = null;
             int level;
@@ -1892,17 +1891,12 @@ namespace FactionColonies
         string workerCost;
         string settlementMaxLevel;
         int daysBetweenTaxes;
-        bool medievalTechOnly;
-        bool disableHostileMilitaryActions;
-        bool disableRandomEvents;
-        bool disableForcedPausingDuringEvents;
-        bool deadPawnsIncreaseMilitaryCooldown;
-        bool settlementsAutoBattle;
-        int minDaysTillMilitaryAction;
-        int maxDaysTillMilitaryAction;
         IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
         IntRange minMaxDaysTillRandomEvent = new IntRange(0, 6);
 
+        /// <summary>
+        /// Creates an option for the list of ForcedTaxDeliveryOptions. Shuttles may not be used if royality is inactive
+        /// </summary>
         private FloatMenuOption ShuttleOption
         {
             get
@@ -1918,7 +1912,10 @@ namespace FactionColonies
             }
         }
 
-        private List<FloatMenuOption> Options
+        /// <summary>
+        /// Creates a list of options for forced tax delivery
+        /// </summary>
+        private List<FloatMenuOption> ForcedTaxDeliveryOptions
         {
             get
             {
@@ -1941,12 +1938,8 @@ namespace FactionColonies
             workerCost = settings.workerCost.ToString();
             settlementMaxLevel = settings.settlementMaxLevel.ToString();
             daysBetweenTaxes = settings.timeBetweenTaxes / 60000;
-            medievalTechOnly = settings.medievalTechOnly;
-            disableHostileMilitaryActions = settings.disableHostileMilitaryActions;
-            minDaysTillMilitaryAction = settings.minDaysTillMilitaryAction;
-            maxDaysTillMilitaryAction = settings.maxDaysTillMilitaryAction;
 
-            minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
+            minMaxDaysTillMilitaryAction = new IntRange(settings.minDaysTillMilitaryAction, settings.maxDaysTillMilitaryAction);
             minMaxDaysTillRandomEvent = new IntRange(settings.minDaysTillRandomEvent, settings.maxDaysTillRandomEvent);
 
             Listing_Standard listingStandard = new Listing_Standard();
@@ -1972,11 +1965,13 @@ namespace FactionColonies
                 ref settings.disableForcedPausingDuringEvents);
             listingStandard.CheckboxLabeled("Automatically Resolve Battles",
                 ref settings.settlementsAutoBattle);
-            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(Options));
+            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(ForcedTaxDeliveryOptions));
+
             listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
-            settings.maxDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.max;
+            settings.maxDaysTillMilitaryAction = Math.Max(1, minMaxDaysTillMilitaryAction.max);
+
             listingStandard.Label("Min/Max Days Until Random Event");
             listingStandard.IntRange(ref minMaxDaysTillRandomEvent, 0, 20);
             settings.minDaysTillRandomEvent = minMaxDaysTillRandomEvent.min;
@@ -2013,14 +2008,7 @@ namespace FactionColonies
 
         public override void WriteSettings()
         {
-            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().timeBetweenTaxes =
-                daysBetweenTaxes * 60000;
-            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillMilitaryAction =
-                LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
-                    .minMaxDaysTillMilitaryAction.min;
-            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillMilitaryAction =
-                LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
-                    .minMaxDaysTillMilitaryAction.max;
+            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().timeBetweenTaxes = daysBetweenTaxes * 60000;
             base.WriteSettings();
         }
     }
