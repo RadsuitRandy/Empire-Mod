@@ -413,6 +413,7 @@
 	<errorDropPodResearchCouldNotBeFound>The drop pod research could not be found! Are you running a mod list that removes it?</errorDropPodResearchCouldNotBeFound>
     
 	<!-- Military Deployment -->
+	<FCMilitaryTriedDeployingToSettlementFC>You cannot deploy your military to another settlement!</FCMilitaryTriedDeployingToSettlementFC>
 	<FCMilitaryAction>Military Action</FCMilitaryAction>
 	<selectMilitaryMovePosition>Select Move Position</selectMilitaryMovePosition>
 	<debugRemoveAllCommand>[Debug] Remove all</debugRemoveAllCommand>

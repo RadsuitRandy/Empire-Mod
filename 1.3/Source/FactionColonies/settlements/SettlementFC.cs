@@ -656,9 +656,9 @@ namespace FactionColonies
         //Settlement Production Information
         public double productionEfficiency; //Between 0.1 - 1
 
-        public bool isMilitaryBusy()
+        public bool isMilitaryBusy(bool silent = false)
         {
-            if (militaryBusy)
+            if (militaryBusy && !silent)
             {
                 Messages.Message("militaryAlreadyAssigned".Translate(), MessageTypeDefOf.RejectInput);
             }
@@ -749,6 +749,12 @@ namespace FactionColonies
             get { return (float) Math.Round(prosperity, 1); }
         }
 
+        /// <summary>
+        /// This function creates a mil event based on the <c>militaryJob</c> saved in this object. It returns null in case the job provided doesn't require an Event
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="timeToFinish"></param>
+        /// <returns>a <c>FCEvent</c> if the job needs one, otherwise <c>null</c></returns>
         private FCEvent CreateMilEventFromType(int location, int timeToFinish)
         {
             FCEvent evt = null;
@@ -786,10 +792,18 @@ namespace FactionColonies
             return evt;
         }
 
+        /// <summary>
+        /// Sends the Military of this <c>SettlementFC</c> to a tile <paramref name="location"/>. Will create and add a <c>FCEvent</c> to the <c>FactionFC</c> class for managing
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="planet"></param>
+        /// <param name="job"></param>
+        /// <param name="timeToFinish">wewew</param>
+        /// <param name="enemy"></param>
         public void SendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
-            if (isMilitaryBusy() || isTargetOccupied(location)) return;
+            if (isMilitaryBusy(true) || isTargetOccupied(location)) return;
            
             militaryBusy = true;
             militaryJob = job;
@@ -1055,24 +1069,18 @@ namespace FactionColonies
             FactionFC faction = Find.World.GetComponent<FactionFC>();
 
             int cooldownReduction = 0;
-            if (faction.hasTrait(FCPolicyDefOf.raiders) &&
-                (militaryJob == MilitaryJob.RaidEnemySettlement || militaryJob == MilitaryJob.EnslaveEnemySettlement))
+            if (faction.hasTrait(FCPolicyDefOf.raiders) && (militaryJob == MilitaryJob.RaidEnemySettlement || militaryJob == MilitaryJob.EnslaveEnemySettlement))
             {
                 cooldownReduction += 60000;
             }
-            else if (militaryJob == MilitaryJob.Deploy &&
-                     FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+            else if (militaryJob == MilitaryJob.Deploy && FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
             {
-                List<String> policies = faction.policies.ConvertAll(policy => policy.def.defName);
+                List<string> policies = faction.policies.ConvertAll(policy => policy.def.defName);
                 bool militarist = policies.Contains("militaristic");
                 bool authoritarian = policies.Contains("authoritarian");
                 bool pacifist = policies.Contains("pacifist");
 
-                int deadMultiplier = militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000;
-                if (pacifist)
-                {
-                    deadMultiplier += 2000;
-                }
+                int deadMultiplier = (militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000) + (pacifist ? 2000 : 0);
 
                 cooldownReduction -= militarySquad.dead * deadMultiplier;
             }

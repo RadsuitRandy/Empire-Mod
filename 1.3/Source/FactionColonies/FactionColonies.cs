@@ -1147,14 +1147,15 @@ namespace FactionColonies
             DebugTools.curTool = tool;
         }
 
-        public static void CallinAlliedForces(SettlementFC settlement, bool DropPod)
+        /// <summary>
+        /// Internal method used to spawn a <paramref name="settlement"/>'s squad for military deployment
+        /// </summary>
+        /// <param name="settlement"></param>
+        /// <param name="squad"></param>
+        /// <param name="dropPosition"></param>
+        /// <param name="DropPod"></param>
+        private static void SpawnSquad(SettlementFC settlement, MercenarySquadFC squad, IntVec3 dropPosition, bool DropPod)
         {
-            if (Find.CurrentMap.Parent is WorldSettlementFC)
-            {
-                Messages.Message("You cannot deploy your military to another settlement!", MessageTypeDefOf.RejectInput);
-                return;
-            }
-
             IncidentParms parms = new IncidentParms
             {
                 target = Find.CurrentMap,
@@ -1168,9 +1169,52 @@ namespace FactionColonies
                 raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
             };
 
-            settlement.militarySquad.updateSquadStats(settlement.settlementMilitaryLevel);
-            settlement.militarySquad.resetNeeds();
+            if (DropPod)
+            {
+                parms.spawnCenter = dropPosition;
+                PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, squad.AllEquippedMercenaryPawns);
+            }
+            else
+            {
+                PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
+                worker.TryResolveRaidSpawnCenter(parms);
+                worker.Arrive(squad.AllEquippedMercenaryPawns, parms);
+            }
 
+            squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
+            squad.isDeployed = true;
+            squad.orderLocation = dropPosition;
+            squad.timeDeployed = Find.TickManager.TicksGame;
+            Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent, new LookTargets(squad.AllEquippedMercenaryPawns));
+
+            settlement.SendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
+            LordMaker.MakeNewLord(getPlayerColonyFaction(), new LordJob_DeployMilitary(dropPosition, squad), Find.CurrentMap, squad.AllEquippedMercenaryPawns);
+
+            if (settlement.militarySquad != squad)
+            {
+                Find.World.GetComponent<FactionFC>().traitMilitaristicTickLastUsedExtraSquad = Find.TickManager.TicksGame;
+
+            }
+        }
+
+        /// <summary>
+        /// Deploys a <paramref name="settlement"/>'s main force
+        /// </summary>
+        /// <param name="settlement"></param>
+        /// <param name="DropPod"></param>
+        /// <param name="overrideSquad"></param>
+        public static void CallinAlliedForces(SettlementFC settlement, bool DropPod, MercenarySquadFC overrideSquad = null)
+        {
+            MercenarySquadFC squad = overrideSquad ?? settlement.militarySquad;
+
+            if (Find.CurrentMap.Parent is WorldSettlementFC)
+            {
+                Messages.Message("FCMilitaryTriedDeployingToSettlementFC".Translate(), MessageTypeDefOf.RejectInput);
+                return;
+            }
+
+            squad.updateSquadStats(settlement.settlementMilitaryLevel);
+            squad.resetNeeds();
 
             IntVec3 dropPosition;
             DebugTool tool = new DebugTool("selectDeploymentPosition".Translate(), delegate
@@ -1189,120 +1233,27 @@ namespace FactionColonies
                     return;
                 }
 
-                if (DropPod)
-                {
-                    parms.spawnCenter = dropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, settlement.militarySquad.AllEquippedMercenaryPawns);
-                }
-                else
-                {
-                    PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
-                    worker.TryResolveRaidSpawnCenter(parms);
-                    worker.Arrive(settlement.militarySquad.AllEquippedMercenaryPawns, parms);
-                }
-
-                settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
-                settlement.militarySquad.isDeployed = true;
-                settlement.militarySquad.orderLocation = dropPosition;
-                settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
-                //MilitaryAI.SquadAI(ref settlement.militarySquad);
-
+                SpawnSquad(settlement, squad, dropPosition, DropPod);
                 DebugTools.curTool = null;
-                settlement.SendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
-                LordMaker.MakeNewLord(getPlayerColonyFaction(), new LordJob_DeployMilitary(dropPosition, settlement.militarySquad), Find.CurrentMap, settlement.militarySquad.AllEquippedMercenaryPawns);
             });
             DebugTools.curTool = tool;
 
             //UI.UIToMapPosition(UI.MousePositionOnUI).ToIntVec3();
         }
 
-        public static void CallinAlliedForces(SettlementFC settlement, bool DropPod, int cost)
+        /// <summary>
+        /// Deploys the secondary military of the empire from a <paramref name="settlement"/> 
+        /// </summary>
+        /// <param name="settlement"></param>
+        /// <param name="DropPod"></param>
+        /// <param name="cost"></param>
+        public static void CallinMilitaristicAlliedForces(SettlementFC settlement, bool DropPod, int cost)
         {
-            FactionFC factionfc = Find.World.GetComponent<FactionFC>();
-            MercenarySquadFC squad = factionfc.militaryCustomizationUtil.createMercenarySquad(settlement, true);
+            MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.createMercenarySquad(settlement, true);
             squad.OutfitSquad(squad.settlement.militarySquad.outfit);
-            //Do not use this normally!!!!
-
             PaymentUtil.paySilver(cost);
 
-            IncidentParms parms = new IncidentParms();
-            parms.target = Find.CurrentMap;
-            parms.faction = getPlayerColonyFaction();
-            parms.podOpenDelay = 140;
-            parms.points = 999;
-            parms.raidArrivalModeForQuickMilitaryAid = true;
-            parms.raidNeverFleeIndividual = true;
-            parms.raidForceOneIncap = true;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
-            parms.raidArrivalModeForQuickMilitaryAid = true;
-
-            squad.updateSquadStats(squad.settlement.settlementMilitaryLevel);
-            squad.resetNeeds();
-
-
-            DebugTool tool;
-            IntVec3 DropPosition;
-            tool = new DebugTool("Select Deployment Position", delegate
-            {
-                DropPosition = UI.MouseCell();
-                if (DropPod)
-                {
-                    parms.spawnCenter = DropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, squad.AllEquippedMercenaryPawns);
-                }
-                else
-                {
-                    PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
-                    worker.TryResolveRaidSpawnCenter(parms);
-                    worker.Arrive(squad.AllEquippedMercenaryPawns, parms);
-                    //Log.Message(squad.DeployedMercenaries.Count().ToString());
-
-
-                    foreach (Mercenary merc in squad.DeployedMercenaries)
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = DropPosition;
-                        JobGiver_ForcedGoto jobGiverStandby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby = jobGiverStandby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            //Log.Message("valid");
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-
-                    foreach (Mercenary merc in squad.DeployedMercenaryAnimals)
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = DropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby =
-                            jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            //Log.Message("valid");
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-                }
-
-                squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
-                squad.isDeployed = true;
-                squad.orderLocation = DropPosition;
-                squad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("Military Deployed",
-                    "The Military forces of " + squad.settlement.name + " have been deployed to " +
-                    Find.CurrentMap.Parent.LabelCap, LetterDefOf.NeutralEvent,
-                    new LookTargets(squad.AllEquippedMercenaryPawns));
-                factionfc.traitMilitaristicTickLastUsedExtraSquad = Find.TickManager.TicksGame;
-
-                DebugTools.curTool = null;
-            });
-            DebugTools.curTool = tool;
-
-            //UI.UIToMapPosition(UI.MousePositionOnUI).ToIntVec3();
+            CallinAlliedForces(settlement, DropPod, squad);
         }
 
         public static void FireSupport(SettlementFC settlement, MilitaryFireSupport support)

@@ -158,15 +158,13 @@ namespace FactionColonies
                         buttonDeploySquad.y + (SettlementBox.height + settlementYSpacing) * count + scroll,
                         buttonDeploySquad.width, buttonDeploySquad.height), "Deploy Squad"))
                 {
-                    if (!(settlement.isMilitaryBusy()) && settlement.isMilitarySquadValid())
+                    if (!settlement.isMilitaryBusy(true) && settlement.isMilitarySquadValid())
                     {
                         Find.WindowStack.Add(new FloatMenu(DeploymentOptions(settlement)));
                     }
-                    else if (settlement.isMilitaryBusy() && settlement.isMilitarySquadValid() &&
-                             faction.hasPolicy(FCPolicyDefOf.militaristic))
+                    else if (settlement.isMilitaryBusy(true) && settlement.isMilitarySquadValid() && faction.hasPolicy(FCPolicyDefOf.militaristic))
                     {
-                        if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <=
-                            Find.TickManager.TicksGame)
+                        if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <= Find.TickManager.TicksGame)
                         {
                             int cost = (int)Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *
                                                        .2);
@@ -181,7 +179,7 @@ namespace FactionColonies
 
                                         deploymentOptions.Add(new FloatMenuOption("Walk into map", delegate
                                         {
-                                            FactionColonies.CallinAlliedForces(settlement, false, cost);
+                                            FactionColonies.CallinMilitaristicAlliedForces(settlement, false, cost);
                                             Find.WindowStack.currentlyDrawnWindow.Close();
                                         }));
                                         //check if medieval only
@@ -192,7 +190,7 @@ namespace FactionColonies
                                         {
                                             deploymentOptions.Add(new FloatMenuOption("Drop-Pod", delegate
                                             {
-                                                FactionColonies.CallinAlliedForces(settlement, true, cost);
+                                                FactionColonies.CallinMilitaristicAlliedForces(settlement, true, cost);
                                                 Find.WindowStack.currentlyDrawnWindow.Close();
                                             }));
                                         }
@@ -210,11 +208,14 @@ namespace FactionColonies
                         }
                         else
                         {
-                            Messages.Message(
-                                "XDaysToRedeploy".Translate(Math.Round(
+                            Messages.Message("XDaysToRedeploy".Translate(Math.Round(
                                     ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) -
                                      Find.TickManager.TicksGame).TicksToDays(), 1)), MessageTypeDefOf.RejectInput);
                         }
+                    }
+                    else
+                    {
+                        settlement.isMilitaryBusy();
                     }
                 }
 
