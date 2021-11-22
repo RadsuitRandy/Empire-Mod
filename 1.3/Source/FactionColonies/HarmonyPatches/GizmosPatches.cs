@@ -8,309 +8,251 @@ using Verse;
 
 namespace FactionColonies
 {
-    [HarmonyPatch(typeof(Pawn), "GetGizmos")]
-    class PawnDraftGizmos
-    {
-        static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
-        {
-            List<Gizmo> output = __result.ToList();
-            if (__result == null || __instance?.Faction == null || !output.Any() ||
-                !(__instance.Map.Parent is WorldSettlementFC))
-            {
-                return;
-            }
+	[HarmonyPatch(typeof(Pawn), "GetGizmos")]
+	class PawnDraftGizmos
+	{
+		public static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
+		{
+			List<Gizmo> output = __result.ToList();
+			if (__result == null || __instance?.Faction == null || !output.Any() ||
+				!(__instance.Map.Parent is WorldSettlementFC))
+			{
+				return;
+			}
 
-            Pawn found = __instance;
-            Pawn_DraftController pawnDraftController = __instance.drafter ?? new Pawn_DraftController(__instance);
+			Pawn found = __instance;
+			Pawn_DraftController pawnDraftController = __instance.drafter ?? new Pawn_DraftController(__instance);
 
-            WorldSettlementFC settlementFc = (WorldSettlementFC)__instance.Map.Parent;
-            if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
-            {
-                Command_Toggle draftColonists = new Command_Toggle
-                {
-                    hotKey = KeyBindingDefOf.Command_ColonistDraft,
-                    isActive = () => false,
-                    toggleAction = () =>
-                    {
-                        if (pawnDraftController.pawn.Faction.Equals(Faction.OfPlayer)) return;
-                        pawnDraftController.pawn.SetFaction(Faction.OfPlayer);
-                        pawnDraftController.Drafted = true;
-                    },
-                    defaultDesc = "CommandToggleDraftDesc".Translate(),
-                    icon = TexCommand.Draft,
-                    turnOnSound = SoundDefOf.DraftOn,
-                    groupKey = 81729172,
-                    defaultLabel = "CommandDraftLabel".Translate()
-                };
-                if (pawnDraftController.pawn.Downed) draftColonists.Disable("IsIncapped".Translate(pawnDraftController.pawn.LabelShort, pawnDraftController.pawn));
-                draftColonists.tutorTag = "Draft";
-                output.Add(draftColonists);
-            }
-            else if (__instance.Faction.Equals(Faction.OfPlayer) && __instance.Drafted &&
-                     !settlementFc.supporting.Any(caravan => caravan.pawns.Any(pawn => pawn.Equals(found))))
-            {
-                foreach (Command_Toggle action in output.Where(gizmo => gizmo is Command_Toggle))
-                {
-                    if (action.hotKey != KeyBindingDefOf.Command_ColonistDraft)
-                    {
-                        continue;
-                    }
+			WorldSettlementFC settlementFc = (WorldSettlementFC)__instance.Map.Parent;
+			if (__instance.Faction.Equals(FactionColonies.getPlayerColonyFaction()))
+			{
+				Command_Toggle draftColonists = new Command_Toggle
+				{
+					hotKey = KeyBindingDefOf.Command_ColonistDraft,
+					isActive = () => false,
+					toggleAction = () =>
+					{
+						if (pawnDraftController.pawn.Faction.Equals(Faction.OfPlayer)) return;
+						pawnDraftController.pawn.SetFaction(Faction.OfPlayer);
+						pawnDraftController.Drafted = true;
+					},
+					defaultDesc = "CommandToggleDraftDesc".Translate(),
+					icon = TexCommand.Draft,
+					turnOnSound = SoundDefOf.DraftOn,
+					groupKey = 81729172,
+					defaultLabel = "CommandDraftLabel".Translate()
+				};
+				if (pawnDraftController.pawn.Downed) draftColonists.Disable("IsIncapped".Translate(pawnDraftController.pawn.LabelShort, pawnDraftController.pawn));
+				draftColonists.tutorTag = "Draft";
+				output.Add(draftColonists);
+			}
+			else if (__instance.Faction.Equals(Faction.OfPlayer) && __instance.Drafted &&
+					 !settlementFc.supporting.Any(caravan => caravan.pawns.Any(pawn => pawn.Equals(found))))
+			{
+				foreach (Command_Toggle action in output.Where(gizmo => gizmo is Command_Toggle))
+				{
+					if (action.hotKey != KeyBindingDefOf.Command_ColonistDraft)
+					{
+						continue;
+					}
 
-                    int index = output.IndexOf(action);
-                    action.toggleAction = () =>
-                    {
-                        found.SetFaction(FactionColonies.getPlayerColonyFaction());
-                        //settlementFc.worldSettlement.defenderLord.AddPawn(__instance);
-                    };
-                    output[index] = action;
-                    break;
-                }
-            }
+					int index = output.IndexOf(action);
+					action.toggleAction = () =>
+					{
+						found.SetFaction(FactionColonies.getPlayerColonyFaction());
+						//settlementFc.worldSettlement.defenderLord.AddPawn(__instance);
+					};
+					output[index] = action;
+					break;
+				}
+			}
 
-            __result = output;
-        }
-    }
+			__result = output;
+		}
+	}
 
-    [HarmonyPatch(typeof(Pawn), "GetGizmos")]
-    class PrisonerGizmosPatch
-    {
-        static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
-        {
-            Pawn pawn = __instance;
-
-            __result = __result.Append(new Command_Action
-            {
-                defaultLabel = "SendToSettlement".Translate(),
-                defaultDesc = "",
-                icon = TexLoad.iconMilitary,
-                action = delegate
-                {
-                    if (pawn.Map.dangerWatcher.DangerRating != StoryDanger.None)
-                    {
-                        Messages.Message("cantSendWithDangerLevel".Translate(pawn.Map.dangerWatcher.DangerRating.ToString()), MessageTypeDefOf.RejectInput);
-                        return;
-                    }
-
-                    List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>().settlements.Select(settlement => new FloatMenuOption(settlement.name + " - Settlement Level : " + settlement.settlementLevel + " - Prisoners: " + settlement.prisonerList.Count(), delegate
-                    {
-                        //disappear colonist
-                        FactionColonies.sendPrisoner(pawn, settlement);
-
-                        foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome).SelectMany(map => map.listerBuildings.allBuildingsColonist).OfType<Building_Bed>().Where(bed => bed.OwnersForReading.Any(bedPawn => bedPawn == pawn)))
-                        {
-                            bed.ForPrisoners = false;
-                            bed.ForPrisoners = true;
-                        }
-                    })).ToList();
-
-                    FloatMenu floatMenu2 = new FloatMenu(settlementList)
-                    {
-                        vanishIfMouseDistant = true
-                    };
-                    Find.WindowStack.Add(floatMenu2);
-                }
-            });
-        }
-    }
-
-    //Faction worldmap gizmos
-    //Goodwill by distance to settlement
-    [HarmonyPatch(typeof(WorldObject), "GetGizmos")]
-    class WorldObjectGizmos
-    {
-        static void Postfix(ref WorldObject __instance, ref IEnumerable<Gizmo> __result)
-        {
-            FactionFC worldcomp = Find.World.GetComponent<FactionFC>();
-            Faction fact = FactionColonies.getPlayerColonyFaction();
-            if (__instance.def.defName != "Settlement") return;
-            int tile = __instance.Tile;
-            if (__instance.Faction != fact && __instance.Faction != Find.FactionManager.OfPlayer)
-            {
-                //if a valid faction to target
-                Faction faction = __instance.Faction;
-
-                Command_Action actionHostile = new Command_Action
-                {
-                    defaultLabel = "AttackSettlement".Translate(),
-                    defaultDesc = "",
-                    icon = TexLoad.iconMilitary,
-                    action = delegate
-                    {
-                        List<FloatMenuOption> list = new List<FloatMenuOption>();
-
-                        if (!worldcomp.hasPolicy(FCPolicyDefOf.isolationist))
-                            list.Add(new FloatMenuOption("CaptureSettlement".Translate(), delegate
-                            {
-                                List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-                                foreach (SettlementFC settlement in worldcomp.settlements)
-                                {
-                                    if (settlement.isMilitaryValid())
-                                    {
-                                        //if military is valid to use.
-
-                                        settlementList.Add(new FloatMenuOption(
-                                            settlement.name + " " + "ShortMilitary".Translate() + " " +
-                                            settlement.settlementMilitaryLevel + " - " +
-                                            "FCAvailable".Translate() + ": " +
-                                            (!settlement.isMilitaryBusySilent()).ToString(), delegate
-                                            {
-                                                if (settlement.isMilitaryBusy())
-                                                {
-                                                }
-                                                else
-                                                {
-                                                    RelationsUtilFC.attackFaction(faction);
-
-                                                    settlement.sendMilitary(tile, Find.World.info.name,
-                                                        MilitaryJob.CaptureEnemySettlement, 60000, faction);
-
-
-                                                    //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
-                                                }
-                                            }
-                                        ));
-                                    }
-                                }
-
-                                if (settlementList.Count == 0)
-                                {
-                                    settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(),
-                                        null));
-                                }
-
-                                FloatMenu floatMenu2 = new FloatMenu(settlementList);
-                                floatMenu2.vanishIfMouseDistant = true;
-                                Find.WindowStack.Add(floatMenu2);
-                            }));
-
-
-                        list.Add(new FloatMenuOption("RaidSettlement".Translate(), delegate
-                        {
-                            List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-                            foreach (SettlementFC settlement in worldcomp.settlements)
-                            {
-                                if (settlement.isMilitaryValid())
-                                {
-                                    //if military is valid to use.
-
-                                    settlementList.Add(new FloatMenuOption(
-                                        settlement.name + " " + "ShortMilitary".Translate() + " " +
-                                        settlement.settlementMilitaryLevel + " - " + "FCAvailable".Translate() +
-                                        ": " + (!settlement.isMilitaryBusySilent()).ToString(), delegate
-                                        {
-                                            if (settlement.isMilitaryBusy())
-                                            {
-                                                //military is busy
-                                            }
-                                            else
-                                            {
-                                                RelationsUtilFC.attackFaction(faction);
-
-                                                settlement.sendMilitary(tile, Find.World.info.name,
-                                                    MilitaryJob.RaidEnemySettlement, 60000, faction);
-
-
-                                                //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
-                                            }
-                                        }
-                                    ));
-                                }
-                            }
-
-                            if (settlementList.Count == 0)
-                            {
-                                settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
-                            }
-
-                            FloatMenu floatMenu2 = new FloatMenu(settlementList);
-                            floatMenu2.vanishIfMouseDistant = true;
-                            Find.WindowStack.Add(floatMenu2);
-
-
-                            //set to raid settlement here
-                        }));
-
-                        if (worldcomp.hasPolicy(FCPolicyDefOf.authoritarian) &&
-                            faction.def.defName != "VFEI_Insect")
-                        {
-                            list.Add(new FloatMenuOption("EnslavePopulation".Translate(), delegate
-                            {
-                                List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-                                foreach (SettlementFC settlement in worldcomp.settlements)
-                                {
-                                    if (settlement.isMilitaryValid())
-                                    {
-                                        //if military is valid to use.
-
-                                        settlementList.Add(new FloatMenuOption(
-                                            settlement.name + " " + "ShortMilitary".Translate() + " " +
-                                            settlement.settlementMilitaryLevel + " - " +
-                                            "FCAvailable".Translate() + ": " +
-                                            (!settlement.isMilitaryBusySilent()).ToString(), delegate
-                                            {
-                                                if (settlement.isMilitaryBusy())
-                                                {
-                                                    //military is busy
-                                                }
-                                                else
-                                                {
-                                                    RelationsUtilFC.attackFaction(faction);
-
-                                                    settlement.sendMilitary(tile, Find.World.info.name,
-                                                        MilitaryJob.EnslaveEnemySettlement, 60000, faction);
-
-
-                                                    //simulateBattleFC.FightBattle(militaryForce.createMilitaryForceFromSettlement(settlement), militaryForce.createMilitaryForceFromEnemySettlement(faction));
-                                                }
-                                            }
-                                        ));
-                                    }
-                                }
-
-                                if (settlementList.Count == 0)
-                                {
-                                    settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(),
-                                        null));
-                                }
-
-                                FloatMenu floatMenu2 = new FloatMenu(settlementList);
-                                floatMenu2.vanishIfMouseDistant = true;
-                                Find.WindowStack.Add(floatMenu2);
-
-
-                                //set to raid settlement here
-                            }));
-                        }
-
-                        FloatMenu floatMenu = new FloatMenu(list);
-                        floatMenu.vanishIfMouseDistant = true;
-                        Find.WindowStack.Add(floatMenu);
-                    }
-                };
-
-                Command_Action actionPeaceful = new Command_Action
-                {
-                    defaultLabel = "FCIncreaseRelations".Translate(),
-                    defaultDesc = "",
-                    icon = TexLoad.iconProsperity,
-                    action = delegate { worldcomp.sendDiplomaticEnvoy(faction); }
-                };
-
-                if (worldcomp.hasPolicy(FCPolicyDefOf.pacifist))
-                {
-                    __result = __result.Concat(new[] { actionPeaceful });
-                }
-                else
-                {
-                    __result = __result.Concat(new[] { actionHostile });
-                }
-            }
-        }
-    }
+	[HarmonyPatch(typeof(Pawn), "GetGizmos")]
+	class PrisonerGizmosPatch
+	{
 		private static bool IsPrisonerAndCanBeSend(Pawn pawn) => pawn.guest == null || !pawn.guest.IsPrisoner || !pawn.guest.PrisonerIsSecure || !QuestUtility.GetQuestRelatedGizmos(pawn).EnumerableNullOrEmpty();
+
 		/// <param name="prisoner"></param>
 		/// <returns>A <c>Command_Action</c> that sends the selected <paramref name="prisoner"/> to an empire settlementFC. Only displays if the <paramref name="prisoner"/> can be send.</returns>
+		private static Command_Action SendPrisonerAction(Pawn prisoner) => new Command_Action
+		{
+			defaultLabel = "SendToSettlement".Translate(),
+			defaultDesc = "",
+			icon = TexLoad.iconMilitary,
+			action = delegate
+			{
+				if (prisoner.Map.dangerWatcher.DangerRating != StoryDanger.None)
+				{
+					Messages.Message("cantSendWithDangerLevel".Translate(prisoner.Map.dangerWatcher.DangerRating.ToString()), MessageTypeDefOf.RejectInput);
+					return;
+				}
+
+				List<FloatMenuOption> settlementList = Find.World.GetComponent<FactionFC>().settlements.Select(settlement => new FloatMenuOption("floatMenuOptionSendPrisonerToSettlement".Translate(settlement.name, settlement.settlementLevel, settlement.prisonerList.Count()), delegate
+				{
+					//disappear prisoner
+					FactionColonies.sendPrisoner(prisoner, settlement);
+
+					foreach (var bed in Find.Maps.Where(map => map.IsPlayerHome).SelectMany(map => map.listerBuildings.allBuildingsColonist).OfType<Building_Bed>().Where(bed => bed.OwnersForReading.Any(bedPawn => bedPawn == prisoner)))
+					{
+						bed.ForPrisoners = false;
+						bed.ForPrisoners = true;
+					}
+				})).ToList();
+
+				Find.WindowStack.Add(new FloatMenu(settlementList));
+			}
+		};
+
+		public static void Postfix(ref Pawn __instance, ref IEnumerable<Gizmo> __result)
+		{
+			Pawn pawn = __instance;
+			if (IsPrisonerAndCanBeSend(pawn)) return;
+
+			__result = __result.Append(SendPrisonerAction(pawn));
+		}
+	}
+
+	[HarmonyPatch(typeof(WorldObject), "GetGizmos")]
+	class AddButtonsToNonEmpireObjects
+	{
+		private static bool SettlementHasUsableMilitary(SettlementFC settlement) => settlement.isMilitaryValid() && !settlement.militaryBusy;
+
+		/// <param name="factionFC"></param>
+		/// <param name="faction"></param>
+		/// <param name="tile"></param>
+		/// <returns>A <c>FloatMenuOption</c> that allows for the capturing of enemy settlements</returns>
+		private static FloatMenuOption CaptureOption(FactionFC factionFC, Faction faction, int tile) => new FloatMenuOption("CaptureSettlement".Translate(), delegate
+		{
+			List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
+
+			foreach (SettlementFC settlement in factionFC.settlements)
+			{
+				if (SettlementHasUsableMilitary(settlement))
+				{
+					//if military is valid to use.
+
+					settlementList.Add(new FloatMenuOption("captureFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
+					{
+						RelationsUtilFC.attackFaction(faction);
+
+						settlement.sendMilitary(tile, Find.World.info.name, MilitaryJob.CaptureEnemySettlement, 60000, faction);
+					}));
+				}
+			}
+
+			if (settlementList.Count == 0) settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
+			Find.WindowStack.Add(new FloatMenu(settlementList));
+		});
+
+		/// <param name="factionFC"></param>
+		/// <param name="faction"></param>
+		/// <param name="tile"></param>
+		/// <returns>A <c>FloatMenuOption</c> that allows for the raiding of enemy settlements</returns>
+		private static FloatMenuOption RaidOption(FactionFC factionFC, Faction faction, int tile) => new FloatMenuOption("RaidSettlement".Translate(), delegate
+		{
+			List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
+
+			foreach (SettlementFC settlement in factionFC.settlements)
+			{
+				if (SettlementHasUsableMilitary(settlement))
+				{
+					//if military is valid to use.
+
+					settlementList.Add(new FloatMenuOption("FCRaidFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
+					{
+						RelationsUtilFC.attackFaction(faction);
+						settlement.sendMilitary(tile, Find.World.info.name, MilitaryJob.RaidEnemySettlement, 60000, faction);
+					}));
+				}
+			}
+
+			if (settlementList.Count == 0) settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
+
+			Find.WindowStack.Add(new FloatMenu(settlementList));
+		});
+
+		/// <param name="factionFC"></param>
+		/// <param name="faction"></param>
+		/// <param name="tile"></param>
+		/// <returns>A <c>FloatMenuOption</c> that allows for the enslaving of enemy settlement population</returns>
+		public static FloatMenuOption EnslaveOption(FactionFC factionFC, Faction faction, int tile) => new FloatMenuOption("EnslavePopulation".Translate(), delegate
+		{
+			List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
+
+			foreach (SettlementFC settlement in factionFC.settlements)
+			{
+				if (SettlementHasUsableMilitary(settlement))
+				{
+					//if military is valid to use.
+
+					settlementList.Add(new FloatMenuOption("FCEnslaveFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
+					{
+						RelationsUtilFC.attackFaction(faction);
+						settlement.sendMilitary(tile, Find.World.info.name, MilitaryJob.EnslaveEnemySettlement, 60000, faction);
+					}));
+				}
+			}
+
+			if (settlementList.Count == 0) settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
+
+			Find.WindowStack.Add(new FloatMenu(settlementList));
+		});
+
+		/// <param name="factionFC"></param>
+		/// <param name="faction"></param>
+		/// <param name="tile"></param>
+		/// <returns>A <c>Command_Action</c> that creates a <c>FloatMenu</c> displaying hostile actions a player can take against a settlement</returns>
+		private static Command_Action HostileAction(FactionFC factionFC, Faction faction, int tile) => new Command_Action
+		{
+			defaultLabel = "AttackSettlement".Translate(),
+			defaultDesc = "",
+			icon = TexLoad.iconMilitary,
+			action = delegate
+			{
+				List<FloatMenuOption> list = new List<FloatMenuOption>();
+
+				if (!factionFC.hasPolicy(FCPolicyDefOf.isolationist)) list.Add(CaptureOption(factionFC, faction, tile));
+				list.Add(RaidOption(factionFC, faction, tile));
+				if (factionFC.hasPolicy(FCPolicyDefOf.authoritarian) && faction.def.defName != "VFEI_Insect") list.Add(EnslaveOption(factionFC, faction, tile));
+
+				Find.WindowStack.Add(new FloatMenu(list));
+			}
+		};
+
+		/// <param name="factionFC"></param>
+		/// <param name="faction"></param>
+		/// <param name="tile"></param>
+		/// <returns>A <c>Command_Action</c> that sends a diplomatic envoy if used</returns>
+		private static Command_Action PeacefulAction(FactionFC factionFC, Faction faction) => new Command_Action
+		{
+			defaultLabel = "FCIncreaseRelations".Translate(),
+			defaultDesc = "",
+			icon = TexLoad.iconProsperity,
+			action = delegate { factionFC.sendDiplomaticEnvoy(faction); }
+		};
+
+		private static bool HasValidFaction(WorldObject worldObject) => worldObject.Faction != FactionColonies.getPlayerColonyFaction() && worldObject.Faction != Find.FactionManager.OfPlayer;
+
+		public static void Postfix(ref WorldObject __instance, ref IEnumerable<Gizmo> __result)
+		{
+			if (__instance.def.defName != "Settlement") return;
+			if (!HasValidFaction(__instance)) return;
+			
+			int tile = __instance.Tile;
+			Faction faction = __instance.Faction;
+			FactionFC factionFC = Find.World.GetComponent<FactionFC>();
+
+			if (factionFC.hasPolicy(FCPolicyDefOf.pacifist))
+			{
+				__result = __result.AddItem(PeacefulAction(factionFC, faction));
+				return;
+			}
+
+			__result = __result.AddItem(HostileAction(factionFC, faction, tile));
+		}
+	}
 }
