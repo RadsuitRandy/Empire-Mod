@@ -48,7 +48,7 @@ namespace FactionColonies
 			else deployedMilitaryCommandMenu = (DeployedMilitaryCommandMenu)Find.WindowStack.Windows.First(window => window.GetType() == typeof(DeployedMilitaryCommandMenu));
 			
 			deployedMilitaryCommandMenu.squadMilitaryOrderDic.SetOrAdd(squad, currentOrder);
-			deployedMilitaryCommandMenu.currentOrderPosition = currentOrderPosition;
+			deployedMilitaryCommandMenu.currentOrderPositionDic[squad] = currentOrderPosition;
 
 			lordToil_DefendPoint = new LordToil_DefendPoint(currentOrderPosition);
 			lordToil_HuntEnemies = new LordToil_HuntEnemies(currentOrderPosition);
@@ -68,9 +68,9 @@ namespace FactionColonies
 
 		private void UpdateOrderPosition()
         {
-			currentOrderPosition = deployedMilitaryCommandMenu.currentOrderPosition;
-			lordToil_DefendPoint.SetDefendPoint(deployedMilitaryCommandMenu.currentOrderPosition);
-			((LordToilData_HuntEnemies)lordToil_HuntEnemies.data).fallbackLocation = deployedMilitaryCommandMenu.currentOrderPosition;
+			currentOrderPosition = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
+			lordToil_DefendPoint.SetDefendPoint(deployedMilitaryCommandMenu.currentOrderPositionDic[squad]);
+			((LordToilData_HuntEnemies)lordToil_HuntEnemies.data).fallbackLocation = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
 		}
 
 		/// <summary>
@@ -139,7 +139,7 @@ namespace FactionColonies
 			{
 				triggers = new List<Trigger>(1)
 				{
-					new Trigger_Custom((TriggerSignal _) => currentOrderPosition != deployedMilitaryCommandMenu.currentOrderPosition)
+					new Trigger_Custom((TriggerSignal _) => currentOrderPosition != deployedMilitaryCommandMenu.currentOrderPositionDic[squad])
 				},
 				preActions = new List<TransitionAction>(1)
 				{

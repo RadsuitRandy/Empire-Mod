@@ -15,8 +15,8 @@ namespace FactionColonies
         readonly FactionFC faction;
         public MercenarySquadFC selectedSquad;
         public string squadText;
-        public IntVec3 currentOrderPosition;
 
+        public Dictionary<MercenarySquadFC, IntVec3> currentOrderPositionDic = new Dictionary<MercenarySquadFC, IntVec3>();
         public Dictionary<MercenarySquadFC, MilitaryOrder> squadMilitaryOrderDic = new Dictionary<MercenarySquadFC, MilitaryOrder>();
 
         public DeployedMilitaryCommandMenu()
@@ -93,7 +93,7 @@ namespace FactionColonies
                     Position = UI.MouseCell();
 
                     squadMilitaryOrderDic.SetOrAdd(selectedSquad, MilitaryOrder.DefendPoint);
-                    currentOrderPosition = Position;
+                    currentOrderPositionDic.SetOrAdd(selectedSquad, Position);
                     Messages.Message("moveSuccess".Translate(selectedSquad.outfit.name), MessageTypeDefOf.NeutralEvent);
 
                     DebugTools.curTool = null;
