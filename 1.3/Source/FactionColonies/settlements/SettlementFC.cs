@@ -668,7 +668,7 @@ namespace FactionColonies
 
                 return nameShort;
             }
-            set => nameShort = value;
+            set => nameShort = value.NullOrEmpty() ? name : value;
         }
 
         public bool isMilitaryBusy(bool silent = false)
