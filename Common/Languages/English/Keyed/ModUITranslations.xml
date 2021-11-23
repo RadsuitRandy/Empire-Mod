@@ -444,5 +444,8 @@
 	<FCIsAllowed>true</FCIsAllowed>
 	<FCIsNotAllowed>false</FCIsNotAllowed>
 	
-	
+	<!-- Settlement Customization -->
+	<FCSettlementFullName>Full name:</FCSettlementFullName>
+	<FCSettlementShortName>Short name:</FCSettlementShortName>
+
 </LanguageData>

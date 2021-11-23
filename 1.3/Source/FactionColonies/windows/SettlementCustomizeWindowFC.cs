@@ -9,141 +9,85 @@ using RimWorld.Planet;
 
 namespace FactionColonies
 {
-    public class SettlementCustomizeWindowFc : Window
-    {
-        public override Vector2 InitialSize
-        {
-            get { return new Vector2(445f, 280f); }
-        }
+	public class SettlementCustomizeWindowFc : Window
+	{
+		private readonly int length = 400;
+		private readonly int xoffset = 0;
+		private readonly int yoffset = 50;
+		private readonly int yspacing = 30;
+		private readonly int height = 200;
 
-        //declare variables
+		private readonly SettlementFC settlement;
+		public string header;
+		private string name;
+		private string nameShort;
+		public override Vector2 InitialSize => new Vector2(445f, 280f);
 
-        //private int xspacing = 60;
-        private readonly int yspacing = 30;
+		public SettlementCustomizeWindowFc(SettlementFC settlement)
+		{
+			forcePause = false;
+			draggable = true;
+			doCloseX = true;
+			preventCameraMotion = false;
+			this.settlement = settlement;
+			header = "CustomizeSettlement".Translate();
+			name = settlement.name;
+			nameShort = settlement.NameShort;
 
-        private readonly int yoffset = 50;
+		public override void PreOpen()
+		{
+			base.PreOpen();
+		}
 
-        //private int headerSpacing = 30;
-        private readonly int length = 400;
-        private readonly int xoffset = 0;
-        private readonly int height = 200;
+		public override void WindowUpdate()
+		{
+			base.WindowUpdate();
+		}
 
+		public override void OnAcceptKeyPressed()
+		{
+			base.OnAcceptKeyPressed();
+			settlement.name = name;
+			settlement.NameShort = nameShort;
 
-        private readonly SettlementFC settlement;
+		public override void DoWindowContents(Rect inRect)
+		{
+			Rect fullNameLabelRect = new Rect(xoffset + 3, yoffset + yspacing * 1, length / 4, yspacing);
+			Rect shortNameLabelRect = new Rect(xoffset + 3, yoffset + yspacing * 2, length / 4, yspacing);
+			Rect fullNameInputRect = new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * 1, length / 2, yspacing);
+			Rect shortNameInputRect = new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * 2, length / 2, yspacing);
+			Rect confirmChangesRect = new Rect((InitialSize.x - 120 - 18) / 2, yoffset + InitialSize.y - 120, 120, 30);
 
-        public string desc;
-        public string header;
-
-        private string name;
-        private string title;
-
-
-        public SettlementCustomizeWindowFc(SettlementFC settlement)
-        {
-            forcePause = false;
-            draggable = true;
-            doCloseX = true;
-            preventCameraMotion = false;
-            this.settlement = settlement;
-            header = "CustomizeSettlement".Translate();
-            name = settlement.name;
-            //this.title = faction.title;
-        }
-
-        public override void PreOpen()
-        {
-            base.PreOpen();
-        }
-
-        public override void WindowUpdate()
-        {
-            base.WindowUpdate();
-        }
-
-        public override void OnAcceptKeyPressed()
-        {
-            base.OnAcceptKeyPressed();
-            //faction.title = title;
-            settlement.name = name;
-            WorldSettlementFC settlementFc = Find.WorldObjects.WorldObjectAt<WorldSettlementFC>(settlement.mapLocation);
-            if (settlementFc != null) settlementFc.Name = name;
-        }
-
-        public override void DoWindowContents(Rect inRect)
-        {
-            //grab before anchor/font
-            GameFont fontBefore = Text.Font;
-            TextAnchor anchorBefore = Text.Anchor;
+			//grab before anchor/font
+			GameFont fontBefore = Text.Font;
+			TextAnchor anchorBefore = Text.Anchor;
 
 
-            //Settlement Tax Collection Header
-            Text.Anchor = TextAnchor.MiddleLeft;
-            Text.Font = GameFont.Medium;
-            Widgets.Label(new Rect(3, 3, 300, 60), header);
+			//Settlement Tax Collection Header
+			Text.Anchor = TextAnchor.MiddleLeft;
+			Text.Font = GameFont.Medium;
 
+			Widgets.Label(new Rect(3, 3, 300, 60), header);
 
-            Text.Font = GameFont.Small;
-            for (int i = 0; i < 1; i++) //for each field to customize
-            {
-                switch (i)
-                {
-                    case 0: //faction name
-                        Widgets.Label(new Rect(xoffset + 3, yoffset + yspacing * i, length / 4, yspacing),
-                            "SettlementName".Translate() + ": ");
-                        name = Widgets.TextField(
-                            new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * i, length / 2, yspacing), name);
-                        break;
+			Text.Font = GameFont.Small;
 
-                    case 1: //faction title
-                        Widgets.Label(new Rect(xoffset + 3, yoffset + yspacing * i, length / 4, yspacing),
-                            "## title: ");
-                        title = Widgets.TextField(
-                            new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * i, length / 2, yspacing),
-                            title);
-                        break;
+			Widgets.Label(fullNameLabelRect, "FCSettlementFullName".Translate());
+			name = Widgets.TextField(fullNameInputRect, name);
 
-                    case 2: //faction icon
-                        Widgets.Label(new Rect(xoffset + 3, yoffset + yspacing * i, length / 4, yspacing), "## Icon: ");
-                        if (Widgets.ButtonImage(new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * i, 40, 40),
-                            TexLoad.iconUnrest)) //change to faction icon
-                        {
-                            //Log.Message("Faction icon select pressed");
-                            //Open window to select new icon
-                        }
+			Widgets.Label(shortNameLabelRect, "FCSettlementShortName".Translate());
+			if (Widgets.ButtonText(confirmChangesRect, "ConfirmChanges".Translate()))
+			{
+				settlement.name = name;
+				settlement.NameShort = nameShort;
 
-                        break;
-                }
-            }
+			Text.Anchor = TextAnchor.MiddleCenter;
+			Text.Font = GameFont.Tiny;
 
-            if (Widgets.ButtonText(new Rect((InitialSize.x - 120 - 18) / 2, yoffset + InitialSize.y - 120, 120, 30),
-                "ConfirmChanges".Translate()))
-            {
-                settlement.name = name;
-                Settlement check = Find.WorldObjects.SettlementAt(settlement.mapLocation);
-                if (check != null)
-                {
-                    check.Name = name;
-                }
-            }
+			Widgets.DrawBox(new Rect(xoffset, yoffset - yspacing, length, height - yspacing * 2));
 
-            //settlement buttons
-
-            Text.Anchor = TextAnchor.UpperLeft;
-            Text.Font = GameFont.Tiny;
-
-            //0 tithe total string
-            //1 source - -1
-            //2 due/delivery date
-            //3 Silver (- || +)
-            //4 tithe
-
-
-            Widgets.Label(new Rect(xoffset + 2, yoffset - yspacing + 2, length - 4, height - 4 + yspacing * 2), desc);
-            Widgets.DrawBox(new Rect(xoffset, yoffset - yspacing, length, height - yspacing * 2));
-
-            //reset anchor/font
-            Text.Font = fontBefore;
-            Text.Anchor = anchorBefore;
-        }
-    }
+			//reset anchor/font
+			Text.Font = fontBefore;
+			Text.Anchor = anchorBefore;
+		}
+	}
 }
