@@ -779,18 +779,10 @@ namespace FactionColonies
                 settlement.Tile = tile;
 
                 List<String> used = new List<string>();
-                List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects;
-                foreach (WorldObject found in worldObjects)
+                List<Settlement> settlements = Find.WorldObjects.Settlements;
+                foreach (Settlement found in settlements)
                 {
-                    switch (found)
-                    {
-                        case Settlement foundSettlement:
-                            used.Add(foundSettlement.Name);
-                            break;
-                        case WorldSettlementFC worldSettlement:
-                            used.Add(worldSettlement.Name);
-                            break;
-                    }
+                    used.Add(found.Name);
                 }
                 
                 settlement.settlement = settlementfc;

@@ -18,7 +18,7 @@ namespace FactionColonies
     /// <summary>
     /// WorldObject that in many ways re-implements Settlement.cs from Rimworld.Planet. May cause compatibility issues with other mods that rely on finding Settlement objects on the world map. Recommend testing this extensively with mods like SoS2, RimWar, or any mods that modify, collect, or deep save world objects before publishing changes 
     /// </summary>
-    public class WorldSettlementFC : MapParent, ITrader, ITraderRestockingInfoProvider
+    public class WorldSettlementFC : Settlement
     {
         public static readonly FieldInfo traitCachedIcon = typeof(WorldObjectDef).GetField("expandingIconTextureInt",
             BindingFlags.NonPublic | BindingFlags.Instance);
@@ -804,12 +804,14 @@ namespace FactionColonies
         private void endBattle(bool won, int remaining)
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
+            
+            
             if (won)
             {
                 faction.addExperienceToFactionLevel(5f);
                 //if winner is player
                 Find.LetterStack.ReceiveLetter("DefenseSuccessful".Translate(),
-                    "DefenseSuccessfulFull".Translate(settlement.name, attackerForce.homeFaction),
+                    "DefenseSuccessfulFull".Translate(settlement.name),
                     LetterDefOf.PositiveEvent, new LookTargets(this));
             }
             else
@@ -839,7 +841,7 @@ namespace FactionColonies
                 settlement.happiness -= 25 * happinessLostMultiplier;
                 settlement.loyalty -= 15 * loyaltyLostMultiplier * muliplier;
 
-                string str = "DefenseFailureFull".Translate(settlement.name, attackerForce.homeFaction);
+                string str = "DefenseFailureFull".Translate(settlement.name);
 
 
                 for (int k = 0; k < 4; k++)
