@@ -523,7 +523,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref mapLocation, "mapLocation");
             Scribe_Values.Look(ref planetName, "planetName");
             Scribe_Values.Look(ref name, "name");
-            Scribe_Values.Look(ref nameShort, "nameShort", NameShort);
+            Scribe_Values.Look(ref nameShort, "nameShort", ShortName);
+            Scribe_Values.Look(ref nameOriginal, "nameOriginal", OriginalName);
             Scribe_Values.Look(ref loadID, "loadID", -1);
             Scribe_Values.Look(ref title, "title");
             Scribe_Values.Look(ref description, "description");
@@ -599,9 +600,10 @@ namespace FactionColonies
         public string planetName;
         public string name;
         private string nameShort;
+        private string nameOriginal;
         public int loadID;
         public string title = "Hamlet".Translate();
-        public string description = "What are you doing here? Get out of me!";
+        public string description = "FCGenericError".Translate();
         public double workers;
         public double workersMax;
         public double workersUltraMax;
@@ -658,17 +660,23 @@ namespace FactionColonies
         //Settlement Production Information
         public double productionEfficiency; //Between 0.1 - 1
 
-        public string NameShort
+        public string ShortName
         {
             get
             {
                 if (!nameShort.NullOrEmpty()) return nameShort;
 
-                nameShort = name.Split(' ').Aggregate((total, next) => total + " " + next[0] + ".");
+                nameShort = TextGen.ToShortName(name);
 
                 return nameShort;
             }
             set => nameShort = value.NullOrEmpty() ? name : value;
+        }
+
+        public string OriginalName
+        {
+            get => nameOriginal;
+            private set => nameOriginal = value;
         }
 
         public bool isMilitaryBusy(bool silent = false)

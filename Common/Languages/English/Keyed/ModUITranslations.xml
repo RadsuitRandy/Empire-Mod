@@ -158,10 +158,6 @@
     <EstimatedProfit>Est. Profit</EstimatedProfit>
     <TimeTillTax>Time till tax</TimeTillTax>
 
-    <!-- settlementCustomizationWindowFC -->
-    <CustomizeSettlement>Customize Settlement</CustomizeSettlement>
-    <SettlementName>Settlement Name</SettlementName>
-
     <Hamlet>hamlet</Hamlet>
     <BuildingAlreadyType>There is already a building of that type</BuildingAlreadyType>
     <NotEnoughSilverConstructBuilding>You do not have enough silver on the current map to construct that building
@@ -443,9 +439,13 @@
 	<FCTitheSingleOption>{0} - Cost - {1} | Allowed: {2}</FCTitheSingleOption> <!-- Example: "Steel - Cost - 10 | Allowed: true" -->
 	<FCIsAllowed>true</FCIsAllowed>
 	<FCIsNotAllowed>false</FCIsNotAllowed>
-	
+
 	<!-- Settlement Customization -->
+	<FCCustomizeSettlement>Customize Settlement</FCCustomizeSettlement>
 	<FCSettlementFullName>Full name:</FCSettlementFullName>
 	<FCSettlementShortName>Short name:</FCSettlementShortName>
+	
+	<!-- Errors -->
+	<FCGenericError>If you can read this, something went wrong.</FCGenericError>
 
 </LanguageData>

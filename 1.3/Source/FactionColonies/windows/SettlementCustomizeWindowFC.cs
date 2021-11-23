@@ -6,21 +6,18 @@ using UnityEngine;
 using RimWorld;
 using Verse;
 using RimWorld.Planet;
+using FactionColonies.util;
 
 namespace FactionColonies
 {
 	public class SettlementCustomizeWindowFc : Window
 	{
-		private readonly int length = 400;
-		private readonly int xoffset = 0;
-		private readonly int yoffset = 50;
-		private readonly int yspacing = 30;
-		private readonly int height = 200;
+		public new const float StandardMargin = 10;
+		private const int StandardHeight = 30;
 
 		private readonly SettlementFC settlement;
-		public string header;
 		private string name;
-		private string nameShort;
+		private string shortName;
 
 		public override Vector2 InitialSize => new Vector2(445f, 280f);
 
@@ -31,48 +28,44 @@ namespace FactionColonies
 			doCloseX = true;
 			preventCameraMotion = false;
 			this.settlement = settlement;
-			header = "CustomizeSettlement".Translate();
 			name = settlement.name;
-			nameShort = settlement.NameShort;
+			shortName = settlement.ShortName;
+			doCloseButton = true;
+			doCloseX = false;
 		}
 
-		public override void PreOpen()
-		{
-			base.PreOpen();
-		}
-
-		public override void WindowUpdate()
-		{
-			base.WindowUpdate();
-		}
-
-		public override void OnAcceptKeyPressed()
-		{
-			base.OnAcceptKeyPressed();
+		/// <summary>
+		/// Save variables on closing
+		/// </summary>
+		/// <param name="doCloseSound"></param>
+        public override void Close(bool doCloseSound = true)
+        {
+            base.Close(doCloseSound);
 			settlement.name = name;
-			settlement.NameShort = nameShort;
+			settlement.ShortName = shortName;
 		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			Rect fullNameLabelRect = new Rect(xoffset + 3, yoffset + yspacing * 1, length / 4, yspacing);
-			Rect shortNameLabelRect = new Rect(xoffset + 3, yoffset + yspacing * 2, length / 4, yspacing);
+			Rect headerLabelRect = new Rect(inRect.position, new Vector2(inRect.width, StandardHeight));
 
-			Rect fullNameInputRect = new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * 1, length / 2, yspacing);
-			Rect shortNameInputRect = new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * 2, length / 2, yspacing);
+			Rect fullNameLabelRect = new Rect(StandardMargin, StandardHeight, inRect.width / 4, StandardHeight);
+			Rect shortNameLabelRect = new Rect(StandardMargin, StandardMargin + StandardHeight * 2, inRect.width / 4, StandardHeight);
 
-			Rect confirmChangesRect = new Rect((InitialSize.x - 120 - 18) / 2, yoffset + InitialSize.y - 120, 120, 30);
+			float x = StandardMargin + inRect.width / 4;
+			Rect fullNameInputRect = new Rect(x, StandardHeight, inRect.width - x - StandardMargin - StandardHeight, StandardHeight);
+			Rect shortNameInputRect = new Rect(x, StandardMargin + StandardHeight * 2, inRect.width - x - StandardMargin - StandardHeight, StandardHeight);
 
-			//grab before anchor/font
+			Rect resetFullNameButtonRect = new Rect(inRect.width - StandardHeight, StandardHeight, StandardHeight, StandardHeight);
+			Rect resetShortNameButtonRect = new Rect(inRect.width - StandardHeight, StandardMargin + StandardHeight * 2, StandardHeight, StandardHeight);
+
 			GameFont fontBefore = Text.Font;
 			TextAnchor anchorBefore = Text.Anchor;
 
-
-			//Settlement Tax Collection Header
 			Text.Anchor = TextAnchor.MiddleLeft;
 			Text.Font = GameFont.Medium;
 
-			Widgets.Label(new Rect(3, 3, 300, 60), header);
+			Widgets.Label(headerLabelRect, "FCCustomizeSettlement".Translate());
 
 			Text.Font = GameFont.Small;
 
@@ -80,18 +73,12 @@ namespace FactionColonies
 			name = Widgets.TextField(fullNameInputRect, name);
 
 			Widgets.Label(shortNameLabelRect, "FCSettlementShortName".Translate());
-			nameShort = Widgets.TextField(shortNameInputRect, nameShort);
-			
-			if (Widgets.ButtonText(confirmChangesRect, "ConfirmChanges".Translate()))
-			{
-				settlement.name = name;
-				settlement.NameShort = nameShort;
-			}
+			shortName = Widgets.TextField(shortNameInputRect, shortName);
+
+			if (Widgets.ButtonImage(resetFullNameButtonRect, TexLoad.refreshIcon)) name = settlement.name;
+			if (Widgets.ButtonImage(resetShortNameButtonRect, TexLoad.refreshIcon)) shortName = TextGen.ToShortName(name);
 
 			Text.Anchor = TextAnchor.MiddleCenter;
-			Text.Font = GameFont.Tiny;
-
-			Widgets.DrawBox(new Rect(xoffset, yoffset - yspacing, length, height - yspacing * 2));
 
 			//reset anchor/font
 			Text.Font = fontBefore;
