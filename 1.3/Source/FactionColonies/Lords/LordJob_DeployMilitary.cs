@@ -23,10 +23,22 @@ namespace FactionColonies
 		private LordToil_DefendPoint lordToil_DefendPoint;
 		private LordToil_HuntEnemies lordToil_HuntEnemies;
 
+		/// <summary>
+		/// Default constructor, meant to only be used when creating the job object during loading
+		/// </summary>
 		public LordJob_DeployMilitary()
 		{ 
 		}
 
+		/// <summary>
+		/// Creates a new <c>LordJob</c> that controls any pawn during military deployment.
+		/// <paramref name="currentOrderPosition"/> is the initial deployment position of the deployed pawns
+		/// <paramref name="squad"/> is the squad that contains the pawns deployed
+		/// <paramref name="maxDeploymentTime"/> is the time a squad has before being forced into the leave command. It is set at 30000 by default
+		/// </summary>
+		/// <param name="currentOrderPosition"></param>
+		/// <param name="squad"></param>
+		/// <param name="maxDeploymentTime"></param>
 		public LordJob_DeployMilitary(IntVec3 currentOrderPosition, MercenarySquadFC squad, int maxDeploymentTime = 30000)
 		{
 			this.currentOrderPosition = currentOrderPosition;
@@ -67,11 +79,18 @@ namespace FactionColonies
 			if (Scribe.mode == LoadSaveMode.PostLoadInit) Init();
 		}
 
+		/// <summary>
+		/// Grabs a new currentOrderPosition and updates the toils with it
+		/// </summary>
 		private void UpdateOrderPosition()
 		{
 			currentOrderPosition = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
+
 			lordToil_DefendPoint.SetDefendPoint(deployedMilitaryCommandMenu.currentOrderPositionDic[squad]);
-			((LordToilData_HuntEnemies)lordToil_HuntEnemies.data).fallbackLocation = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
+			lordToil_HuntEnemies = new LordToil_HuntEnemies(deployedMilitaryCommandMenu.currentOrderPositionDic[squad]);
+			//((LordToilData_HuntEnemies)lordToil_HuntEnemies.data).fallbackLocation = deployedMilitaryCommandMenu.currentOrderPositionDic[squad];
+
+			lord.CurLordToil.UpdateAllDuties();
 		}
 
 		/// <summary>
@@ -87,11 +106,11 @@ namespace FactionColonies
 				{ 
 					triggers = new List<Trigger>(1) { new Trigger_Custom((TriggerSignal _) => Find.TickManager.TicksGame > whenToForceLeave) },
 					preActions = new List<TransitionAction>(1) 
-					{ 
+					{
 						new TransitionAction_Custom(delegate()
 						{
 							squad.isDeployed = false;
-							Messages.Message("militaryPawnsLeavingTimeOut".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
+							Messages.Message("militaryPawnsLeavingTimeOut".Translate(squad.name), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
 						}) 
 					}
 				};
@@ -117,7 +136,7 @@ namespace FactionColonies
 					{
 						triggers = new List<Trigger>(1)
 						{
-							new Trigger_Custom((TriggerSignal _) => deployedMilitaryCommandMenu.squadMilitaryOrderDic[squad] == (MilitaryOrder)k + 1)
+							new Trigger_Custom((TriggerSignal _) => deployedMilitaryCommandMenu.squadMilitaryOrderDic[squad] == (MilitaryOrder)k + 1 && squad.isDeployed)
 						},
 						preActions = new List<TransitionAction>(1)
 						{
@@ -140,7 +159,7 @@ namespace FactionColonies
 			{
 				triggers = new List<Trigger>(1)
 				{
-					new Trigger_Custom((TriggerSignal _) => currentOrderPosition != deployedMilitaryCommandMenu.currentOrderPositionDic[squad])
+					new Trigger_Custom((TriggerSignal _) => currentOrderPosition != deployedMilitaryCommandMenu.currentOrderPositionDic[squad] && squad.isDeployed)
 				},
 				preActions = new List<TransitionAction>(1)
 				{
@@ -169,11 +188,7 @@ namespace FactionColonies
 
 		public override void Notify_LordDestroyed()
 		{
-			if (squad.getSettlement.militarySquad == squad)
-			{
-				squad.getSettlement.cooldownMilitary();
-			}
-
+			squad.InitiateCooldownEvent();
 			squad.isDeployed = false;
 			base.Notify_LordDestroyed();
 		}

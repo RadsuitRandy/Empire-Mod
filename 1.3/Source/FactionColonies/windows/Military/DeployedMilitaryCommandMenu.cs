@@ -32,34 +32,27 @@ namespace FactionColonies
             preventCameraMotion = false;
             faction = Find.World.GetComponent<FactionFC>();
 
-            selectedSquad = faction.militaryCustomizationUtil.DeployedSquads.Where(squad => (squad.getSettlement != null)).RandomElementWithFallback();
+            selectedSquad = faction.militaryCustomizationUtil.DeployedSquads.Where(squad => squad.getSettlement != null).RandomElementWithFallback();
         }
 
-        public override Vector2 InitialSize
-        {
-            get
-            {
-                return new Vector2(200f, 240f);
-            }
-        }
-
+        public override Vector2 InitialSize => new Vector2(200f, 240f);
 
         protected override void SetInitialSizeAndPosition()
         {
             windowRect = new Rect(UI.screenWidth - InitialSize.x, 0f, InitialSize.x, InitialSize.y);
         }
         
-        private void SelectSquad()
+        /// <summary>
+        /// Lets the user select a squad from the squads active on the map
+        /// </summary>
+        private void DoSelectSquadCommand()
         {
             List<FloatMenuOption> list = new List<FloatMenuOption>();
             foreach (MercenarySquadFC squad in faction.militaryCustomizationUtil.DeployedSquads)
             {
                 if (squad.getSettlement != null)
                 {
-                    list.Add(new FloatMenuOption("selectedDeployedSquad".Translate(squad.getSettlement.name, squad.outfit.name), delegate
-                    {
-                        selectedSquad = squad;
-                    }));
+                    list.Add(new FloatMenuOption("selectedDeployedSquad".Translate(squad.getSettlement.name, squad.outfit.name), () => selectedSquad = squad));
                 }
             }
             if (!list.Any())
@@ -73,6 +66,9 @@ namespace FactionColonies
             Find.WindowStack.Add(new FloatMenu(list));
         }
 
+        /// <summary>
+        /// Makes the currently active squad execute the attack command
+        /// </summary>
         private void DoAttackCommand()
         {
             if (selectedSquad != null)
@@ -82,6 +78,9 @@ namespace FactionColonies
             }
         }
 
+        /// <summary>
+        /// Makes the currently active squad execute the move command. The move command is actually a point defence command.
+        /// </summary>
         private void DoMoveCommand()
         {
             if (selectedSquad != null)
@@ -102,6 +101,9 @@ namespace FactionColonies
             }
         }
 
+        /// <summary>
+        /// Makes the currently selected squad immediately inactive and leave the map
+        /// </summary>
         private void DoLeaveCommand()
         {
             if (selectedSquad != null)
@@ -112,6 +114,9 @@ namespace FactionColonies
             }
         }
 
+        /// <summary>
+        /// If the dev mode is enabled, despawnes all squads and disables their deployment
+        /// </summary>
         private void DoDebugCommand()
         {
             foreach (MercenarySquadFC squad in faction.militaryCustomizationUtil.DeployedSquads)
@@ -135,6 +140,7 @@ namespace FactionColonies
                 catch { }
 
                 squad.isDeployed = false;
+                squad.InitiateCooldownEvent();
             }
         }
 
@@ -159,28 +165,12 @@ namespace FactionColonies
 
             squadText = (selectedSquad == null) ? "selectDeployedSquad".Translate() : "selectedDeployedSquad".Translate(selectedSquad.getSettlement.name, selectedSquad.outfit.name);
 
-            if (Widgets.ButtonText(selectSquad, squadText)) SelectSquad();
+            if (Widgets.ButtonText(selectSquad, squadText)) DoSelectSquadCommand();
             if (Widgets.ButtonTextSubtle(commandAttack, "commandAttack".Translate())) DoAttackCommand();
             if (Widgets.ButtonTextSubtle(commandMove, "commandMove".Translate())) DoMoveCommand();
             if (Widgets.ButtonTextSubtle(commandHeal, "commandLeave".Translate())) DoLeaveCommand();
 
             if (Prefs.DevMode) if (Widgets.ButtonTextSubtle(commandKillWindow, "debugRemoveAllCommand".Translate())) DoDebugCommand();
-
-            //Example command:
-
-            //DebugTool tool = null;
-            //IntVec3 Position;
-            //tool = new DebugTool("Select Drop Position", delegate ()
-            //{
-            //   Position = UI.MouseCell();
-
-            //    selectedSquad.order = MilitaryOrders.Standby;
-            //    selectedSquad.orderLocation = Position;
-
-            //    DebugTools.curTool = null;
-            //});
-            //DebugTools.curTool = tool;
-
 
             Text.Font = prevFont;
             Text.Anchor = prevAnchor;

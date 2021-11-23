@@ -570,5 +570,20 @@ namespace FactionColonies
 
             return null;
         }
+
+        /// <summary>
+        /// Makes the squad go into cooldown. Only works on a settlements main squad
+        /// </summary>
+        /// <returns>True if successful, false otherwise</returns>
+        public bool InitiateCooldownEvent()
+        {
+            if (!isExtraSquad)
+            {
+                settlement.cooldownMilitary();
+                return true;
+            }
+
+            return false;
+        }
     }
 }

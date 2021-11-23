@@ -376,7 +376,7 @@
 	<requestShuttleToMap>Request a shuttle for this map</requestShuttleToMap>
 
 	<shuttlePortCallShuttleForCaravanLabel>Request a shuttle for a caravan</shuttlePortCallShuttleForCaravanLabel>
-	<targetAnyWorldObject>Target any world object you want to send the shuttle to:\n {0} uses remaining (Costs {1})</targetAnyWorldObject>
+	<targetAnyWorldObject>Target any world object you want to send the shuttle to:\n {0} uses remaining (Costs: {1})</targetAnyWorldObject>
 	<sendCaravanHere>Send the caravan here</sendCaravanHere>
 
 	<noCaravansToSendShuttleTo>There are no caravans to send a shuttle to!</noCaravansToSendShuttleTo>
@@ -423,7 +423,7 @@
 	<floatMenuOptionSendPrisonerToSettlement>{0} - Settlement Level: {1}, Prisoners: {2}</floatMenuOptionSendPrisonerToSettlement> <!-- 0 is the settlements name. 1 is the settlements level. 2 is the amount of Prisoners-->
 	
 	<!-- Worldmap additional action buttons -->
-	<FCCaptureFloatMenuOption>Try to capture using {0}'s military (Level {1}).</FCCaptureFloatMenuOption>
+	<FCCaptureFloatMenuOption>Try to capture using {0}'s military (Level {1}).</FCCaptureFloatMenuOption> <!-- 0 is a settlement's name -->
 	<FCRaidFloatMenuOption>Try to raid using {0}'s military (Level {1}).</FCRaidFloatMenuOption>
 	<FCEnslaveFloatMenuOption>Try to enslave using {0}'s military (Level {1}).</FCEnslaveFloatMenuOption>
 
