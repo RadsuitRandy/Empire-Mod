@@ -19,17 +19,17 @@ namespace FactionColonies
         //declare variables
 
         //private int xspacing = 60;
-        private int yspacing = 30;
+        private readonly int yspacing = 30;
 
-        private int yoffset = 50;
+        private readonly int yoffset = 50;
 
         //private int headerSpacing = 30;
-        private int length = 400;
-        private int xoffset = 0;
-        private int height = 200;
+        private readonly int length = 400;
+        private readonly int xoffset = 0;
+        private readonly int height = 200;
 
 
-        private SettlementFC settlement;
+        private readonly SettlementFC settlement;
 
         public string desc;
         public string header;
@@ -40,13 +40,13 @@ namespace FactionColonies
 
         public SettlementCustomizeWindowFc(SettlementFC settlement)
         {
-            this.forcePause = false;
-            this.draggable = true;
-            this.doCloseX = true;
-            this.preventCameraMotion = false;
+            forcePause = false;
+            draggable = true;
+            doCloseX = true;
+            preventCameraMotion = false;
             this.settlement = settlement;
-            this.header = "CustomizeSettlement".Translate();
-            this.name = settlement.name;
+            header = "CustomizeSettlement".Translate();
+            name = settlement.name;
             //this.title = faction.title;
         }
 

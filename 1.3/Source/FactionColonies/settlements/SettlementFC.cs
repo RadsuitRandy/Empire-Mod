@@ -417,8 +417,11 @@ namespace FactionColonies
             return totalWorkers;
         }
 
+        private bool CanStillModify(ResourceType? resourceType, int singleMod) => workers + singleMod <= workersUltraMax && workers + singleMod >= 0 && getResource(resourceType.Value).assignedWorkers + singleMod <= workersUltraMax && getResource(resourceType.Value).assignedWorkers + singleMod >= 0;
+
         public bool increaseWorkers(ResourceType? resourceType, int numWorkers)
         {
+            int singleMod = (numWorkers > 0) ?  1 : -1;
             if (resourceType == null)
             {
                 if (numWorkers >= 0 && workers <= workersUltraMax)
@@ -437,15 +440,14 @@ namespace FactionColonies
                     }
                 }
             }
-            else if (workers + numWorkers <= workersUltraMax && workers + numWorkers >= 0 &&
-                     getResource(resourceType.Value).assignedWorkers + numWorkers <= workersUltraMax &&
-                     getResource(resourceType.Value).assignedWorkers + numWorkers >= 0)
+            else while(CanStillModify(resourceType, singleMod))
             {
-                workers += numWorkers;
-                getResource(resourceType.Value).assignedWorkers += numWorkers;
+                workers += singleMod;
+                getResource(resourceType.Value).assignedWorkers += singleMod;
+                numWorkers -= singleMod;
                 updateProfitAndProduction();
                 Find.World.GetComponent<FactionFC>().updateTotalProfit();
-                return true;
+                if (numWorkers == 0) return true;
             }
 
             return false;

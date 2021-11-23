@@ -426,5 +426,23 @@
 	<FCCaptureFloatMenuOption>Try to capture using {0}'s military (Level {1}).</FCCaptureFloatMenuOption>
 	<FCRaidFloatMenuOption>Try to raid using {0}'s military (Level {1}).</FCRaidFloatMenuOption>
 	<FCEnslaveFloatMenuOption>Try to enslave using {0}'s military (Level {1}).</FCEnslaveFloatMenuOption>
+
+	<!-- SettlementWindowFC -->
+	<FCMilitaryLevel>militaryLevel</FCMilitaryLevel>
+	<FCHappiness>happiness</FCHappiness>
+	<FCLoyality>loyalty</FCLoyality>
+	<FCUnrest>unrest</FCUnrest>
+	<FCProsperity>prosperity</FCProsperity>
+
+	<FCUpkeep>Upkeep</FCUpkeep>
+	
+	<!-- Tithe Customization -->
+	<FCTitheEnableAll>Enable All</FCTitheEnableAll>
+	<FCTitheDisableAll>Disable All</FCTitheDisableAll>
+	
+	<FCTitheSingleOption>{0} - Cost - {1} | Allowed: {2}</FCTitheSingleOption> <!-- Example: "Steel - Cost - 10 | Allowed: true" -->
+	<FCIsAllowed>true</FCIsAllowed>
+	<FCIsNotAllowed>false</FCIsNotAllowed>
+	
 	
 </LanguageData>

@@ -1193,7 +1193,6 @@ namespace FactionColonies
             if (settlement.militarySquad != squad)
             {
                 Find.World.GetComponent<FactionFC>().traitMilitaristicTickLastUsedExtraSquad = Find.TickManager.TicksGame;
-
             }
         }
 
