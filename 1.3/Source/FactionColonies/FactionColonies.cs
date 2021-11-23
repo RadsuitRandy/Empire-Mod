@@ -10,6 +10,7 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace FactionColonies
 {
@@ -565,34 +566,58 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.370)
             {
-                factionFC.updateVersion = 0.370;
                 Find.LetterStack.ReceiveLetter("Manual Settlement Defence is now disabled by default",
                     "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.377)
+            if (factionFC.updateVersion < 0.378)
             {
-                string str;
-                str =        "A new update for Empire has been released!  v.0.377\n The following abbreviated changes have occurred:";
-                str += "\n- [HOTFIX] Races no longer randomize anywhere";
-                str += "\n- [HOTFIX] When using military deployment, if you enable dev mode, you (should be able to) remove any deployed squad and the window instantly";
-                str += "\n- (a rework of the deployment system is going to follow in the next update)";
-                str += "\n- changed a few floatmenus to be searchable";
-                str += "\n- changed how remaining time is displayed when the remaining time is less than a day";
-                str += "\n- fixed a NullException for Linux users";
-                str += "\n- fixed new units can have biocoded weapons with 0 cost";
-                str += "\n- fixed military or worker pawns can generate without being able to be violent";
-                str += "\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
-                str += "\n- fixed selecting a race during unit creation doesn't work";
-                str += "\n- added translatability to some strings";
-                str += "\n\n- All of the code for this update has been developed by Danimineiro and Big_Bad_E";
-                str += "\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
-                str += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                try
+                {
+                    string str;
+                    str = "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                    str += "\n- reworked military deployment";
+                    str += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
+                    str += "\n- replaced several icons with sharper versions made by Turkler";
+                    str += "\n- fixed pawns don't drop items if an enemy causes them to engage while the maps story danger isn't set to high";
+                    str += "\n- fixed pawns dig through terrain trying to leave";
+                    str += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
+                    str += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
+                    str += "\n- fixed newly rolled pawns can have biocoded weapons";
+                    str += "\n- removed some Message spam";
+                    str += "\n- added missing upkeep cost to string";
+                    str += "\n- added translatability to some strings";
+                    str += "\n\n- All of the code for this update has been developed by Danimineiro";
+                    str += "\n- I want to give many thanks to Turkler for helping with art!";
+                    str += "\n- Want to see the full patch notes " + SteamUtility.SteamPersonaName + "? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.377;
-                Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
+                    factionFC.updateVersion = 0.378;
+                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
+                }
+                catch
+                {
+                    string str2;
+                    str2 = "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                    str2 += "\n- reworked military deployment";
+                    str2 += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
+                    str2 += "\n- replaced several icons with sharper versions made by Turkler";
+                    str2 += "\n- fixed pawns don't drop items if an enemy causes them to engage while the maps story danger isn't set to high";
+                    str2 += "\n- fixed pawns dig through terrain trying to leave";
+                    str2 += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
+                    str2 += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
+                    str2 += "\n- fixed newly rolled pawns can have biocoded weapons";
+                    str2 += "\n- removed some Message spam";
+                    str2 += "\n- added missing upkeep cost to string";
+                    str2 += "\n- added translatability to some strings";
+                    str2 += "\n\n- All of the code for this update has been developed by Danimineiro";
+                    str2 += "\n- I want to give many thanks to Turkler for helping with art!";
+                    str2 += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+
+                    factionFC.updateVersion = 0.378;
+                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", str2, LetterDefOf.NewQuest);
+                }
 
                 Settings().settlementsAutoBattle = true;
             }
@@ -1192,32 +1217,17 @@ namespace FactionColonies
                 if (DropPod)
                 {
                     parms.spawnCenter = dropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,settlement.militarySquad.AllEquippedMercenaryPawns);
+                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, settlement.militarySquad.AllEquippedMercenaryPawns);
                 }
                 else
                 {
                     PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
                     worker.TryResolveRaidSpawnCenter(parms);
                     worker.Arrive(settlement.militarySquad.AllEquippedMercenaryPawns, parms);
-                    //Log.Message(settlement.militarySquad.DeployedMercenaries.Count().ToString());
-
-
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries.Concat(settlement.militarySquad.DeployedMercenaryAnimals))
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby = jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
                 }
 
                 settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 settlement.militarySquad.isDeployed = true;
-                settlement.militarySquad.order = MilitaryOrders.Standby;
                 settlement.militarySquad.orderLocation = dropPosition;
                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
                 Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
@@ -1225,6 +1235,7 @@ namespace FactionColonies
 
                 DebugTools.curTool = null;
                 settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
+                LordMaker.MakeNewLord(getPlayerColonyFaction(), new LordJob_DeployMilitary(dropPosition, settlement.militarySquad), Find.CurrentMap, settlement.militarySquad.AllEquippedMercenaryPawns);
             });
             DebugTools.curTool = tool;
 
@@ -1304,7 +1315,6 @@ namespace FactionColonies
 
                 squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
                 squad.isDeployed = true;
-                squad.order = MilitaryOrders.Standby;
                 squad.orderLocation = DropPosition;
                 squad.timeDeployed = Find.TickManager.TicksGame;
                 Find.LetterStack.ReceiveLetter("Military Deployed",
@@ -1426,7 +1436,6 @@ namespace FactionColonies
                                 //List<Pawn> list2 = parms.raidStrategy.Worker.SpawnThreats(parms);
                                 //parms.raidArrivalMode.Worker.Arrive(list2, parms);
                                 settlement.militarySquad.isDeployed = true;
-                                settlement.militarySquad.order = MilitaryOrders.Standby;
                                 settlement.militarySquad.orderLocation = DropPosition;
                                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
 
