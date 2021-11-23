@@ -21,6 +21,7 @@ namespace FactionColonies
 		public string header;
 		private string name;
 		private string nameShort;
+
 		public override Vector2 InitialSize => new Vector2(445f, 280f);
 
 		public SettlementCustomizeWindowFc(SettlementFC settlement)
@@ -33,6 +34,7 @@ namespace FactionColonies
 			header = "CustomizeSettlement".Translate();
 			name = settlement.name;
 			nameShort = settlement.NameShort;
+		}
 
 		public override void PreOpen()
 		{
@@ -49,13 +51,16 @@ namespace FactionColonies
 			base.OnAcceptKeyPressed();
 			settlement.name = name;
 			settlement.NameShort = nameShort;
+		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
 			Rect fullNameLabelRect = new Rect(xoffset + 3, yoffset + yspacing * 1, length / 4, yspacing);
 			Rect shortNameLabelRect = new Rect(xoffset + 3, yoffset + yspacing * 2, length / 4, yspacing);
+
 			Rect fullNameInputRect = new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * 1, length / 2, yspacing);
 			Rect shortNameInputRect = new Rect(xoffset + 3 + length / 4 + 5, yoffset + yspacing * 2, length / 2, yspacing);
+
 			Rect confirmChangesRect = new Rect((InitialSize.x - 120 - 18) / 2, yoffset + InitialSize.y - 120, 120, 30);
 
 			//grab before anchor/font
@@ -75,10 +80,13 @@ namespace FactionColonies
 			name = Widgets.TextField(fullNameInputRect, name);
 
 			Widgets.Label(shortNameLabelRect, "FCSettlementShortName".Translate());
+			nameShort = Widgets.TextField(shortNameInputRect, nameShort);
+			
 			if (Widgets.ButtonText(confirmChangesRect, "ConfirmChanges".Translate()))
 			{
 				settlement.name = name;
 				settlement.NameShort = nameShort;
+			}
 
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Tiny;

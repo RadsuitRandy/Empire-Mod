@@ -523,6 +523,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref mapLocation, "mapLocation");
             Scribe_Values.Look(ref planetName, "planetName");
             Scribe_Values.Look(ref name, "name");
+            Scribe_Values.Look(ref nameShort, "nameShort", NameShort);
             Scribe_Values.Look(ref loadID, "loadID", -1);
             Scribe_Values.Look(ref title, "title");
             Scribe_Values.Look(ref description, "description");
@@ -597,6 +598,7 @@ namespace FactionColonies
         public int mapLocation;
         public string planetName;
         public string name;
+        private string nameShort;
         public int loadID;
         public string title = "Hamlet".Translate();
         public string description = "What are you doing here? Get out of me!";
@@ -616,11 +618,9 @@ namespace FactionColonies
         public List<Pawn> prisoners = new List<Pawn>();
         public List<FCPrisoner> prisonerList = new List<FCPrisoner>();
 
-
         public float silverIncome;
         public List<Thing> tithe = new List<Thing>();
         public int titheEstimatedIncome;
-
 
         public string hilliness;
         public string biome;
@@ -657,6 +657,19 @@ namespace FactionColonies
 
         //Settlement Production Information
         public double productionEfficiency; //Between 0.1 - 1
+
+        public string NameShort
+        {
+            get
+            {
+                if (!nameShort.NullOrEmpty()) return nameShort;
+
+                nameShort = name.Split(' ').Aggregate((total, next) => total + " " + next[0] + ".");
+
+                return nameShort;
+            }
+            set => nameShort = value;
+        }
 
         public bool isMilitaryBusy(bool silent = false)
         {
