@@ -27,7 +27,7 @@ namespace FactionColonies
 			Scribe_Values.Look(ref fallbackLocation, "fallbackLocation", default, false);
 		}
 
-		private bool CanNotReach() => !lord.ownedPawns.NullOrEmpty() && lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null) && lord.ownedPawns[0].mindState?.duty.def != DutyDefOf.ExitMapBestAndDefendSelf && lord.ownedPawns[0].CanReach(lord.ownedPawns[0].CurJob.targetA, PathEndMode.OnCell, PawnUtility.ResolveMaxDanger(lord.ownedPawns[0], Danger.Some), false, false, TraverseMode.ByPawn);
+		private bool CanNotReach() => !lord.ownedPawns.NullOrEmpty() && lord.ownedPawns.All(pawn => pawn.carryTracker.CarriedThing == null) && lord.CurLordToil is LordToil_DeliverSupplies toil && !toil.LeavingModeEngaged && lord.ownedPawns[0].CanReach(lord.ownedPawns[0].CurJob.targetA, PathEndMode.OnCell, PawnUtility.ResolveMaxDanger(lord.ownedPawns[0], Danger.Some), false, false, TraverseMode.ByPawn);
 
 		/// <summary>
 		/// This <c>Transition</c> switches the delivery <c>Pawns</c> from delivery mode to fighting mode. It drops their items if they carry any and notifies the player of what's about to happen 
@@ -97,7 +97,7 @@ namespace FactionColonies
 			StateGraph stateGraph = new StateGraph { StartingToil = new LordToil_DeliverSupplies() };
 
 			stateGraph.AddToil(new LordToil_HuntEnemies(fallbackLocation));
-			stateGraph.AddToil(new LordToil_RecoverWoundedAndLeave(new LordToilData_ExitMap() { canDig = false, locomotion = LocomotionUrgency.Jog, interruptCurrentJob = true }));
+			stateGraph.AddToil(new LordToil_RecoverWoundedAndLeave(new LordToilData_ExitMap() { canDig = false, locomotion = LocomotionUrgency.Sprint, interruptCurrentJob = true }));
 
 			stateGraph.AddTransition(DeliveryToFightTransition(stateGraph));
 			stateGraph.AddTransition(RefreshFightTransition(stateGraph));
