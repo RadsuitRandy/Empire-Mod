@@ -76,7 +76,7 @@ namespace FactionColonies
 			},
 			preActions = new List<TransitionAction>(1)
 			{
-				new TransitionAction_Custom(() => Messages.Message(Map.HasWoundedForFaction(lord.faction) ? "deliveryPawnsLeavingMapWithDowned".Translate() : "deliveryPawnsLeavingMap".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent))
+				new TransitionAction_Custom(() => Messages.Message(Map.HasDownedForFaction(lord.faction) ? "deliveryPawnsLeavingMapWithDowned".Translate() : "deliveryPawnsLeavingMap".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent))
 			}
 		};
 

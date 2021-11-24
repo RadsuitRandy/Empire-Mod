@@ -4,6 +4,9 @@ using Verse;
 
 namespace FactionColonies.util
 {
+    /// <summary>
+    /// This class provides extensions for some kinds of lists
+    /// </summary>
     static class ListExtensions
     {
         /// <summary>
