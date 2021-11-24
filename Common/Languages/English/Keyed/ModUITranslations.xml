@@ -447,5 +447,6 @@
 	
 	<!-- Errors -->
 	<FCGenericError>If you can read this, something went wrong.</FCGenericError>
+	<FCUnsupportedMilJobError>The job chosen for this FloatMenuOption doesn't have any translation keys registered in AddButtonsToNonEmpireObjects.MilJobOptionStringsDic</FCUnsupportedMilJobError>
 
 </LanguageData>

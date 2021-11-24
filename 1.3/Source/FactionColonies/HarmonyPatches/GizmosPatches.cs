@@ -119,13 +119,29 @@ namespace FactionColonies
 	[HarmonyPatch(typeof(WorldObject), "GetGizmos")]
 	class AddButtonsToNonEmpireObjects
 	{
+		private static readonly Dictionary<MilitaryJob, (string, string)> MilJobOptionStringsDic = new Dictionary<MilitaryJob, (string, string)> 
+		{ 
+			{ MilitaryJob.CaptureEnemySettlement, ("CaptureSettlement", "FCCaptureFloatMenuOption") },
+			{ MilitaryJob.RaidEnemySettlement, ("RaidSettlement", "FCRaidFloatMenuOption") },
+			{ MilitaryJob.EnslaveEnemySettlement, ("EnslavePopulation", "FCEnslaveFloatMenuOption") },
+		};
+
+		/// <summary>
+		/// Checks if a <paramref name="settlement"/> has a currently usable military squad
+		/// </summary>
+		/// <param name="settlement"></param>
+		/// <returns>true if usable, false otherwise</returns>
 		private static bool SettlementHasUsableMilitary(SettlementFC settlement) => settlement.isMilitaryValid() && !settlement.militaryBusy;
 
+		/// <summary>
+		/// Takes a <paramref name="job"/> and generates a FloatMenuOptions using the strings in AddButtonsToNonEmpireObjects.MilJobOptionStringsDic
+		/// </summary>
 		/// <param name="factionFC"></param>
 		/// <param name="faction"></param>
 		/// <param name="tile"></param>
-		/// <returns>A <c>FloatMenuOption</c> that allows for the capturing of enemy settlements</returns>
-		private static FloatMenuOption CaptureOption(FactionFC factionFC, Faction faction, int tile) => new FloatMenuOption("CaptureSettlement".Translate(), delegate
+		/// <param name="job"></param>
+		/// <returns>the generated FloatMenuOption</returns>
+		private static FloatMenuOption NewOption(FactionFC factionFC, Faction faction, int tile, MilitaryJob job) => new FloatMenuOption((MilJobOptionStringsDic[job].Item1 ?? "FCUnsupportedMilJobError").Translate(), delegate
 		{
 			List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
 
@@ -135,64 +151,10 @@ namespace FactionColonies
 				{
 					//if military is valid to use.
 
-					settlementList.Add(new FloatMenuOption("captureFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
+					settlementList.Add(new FloatMenuOption((MilJobOptionStringsDic[job].Item2 ?? "FCUnsupportedMilJobError").Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
 					{
 						RelationsUtilFC.attackFaction(faction);
-
-						settlement.SendMilitary(tile, Find.World.info.name, MilitaryJob.CaptureEnemySettlement, 60000, faction);
-					}));
-				}
-			}
-
-			if (settlementList.Count == 0) settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
-			Find.WindowStack.Add(new FloatMenu(settlementList));
-		});
-
-		/// <param name="factionFC"></param>
-		/// <param name="faction"></param>
-		/// <param name="tile"></param>
-		/// <returns>A <c>FloatMenuOption</c> that allows for the raiding of enemy settlements</returns>
-		private static FloatMenuOption RaidOption(FactionFC factionFC, Faction faction, int tile) => new FloatMenuOption("RaidSettlement".Translate(), delegate
-		{
-			List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-			foreach (SettlementFC settlement in factionFC.settlements)
-			{
-				if (SettlementHasUsableMilitary(settlement))
-				{
-					//if military is valid to use.
-
-					settlementList.Add(new FloatMenuOption("FCRaidFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
-					{
-						RelationsUtilFC.attackFaction(faction);
-						settlement.SendMilitary(tile, Find.World.info.name, MilitaryJob.RaidEnemySettlement, 60000, faction);
-					}));
-				}
-			}
-
-			if (settlementList.Count == 0) settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
-
-			Find.WindowStack.Add(new FloatMenu(settlementList));
-		});
-
-		/// <param name="factionFC"></param>
-		/// <param name="faction"></param>
-		/// <param name="tile"></param>
-		/// <returns>A <c>FloatMenuOption</c> that allows for the enslaving of enemy settlement population</returns>
-		public static FloatMenuOption EnslaveOption(FactionFC factionFC, Faction faction, int tile) => new FloatMenuOption("EnslavePopulation".Translate(), delegate
-		{
-			List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-			foreach (SettlementFC settlement in factionFC.settlements)
-			{
-				if (SettlementHasUsableMilitary(settlement))
-				{
-					//if military is valid to use.
-
-					settlementList.Add(new FloatMenuOption("FCEnslaveFloatMenuOption".Translate(settlement.name, settlement.settlementMilitaryLevel), delegate
-					{
-						RelationsUtilFC.attackFaction(faction);
-						settlement.SendMilitary(tile, Find.World.info.name, MilitaryJob.EnslaveEnemySettlement, 60000, faction);
+						settlement.SendMilitary(tile, Find.World.info.name, job, 60000, faction);
 					}));
 				}
 			}
@@ -215,9 +177,9 @@ namespace FactionColonies
 			{
 				List<FloatMenuOption> list = new List<FloatMenuOption>();
 
-				if (!factionFC.hasPolicy(FCPolicyDefOf.isolationist)) list.Add(CaptureOption(factionFC, faction, tile));
-				list.Add(RaidOption(factionFC, faction, tile));
-				if (factionFC.hasPolicy(FCPolicyDefOf.authoritarian) && faction.def.defName != "VFEI_Insect") list.Add(EnslaveOption(factionFC, faction, tile));
+				if (!factionFC.hasPolicy(FCPolicyDefOf.isolationist)) list.Add(NewOption(factionFC, faction, tile, MilitaryJob.CaptureEnemySettlement));
+				list.Add(NewOption(factionFC, faction, tile, MilitaryJob.RaidEnemySettlement));
+				if (factionFC.hasPolicy(FCPolicyDefOf.authoritarian) && faction.def.defName != "VFEI_Insect") list.Add(NewOption(factionFC, faction, tile, MilitaryJob.EnslaveEnemySettlement));
 
 				Find.WindowStack.Add(new FloatMenu(list));
 			}
@@ -225,7 +187,6 @@ namespace FactionColonies
 
 		/// <param name="factionFC"></param>
 		/// <param name="faction"></param>
-		/// <param name="tile"></param>
 		/// <returns>A <c>Command_Action</c> that sends a diplomatic envoy if used</returns>
 		private static Command_Action PeacefulAction(FactionFC factionFC, Faction faction) => new Command_Action
 		{
@@ -235,8 +196,18 @@ namespace FactionColonies
 			action = delegate { factionFC.sendDiplomaticEnvoy(faction); }
 		};
 
+		/// <summary>
+		/// Checks if a worldObject is not part of the player or their empire faction
+		/// </summary>
+		/// <param name="worldObject"></param>
+		/// <returns>true if the faction linked isn't from the player or their empire faction, false otherwise</returns>
 		private static bool HasValidFaction(WorldObject worldObject) => worldObject.Faction != FactionColonies.getPlayerColonyFaction() && worldObject.Faction != Find.FactionManager.OfPlayer;
 
+		/// <summary>
+		/// This Postfix adds Gizmos on settlements not owned by the player or their empire
+		/// </summary>
+		/// <param name="__instance"></param>
+		/// <param name="__result"></param>
 		public static void Postfix(ref WorldObject __instance, ref IEnumerable<Gizmo> __result)
 		{
 			if (__instance.def.defName != "Settlement") return;
