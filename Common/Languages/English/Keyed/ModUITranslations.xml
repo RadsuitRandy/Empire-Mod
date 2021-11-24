@@ -413,7 +413,7 @@
 	<FCMilitaryAction>Military Action</FCMilitaryAction>
 	<selectMilitaryMovePosition>Select Move Position</selectMilitaryMovePosition>
 	<debugRemoveAllCommand>[Debug] Remove all</debugRemoveAllCommand>
-	<militaryPawnsLeavingTimeOut>Your squad {0} is leaving, because it's available time ran out!</militaryPawnsLeavingTimeOut>
+	<militaryPawnsLeavingTimeOut>A squad is leaving, because it's available time ran out!</militaryPawnsLeavingTimeOut>
 	
 	<!-- Sending Prisoner to Settlement Button -->
 	<floatMenuOptionSendPrisonerToSettlement>{0} - Settlement Level: {1}, Prisoners: {2}</floatMenuOptionSendPrisonerToSettlement> <!-- 0 is the settlements name. 1 is the settlements level. 2 is the amount of Prisoners-->

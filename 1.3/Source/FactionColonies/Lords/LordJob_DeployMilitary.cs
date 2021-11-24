@@ -17,6 +17,7 @@ namespace FactionColonies
 		private IntVec3 currentOrderPosition;
 		private int whenToForceLeave;
 		private int timeDeployed = 0;
+		private bool readyForCommands = false;
 		private DeployedMilitaryCommandMenu deployedMilitaryCommandMenu;
 		private MilitaryOrder currentOrder = MilitaryOrder.DefendPoint;
 
@@ -66,6 +67,22 @@ namespace FactionColonies
 			lordToil_HuntEnemies = new LordToil_HuntEnemies(currentOrderPosition);
 		}
 
+		private bool ReadyForCommands
+        {
+			get
+            {
+				if (readyForCommands) return true;
+
+				if (lord.ownedPawns.All(pawn => pawn.Spawned))
+                {
+					readyForCommands = true;
+					return true;
+                }
+
+				return false;
+			}
+        }
+
 		public override void ExposeData()
 		{
 			base.ExposeData();
@@ -110,7 +127,8 @@ namespace FactionColonies
 						new TransitionAction_Custom(delegate()
 						{
 							squad.isDeployed = false;
-							Messages.Message("militaryPawnsLeavingTimeOut".Translate(squad.name), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
+							deployedMilitaryCommandMenu.squadMilitaryOrderDic[squad] = MilitaryOrder.RecoverWoundedAndLeave;
+							Messages.Message("militaryPawnsLeavingTimeOut".Translate(), lord.ownedPawns, MessageTypeDefOf.NeutralEvent);
 						}) 
 					}
 				};
@@ -136,7 +154,7 @@ namespace FactionColonies
 					{
 						triggers = new List<Trigger>(1)
 						{
-							new Trigger_Custom((TriggerSignal _) => deployedMilitaryCommandMenu.squadMilitaryOrderDic[squad] == (MilitaryOrder)k + 1 && squad.isDeployed)
+							new Trigger_Custom((TriggerSignal _) => deployedMilitaryCommandMenu.squadMilitaryOrderDic[squad] == (MilitaryOrder)k + 1 && ReadyForCommands)
 						},
 						preActions = new List<TransitionAction>(1)
 						{
@@ -192,5 +210,5 @@ namespace FactionColonies
 			squad.isDeployed = false;
 			base.Notify_LordDestroyed();
 		}
-	}
+    }
 }
