@@ -12,12 +12,17 @@ namespace FactionColonies.util
     /// </summary>
     static class TextGen
     {
+        /// <summary>
+        /// Converts the given string <paramref name="name"/> into a shorter version. The resulting string contains the first word and every uppercase char of the following words
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static string ToShortName(string name)
         {
-            IEnumerable<string> strings = name.Split(' ').Where(str => !str.NullOrEmpty() && char.IsUpper(str[0]));
-            string seed = strings.First();
+            IEnumerable<string> nameSplit = name.Split(' ').Where(str => !str.NullOrEmpty() && char.IsUpper(str[0]));
+            string main = nameSplit.First();
 
-            return strings.Aggregate(seed, (total, next) => total + ((seed == next) ? ' ' : next[0]));
+            return nameSplit.Aggregate(main, (total, next) => total + ((main == next) ? ' ' : next[0]));
         }
     }
 }
