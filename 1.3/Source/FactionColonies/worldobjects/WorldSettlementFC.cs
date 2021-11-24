@@ -805,7 +805,7 @@ namespace FactionColonies
         {
             FactionFC faction = Find.World.GetComponent<FactionFC>();
             
-            
+            Log.Message("Handling combat resolution...");
             if (won)
             {
                 faction.addExperienceToFactionLevel(5f);
@@ -836,6 +836,7 @@ namespace FactionColonies
                     canDestroyBuildings = false;
                 }
 
+                Log.Message("Determined Multipliers for loss penalty");
                 //if winner are enemies
                 settlement.prosperity -= 20 * prosperityMultiplier;
                 settlement.happiness -= 25 * happinessLostMultiplier;
@@ -846,13 +847,16 @@ namespace FactionColonies
 
                 for (int k = 0; k < 4; k++)
                 {
-                    int num = new IntRange(0, 10).RandomInRange;
-                    if (num < 7 || settlement.buildings[k].defName == "Empty" ||
+                    int deconstructRoll = new IntRange(0, 10).RandomInRange;
+                    int deconstructChance = 7;
+                    if (deconstructRoll < deconstructChance || settlement.buildings[k].defName == "Empty" ||
                         settlement.buildings[k].defName == "Construction" || !canDestroyBuildings) continue;
                     str += "\n" +
-                           "BulidingDestroyedInRaid".Translate(settlement.buildings[k].label);
+                           "BuildingDestroyedInRaid".Translate(settlement.buildings[k].label);
                     settlement.deconstructBuilding(k);
                 }
+
+                Log.Message("Building deconstruction handled");
 
                 //level remover checker
                 if (settlement.settlementLevel > 1 && canDestroyBuildings)
@@ -865,11 +869,20 @@ namespace FactionColonies
                     }
                 }
 
+                Log.Message("Settlement deleveling handled");
                 Find.LetterStack.ReceiveLetter("DefenseFailure".Translate(), str, LetterDefOf.Death,
                     new LookTargets(this));
             }
-
-            if (defenderForce.homeSettlement != settlement)
+            Log.Message("Handling foreign defenders...");
+            if (defenderForce?.homeSettlement == settlement)
+            {
+                defenderForce?.homeSettlement?.cooldownMilitary();
+            }
+            else if (defenderForce == null)
+            {
+                Log.Message("Defending force not set-- if the attack came from another mod, this is fine.");
+            }
+            else
             {
                 //if not the home settlement defending
                 if (remaining >= 7)
@@ -882,10 +895,6 @@ namespace FactionColonies
                 {
                     defenderForce.homeSettlement.cooldownMilitary();
                 }
-            }
-            else
-            {
-                defenderForce.homeSettlement.cooldownMilitary();
             }
 
             settlement.isUnderAttack = false;
