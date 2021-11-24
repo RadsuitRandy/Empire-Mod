@@ -1222,7 +1222,7 @@ namespace FactionColonies
         }
 
         /// <summary>
-        /// Deploys a <paramref name="settlement"/>'s main force
+        /// Deploys a <paramref name="settlement"/>'s main force, takes silver if there is an <paramref name="overrideSquad"/>
         /// </summary>
         /// <param name="settlement"></param>
         /// <param name="DropPod"></param>
@@ -1257,6 +1257,7 @@ namespace FactionColonies
                     return;
                 }
 
+                PaymentUtil.paySilver((int)Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() * .2));
                 SpawnSquad(settlement, squad, dropPosition, DropPod);
                 DebugTools.curTool = null;
             });
@@ -1271,11 +1272,10 @@ namespace FactionColonies
         /// <param name="settlement"></param>
         /// <param name="DropPod"></param>
         /// <param name="cost"></param>
-        public static void CallinMilitaristicAlliedForces(SettlementFC settlement, bool DropPod, int cost)
+        public static void CallinExtraForces(SettlementFC settlement, bool DropPod)
         {
             MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.createMercenarySquad(settlement, true);
             squad.OutfitSquad(squad.settlement.militarySquad.outfit);
-            PaymentUtil.paySilver(cost);
 
             CallinAlliedForces(settlement, DropPod, squad);
         }

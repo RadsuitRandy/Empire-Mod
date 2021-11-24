@@ -166,8 +166,7 @@ namespace FactionColonies
                     {
                         if ((faction.traitMilitaristicTickLastUsedExtraSquad + GenDate.TicksPerDay * 5) <= Find.TickManager.TicksGame)
                         {
-                            int cost = (int)Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *
-                                                       .2);
+                            int cost = (int)Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() *.2);
                             List<FloatMenuOption> options = new List<FloatMenuOption>();
 
                             options.Add(new FloatMenuOption("Deploy Secondary Squad - $" + cost + " silver",
@@ -179,7 +178,7 @@ namespace FactionColonies
 
                                         deploymentOptions.Add(new FloatMenuOption("Walk into map", delegate
                                         {
-                                            FactionColonies.CallinMilitaristicAlliedForces(settlement, false, cost);
+                                            FactionColonies.CallinExtraForces(settlement, false);
                                             Find.WindowStack.currentlyDrawnWindow.Close();
                                         }));
                                         //check if medieval only
@@ -190,7 +189,7 @@ namespace FactionColonies
                                         {
                                             deploymentOptions.Add(new FloatMenuOption("Drop-Pod", delegate
                                             {
-                                                FactionColonies.CallinMilitaristicAlliedForces(settlement, true, cost);
+                                                FactionColonies.CallinExtraForces(settlement, true);
                                                 Find.WindowStack.currentlyDrawnWindow.Close();
                                             }));
                                         }
