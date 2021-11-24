@@ -448,5 +448,6 @@
 	<!-- Errors -->
 	<FCGenericError>If you can read this, something went wrong.</FCGenericError>
 	<FCUnsupportedMilJobError>The job chosen for this FloatMenuOption doesn't have any translation keys registered in AddButtonsToNonEmpireObjects.MilJobOptionStringsDic</FCUnsupportedMilJobError>
-
+	<FCUnsupportedSettlementFaction>The faction of this settlement has no name or something went terribly wrong.</FCUnsupportedSettlementFaction>
+	
 </LanguageData>

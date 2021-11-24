@@ -170,7 +170,7 @@ namespace FactionColonies
 		/// <returns>A <c>Command_Action</c> that creates a <c>FloatMenu</c> displaying hostile actions a player can take against a settlement</returns>
 		private static Command_Action HostileAction(FactionFC factionFC, Faction faction, int tile) => new Command_Action
 		{
-			defaultLabel = "AttackSettlement".Translate(faction.HasName ? faction.Name : ""),
+			defaultLabel = "AttackSettlement".Translate(faction.HasName ? faction.Name : "FCUnsupportedSettlementFaction".Translate().ToString()),
 			defaultDesc = "",
 			icon = TexLoad.iconMilitary,
 			action = delegate
