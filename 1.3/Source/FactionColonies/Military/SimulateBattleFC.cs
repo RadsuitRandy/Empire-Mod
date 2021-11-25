@@ -11,29 +11,37 @@ namespace FactionColonies
     {
         public static int FightBattle(militaryForce MFA, militaryForce MFB)
         {
-            //Log.Message("Starting battle");
-            while (MFA.forceRemaining > 0 && MFB.forceRemaining > 0)
+            int result = 0;
+            try
             {
-                FightRound(MFA, MFB);
+                //Log.Message("Starting battle");
+                while (MFA.forceRemaining > 0 && MFB.forceRemaining > 0)
+                {
+                    // One number should always be reduced to 0
+                    FightRound(MFA, MFB);
+                }
+
+                if (MFA.forceRemaining <= 0)
+                {
+                    //Log.Message("Defending Force has won.");
+                    //b is winner
+                    result = 1;
+                }
+
+                else
+                {
+                    //Log.Message("Attacking Force has won.");
+                    //a is winner
+                    result = 0;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"An exception occurred while resolving combat in Empire {System.Environment.NewLine}[{e}]");
+                result = -1;
             }
 
-            if (MFA.forceRemaining <= 0)
-            {
-                //Log.Message("Defending Force has won.");
-                //b is winner
-                return 1;
-            }
-
-            if (MFB.forceRemaining <= 0)
-            {
-                //Log.Message("Attacking Force has won.");
-                //a is winner
-                return 0;
-            }
-
-            Log.Message("FightBattle catch statement - Empire");
-            //catch
-            return -1;
+            return result;
         }
 
         public static void FightRound(militaryForce MFA, militaryForce MFB)

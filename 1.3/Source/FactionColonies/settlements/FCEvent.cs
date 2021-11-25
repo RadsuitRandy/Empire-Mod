@@ -700,6 +700,20 @@ namespace FactionColonies
         {
             loadID = Find.World.GetComponent<FactionFC>().GetNextEventID();
         }
+        
+        /// <summary>
+        /// Defines parameters of event with custom description
+        /// </summary>
+        /// <param name="f">FactionFC object</param>
+        /// <param name="mapLocation">Location of the event object</param>
+        /// <param name="timeToFinish">Time of event's completion</param>
+        public void DefineEvent(FactionFC f, int mapLocation, int timeToFinish) {
+            this.hasCustomDescription = true;
+            this.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
+            this.location = mapLocation;
+            this.planetName = Find.World.info.name;
+            f.addEvent(this);
+        }
 
         public void ExposeData()
         {
