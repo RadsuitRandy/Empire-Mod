@@ -327,14 +327,6 @@
 	<!-- Send Prisoner to settlement -->
 	<cantSendWithDangerLevel>You can't send a prisoner to your settlements when the map has a danger level of {0}!</cantSendWithDangerLevel>
 	
-	<!-- CallInAlliedForces -->
-	<selectDeploymentPosition>Select Deployment Position</selectDeploymentPosition>
-	<selectedPosOutOfBounds>The position you selected is out of bounds for this map!</selectedPosOutOfBounds>
-	<selectedPosTooCloseToEdge>The position you selected is to close to the map edge!</selectedPosTooCloseToEdge>
-
-	<deploymentSuccessLabel>Military deployed</deploymentSuccessLabel>
-	<deploymentSuccessDesc>The military forces of {0} have been deployed to {1}</deploymentSuccessDesc>
-	
 	<!-- ShuttleTransportEvent -->
 	<transportingInjuredShuttle>A shuttle is transporting injured colonists back to you after a successful settlement defence</transportingInjuredShuttle>
 	<transportingInjuredDropPod>Drop pods are transporting injured colonists back to you after a successful settlement defence</transportingInjuredDropPod>
@@ -353,7 +345,7 @@
 	<taxDeliveryModeShuttleDesc>Shuttle. Delivery always arrives by shuttle</taxDeliveryModeShuttleDesc>
 	<taxDeliveryModeShuttleUnavailableDesc>Shuttle. Unavailable due to royality not being present</taxDeliveryModeShuttleUnavailableDesc>
 	
-	<deliveryPawnsEngageEnemy>The delivering pawns are engaging an enemy!</deliveryPawnsEngageEnemy>
+	<deliveryPawnsHiding>The delivering pawns are dropping their items and hiding on your tax delivery spot! They will only engage if the enemy is close!</deliveryPawnsHiding>
 	<deliveryPawnsLeavingMap>The delivering pawns are leaving the map.</deliveryPawnsLeavingMap>
 	<deliveryPawnsLeavingMapNoPath>The delivering pawns are leaving the map, because they couldn't access the tax delivery spot.</deliveryPawnsLeavingMapNoPath>
 	<deliveryPawnsLeavingMapWithDowned>The delivering pawns are collecting downed members and leaving the map.</deliveryPawnsLeavingMapWithDowned>
@@ -414,7 +406,15 @@
 	<selectMilitaryMovePosition>Select Move Position</selectMilitaryMovePosition>
 	<debugRemoveAllCommand>[Debug] Remove all</debugRemoveAllCommand>
 	<militaryPawnsLeavingTimeOut>A squad is leaving, because it's available time ran out!</militaryPawnsLeavingTimeOut>
-	
+
+	<!-- CallInAlliedForces -->
+	<selectDeploymentPosition>Select Deployment Position</selectDeploymentPosition>
+	<selectedPosOutOfBounds>The position you selected is out of bounds for this map!</selectedPosOutOfBounds>
+	<selectedPosTooCloseToEdge>The position you selected is to close to the map edge!</selectedPosTooCloseToEdge>
+
+	<deploymentSuccessLabel>Military deployed</deploymentSuccessLabel>
+	<deploymentSuccessDesc>The military forces of {0} have been deployed to {1}</deploymentSuccessDesc>
+
 	<!-- Sending Prisoner to Settlement Button -->
 	<floatMenuOptionSendPrisonerToSettlement>{0} - Settlement Level: {1}, Prisoners: {2}</floatMenuOptionSendPrisonerToSettlement> <!-- 0 is the settlements name. 1 is the settlements level. 2 is the amount of Prisoners-->
 	
