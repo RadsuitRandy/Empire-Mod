@@ -778,7 +778,7 @@ namespace FactionColonies
             get { return (float) Math.Round(prosperity, 1); }
         }
 
-        public void sendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
+        public void SendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
             if (isMilitaryBusy() || isTargetOccupied(location)) return;
@@ -791,7 +791,7 @@ namespace FactionColonies
             if (enemy != null) militaryEnemy = enemy;
             if (job != MilitaryJob.Deploy) Find.World.GetComponent<FactionFC>().militaryTargets.Add(location);
 
-            FCEvent tmp = null;
+            FCEvent evt;
             switch (militaryJob)
             {
                 case MilitaryJob.RaidEnemySettlement:
