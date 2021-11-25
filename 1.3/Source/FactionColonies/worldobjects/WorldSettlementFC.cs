@@ -132,7 +132,7 @@ namespace FactionColonies
             icon = ContentFinder<Texture2D>.Get("UI/Commands/CallShuttle"),
             action = delegate
             {
-                if (shuttleUsesRemaining < 2)
+                if (shuttleUsesRemaining < ShuttleSender.cost)
                 {
                     Messages.Message("notEnoughShuttleUsesRemaining".Translate(), MessageTypeDefOf.RejectInput);
                     return;
@@ -154,7 +154,7 @@ namespace FactionColonies
 
             action = delegate
             {
-                if (shuttleUsesRemaining < 1)
+                if (shuttleUsesRemaining < ShuttleSender.cost)
                 {
                     Messages.Message("noShuttleUsesRemaining".Translate(), MessageTypeDefOf.RejectInput);
                     return;
