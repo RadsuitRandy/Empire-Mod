@@ -572,50 +572,56 @@ namespace FactionColonies
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.378)
+            if (factionFC.updateVersion < 0.379)
             {
                 try
                 {
                     string str;
                     str = "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                    str += "\n- reworked how settlements work for compatibility - all thanks to Imperitor here";
                     str += "\n- reworked military deployment";
                     str += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
-                    str += "\n- replaced several icons with sharper versions made by Turkler";
-                    str += "\n- fixed pawns don't drop items if an enemy causes them to engage while the maps story danger isn't set to high";
-                    str += "\n- fixed pawns dig through terrain trying to leave";
+                    str += "\n- removed unrest gain for when a faction member dies due to actions taken by non colonists";
+                    str += "\n- caravan tax delivery pawns no longer charge enemies, but instead hide on your tax spot";
+                    str += "\n- replaced several building icons with sharper versions made by Turkler";
+                    str += "\n- fixed several weird behaviours of delivery pawns";
+                    str += "\n- fixed Attack {0} when selecting enemy settlements";
                     str += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
                     str += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
                     str += "\n- fixed newly rolled pawns can have biocoded weapons";
                     str += "\n- removed some Message spam";
-                    str += "\n- added missing upkeep cost to string";
-                    str += "\n- added translatability to some strings";
-                    str += "\n\n- All of the code for this update has been developed by Danimineiro";
-                    str += "\n- I want to give many thanks to Turkler for helping with art!";
+                    str += "\n- added missing upkeep cost to shuttle port building label";
+                    str += "\n- added translatability to some strings (major rework of this soon!)";
+                    str += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
+                    str += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
                     str += "\n- Want to see the full patch notes " + SteamUtility.SteamPersonaName + "? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                    factionFC.updateVersion = 0.378;
+                    factionFC.updateVersion = 0.379;
                     Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
                 }
                 catch
                 {
                     string str2;
                     str2 = "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                    str2 += "\n- reworked how settlements work for compatibility - all thanks to Imperitor here";
                     str2 += "\n- reworked military deployment";
                     str2 += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
-                    str2 += "\n- replaced several icons with sharper versions made by Turkler";
-                    str2 += "\n- fixed pawns don't drop items if an enemy causes them to engage while the maps story danger isn't set to high";
-                    str2 += "\n- fixed pawns dig through terrain trying to leave";
+                    str2 += "\n- removed unrest gain for when a faction member dies due to actions taken by non colonists";
+                    str2 += "\n- caravan tax delivery pawns no longer charge enemies, but instead hide on your tax spot";
+                    str2 += "\n- replaced several building icons with sharper versions made by Turkler";
+                    str2 += "\n- fixed several weird behaviours of delivery pawns";
+                    str2 += "\n- fixed Attack {0} when selecting enemy settlements";
                     str2 += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
                     str2 += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
                     str2 += "\n- fixed newly rolled pawns can have biocoded weapons";
                     str2 += "\n- removed some Message spam";
-                    str2 += "\n- added missing upkeep cost to string";
-                    str2 += "\n- added translatability to some strings";
-                    str2 += "\n\n- All of the code for this update has been developed by Danimineiro";
-                    str2 += "\n- I want to give many thanks to Turkler for helping with art!";
+                    str2 += "\n- added missing upkeep cost to shuttle port building label";
+                    str2 += "\n- added translatability to some strings (major rework of this soon!)";
+                    str2 += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
+                    str2 += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
                     str2 += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                    factionFC.updateVersion = 0.378;
+                    factionFC.updateVersion = 0.379;
                     Find.LetterStack.ReceiveLetter("Empire Mod Update!", str2, LetterDefOf.NewQuest);
                 }
 
