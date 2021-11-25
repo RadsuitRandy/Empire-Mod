@@ -46,18 +46,16 @@ namespace FactionColonies
 
         public static void FightRound(militaryForce MFA, militaryForce MFB)
         {
-            int randA = Rand.Range(0, 20);
-            int randB = Rand.Range(0, 20);
-            //Log.Message("A Begin: " + MFA.forceRemaining + " : " + MFB.forceRemaining + " B begin");
-            //Log.Message("A Rolled: " + randA.ToString() + " : " + randB.ToString() + " B rolled");
-            if (randA == randB)
-            {
-            }
-            else if (randA > randB)
+            var randA = (Rand.Range(0, 20) * MFA.militaryEfficiency);
+            var randB = (Rand.Range(0, 20) * MFA.militaryEfficiency);
+            // Log.Message("A Begin: " + MFA.forceRemaining + " : " + MFB.forceRemaining + " B begin");
+            // Log.Message("A Rolled: " + randA.ToString() + " : " + randB.ToString() + " B rolled");
+
+            if (randA > randB)
             {
                 MFB.forceRemaining -= 1;
             }
-            else if (randB > randA)
+            else
             {
                 MFA.forceRemaining -= 1;
             }
