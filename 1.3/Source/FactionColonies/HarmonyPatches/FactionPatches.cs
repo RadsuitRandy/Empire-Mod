@@ -93,20 +93,10 @@ namespace FactionColonies
                 FactionFC faction = Find.World.GetComponent<FactionFC>();
                 if (!faction.hasPolicy(FCPolicyDefOf.pacifist) && dinfo != null)
                 {
-
                     if (dinfo.Value.Category == DamageInfo.SourceCategory.Collapse)
                     {
                         faction.GainUnrestForReason(new Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath), 5d);
                         faction.GainHappiness(-5d);
-                    }
-                    else if (dinfo.Value.Instigator?.Faction != null)
-                    {
-                        if (dinfo.Value.Instigator is Pawn pawn && !pawn.RaceProps.Animal &&
-                            pawn.mindState.mentalStateHandler.CurStateDef != MentalStateDefOf.ManhunterPermanent)
-                        {
-                            faction.GainUnrestForReason(new Message("DeathOfFactionPawn".Translate(), MessageTypeDefOf.PawnDeath), 5d);
-                            faction.GainHappiness(-5d);
-                        }
                     }
                     else if (dinfo.Value.Instigator?.Faction == Find.FactionManager.OfPlayer)
                     {
