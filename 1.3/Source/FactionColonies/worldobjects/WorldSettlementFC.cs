@@ -41,9 +41,9 @@ namespace FactionColonies
         public int shuttleUsesRemaining;
         public List<CaravanSupporting> supporting = new List<CaravanSupporting>();
 
-        public WorldSettlementTraderTracker trader;
+        public new WorldSettlementTraderTracker trader;
 
-        public string Name
+        public new string Name
         {
             get
             {
@@ -57,7 +57,7 @@ namespace FactionColonies
         public override string Label => Name;
 
 
-        public TraderKindDef TraderKind
+        public new TraderKindDef TraderKind
         {
             get
             {
@@ -66,23 +66,23 @@ namespace FactionColonies
             }
         }
 
-        public IEnumerable<Thing> Goods => trader?.StockListForReading;
+        public new IEnumerable<Thing> Goods => trader?.StockListForReading;
 
-        public int RandomPriceFactorSeed => trader?.RandomPriceFactorSeed ?? 0;
+        public new int RandomPriceFactorSeed => trader?.RandomPriceFactorSeed ?? 0;
 
-        public string TraderName => trader?.TraderName;
+        public new string TraderName => trader?.TraderName;
 
-        public bool CanTradeNow => trader != null && trader.CanTradeNow;
+        public new bool CanTradeNow => trader != null && trader.CanTradeNow;
 
-        public float TradePriceImprovementOffsetForPlayer => trader?.TradePriceImprovementOffsetForPlayer ?? 0.0f;
+        public new float TradePriceImprovementOffsetForPlayer => trader?.TradePriceImprovementOffsetForPlayer ?? 0.0f;
 
-        public TradeCurrency TradeCurrency => TraderKind.tradeCurrency;
+        public new TradeCurrency TradeCurrency => TraderKind.tradeCurrency;
 
-        public bool EverVisited => trader.EverVisited;
+        public new bool EverVisited => trader.EverVisited;
 
-        public bool RestockedSinceLastVisit => trader.RestockedSinceLastVisit;
+        public new bool RestockedSinceLastVisit => trader.RestockedSinceLastVisit;
 
-        public int NextRestockTick => trader.NextRestockTick;
+        public new int NextRestockTick => trader.NextRestockTick;
 
         private Command_Action DefendColonyAction => new Command_Action
         {
@@ -228,10 +228,10 @@ namespace FactionColonies
             trader.GiveSoldThingToPlayer(toGive, countToGive, playerNegotiator);
         }
 
-        private string FoundSettlementString(SettlementFC settlement)
+        private string FoundSettlementString(SettlementFC s)
         {
-            return settlement.name + " " + "ShortMilitary".Translate() + " " + settlement.settlementMilitaryLevel +
-                   " - " + "FCAvailable".Translate() + ": " + (!settlement.isMilitaryBusySilent()).ToString();
+            return s.name + " " + "ShortMilitary".Translate() + " " + s.settlementMilitaryLevel +
+                   " - " + "FCAvailable".Translate() + ": " + (!s.isMilitaryBusySilent()).ToString();
         }
 
         private void ChangeDefendingForceAction(FCEvent evt)
@@ -500,7 +500,7 @@ namespace FactionColonies
                                       FactionColonies.ReturnTicksToArrive(Tile, Find.AnyPlayerHomeMap.Tile)
                 };
 
-                if (pawns.Count() > 0) DeliveryEvent.CreateDeliveryEvent(eventParams);
+                if (pawns.Any()) DeliveryEvent.CreateDeliveryEvent(eventParams);
             }
 
             if (Map.mapPawns?.AllPawnsSpawned == null) return;
