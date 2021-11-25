@@ -132,7 +132,7 @@ namespace FactionColonies
             icon = ContentFinder<Texture2D>.Get("UI/Commands/CallShuttle"),
             action = delegate
             {
-                if (shuttleUsesRemaining < 2)
+                if (shuttleUsesRemaining < ShuttleSender.cost)
                 {
                     Messages.Message("notEnoughShuttleUsesRemaining".Translate(), MessageTypeDefOf.RejectInput);
                     return;
@@ -154,7 +154,7 @@ namespace FactionColonies
 
             action = delegate
             {
-                if (shuttleUsesRemaining < 1)
+                if (shuttleUsesRemaining < ShuttleSender.cost)
                 {
                     Messages.Message("noShuttleUsesRemaining".Translate(), MessageTypeDefOf.RejectInput);
                     return;
@@ -172,7 +172,7 @@ namespace FactionColonies
                     Find.WorldSelector.ClearSelection();
                     var tile = caravan.Tile;
                     Find.WorldTargeter.BeginTargeting(sender.ChoseWorldTarget, true,
-                        CompLaunchable.TargeterMouseAttachment, true,
+                        CompLaunchable.TargeterMouseAttachment, false,
                         delegate { GenDraw.DrawWorldRadiusRing(tile, ShuttleSender.ShuttleRange); },
                         target => sender.TargetingLabelGetter(target, tile, ShuttleSender.ShuttleRange,
                             Gen.YieldSingle(caravan), sender.Launch));

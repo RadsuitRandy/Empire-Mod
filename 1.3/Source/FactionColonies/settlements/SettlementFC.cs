@@ -417,8 +417,11 @@ namespace FactionColonies
             return totalWorkers;
         }
 
+        private bool CanStillModify(ResourceType? resourceType, int singleMod) => workers + singleMod <= workersUltraMax && workers + singleMod >= 0 && getResource(resourceType.Value).assignedWorkers + singleMod <= workersUltraMax && getResource(resourceType.Value).assignedWorkers + singleMod >= 0;
+
         public bool increaseWorkers(ResourceType? resourceType, int numWorkers)
         {
+            int singleMod = (numWorkers > 0) ?  1 : -1;
             if (resourceType == null)
             {
                 if (numWorkers >= 0 && workers <= workersUltraMax)
@@ -437,15 +440,14 @@ namespace FactionColonies
                     }
                 }
             }
-            else if (workers + numWorkers <= workersUltraMax && workers + numWorkers >= 0 &&
-                     getResource(resourceType.Value).assignedWorkers + numWorkers <= workersUltraMax &&
-                     getResource(resourceType.Value).assignedWorkers + numWorkers >= 0)
+            else while(CanStillModify(resourceType, singleMod))
             {
-                workers += numWorkers;
-                getResource(resourceType.Value).assignedWorkers += numWorkers;
+                workers += singleMod;
+                getResource(resourceType.Value).assignedWorkers += singleMod;
+                numWorkers -= singleMod;
                 updateProfitAndProduction();
                 Find.World.GetComponent<FactionFC>().updateTotalProfit();
-                return true;
+                if (numWorkers == 0) return true;
             }
 
             return false;
@@ -521,6 +523,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref mapLocation, "mapLocation");
             Scribe_Values.Look(ref planetName, "planetName");
             Scribe_Values.Look(ref name, "name");
+            Scribe_Values.Look(ref nameShort, "nameShort", ShortName);
+            Scribe_Values.Look(ref nameOriginal, "nameOriginal", OriginalName);
             Scribe_Values.Look(ref loadID, "loadID", -1);
             Scribe_Values.Look(ref title, "title");
             Scribe_Values.Look(ref description, "description");
@@ -595,9 +599,11 @@ namespace FactionColonies
         public int mapLocation;
         public string planetName;
         public string name;
+        private string nameShort;
+        private string nameOriginal;
         public int loadID;
         public string title = "Hamlet".Translate();
-        public string description = "What are you doing here? Get out of me!";
+        public string description = "FCGenericError".Translate();
         public double workers;
         public double workersMax;
         public double workersUltraMax;
@@ -614,11 +620,9 @@ namespace FactionColonies
         public List<Pawn> prisoners = new List<Pawn>();
         public List<FCPrisoner> prisonerList = new List<FCPrisoner>();
 
-
         public float silverIncome;
         public List<Thing> tithe = new List<Thing>();
         public int titheEstimatedIncome;
-
 
         public string hilliness;
         public string biome;
@@ -656,9 +660,28 @@ namespace FactionColonies
         //Settlement Production Information
         public double productionEfficiency; //Between 0.1 - 1
 
-        public bool isMilitaryBusy()
+        public string ShortName
         {
-            if (militaryBusy)
+            get
+            {
+                if (!nameShort.NullOrEmpty()) return nameShort;
+
+                nameShort = TextGen.ToShortName(name);
+
+                return nameShort;
+            }
+            set => nameShort = value.NullOrEmpty() ? name : value;
+        }
+
+        public string OriginalName
+        {
+            get => nameOriginal;
+            private set => nameOriginal = value;
+        }
+
+        public bool isMilitaryBusy(bool silent = false)
+        {
+            if (militaryBusy && !silent)
             {
                 Messages.Message("militaryAlreadyAssigned".Translate(), MessageTypeDefOf.RejectInput);
             }
@@ -755,7 +778,7 @@ namespace FactionColonies
             get { return (float) Math.Round(prosperity, 1); }
         }
 
-        public void sendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
+        public void SendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
             if (isMilitaryBusy() || isTargetOccupied(location)) return;
@@ -768,28 +791,28 @@ namespace FactionColonies
             if (enemy != null) militaryEnemy = enemy;
             if (job != MilitaryJob.Deploy) Find.World.GetComponent<FactionFC>().militaryTargets.Add(location);
 
-            FCEvent tmp = null;
+            FCEvent evt;
             switch (militaryJob)
             {
                 case MilitaryJob.RaidEnemySettlement:
-                    tmp = FCEventMaker.MakeEvent(FCEventDefOf.raidEnemySettlement);
-                    tmp.customDescription = "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label);
-                    Find.LetterStack.ReceiveLetter("Military Action", "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
-                    tmp.DefineEvent(factionfc, mapLocation, timeToFinish);
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.raidEnemySettlement);
+                    evt.customDescription = "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    evt.DefineEvent(factionfc, mapLocation, timeToFinish);
                     break;
 
                 case MilitaryJob.EnslaveEnemySettlement:
-                    tmp = FCEventMaker.MakeEvent(FCEventDefOf.enslaveEnemySettlement);
-                    tmp.customDescription ="settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label);
-                    Find.LetterStack.ReceiveLetter("Military Action","FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
-                    tmp.DefineEvent(factionfc, mapLocation, timeToFinish);
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.enslaveEnemySettlement);
+                    evt.customDescription ="settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    evt.DefineEvent(factionfc, mapLocation, timeToFinish);
                     break;
 
                 case MilitaryJob.CaptureEnemySettlement:
-                    tmp = FCEventMaker.MakeEvent(FCEventDefOf.captureEnemySettlement);
-                    tmp.customDescription ="settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label);
-                    Find.LetterStack.ReceiveLetter("Military Action","FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
-                    tmp.DefineEvent(factionfc, mapLocation, timeToFinish);
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.captureEnemySettlement);
+                    evt.customDescription ="settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    evt.DefineEvent(factionfc, mapLocation, timeToFinish);
                     break;
 
                 default:
@@ -1050,24 +1073,18 @@ namespace FactionColonies
             FactionFC faction = Find.World.GetComponent<FactionFC>();
 
             int cooldownReduction = 0;
-            if (faction.hasTrait(FCPolicyDefOf.raiders) &&
-                (militaryJob == MilitaryJob.RaidEnemySettlement || militaryJob == MilitaryJob.EnslaveEnemySettlement))
+            if (faction.hasTrait(FCPolicyDefOf.raiders) && (militaryJob == MilitaryJob.RaidEnemySettlement || militaryJob == MilitaryJob.EnslaveEnemySettlement))
             {
                 cooldownReduction += 60000;
             }
-            else if (militaryJob == MilitaryJob.Deploy &&
-                     FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+            else if (militaryJob == MilitaryJob.Deploy && FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
             {
-                List<String> policies = faction.policies.ConvertAll(policy => policy.def.defName);
+                List<string> policies = faction.policies.ConvertAll(policy => policy.def.defName);
                 bool militarist = policies.Contains("militaristic");
                 bool authoritarian = policies.Contains("authoritarian");
                 bool pacifist = policies.Contains("pacifist");
 
-                int deadMultiplier = militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000;
-                if (pacifist)
-                {
-                    deadMultiplier += 2000;
-                }
+                int deadMultiplier = (militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000) + (pacifist ? 2000 : 0);
 
                 cooldownReduction -= militarySquad.dead * deadMultiplier;
             }

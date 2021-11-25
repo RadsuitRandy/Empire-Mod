@@ -10,6 +10,7 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace FactionColonies
 {
@@ -565,34 +566,64 @@ namespace FactionColonies
 
             if (factionFC.updateVersion < 0.370)
             {
-                factionFC.updateVersion = 0.370;
                 Find.LetterStack.ReceiveLetter("Manual Settlement Defence is now disabled by default",
                     "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
             }
 
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.377)
+            if (factionFC.updateVersion < 0.379)
             {
-                string str;
-                str =        "A new update for Empire has been released!  v.0.377\n The following abbreviated changes have occurred:";
-                str += "\n- [HOTFIX] Races no longer randomize anywhere";
-                str += "\n- [HOTFIX] When using military deployment, if you enable dev mode, you (should be able to) remove any deployed squad and the window instantly";
-                str += "\n- (a rework of the deployment system is going to follow in the next update)";
-                str += "\n- changed a few floatmenus to be searchable";
-                str += "\n- changed how remaining time is displayed when the remaining time is less than a day";
-                str += "\n- fixed a NullException for Linux users";
-                str += "\n- fixed new units can have biocoded weapons with 0 cost";
-                str += "\n- fixed military or worker pawns can generate without being able to be violent";
-                str += "\n- fixed all beds become prisoner beds when sending a prisoner to a settlement";
-                str += "\n- fixed selecting a race during unit creation doesn't work";
-                str += "\n- added translatability to some strings";
-                str += "\n\n- All of the code for this update has been developed by Danimineiro and Big_Bad_E";
-                str += "\n- Big props to our team of dedicated testers smaboo, TheBoredGal and TheZerotje";
-                str += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                try
+                {
+                    string str;
+                    str = "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                    str += "\n- reworked how settlements work for compatibility - all thanks to Imperitor here";
+                    str += "\n- reworked military deployment";
+                    str += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
+                    str += "\n- removed unrest gain for when a faction member dies due to actions taken by non colonists";
+                    str += "\n- caravan tax delivery pawns no longer charge enemies, but instead hide on your tax spot";
+                    str += "\n- replaced several building icons with sharper versions made by Turkler";
+                    str += "\n- fixed several weird behaviours of delivery pawns";
+                    str += "\n- fixed Attack {0} when selecting enemy settlements";
+                    str += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
+                    str += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
+                    str += "\n- fixed newly rolled pawns can have biocoded weapons";
+                    str += "\n- removed some Message spam";
+                    str += "\n- added missing upkeep cost to shuttle port building label";
+                    str += "\n- added translatability to some strings (major rework of this soon!)";
+                    str += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
+                    str += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
+                    str += "\n- Want to see the full patch notes " + SteamUtility.SteamPersonaName + "? Join us on Discord! https://discord.gg/f3zFQqA";
 
-                factionFC.updateVersion = 0.377;
-                Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
+                    factionFC.updateVersion = 0.379;
+                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
+                }
+                catch
+                {
+                    string str2;
+                    str2 = "A new update for Empire has been released!  v.0.378\n The following abbreviated changes have occurred:";
+                    str2 += "\n- reworked how settlements work for compatibility - all thanks to Imperitor here";
+                    str2 += "\n- reworked military deployment";
+                    str2 += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
+                    str2 += "\n- removed unrest gain for when a faction member dies due to actions taken by non colonists";
+                    str2 += "\n- caravan tax delivery pawns no longer charge enemies, but instead hide on your tax spot";
+                    str2 += "\n- replaced several building icons with sharper versions made by Turkler";
+                    str2 += "\n- fixed several weird behaviours of delivery pawns";
+                    str2 += "\n- fixed Attack {0} when selecting enemy settlements";
+                    str2 += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
+                    str2 += "\n- fixed LordJob_DeliverSupplies crashes when no pawns are present";
+                    str2 += "\n- fixed newly rolled pawns can have biocoded weapons";
+                    str2 += "\n- removed some Message spam";
+                    str2 += "\n- added missing upkeep cost to shuttle port building label";
+                    str2 += "\n- added translatability to some strings (major rework of this soon!)";
+                    str2 += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
+                    str2 += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
+                    str2 += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+
+                    factionFC.updateVersion = 0.379;
+                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", str2, LetterDefOf.NewQuest);
+                }
 
                 Settings().settlementsAutoBattle = true;
             }
@@ -1139,14 +1170,15 @@ namespace FactionColonies
             DebugTools.curTool = tool;
         }
 
-        public static void CallinAlliedForces(SettlementFC settlement, bool DropPod)
+        /// <summary>
+        /// Internal method used to spawn a <paramref name="settlement"/>'s squad for military deployment
+        /// </summary>
+        /// <param name="settlement"></param>
+        /// <param name="squad"></param>
+        /// <param name="dropPosition"></param>
+        /// <param name="DropPod"></param>
+        private static void SpawnSquad(SettlementFC settlement, MercenarySquadFC squad, IntVec3 dropPosition, bool DropPod)
         {
-            if (Find.CurrentMap.Parent is WorldSettlementFC)
-            {
-                Messages.Message("You cannot deploy your military to another settlement!", MessageTypeDefOf.RejectInput);
-                return;
-            }
-
             IncidentParms parms = new IncidentParms
             {
                 target = Find.CurrentMap,
@@ -1160,9 +1192,51 @@ namespace FactionColonies
                 raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
             };
 
-            settlement.militarySquad.updateSquadStats(settlement.settlementMilitaryLevel);
-            settlement.militarySquad.resetNeeds();
+            if (DropPod)
+            {
+                parms.spawnCenter = dropPosition;
+                PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, squad.AllEquippedMercenaryPawns);
+            }
+            else
+            {
+                PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
+                worker.TryResolveRaidSpawnCenter(parms);
+                worker.Arrive(squad.AllEquippedMercenaryPawns, parms);
+            }
 
+            squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
+            squad.isDeployed = true;
+            squad.orderLocation = dropPosition;
+            squad.timeDeployed = Find.TickManager.TicksGame;
+            Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent, new LookTargets(squad.AllEquippedMercenaryPawns));
+
+            settlement.SendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
+            LordMaker.MakeNewLord(getPlayerColonyFaction(), new LordJob_DeployMilitary(dropPosition, squad), Find.CurrentMap, squad.AllEquippedMercenaryPawns);
+
+            if (settlement.militarySquad != squad)
+            {
+                Find.World.GetComponent<FactionFC>().traitMilitaristicTickLastUsedExtraSquad = Find.TickManager.TicksGame;
+            }
+        }
+
+        /// <summary>
+        /// Deploys a <paramref name="settlement"/>'s main force, takes silver if there is an <paramref name="overrideSquad"/>
+        /// </summary>
+        /// <param name="settlement"></param>
+        /// <param name="DropPod"></param>
+        /// <param name="overrideSquad"></param>
+        public static void CallinAlliedForces(SettlementFC settlement, bool DropPod, MercenarySquadFC overrideSquad = null)
+        {
+            MercenarySquadFC squad = overrideSquad ?? settlement.militarySquad;
+
+            if (Find.CurrentMap.Parent is WorldSettlementFC)
+            {
+                Messages.Message("FCMilitaryTriedDeployingToSettlementFC".Translate(), MessageTypeDefOf.RejectInput);
+                return;
+            }
+
+            squad.updateSquadStats(settlement.settlementMilitaryLevel);
+            squad.resetNeeds();
 
             IntVec3 dropPosition;
             DebugTool tool = new DebugTool("selectDeploymentPosition".Translate(), delegate
@@ -1181,135 +1255,27 @@ namespace FactionColonies
                     return;
                 }
 
-                if (DropPod)
-                {
-                    parms.spawnCenter = dropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms,settlement.militarySquad.AllEquippedMercenaryPawns);
-                }
-                else
-                {
-                    PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
-                    worker.TryResolveRaidSpawnCenter(parms);
-                    worker.Arrive(settlement.militarySquad.AllEquippedMercenaryPawns, parms);
-                    //Log.Message(settlement.militarySquad.DeployedMercenaries.Count().ToString());
-
-
-                    foreach (Mercenary merc in settlement.militarySquad.DeployedMercenaries.Concat(settlement.militarySquad.DeployedMercenaryAnimals))
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = dropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby = jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-                }
-
-                settlement.militarySquad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
-                settlement.militarySquad.isDeployed = true;
-                settlement.militarySquad.order = MilitaryOrders.Standby;
-                settlement.militarySquad.orderLocation = dropPosition;
-                settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("deploymentSuccessLabel".Translate(), "deploymentSuccessDesc".Translate(settlement.name, Find.CurrentMap.Parent.LabelCap), LetterDefOf.NeutralEvent,new LookTargets(settlement.militarySquad.AllEquippedMercenaryPawns));
-                //MilitaryAI.SquadAI(ref settlement.militarySquad);
-
+                if (overrideSquad != null) PaymentUtil.paySilver((int)Math.Round(settlement.militarySquad.outfit.updateEquipmentTotalCost() * .2));
+                SpawnSquad(settlement, squad, dropPosition, DropPod);
                 DebugTools.curTool = null;
-                settlement.sendMilitary(Find.CurrentMap.Index, Find.World.info.name, MilitaryJob.Deploy, 1, null);
             });
             DebugTools.curTool = tool;
 
             //UI.UIToMapPosition(UI.MousePositionOnUI).ToIntVec3();
         }
 
-        public static void CallinAlliedForces(SettlementFC settlement, bool DropPod, int cost)
+        /// <summary>
+        /// Deploys the secondary military of the empire from a <paramref name="settlement"/> 
+        /// </summary>
+        /// <param name="settlement"></param>
+        /// <param name="DropPod"></param>
+        /// <param name="cost"></param>
+        public static void CallinExtraForces(SettlementFC settlement, bool DropPod)
         {
-            FactionFC factionfc = Find.World.GetComponent<FactionFC>();
-            MercenarySquadFC squad = factionfc.militaryCustomizationUtil.createMercenarySquad(settlement, true);
+            MercenarySquadFC squad = Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.createMercenarySquad(settlement, true);
             squad.OutfitSquad(squad.settlement.militarySquad.outfit);
-            //Do not use this normally!!!!
 
-            PaymentUtil.paySilver(cost);
-
-            IncidentParms parms = new IncidentParms();
-            parms.target = Find.CurrentMap;
-            parms.faction = getPlayerColonyFaction();
-            parms.podOpenDelay = 140;
-            parms.points = 999;
-            parms.raidArrivalModeForQuickMilitaryAid = true;
-            parms.raidNeverFleeIndividual = true;
-            parms.raidForceOneIncap = true;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
-            parms.raidArrivalModeForQuickMilitaryAid = true;
-
-            squad.updateSquadStats(squad.settlement.settlementMilitaryLevel);
-            squad.resetNeeds();
-
-
-            DebugTool tool;
-            IntVec3 DropPosition;
-            tool = new DebugTool("Select Deployment Position", delegate
-            {
-                DropPosition = UI.MouseCell();
-                if (DropPod)
-                {
-                    parms.spawnCenter = DropPosition;
-                    PawnsArrivalModeWorkerUtility.DropInDropPodsNearSpawnCenter(parms, squad.AllEquippedMercenaryPawns);
-                }
-                else
-                {
-                    PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
-                    worker.TryResolveRaidSpawnCenter(parms);
-                    worker.Arrive(squad.AllEquippedMercenaryPawns, parms);
-                    //Log.Message(squad.DeployedMercenaries.Count().ToString());
-
-
-                    foreach (Mercenary merc in squad.DeployedMercenaries)
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = DropPosition;
-                        JobGiver_ForcedGoto jobGiverStandby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby = jobGiverStandby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            //Log.Message("valid");
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-
-                    foreach (Mercenary merc in squad.DeployedMercenaryAnimals)
-                    {
-                        merc.pawn.mindState.forcedGotoPosition = DropPosition;
-                        JobGiver_ForcedGoto jobGiver_Standby = new JobGiver_ForcedGoto();
-                        ThinkResult resultStandby =
-                            jobGiver_Standby.TryIssueJobPackage(merc.pawn, new JobIssueParams());
-                        bool isValidStandby = resultStandby.IsValid;
-                        if (isValidStandby)
-                        {
-                            //Log.Message("valid");
-                            merc.pawn.jobs.StartJob(resultStandby.Job, JobCondition.InterruptForced);
-                        }
-                    }
-                }
-
-                squad.AllEquippedMercenaryPawns.ForEach(pawn => pawn.ApplyIdeologyRitualWounds());
-                squad.isDeployed = true;
-                squad.order = MilitaryOrders.Standby;
-                squad.orderLocation = DropPosition;
-                squad.timeDeployed = Find.TickManager.TicksGame;
-                Find.LetterStack.ReceiveLetter("Military Deployed",
-                    "The Military forces of " + squad.settlement.name + " have been deployed to " +
-                    Find.CurrentMap.Parent.LabelCap, LetterDefOf.NeutralEvent,
-                    new LookTargets(squad.AllEquippedMercenaryPawns));
-                factionfc.traitMilitaristicTickLastUsedExtraSquad = Find.TickManager.TicksGame;
-
-                DebugTools.curTool = null;
-            });
-            DebugTools.curTool = tool;
-
-            //UI.UIToMapPosition(UI.MousePositionOnUI).ToIntVec3();
+            CallinAlliedForces(settlement, DropPod, squad);
         }
 
         public static void FireSupport(SettlementFC settlement, MilitaryFireSupport support)
@@ -1418,7 +1384,6 @@ namespace FactionColonies
                                 //List<Pawn> list2 = parms.raidStrategy.Worker.SpawnThreats(parms);
                                 //parms.raidArrivalMode.Worker.Arrive(list2, parms);
                                 settlement.militarySquad.isDeployed = true;
-                                settlement.militarySquad.order = MilitaryOrders.Standby;
                                 settlement.militarySquad.orderLocation = DropPosition;
                                 settlement.militarySquad.timeDeployed = Find.TickManager.TicksGame;
 
@@ -1791,7 +1756,6 @@ namespace FactionColonies
         
         public static string getTownTitle(SettlementFC settlement)
         {
-            string title = "";
             double highest = 0;
             ResourceType? resourceKey = null;
             int level;
@@ -1901,17 +1865,12 @@ namespace FactionColonies
         string workerCost;
         string settlementMaxLevel;
         int daysBetweenTaxes;
-        bool medievalTechOnly;
-        bool disableHostileMilitaryActions;
-        bool disableRandomEvents;
-        bool disableForcedPausingDuringEvents;
-        bool deadPawnsIncreaseMilitaryCooldown;
-        bool settlementsAutoBattle;
-        int minDaysTillMilitaryAction;
-        int maxDaysTillMilitaryAction;
         IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
         IntRange minMaxDaysTillRandomEvent = new IntRange(0, 6);
 
+        /// <summary>
+        /// Creates an option for the list of ForcedTaxDeliveryOptions. Shuttles may not be used if royality is inactive
+        /// </summary>
         private FloatMenuOption ShuttleOption
         {
             get
@@ -1927,7 +1886,10 @@ namespace FactionColonies
             }
         }
 
-        private List<FloatMenuOption> Options
+        /// <summary>
+        /// Creates a list of options for forced tax delivery
+        /// </summary>
+        private List<FloatMenuOption> ForcedTaxDeliveryOptions
         {
             get
             {
@@ -1950,12 +1912,8 @@ namespace FactionColonies
             workerCost = settings.workerCost.ToString();
             settlementMaxLevel = settings.settlementMaxLevel.ToString();
             daysBetweenTaxes = settings.timeBetweenTaxes / 60000;
-            medievalTechOnly = settings.medievalTechOnly;
-            disableHostileMilitaryActions = settings.disableHostileMilitaryActions;
-            minDaysTillMilitaryAction = settings.minDaysTillMilitaryAction;
-            maxDaysTillMilitaryAction = settings.maxDaysTillMilitaryAction;
 
-            minMaxDaysTillMilitaryAction = new IntRange(minDaysTillMilitaryAction, maxDaysTillMilitaryAction);
+            minMaxDaysTillMilitaryAction = new IntRange(settings.minDaysTillMilitaryAction, settings.maxDaysTillMilitaryAction);
             minMaxDaysTillRandomEvent = new IntRange(settings.minDaysTillRandomEvent, settings.maxDaysTillRandomEvent);
 
             Listing_Standard listingStandard = new Listing_Standard();
@@ -1981,11 +1939,13 @@ namespace FactionColonies
                 ref settings.disableForcedPausingDuringEvents);
             listingStandard.CheckboxLabeled("Automatically Resolve Battles",
                 ref settings.settlementsAutoBattle);
-            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(Options));
+            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(ForcedTaxDeliveryOptions));
+
             listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
             listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
-            settings.maxDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.max;
+            settings.maxDaysTillMilitaryAction = Math.Max(1, minMaxDaysTillMilitaryAction.max);
+
             listingStandard.Label("Min/Max Days Until Random Event");
             listingStandard.IntRange(ref minMaxDaysTillRandomEvent, 0, 20);
             settings.minDaysTillRandomEvent = minMaxDaysTillRandomEvent.min;
@@ -2022,14 +1982,7 @@ namespace FactionColonies
 
         public override void WriteSettings()
         {
-            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().timeBetweenTaxes =
-                daysBetweenTaxes * 60000;
-            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().minDaysTillMilitaryAction =
-                LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
-                    .minMaxDaysTillMilitaryAction.min;
-            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().maxDaysTillMilitaryAction =
-                LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
-                    .minMaxDaysTillMilitaryAction.max;
+            LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().timeBetweenTaxes = daysBetweenTaxes * 60000;
             base.WriteSettings();
         }
     }

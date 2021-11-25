@@ -303,14 +303,14 @@ namespace FactionColonies
 			//list[6] = mapLocation.ToString(); //settlement location
 			//list[7] = ID
 
-			List<String> headerList = new List<String> {"Settlement".Translate(), "Level".Translate(), "FreeWorkers".Translate(), "Unrest".Translate(), "Loyalty".Translate(), "Profit".Translate(), "Location", "ID" };
+			List<string> headerList = new List<string> {"Settlement".Translate(), "Level".Translate(), "FreeWorkers".Translate(), "Unrest".Translate(), "Loyalty".Translate(), "Profit".Translate(), "Location", "ID" };
 			int adjust2 = 0;
 
 			
 			Action method = delegate{ };
 
 			
-			for (int i = 0; i < headerList.Count()-2; i++)  //-2 to exclude location and ID
+			for (int i = 0; i < headerList.Count() - 2; i++)  //-2 to exclude location and ID
 			{
 				int xspacingUpdated;
 				GUIContent varString;
@@ -417,13 +417,10 @@ namespace FactionColonies
 								Find.WindowStack.Add(new SettlementWindowFc(settlement));
 
 							}
-							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), settlement.name);
+							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), settlement.ShortName);
 						}
 						else
 						{
-							
-							
-
 							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), varString);
 
 							//ist[0] = name;   //settlement name
@@ -485,7 +482,7 @@ namespace FactionColonies
 		private void DrawFactionMiddleMenu(Rect inRect)
 		{
 			DrawFactionStats(inRect, statSize);
-			DrawFactionButtons(inRect, buttonSize);
+			DrawFactionButtons(buttonSize);
 		}
 
 		private void DrawFactionBottomMenu(Rect inRect)
@@ -549,7 +546,7 @@ namespace FactionColonies
 			
 		}
 
-		private void DrawFactionButtons(Rect inRect, int buttonSize) //Used to draw a list of buttons from the 'buttons' list
+		private void DrawFactionButtons(int buttonSize) //Used to draw a list of buttons from the 'buttons' list
 		{
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Small;
@@ -558,9 +555,7 @@ namespace FactionColonies
 				if (Widgets.ButtonText(new Rect(140, 110 + ((buttonSize + 5) * i), 170, buttonSize), buttons[i]))
 				{
 					if (buttons[i] == "FCOverview".Translate())
-					{ //if click trade policy button
-					  //Log.Message(buttons[i]);
-						Log.Message("Success");
+					{ 
 						Find.WindowStack.Add(new FCWindow_Overview());
 					}
 				
@@ -639,16 +634,18 @@ namespace FactionColonies
 						if (faction.hasPolicy(FCPolicyDefOf.technocratic))
 							list.Add(new FloatMenuOption("FCSendResearchItems".Translate(), delegate
 							{
-								if (Find.ColonistBar.GetColonistsInOrder().Count > 0) {
+								if (Find.ColonistBar.GetColonistsInOrder().Count > 0) 
+								{
 									Pawn playerNegotiator = Find.ColonistBar.GetColonistsInOrder()[0];
 									//Log.Message(playerNegotiator.Name + " Negotiator");
 
 									FCTrader_Research trader = new FCTrader_Research();
 									
 									Find.WindowStack.Add(new Dialog_Trade(playerNegotiator, trader));
-									} else
+								} 
+								else
 								{
-									Log.Message("Where are all the colonists?");
+									Log.Error("Couldn't find any colonists to trade with");
 								}
 							}));
 
