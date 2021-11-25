@@ -750,88 +750,40 @@ namespace FactionColonies
         {
             var faction = Find.World.GetComponent<FactionFC>();
 
-            Log.Message("Handling combat resolution...");
-            if (won)
+            // Log.Message("Handling combat resolution...");
+            try
             {
-                faction.addExperienceToFactionLevel(5f);
-                //if winner is player
-                Find.LetterStack.ReceiveLetter("DefenseSuccessful".Translate(),
-                    "DefenseSuccessfulFull".Translate(settlement.name),
-                    LetterDefOf.PositiveEvent, new LookTargets(this));
+                if (won)
+                {
+                    WinBattle(faction);
+                }
+                else
+                {
+                    LoseBattle(faction);
+                }
+                // Log.Message("Handling foreign defenders...");
+                CooldownMilitary(remaining);
             }
-            else
+            catch (Exception e)
             {
-                //get multipliers
-                var happinessLostMultiplier =
-                    TraitUtilsFC.cycleTraits("happinessLostMultiplier",
-                        settlement.traits, Operation.Multiplication) *
-                    TraitUtilsFC.cycleTraits("happinessLostMultiplier", faction.traits, Operation.Multiplication);
-                var loyaltyLostMultiplier =
-                    TraitUtilsFC.cycleTraits("loyaltyLostMultiplier", settlement.traits,
-                        Operation.Multiplication) * TraitUtilsFC.cycleTraits("loyaltyLostMultiplier",
-                        faction.traits, Operation.Multiplication);
-
-                var muliplier = 1;
-                if (faction.hasPolicy(FCPolicyDefOf.feudal))
-                    muliplier = 2;
-                float prosperityMultiplier = 1;
-                var canDestroyBuildings = true;
-                if (faction.hasTrait(FCPolicyDefOf.resilient))
-                {
-                    prosperityMultiplier = .5f;
-                    canDestroyBuildings = false;
-                }
-
-                Log.Message("Determined Multipliers for loss penalty");
-                //if winner are enemies
-                settlement.prosperity -= 20 * prosperityMultiplier;
-                settlement.happiness -= 25 * happinessLostMultiplier;
-                settlement.loyalty -= 15 * loyaltyLostMultiplier * muliplier;
-
-                string str = "DefenseFailureFull".Translate(settlement.name);
-
-
-                for (var k = 0; k < 4; k++)
-                {
-                    var deconstructRoll = new IntRange(0, 10).RandomInRange;
-                    var deconstructChance = 7;
-                    if (deconstructRoll < deconstructChance || settlement.buildings[k].defName == "Empty" ||
-                        settlement.buildings[k].defName == "Construction" || !canDestroyBuildings) continue;
-                    str += "\n" +
-                           "BuildingDestroyedInRaid".Translate(settlement.buildings[k].label);
-                    settlement.deconstructBuilding(k);
-                }
-
-                Log.Message("Building deconstruction handled");
-
-                //level remover checker
-                if (settlement.settlementLevel > 1 && canDestroyBuildings)
-                {
-                    var num = new IntRange(0, 10).RandomInRange;
-                    if (num >= 7)
-                    {
-                        str += "\n\n" + "SettlementDeleveledRaid".Translate();
-                        settlement.delevelSettlement();
-                    }
-                }
-
-                Log.Message("Settlement deleveling handled");
-                Find.LetterStack.ReceiveLetter("DefenseFailure".Translate(), str, LetterDefOf.Death,
-                    new LookTargets(this));
+                Log.Error($"Encountered an error while trying to resolve combat in Empire{System.Environment.NewLine}{e}");
             }
+            settlement.isUnderAttack = false;
+        }
 
-            Log.Message("Handling foreign defenders...");
+        private void CooldownMilitary(int remaining)
+        {
             if (defenderForce?.homeSettlement == settlement)
             {
                 defenderForce?.homeSettlement?.cooldownMilitary();
             }
             else if (defenderForce == null)
             {
-                Log.Message("Defending force not set-- if the attack came from another mod, this is fine.");
+                // Log.Message("Defending force not set-- if the attack came from another mod, this is fine.");
             }
             else
             {
-                //if not the home settlement defending
+                // if not the home settlement defending
                 if (remaining >= 7)
                 {
                     Find.LetterStack.ReceiveLetter("OverwhelmingVictory".Translate(),
@@ -843,8 +795,74 @@ namespace FactionColonies
                     defenderForce.homeSettlement.cooldownMilitary();
                 }
             }
+        }
 
-            settlement.isUnderAttack = false;
+        private void LoseBattle(FactionFC faction)
+        {
+            //get multipliers
+            var happinessLostMultiplier =
+                TraitUtilsFC.cycleTraits("happinessLostMultiplier",
+                    settlement.traits, Operation.Multiplication) *
+                TraitUtilsFC.cycleTraits("happinessLostMultiplier", faction.traits, Operation.Multiplication);
+            var loyaltyLostMultiplier =
+                TraitUtilsFC.cycleTraits("loyaltyLostMultiplier", settlement.traits,
+                    Operation.Multiplication) * TraitUtilsFC.cycleTraits("loyaltyLostMultiplier",
+                    faction.traits, Operation.Multiplication);
+
+            var muliplier = 1;
+            if (faction.hasPolicy(FCPolicyDefOf.feudal))
+                muliplier = 2;
+            float prosperityMultiplier = 1;
+            var canDestroyBuildings = true;
+            if (faction.hasTrait(FCPolicyDefOf.resilient))
+            {
+                prosperityMultiplier = .5f;
+                canDestroyBuildings = false;
+            }
+
+            // Log.Message("Determined Multipliers for loss penalty");
+            // if winner are enemies
+            settlement.prosperity -= 20 * prosperityMultiplier;
+            settlement.happiness -= 25 * happinessLostMultiplier;
+            settlement.loyalty -= 15 * loyaltyLostMultiplier * muliplier;
+
+            string str = "DefenseFailureFull".Translate(settlement.name);
+
+
+            for (var k = 0; k < 4; k++)
+            {
+                var deconstructRoll = new IntRange(0, 10).RandomInRange;
+                var deconstructChance = 7;
+                if (deconstructRoll < deconstructChance || settlement.buildings[k].defName == "Empty" ||
+                    settlement.buildings[k].defName == "Construction" || !canDestroyBuildings) continue;
+                str += "\n" +
+                       "BuildingDestroyedInRaid".Translate(settlement.buildings[k].label);
+                settlement.deconstructBuilding(k);
+            }
+
+            // Log.Message("Building deconstruction handled");
+            // level remover checker
+            if (settlement.settlementLevel > 1 && canDestroyBuildings)
+            {
+                var num = new IntRange(0, 10).RandomInRange;
+                if (num >= 7)
+                {
+                    str += "\n\n" + "SettlementDeleveledRaid".Translate();
+                    settlement.delevelSettlement();
+                }
+            }
+
+            // Log.Message("Settlement deleveling handled");
+            Find.LetterStack.ReceiveLetter("DefenseFailure".Translate(), str, LetterDefOf.Death,
+                new LookTargets(this));
+        }
+
+        private void WinBattle(FactionFC faction)
+        {
+            faction.addExperienceToFactionLevel(5f);
+            Find.LetterStack.ReceiveLetter("DefenseSuccessful".Translate(),
+                "DefenseSuccessfulFull".Translate(settlement.name),
+                LetterDefOf.PositiveEvent, new LookTargets(this));
         }
 
         private void endAttack()
