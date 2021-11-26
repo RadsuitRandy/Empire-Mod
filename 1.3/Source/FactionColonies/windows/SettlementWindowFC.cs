@@ -250,7 +250,7 @@ namespace FactionColonies
                 float rectY = scroll + y + 70 + (int)resourceType * (45 + spacing);
 
                 //Don't draw if outside view
-                if ((int)resourceType * ScrollSpacing + scroll < 0) return;
+                if ((int)resourceType * ScrollSpacing + scroll < 0) continue;
 
                 bool titheDisabled = false;
                 if (resourceType == ResourceType.Research || resourceType == ResourceType.Power)
