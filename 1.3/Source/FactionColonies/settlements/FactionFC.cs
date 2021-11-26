@@ -857,6 +857,7 @@ namespace FactionColonies
             foreach (SettlementFC settlement in settlements)
             {
                 settlement.worldSettlement.def.expandingIconTexture = iconPath;
+                settlement.worldSettlement.Faction.def.factionIconPath = iconPath;
             }
         }
 
