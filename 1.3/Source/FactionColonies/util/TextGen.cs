@@ -20,6 +20,9 @@ namespace FactionColonies.util
         public static string ToShortName(string name)
         {
             IEnumerable<string> nameSplit = name.Split(' ').Where(str => !str.NullOrEmpty() && char.IsUpper(str[0]));
+
+            if (nameSplit.EnumerableNullOrEmpty()) return name;
+
             string main = nameSplit.First();
 
             return nameSplit.Aggregate(main, (total, next) => total + ((main == next) ? ' ' : next[0]));

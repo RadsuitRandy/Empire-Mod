@@ -530,7 +530,6 @@ namespace FactionColonies
                         {
                             Log.Message("Fixing LoadID of settlement");
                             settlement2.loadID = factionFC.GetNextSettlementFCID();
-                            ;
                         }
                     }
                 }
