@@ -29,7 +29,9 @@ namespace FactionColonies
 
         public int NextUnitID => ++nextUnitId;
         public int NextSquadID => ++nextSquadId;
-
+        /// <summary>
+        /// Used by other mods to find our settlements. Move, rename, or otherwise modify at your own peril
+        /// </summary>
         public List<SettlementFC> settlements = new List<SettlementFC>();
         public string name = "PlayerFaction".Translate();
         public string title = "Bastion".Translate();
