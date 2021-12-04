@@ -204,7 +204,7 @@ namespace FactionColonies
             harmony.Patch(originalpre, prefix: new HarmonyMethod(prefix));
             harmony.Patch(originalpost, postfix: new HarmonyMethod(postfix));
             // harmony.Patch(originalpost2, postfix: new HarmonyMethod(postfix));
-
+            Log.Message("Finished patching Empire and SoS2");
         }
         //
 
