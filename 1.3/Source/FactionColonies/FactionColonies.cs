@@ -929,16 +929,9 @@ namespace FactionColonies
                             }
 
                             //letter code
-                            List<string> settlements = new List<string>();
-                            evt.settlementTraitLocations.ForEach(settlement => settlements.Add(settlement.name));
-                            string settlementString = string.Join(", ", settlements);
+                            string settlementString = evt.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
 
-                            if (settlementString != "")
-                            {
-                                Find.LetterStack.ReceiveLetter("Random Event",
-                                    evtDef.desc + "\n This event is affecting the following settlements: " +
-                                    settlementString, LetterDefOf.NeutralEvent);
-                            }
+                            if (!settlementString.NullOrEmpty()) Find.LetterStack.ReceiveLetter("Random Event", $"{evt.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}", LetterDefOf.NeutralEvent);
                         }
                     ));
             }
