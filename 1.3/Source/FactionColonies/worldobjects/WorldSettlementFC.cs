@@ -421,7 +421,13 @@ namespace FactionColonies
         public override IEnumerable<FloatMenuOption> GetTransportPodsFloatMenuOptions(IEnumerable<IThingHolder> pods,
             CompLaunchable representative)
         {
+            foreach (var floatMenuOption in base.GetTransportPodsFloatMenuOptions(pods, representative))
+            {
+                yield return floatMenuOption;
+            }
             if (TransportPodsArrivalAction_LandInSpecificCell.CanLandInSpecificCell(pods, this))
+
+
                 yield return new FloatMenuOption("LandInExistingMap".Translate(Label), delegate
                 {
                     var myMap = representative.parent.Map;
