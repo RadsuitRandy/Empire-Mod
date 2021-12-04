@@ -578,7 +578,7 @@ namespace FactionColonies
                 {
                     $"A new update for Empire has been released! v.{newVersion}\n The following abbreviated changes have occurred:",
                     "- fixed floatmenu options for drop pods aiming at this mods settlements are not displayed correctly",
-                    "- fixed militar efficiency is not taken into account properly",
+                    "- fixed military efficiency is not taken into account properly",
                     "- fixed settlementsAutoBattle setting doesn't get saved on update",
                     "\n- All of the code for this update has been developed by Danimineiro and Imperitor",
                     "- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!",
