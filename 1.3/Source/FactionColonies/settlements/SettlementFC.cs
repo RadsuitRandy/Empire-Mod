@@ -10,6 +10,9 @@ namespace FactionColonies
 {
     public class SettlementFC : IExposable, ILoadReferenceable
     {
+        /// <summary>
+        /// Used by other mods to get to our world object through the list of SettlementFC. Rename at your own risk.
+        /// </summary>
         public WorldSettlementFC worldSettlement;
 
         public string GetUniqueLoadID()
