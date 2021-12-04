@@ -570,60 +570,25 @@ namespace FactionColonies
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
             }
 
+            double newVersion = 0.382;
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < 0.381)
+            if (factionFC.updateVersion < newVersion)
             {
-                try
+                string updateNotes = string.Join("\n", new string[] 
                 {
-                    string str;
-                    str = "A new update for Empire has been released! v.0.381\n The following abbreviated changes have occurred:";
-                    str += "\n- [IMPORTANT] please make sure automatic resolve is enabled in the mod settings. Manual can crash your game, if you use that SAVE everytime before a battle starts!";
-                    str += "\n- [HotFix] fixed scrolling in the settlement menu thanks to Farmer Joe, Norfuer, Mollark and TheBoredGal for the reports!";
-                    str += "\n- [HotFix] fixed faction Icon doesn't update on the world map (you have to reload your game after changing it for now)";
-                    str += "\n- [HotFix] fixed some settlement names cause the short name feature to break";
-                    //str += "\n- reworked military deployment";
-                    //str += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
-                    //str += "\n- removed unrest gain for when a faction member dies due to actions taken by non colonists";
-                    //str += "\n- caravan tax delivery pawns no longer charge enemies, but instead hide on your tax spot";
-                    //str += "\n- replaced several building icons with sharper versions made by Turkler";
-                    //str += "\n- fixed several weird behaviours of delivery pawns";
-                    //str += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
-                    //str += "\n- fixed newly rolled pawns can have biocoded weapons";
-                    //str += "\n- added missing upkeep cost to shuttle port building label";
-                    //str += "\n- added translatability to some strings (major rework of this soon!)";
-                    str += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
-                    str += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
-                    str += "\n- Want to see the full patch notes " + SteamUtility.SteamPersonaName + "? Join us on Discord! https://discord.gg/f3zFQqA";
+                    $"A new update for Empire has been released! v.{newVersion}\n The following abbreviated changes have occurred:",
+                    "- [IMPORTANT] please make sure automatic resolve is enabled in the mod settings.Manual can crash your game, if you use that SAVE everytime before a battle starts!",
+                    "- fixed floatmenu options for drop pods aiming at this mods settlements are not displayed correctly",
+                    "- fixed militar efficiency is not taken into account properly",
+                    "- fixed settlementsAutoBattle setting doesn't get saved on update",
+                    "\n- All of the code for this update has been developed by Danimineiro and Imperitor",
+                    "- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!",
+                    $"- Want to see the full patch notes {SteamUtility.SteamPersonaName}? Join us on Discord! https://discord.gg/f3zFQqA"
+                });
 
-                    factionFC.updateVersion = 0.381;
-                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", str, LetterDefOf.NewQuest);
-                }
-                catch
-                {
-                    string str2;
-                    str2 = "A new update for Empire has been released! v.0.381\n The following abbreviated changes have occurred:";
-                    str2 += "\n- [IMPORTANT] please make sure automatic resolve is enabled in the mod settings. Manual can crash your game, if you use that SAVE everytime before a battle starts!";
-                    str2 += "\n- [HotFix] fixed scrolling in the settlement menu thanks to Farmer Joe, Norfuer, Mollark and TheBoredGal for the reports!";
-                    str2 += "\n- [HotFix] fixed faction Icon doesn't update on the world map (you have to reload your game after changing it for now)";
-                    str2 += "\n- [HotFix] fixed some settlement names cause the short name feature to break";
-                    //str2 += "\n- reworked military deployment";
-                    //str2 += "\n- removed the ability to draft your deployed military (this feature is getting dropped due because it causes too many bugs)";
-                    //str2 += "\n- removed unrest gain for when a faction member dies due to actions taken by non colonists";
-                    //str2 += "\n- caravan tax delivery pawns no longer charge enemies, but instead hide on your tax spot";
-                    //str2 += "\n- replaced several building icons with sharper versions made by Turkler";
-                    //str2 += "\n- fixed several weird behaviours of delivery pawns";
-                    //str2 += "\n- fixed imprisoning player slaves causes unrest to grow, if the slaves original faction is your empire faction";
-                    //str2 += "\n- fixed newly rolled pawns can have biocoded weapons";
-                    //str2 += "\n- added missing upkeep cost to shuttle port building label";
-                    //str2 += "\n- added translatability to some strings (major rework of this soon!)";
-                    str2 += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
-                    str2 += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
-                    str2 += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
+                factionFC.updateVersion = newVersion;
 
-                    factionFC.updateVersion = 0.381;
-                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", str2, LetterDefOf.NewQuest);
-                }
-
+                Find.LetterStack.ReceiveLetter("Empire Mod Update!", updateNotes, LetterDefOf.NewQuest);
                 Settings().settlementsAutoBattle = true;
                 Settings().Write();
             }
@@ -1749,11 +1714,8 @@ namespace FactionColonies
             return Convert.ToString(Math.Floor((stat * 100)) / 100);
         }
 
-        public static FactionColonies Settings()
-        {
-            return LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>();
-        }
-        
+        public static FactionColonies Settings() => LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>();
+
         public static string getTownTitle(SettlementFC settlement)
         {
             double highest = 0;
