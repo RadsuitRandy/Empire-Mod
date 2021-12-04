@@ -577,7 +577,6 @@ namespace FactionColonies
                 string updateNotes = string.Join("\n", new string[] 
                 {
                     $"A new update for Empire has been released! v.{newVersion}\n The following abbreviated changes have occurred:",
-                    "- [IMPORTANT] please make sure automatic resolve is enabled in the mod settings.Manual can crash your game, if you use that SAVE everytime before a battle starts!",
                     "- fixed floatmenu options for drop pods aiming at this mods settlements are not displayed correctly",
                     "- fixed militar efficiency is not taken into account properly",
                     "- fixed settlementsAutoBattle setting doesn't get saved on update",
