@@ -9,7 +9,6 @@
 		<li>1.3</li>
 	</supportedVersions>
 	<incompatibleWith>
-		<li>kentington.saveourship2</li>
 	</incompatibleWith>
 	<modDependencies>
 		<li>

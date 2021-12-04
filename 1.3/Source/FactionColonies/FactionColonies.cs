@@ -619,12 +619,30 @@ namespace FactionColonies
                     str2 += "\n\n- All of the code for this update has been developed by Danimineiro and Imperitor";
                     str2 += "\n- I want to give many thanks to Turkler for helping with art and to our testers TheBoredGal and smaboo!";
                     str2 += "\n- Want to see the full patch notes? Join us on Discord! https://discord.gg/f3zFQqA";
-
-                    factionFC.updateVersion = 0.381;
                     Find.LetterStack.ReceiveLetter("Empire Mod Update!", str2, LetterDefOf.NewQuest);
                 }
 
                 Settings().settlementsAutoBattle = true;
+            }
+
+            if (factionFC.updateVersion < 0.382)
+            {
+                string news = "";
+                try
+                {
+                    string[] newsArray =
+                    {
+                        "- Basic compatibility with Save Our Ship 2 has been restored",
+                        "--> Some red error text may display when changing planets. This can be ignored",
+                        "--> Drop in to our Discord and let us know if you detect any issues"
+                    };
+                    news = string.Join(System.Environment.NewLine, newsArray);
+                    Find.LetterStack.ReceiveLetter("Empire Mod Update!", news, LetterDefOf.NewQuest);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Error in displaying update news for version {factionFC.updateVersion} to 0.382");
+                }
             }
         }
 
