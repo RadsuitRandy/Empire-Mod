@@ -1544,15 +1544,11 @@ namespace FactionColonies
                     randomEventLastAdded = 0f;
 
                     //letter code
-                    List<string> settlements = new List<string>();
-                    tmpEvt.settlementTraitLocations.ForEach(settlement => settlements.Add(settlement.name));
-                    string settlementString = string.Join(", ", settlements);
+                    string settlementString = tmpEvt.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
 
                     if (!settlementString.NullOrEmpty())
                     {
-                        Find.LetterStack.ReceiveLetter("Random Event",
-                            tmpEvt.def.desc + "\n This event is affecting the following settlements: " +
-                            settlementString, LetterDefOf.NeutralEvent);
+                        Find.LetterStack.ReceiveLetter("Random Event", $"{tmpEvt.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}", LetterDefOf.NeutralEvent);
                     }
                     else
                     {

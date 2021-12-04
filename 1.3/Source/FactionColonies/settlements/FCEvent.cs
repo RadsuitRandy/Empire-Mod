@@ -50,24 +50,12 @@ namespace FactionColonies
 
                 //letter
 
-                string settlementString = "";
-                foreach (SettlementFC loc in tempEvent.settlementTraitLocations)
-                {
-                    if (settlementString == "")
-                    {
-                        settlementString = settlementString + loc.name;
-                    }
-                    else
-                    {
-                        settlementString = settlementString + ", " + loc.name;
-                    }
-                }
 
-                if (settlementString != "")
+                string settlementString = tempEvent.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
+
+                if (!settlementString.NullOrEmpty())
                 {
-                    Find.LetterStack.ReceiveLetter(tempEvent.def.label,
-                        tempEvent.def.desc + "\n This event is affecting the following settlements: " +
-                        settlementString, LetterDefOf.NeutralEvent);
+                    Find.LetterStack.ReceiveLetter(tempEvent.def.label, $"{tempEvent.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}", LetterDefOf.NeutralEvent);
                 }
                 else
                 {
@@ -543,28 +531,11 @@ namespace FactionColonies
                     {
                         faction.addEvent(tempEvent);
 
+                        string settlementString = tempEvent.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
 
-                        //letter
-
-                        string settlementString = "";
-                        foreach (SettlementFC loc in tempEvent.settlementTraitLocations)
+                        if (!settlementString.NullOrEmpty())
                         {
-                            //Log.Message(loc.ToString());
-                            if (settlementString == "")
-                            {
-                                settlementString = settlementString + " " + loc.name;
-                            }
-                            else
-                            {
-                                settlementString = settlementString + ", " + loc.name;
-                            }
-                        }
-
-                        if (settlementString != "")
-                        {
-                            Find.LetterStack.ReceiveLetter(tempEvent.def.label,
-                                tempEvent.def.desc + "\n" + "EventAffectingSettlements".Translate() +
-                                settlementString, LetterDefOf.NeutralEvent);
+                            Find.LetterStack.ReceiveLetter(tempEvent.def.label, $"{tempEvent.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}", LetterDefOf.NeutralEvent);
                         }
                         else
                         {
