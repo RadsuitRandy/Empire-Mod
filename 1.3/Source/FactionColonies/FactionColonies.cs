@@ -625,6 +625,7 @@ namespace FactionColonies
                 }
 
                 Settings().settlementsAutoBattle = true;
+                Settings().Write();
             }
         }
 
