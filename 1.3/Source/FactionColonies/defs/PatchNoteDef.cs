@@ -16,7 +16,6 @@ namespace FactionColonies
         public int minor = 0;
         public int patch = 0;
         public PatchNoteType patchNoteType = PatchNoteType.Undefined;
-
         public List<string> patchNoteLines = new List<string>();
 
         [NoTranslate]
@@ -28,7 +27,9 @@ namespace FactionColonies
         [NoTranslate]
         public List<string> patchNoteImageDescriptions = new List<string>();
 
-        public string authorString = "FCPatchNotesAuthorString";
+        [NoTranslate]
+        public string authorStringTranslationKey = "FCPatchNotesAuthorString";
+
         private bool hasImagesCached = false;
         private readonly List<Texture2D> imagesCached = new List<Texture2D>();
 
@@ -73,6 +74,8 @@ namespace FactionColonies
                 return $"{string.Join(", ", workList)} and {lastAuthor}.";
             }
         }
+
+        public string AuthorLine => $"{authorStringTranslationKey.Translate()} {AuthorsFormatted}";
 
         public List<Texture2D> PatchNoteImages()
         {
