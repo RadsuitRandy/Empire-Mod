@@ -12,7 +12,7 @@ namespace FactionColonies
 	public static class DebugActionsMisc
 	{
 		[DebugAction("Mods", "Display Empire patch notes", false, false, allowedGameStates = AllowedGameStates.Entry)]
-		private static void PatchNotesDisplayWindow() => Find.WindowStack.Add(new PatchNotesDisplayWindow());
+		public static void PatchNotesDisplayWindow() => Find.WindowStack.Add(new PatchNotesDisplayWindow());
 	}
 
 	class PatchNotesDisplayWindow : Window
@@ -33,7 +33,10 @@ namespace FactionColonies
 		private readonly GameFont prevFont;
 		private readonly TextAnchor prevAnchor;
 		private readonly Color prevColor;
+		private readonly Rect patchNotesScrollViewRect;
+		private readonly List<PatchNoteDef> patchNoteDefs;
 
+		private Vector2 scrollPos = new Vector2();
 
 		/// <summary>
 		/// Constructs a PatchNotesDisplayWindow class and saves the current Text.Font, Text.Anchor and GUI.color
@@ -43,6 +46,8 @@ namespace FactionColonies
 			prevFont = Text.Font;
 			prevAnchor = Text.Anchor;
 			prevColor = GUI.color;
+			patchNotesScrollViewRect = PatchNotesScrollArea.LeftPartPixels(PatchNotesImageRect.width - 17f);
+			patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading;
 		}
 
 		/// <summary>
@@ -71,6 +76,14 @@ namespace FactionColonies
 			ResetTextAndColor();
 		}
 
+		private void DrawPatchNotes()
+		{
+			Widgets.BeginScrollView(PatchNotesScrollArea, ref scrollPos, patchNotesScrollViewRect);
+
+			
+
+			Widgets.EndScrollView();
+		}
 
 		/// <summary>
 		/// Draws the lines that separate the title, patch notes and patch note images
