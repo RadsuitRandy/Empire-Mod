@@ -46,8 +46,13 @@ namespace FactionColonies
         [NoTranslate]
         private readonly string modNameTranslationKey = "FCPatchNotesModName";
 
+        private readonly int releaseDay = 01;
+        private readonly int releaseMonth = 01;
+        private readonly int releaseYear = 2000;
+
         private bool hasImagesCached = false;
         private readonly List<Texture2D> imagesCached = new List<Texture2D>();
+        private ModContentPack modContentPackCached = null;
         private Texture2D linkButtonImageCached;
 
         /// <summary>
@@ -55,7 +60,7 @@ namespace FactionColonies
         /// </summary>
         public string Title
         {
-            get => label;
+            get => $"[{(modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == ModId))).ModMetaData.Name}] {label} {VersionNumber}";
         }
 
         /// <summary>
@@ -72,12 +77,12 @@ namespace FactionColonies
         /// <summary>
         /// The complete Version number formatted like: "1.02.03"
         /// </summary>
-        public string VersionNumber => $"{major}.{((minor > 10) ? minor : '0' + minor)}.{((patch > 10) ? patch : '0' + patch)}";
+        public string VersionNumber => $"{major}.{ToVersion(minor)}.{ToVersion(patch)}";
 
         /// <summary>
-        /// Converts the version to the old Empire version format (Also used for sorting)
+        /// Converts the version to the old Empire version format
         /// </summary>
-        public double ToOldEmpireVersion => double.Parse($"{major}.{((minor > 10) ? minor : '0' + minor)}{((patch > 10) ? patch : '0' + patch)}", System.Globalization.CultureInfo.InvariantCulture);
+        public double ToOldEmpireVersion => double.Parse($"{major}.{ToVersion(minor)}{ToVersion(patch)}", System.Globalization.CultureInfo.InvariantCulture);
 
         /// <summary>
         /// The Major version number
@@ -136,6 +141,7 @@ namespace FactionColonies
 
         /// <summary>
         /// Returns the list of authors in this format: "name0, name1, name2, ..., nameN-1 and nameN" where N is the amount of authors
+        /// only returns the name of one author if there is only one
         /// </summary>
         public string AuthorsFormatted
         {
@@ -143,7 +149,10 @@ namespace FactionColonies
             {
                 List<string> workList = authors.ListFullCopy();
                 string lastAuthor = workList.Pop();
-                return $"{string.Join(", ", workList)} and {lastAuthor}.";
+
+                if (workList.NullOrEmpty()) return lastAuthor;
+
+                return $"{string.Join(", ", workList)} and {lastAuthor}";
             }
         }
 
@@ -183,6 +192,10 @@ namespace FactionColonies
             get => patchNoteImageDescriptions;
         }
 
+        public DateTime ReleaseDate => new DateTime(releaseYear, releaseMonth, releaseDay);
+
+        public string CompletePatchNotesString => $"{description}\n\n{PatchNotesIntroString}\n{PatchNotesFormatted}\n\n{AuthorLine}{(additionalNotes.NullOrEmpty() ? "" : "\n" + AdditionalNotesFormatted)}";
+
         /// <summary>
         /// Clears the cached data of this def
         /// </summary>
@@ -195,6 +208,8 @@ namespace FactionColonies
 
             hasImagesCached = false;
         }
+
+        private static string ToVersion(int num) => (num > 10) ? num.ToString() : '0' + num.ToString();
 
         [DefOf]
         public class PatchNoteDefOf
