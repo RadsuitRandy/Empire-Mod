@@ -205,7 +205,7 @@ namespace FactionColonies
 
             imagesCached.RemoveAll((_) => true);
             linkButtonImageCached = null;
-
+            modContentPackCached = null;
             hasImagesCached = false;
         }
 
