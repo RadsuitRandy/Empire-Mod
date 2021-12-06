@@ -75,7 +75,7 @@ namespace FactionColonies
         public string VersionNumber => $"{major}.{((minor > 10) ? minor : '0' + minor)}.{((patch > 10) ? patch : '0' + patch)}";
 
         /// <summary>
-        /// Converts the version to the old Empire version format
+        /// Converts the version to the old Empire version format (Also used for sorting)
         /// </summary>
         public double ToOldEmpireVersion => double.Parse($"{major}.{((minor > 10) ? minor : '0' + minor)}{((patch > 10) ? patch : '0' + patch)}", System.Globalization.CultureInfo.InvariantCulture);
 
