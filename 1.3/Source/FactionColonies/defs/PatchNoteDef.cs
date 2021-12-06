@@ -150,7 +150,7 @@ namespace FactionColonies
         /// <summary>
         /// Returns a string that contains the authors in a sentence
         /// </summary>
-        public string AuthorLine => $"{authorStringTranslationKey.Translate()} {AuthorsFormatted}";
+        public string AuthorLine => $"{authorStringTranslationKey.Translate(AuthorsFormatted)}";
 
         /// <summary>
         /// Returns the cached image, caches it if not yet cached
