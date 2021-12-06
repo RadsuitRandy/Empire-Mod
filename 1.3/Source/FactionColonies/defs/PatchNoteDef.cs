@@ -20,6 +20,9 @@ namespace FactionColonies
         private readonly List<string> additionalNotes = new List<string>();
 
         [NoTranslate]
+        public readonly string ModId = "saakra.empire";
+
+        [NoTranslate]
         private readonly string link = "";
 
         [NoTranslate]
