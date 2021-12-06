@@ -24,9 +24,6 @@ namespace FactionColonies
         public static readonly Texture2D questionmark = ContentFinder<Texture2D>.Get("GUI/questionmark");
         public static readonly Texture2D buildingLocked = ContentFinder<Texture2D>.Get("GUI/LockedBuildingSlot");
         public static readonly Texture2D refreshIcon = ContentFinder<Texture2D>.Get("GUI/Buttons/Refresh");
-        public static readonly Texture2D collapse = ContentFinder<Texture2D>.Get("GUI/Buttons/Collapse");
-        public static readonly Texture2D expand = ContentFinder<Texture2D>.Get("GUI/Buttons/Expand");
-
 
         // Tynan made the definitions in Verse internal so we gotta get them here
         public static readonly Texture2D deleteX = ContentFinder<Texture2D>.Get("UI/Buttons/Delete");
@@ -81,9 +78,9 @@ namespace FactionColonies
             new KeyValuePair<string, Texture2D>("animals", ContentFinder<Texture2D>.Get("GUI/ProductionAnimals")), 
             new KeyValuePair<string, Texture2D>("logging", ContentFinder<Texture2D>.Get("GUI/ProductionLogging")), 
             new KeyValuePair<string, Texture2D>("mining", ContentFinder<Texture2D>.Get("GUI/ProductionMining")),
-            new KeyValuePair<string, Texture2D>("medicine", ContentFinder<Texture2D>.Get("GUI/ProductionMedicine")),
-            new KeyValuePair<string, Texture2D>("power", ContentFinder<Texture2D>.Get("GUI/ProductionPower")),
-            new KeyValuePair<string, Texture2D>("research", ContentFinder<Texture2D>.Get("GUI/ProductionResearch"))
+             new KeyValuePair<string, Texture2D>("medicine", ContentFinder<Texture2D>.Get("GUI/ProductionMedicine")),
+              new KeyValuePair<string, Texture2D>("power", ContentFinder<Texture2D>.Get("GUI/ProductionPower")),
+               new KeyValuePair<string, Texture2D>("research", ContentFinder<Texture2D>.Get("GUI/ProductionResearch"))
         };
 
         public static List<Texture2D> factionIcons = new List<Texture2D>();
