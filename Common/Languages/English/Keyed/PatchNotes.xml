@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 	<FCPatchNotesWindowTitle>Empire Patch Notes</FCPatchNotesWindowTitle>
-	<FCPatchNotesAuthorString>All of the code for this update has been developed by {0}</FCPatchNotesAuthorString>
+	<FCPatchNotesAuthorString>All of the code for this update has been developed by {0}.</FCPatchNotesAuthorString>
+	<FCUpdateIntroString>A new update for {0} has been released! v.{1}\n The following abbreviated changes have occurred:</FCUpdateIntroString>
+	<FCPatchNotesModName>Empire</FCPatchNotesModName>
 </LanguageData>
