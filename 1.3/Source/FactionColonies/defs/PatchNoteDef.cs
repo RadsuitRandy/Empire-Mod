@@ -58,21 +58,12 @@ namespace FactionColonies
         /// <summary>
         /// The def label
         /// </summary>
-        public string Title
-        {
-            get => $"[{(modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == ModId))).ModMetaData.Name}] {label} {VersionNumber}";
-        }
+        public string Title => $"[{(modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == ModId))).ModMetaData.Name}] {label} {VersionNumber}";
 
         /// <summary>
         /// The def description
         /// </summary>
-        public string Description
-        {
-            get
-            {
-                return description;
-            }
-        }
+        public string Description => description;
 
         /// <summary>
         /// The complete Version number formatted like: "1.02.03"
@@ -87,42 +78,27 @@ namespace FactionColonies
         /// <summary>
         /// The Major version number
         /// </summary>
-        public int Major
-        {
-            get => major;
-        }
+        public int Major => major;
 
         /// <summary>
         /// The Minor version number
         /// </summary>
-        public int Minor
-        {
-            get => minor;
-        }
+        public int Minor => minor;
 
         /// <summary>
         /// The Patch version number
         /// </summary>
-        public int Patch
-        {
-            get => patch;
-        }
+        public int Patch => patch;
 
         /// <summary>
         /// Returns the PatchNoteType
         /// </summary>
-        public PatchNoteType GetPatchNoteType
-        {
-            get => patchNoteType;
-        }
+        public PatchNoteType GetPatchNoteType => patchNoteType;
 
         /// <summary>
         /// Returns a link as provided by the def
         /// </summary>
-        public string Link
-        {
-            get => link;
-        }
+        public string Link => link;
 
         /// <summary>
         /// Returns the patch notes seperated by new lines
@@ -187,10 +163,7 @@ namespace FactionColonies
             }
         }
 
-        public List<string> PatchNoteImageDescriptions
-        {
-            get => patchNoteImageDescriptions;
-        }
+        public List<string> PatchNoteImageDescriptions => patchNoteImageDescriptions;
 
         public DateTime ReleaseDate => new DateTime(releaseYear, releaseMonth, releaseDay);
 
