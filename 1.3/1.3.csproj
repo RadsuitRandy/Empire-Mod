@@ -6,6 +6,7 @@
         <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
         <OutputPath>Assemblies</OutputPath>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AssemblyVersion>0.38.3.05</AssemblyVersion>
     </PropertyGroup>
     <ItemGroup>
         <!-- Rimworld -->

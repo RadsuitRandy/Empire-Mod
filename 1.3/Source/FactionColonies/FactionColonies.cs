@@ -165,7 +165,7 @@ namespace FactionColonies
             {
                 foreach (SettlementFC settlement in factionFC.settlements)
                 {
-                    //reset prisoner hp
+                    // reset prisoner hp
                     foreach (FCPrisoner prisoner in settlement.prisonerList)
                     {
                         prisoner.healthTracker = new Pawn_HealthTracker(prisoner.prisoner);
@@ -570,7 +570,7 @@ namespace FactionColonies
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
             }
 
-            double newVersion = 0.382;
+            double newVersion = 0.383;
             //Add update letter/checker here!!
             if (factionFC.updateVersion < newVersion)
             {
