@@ -45,7 +45,7 @@ namespace FactionColonies
 			TextAnchor prevAnchor = Text.Anchor;
 
 			GUI.color = Color.black;
-			Widgets.DrawBox(imageRect, 4);
+			Widgets.DrawBoxSolid(imageRect, GUI.color);
 			Widgets.DrawBox(descriptionRect, 4);
 			GUI.color = prevColor;
 
