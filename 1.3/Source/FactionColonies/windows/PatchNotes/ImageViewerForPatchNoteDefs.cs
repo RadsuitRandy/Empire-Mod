@@ -86,7 +86,7 @@ namespace FactionColonies
 
 			Text.Anchor = TextAnchor.MiddleCenter;
 
-			GUI.DrawTexture(imageRect.ContractedBy(4f), patchNoteDef.PatchNoteImages[displayedImage]);
+			GUI.DrawTexture(imageRect.ContractedBy(4f), patchNoteDef.PatchNoteImages[displayedImage], ScaleMode.ScaleToFit);
 
 			Text.Anchor = prevAnchor;
 			Text.Font = prevFont;
