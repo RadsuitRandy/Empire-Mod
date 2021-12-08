@@ -63,7 +63,7 @@ namespace FactionColonies
 			basePatchNoteRect = patchNotesScrollViewRect.TopPartPixels(45f);
 			CalculateScrollViewSize();
 
-			patchNoteDefs.SortBy((def) => def.ReleaseDate);
+			patchNoteDefs.SortBy((def) => def.ReleaseDate, (def) => def.ToOldEmpireVersion);
 			patchNoteDefs.Reverse();
 		}
 
