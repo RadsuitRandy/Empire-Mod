@@ -38,14 +38,18 @@ namespace FactionColonies
 		private readonly Color prevColor = GUI.color;
 		private readonly List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.ListFullCopy();
 
-
+		//For the patch note area
 		private bool shouldRefreshHeight = true;
-		private int openDef = -1;
+		private int openDef = 0;
 		private float scrollViewHeight = 0f;
 		private float extraHeightRequired = 0f;
 		private Vector2 scrollPos = new Vector2();
 		private Rect patchNotesScrollViewRect;
 		private Rect basePatchNoteRect;
+
+		//For the image area
+		private int displayedImage = -1;
+		private Color orange = Color.Lerp(Color.yellow, Color.red, 0.5f);
 
 		/// <summary>
 		/// Constructs a PatchNotesDisplayWindow class and saves the current Text.Font, Text.Anchor and GUI.color
@@ -76,15 +80,115 @@ namespace FactionColonies
 			DrawTitle();
 			DrawDividers();
 			DrawPatchNotes();
-
-			Widgets.DrawBox(PatchNotesImageArea);
-			Widgets.DrawBox(PatchNotesImageRect);
-			Widgets.DrawBox(LastImageButtonRect);
-			Widgets.DrawBox(NextImageButtonRect);
-			Widgets.DrawBox(ImageDescRect);
+			DrawImageContent();
 
 			ResetTextAndColor();
 		}
+
+		public void DrawImageContent()
+		{
+			Widgets.DrawBox(PatchNotesImageArea);
+			Widgets.DrawBox(PatchNotesImageRect);
+			Widgets.DrawLightHighlight(ImageDescRect);
+
+			if (openDef == -1)
+			{
+				DrawImageContentMissing("FCSelectPatchNotes".Translate(), orange);
+			} 
+			else
+            {
+				DrawImageContentOfDef();
+			}
+		}
+
+		/// <summary>
+		/// retrieves the list of Images from the openDef and displays that image
+		/// Also draws the controls
+		/// </summary>
+		public void DrawImageContentOfDef()
+        {
+			PatchNoteDef def = patchNoteDefs[openDef];
+			List<Texture2D> patchNoteImages = def.PatchNoteImages;
+
+			if (patchNoteImages.NullOrEmpty())
+			{
+				DrawImageContentMissing("FCPatchNotesImagesMissing".Translate(), orange);
+			}
+			else
+			{
+				displayedImage = displayedImage == -1 ? 0 : displayedImage;
+				GUI.DrawTexture(PatchNotesImageRect, patchNoteImages[displayedImage]);
+				DrawImageSelectors(patchNoteImages.Count - 1);
+			}
+        }
+
+		/// <summary>
+		/// Draws two buttons labeled that change which image is displayed. <paramref name="max"/> is the last index of images displayable
+		/// </summary>
+		/// <param name="max"></param>
+		public void DrawImageSelectors(int max)
+		{
+			Text.Anchor = TextAnchor.MiddleCenter;
+			Text.Font = GameFont.Medium;
+
+			DrawImageSelector(NextImageButtonRect, ">", () => displayedImage < max, () => displayedImage++);
+			DrawImageSelector(LastImageButtonRect, "<", () => displayedImage  >  0, () => displayedImage--);
+
+			ResetTextAndColor();
+		}
+
+		/// <summary>
+		/// Draws a grey button into a given <paramref name="buttonRect"/> with the <paramref name="buttonLabel"/> 
+		/// when <paramref name="predicate"/> is true that executes <paramref name="action"/> 
+		/// when pressed
+		/// </summary>
+		/// <param name="buttonRect"></param>
+		/// <param name="buttonLabel"></param>
+		/// <param name="predicate"></param>
+		/// <param name="action"></param>
+		public void DrawImageSelector(Rect buttonRect, string buttonLabel, Func<bool> predicate, Action action)
+        {
+			GUI.color = prevColor;
+
+			if (predicate())
+			{
+				Color guiColor = Color.black;
+				guiColor.a = 0.8f;
+
+				if (!Mouse.IsOver(buttonRect)) guiColor.a = 0.3f;
+				Widgets.DrawBoxSolid(buttonRect, guiColor);
+
+				guiColor = prevColor;
+				if (!Mouse.IsOver(buttonRect)) guiColor.a = 0.3f;
+
+				GUI.color = guiColor;
+
+				if (Widgets.ButtonInvisible(buttonRect))
+				{
+					action();
+					SoundDefOf.Click.PlayOneShotOnCamera();
+				}
+
+				Widgets.Label(buttonRect, buttonLabel);
+			}
+		}
+
+		/// <summary>
+		/// Displays a warning in place of the image notifying the user of the <paramref name="reason"/> why no image can be displayed
+		/// </summary>
+		/// <param name="reason"></param>
+		public void DrawImageContentMissing(string reason, Color reasonColor)
+        {
+			Text.Anchor = TextAnchor.MiddleCenter;
+			Text.Font = GameFont.Medium;
+			GUI.color = reasonColor;
+
+			Widgets.DrawBoxSolid(PatchNotesImageRect, Color.black);
+			Widgets.Label(PatchNotesImageRect, reason);
+
+			displayedImage = -1;
+			ResetTextAndColor();
+        }
 
 		/// <summary>
 		/// Draws the buttons used to select which patch notes to display and the patch notes
@@ -117,7 +221,7 @@ namespace FactionColonies
 				}
 			}
 
-			if (openDef != -1) 
+			if (openDef != -1 && patchNoteDefs.Count > openDef) 
 			{
 				Text.Font = GameFont.Small;
 
