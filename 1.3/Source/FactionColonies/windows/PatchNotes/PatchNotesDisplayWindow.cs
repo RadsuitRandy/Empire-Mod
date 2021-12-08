@@ -134,8 +134,8 @@ namespace FactionColonies
 				extraHeightRequired = 0;
 			}
 
-			ResetTextAndColor();
 			patchNotesScrollViewRect.height = scrollViewHeight;
+			ResetTextAndColor();
 			Widgets.EndScrollView();
 		}
 

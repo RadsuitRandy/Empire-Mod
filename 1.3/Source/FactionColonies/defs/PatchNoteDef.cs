@@ -56,7 +56,7 @@ namespace FactionColonies
         private Texture2D linkButtonImageCached;
 
         /// <summary>
-        /// The def label
+        /// The title of the update example: [Empire] Update 0.38.00
         /// </summary>
         public string Title => $"[{(modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == ModId))).ModMetaData.Name}] {label} {VersionNumber}";
 
@@ -135,7 +135,7 @@ namespace FactionColonies
         /// <summary>
         /// Returns a string that contains the authors in a sentence
         /// </summary>
-        public string AuthorLine => $"{authorStringTranslationKey.Translate(AuthorsFormatted)}";
+        public string AuthorLine => authorStringTranslationKey.Translate(AuthorsFormatted);
 
         /// <summary>
         /// Returns the cached image, caches it if not yet cached
