@@ -60,6 +60,7 @@ namespace FactionColonies
 			Widgets.LabelScrollable(contracted.LeftPartPixels(contracted.width - 100f - commonMargin), patchNoteDef.PatchNoteImageDescriptions[displayedImage], ref scrollPos);
 
 			Text.Font = GameFont.Medium;
+			Text.Anchor = TextAnchor.MiddleCenter;
 			if (displayedImage < patchNoteDef.PatchNoteImages.Count - 1)
 			{
 				Widgets.DrawBoxSolid(nextButtonRect, Color.black);
@@ -84,7 +85,6 @@ namespace FactionColonies
 				}
 			}
 
-			Text.Anchor = TextAnchor.MiddleCenter;
 
 			GUI.DrawTexture(imageRect.ContractedBy(4f), patchNoteDef.PatchNoteImages[displayedImage], ScaleMode.ScaleToFit);
 

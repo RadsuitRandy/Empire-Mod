@@ -101,11 +101,6 @@ namespace FactionColonies
 			else
             {
 				DrawImageContentOfDef();
-				MakeToolTip();
-				if (Widgets.ButtonInvisible(toolTipRect))
-				{
-					Find.WindowStack.Add(new ImageViewerForPatchNoteDefs(patchNoteDefs[openDef], displayedImage));
-				}
 			}
 		}
 
@@ -147,11 +142,13 @@ namespace FactionColonies
 			else
 			{
 				displayedImage = displayedImage == -1 ? 0 : displayedImage;
-				GUI.DrawTexture(PatchNotesImageRect, patchNoteImages[displayedImage], ScaleMode.ScaleToFit);
+				GUI.DrawTexture(PatchNotesImageRect, patchNoteImages[displayedImage], ScaleMode.ScaleToFit, true, );
 				DrawImageSelectors(patchNoteImages.Count - 1);
 
 				Text.Font = GameFont.Small;
 				Widgets.LabelScrollable(ImageDescRect.ContractedBy(commonMargin), def.PatchNoteImageDescriptions[displayedImage], ref imageDescScrollPos);
+				MakeToolTip();
+				if (Widgets.ButtonInvisible(toolTipRect)) Find.WindowStack.Add(new ImageViewerForPatchNoteDefs(patchNoteDefs[openDef], displayedImage));
 			}
 
 			ResetTextAndColor();
