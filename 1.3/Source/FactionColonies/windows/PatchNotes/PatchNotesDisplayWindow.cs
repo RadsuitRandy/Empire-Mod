@@ -142,7 +142,9 @@ namespace FactionColonies
 			else
 			{
 				displayedImage = displayedImage == -1 ? 0 : displayedImage;
-				GUI.DrawTexture(PatchNotesImageRect, patchNoteImages[displayedImage], ScaleMode.ScaleToFit, true, );
+				Texture2D tex = patchNoteImages[displayedImage];
+				GUI.DrawTexture(PatchNotesImageRect, tex, ScaleMode.ScaleToFit);
+
 				DrawImageSelectors(patchNoteImages.Count - 1);
 
 				Text.Font = GameFont.Small;

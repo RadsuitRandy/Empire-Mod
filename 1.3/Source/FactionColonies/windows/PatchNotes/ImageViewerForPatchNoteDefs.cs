@@ -29,7 +29,7 @@ namespace FactionColonies
 			closeOnClickedOutside = true;
 
 			Vector2 screenCenter = imageRect.center;
-			imageRect = new Rect(0f, 0f, 1370f, 772f)
+			imageRect = new Rect(0f, 0f, 1374f, 776f)
 			{
 				center = screenCenter
 			};
@@ -85,8 +85,17 @@ namespace FactionColonies
 				}
 			}
 
+			//Make images look better if they are 16/9
+			Texture2D tex = patchNoteDef.PatchNoteImages[displayedImage];
+			if (GenMath.RoundedHundredth((float) tex.width / tex.height / (16f / 9f)) == 1f)
+			{
+				GUI.DrawTexture(imageRect.ContractedBy(4f), tex);
+			}
+            else
+            {
+				GUI.DrawTexture(imageRect.ContractedBy(4f), tex, ScaleMode.ScaleToFit);
+			}
 
-			GUI.DrawTexture(imageRect.ContractedBy(4f), patchNoteDef.PatchNoteImages[displayedImage], ScaleMode.ScaleToFit);
 
 			Text.Anchor = prevAnchor;
 			Text.Font = prevFont;
