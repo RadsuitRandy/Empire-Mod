@@ -52,6 +52,7 @@ namespace FactionColonies
 		private int displayedImage = -1;
 		private Vector2 imageDescScrollPos = new Vector2();
 		private Color orange = Color.Lerp(Color.yellow, Color.red, 0.5f);
+		private Rect toolTipRect;
 
 		/// <summary>
 		/// Constructs a PatchNotesDisplayWindow class and saves the current Text.Font, Text.Anchor and GUI.color
@@ -101,6 +102,10 @@ namespace FactionColonies
             {
 				DrawImageContentOfDef();
 				MakeToolTip();
+				if (Widgets.ButtonInvisible(toolTipRect))
+				{
+					Find.WindowStack.Add(new ImageViewerForPatchNoteDefs(patchNoteDefs[openDef], displayedImage));
+				}
 			}
 		}
 
@@ -110,20 +115,20 @@ namespace FactionColonies
 		/// </summary>
 		private void MakeToolTip()
 		{
-			Rect tempRect = new Rect(PatchNotesImageToolTipRect);
+			toolTipRect = new Rect(PatchNotesImageToolTipRect);
 
 			if (displayedImage == 0)
             {
-				tempRect.x -= LastImageButtonRect.width;
-				tempRect.width += LastImageButtonRect.width;
+				toolTipRect.x -= LastImageButtonRect.width;
+				toolTipRect.width += LastImageButtonRect.width;
             }
 
 			if (displayedImage == patchNoteDefs[openDef].PatchNoteImages.Count - 1)
 			{
-				tempRect.width += NextImageButtonRect.width;
+				toolTipRect.width += NextImageButtonRect.width;
 			}
 
-			TooltipHandler.TipRegion(tempRect, "FCPatchNotesImageZoomTooltip".Translate());
+			TooltipHandler.TipRegion(toolTipRect, "FCPatchNotesImageZoomTooltip".Translate());
 		}
 
 		/// <summary>
@@ -184,9 +189,9 @@ namespace FactionColonies
 			{
 				Color guiColor = Color.black;
 				guiColor.a = 0.8f;
+
 				if (!Mouse.IsOver(buttonRect)) guiColor.a = 0.3f;
 				Widgets.DrawBoxSolid(buttonRect, guiColor);
-
 
 				guiColor = prevColor;
 				if (!Mouse.IsOver(buttonRect)) guiColor.a = 0.3f;
