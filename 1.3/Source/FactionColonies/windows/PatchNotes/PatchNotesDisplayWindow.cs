@@ -43,12 +43,13 @@ namespace FactionColonies
 		private int openDef = 0;
 		private float scrollViewHeight = 0f;
 		private float extraHeightRequired = 0f;
-		private Vector2 scrollPos = new Vector2();
+		private Vector2 patchNoteScrollPos = new Vector2();
 		private Rect patchNotesScrollViewRect;
 		private Rect basePatchNoteRect;
 
 		//For the image area
 		private int displayedImage = -1;
+		private Vector2 imageDescScrollPos = new Vector2();
 		private Color orange = Color.Lerp(Color.yellow, Color.red, 0.5f);
 
 		/// <summary>
@@ -81,11 +82,12 @@ namespace FactionColonies
 			DrawDividers();
 			DrawPatchNotes();
 			DrawImageContent();
-
-			ResetTextAndColor();
 		}
 
-		public void DrawImageContent()
+		/// <summary>
+		/// Draws the Image related content of any selected Def or a text instructing the user to select a def
+		/// </summary>
+		private void DrawImageContent()
 		{
 			Widgets.DrawBox(PatchNotesImageArea);
 			Widgets.DrawBox(PatchNotesImageRect);
@@ -105,7 +107,7 @@ namespace FactionColonies
 		/// retrieves the list of Images from the openDef and displays that image
 		/// Also draws the controls
 		/// </summary>
-		public void DrawImageContentOfDef()
+		private void DrawImageContentOfDef()
         {
 			PatchNoteDef def = patchNoteDefs[openDef];
 			List<Texture2D> patchNoteImages = def.PatchNoteImages;
@@ -119,14 +121,19 @@ namespace FactionColonies
 				displayedImage = displayedImage == -1 ? 0 : displayedImage;
 				GUI.DrawTexture(PatchNotesImageRect, patchNoteImages[displayedImage]);
 				DrawImageSelectors(patchNoteImages.Count - 1);
+
+				Text.Font = GameFont.Small;
+				Widgets.LabelScrollable(ImageDescRect.ContractedBy(commonMargin), def.PatchNoteImageDescriptions[displayedImage], ref imageDescScrollPos);
 			}
+
+			ResetTextAndColor();
         }
 
 		/// <summary>
 		/// Draws two buttons labeled that change which image is displayed. <paramref name="max"/> is the last index of images displayable
 		/// </summary>
 		/// <param name="max"></param>
-		public void DrawImageSelectors(int max)
+		private void DrawImageSelectors(int max)
 		{
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Medium;
@@ -146,7 +153,7 @@ namespace FactionColonies
 		/// <param name="buttonLabel"></param>
 		/// <param name="predicate"></param>
 		/// <param name="action"></param>
-		public void DrawImageSelector(Rect buttonRect, string buttonLabel, Func<bool> predicate, Action action)
+		private void DrawImageSelector(Rect buttonRect, string buttonLabel, Func<bool> predicate, Action action)
         {
 			GUI.color = prevColor;
 
@@ -167,6 +174,7 @@ namespace FactionColonies
 				{
 					action();
 					SoundDefOf.Click.PlayOneShotOnCamera();
+					imageDescScrollPos = new Vector2();
 				}
 
 				Widgets.Label(buttonRect, buttonLabel);
@@ -177,7 +185,7 @@ namespace FactionColonies
 		/// Displays a warning in place of the image notifying the user of the <paramref name="reason"/> why no image can be displayed
 		/// </summary>
 		/// <param name="reason"></param>
-		public void DrawImageContentMissing(string reason, Color reasonColor)
+		private void DrawImageContentMissing(string reason, Color reasonColor)
         {
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Medium;
@@ -195,7 +203,7 @@ namespace FactionColonies
 		/// </summary>
 		private void DrawPatchNotes()
 		{
-			Widgets.BeginScrollView(PatchNotesScrollArea, ref scrollPos, patchNotesScrollViewRect);
+			Widgets.BeginScrollView(PatchNotesScrollArea, ref patchNoteScrollPos, patchNotesScrollViewRect);
 
 			for (int i = 0; i < patchNoteDefs.Count; i++)
 			{
