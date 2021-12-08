@@ -5,7 +5,14 @@
 		<defName>0_39_00</defName>
 		<label>Patch note update</label>
 		<description>In this update, we introduce to you our new patch note window!</description>
-
+		
+		<!--
+		<ModID>saakra.empire</ModID>
+		<authorStringTranslationKey>FCPatchNotesAuthorString</authorStringTranslationKey>
+		<introStringTranslationKey>FCUpdateIntroString</introStringTranslationKey>
+		<modNameTranslationKey>FCPatchNotesModName</modNameTranslationKey>
+		-->
+		
 		<major>0</major>
 		<minor>39</minor>
 		<patch>0</patch>
@@ -29,6 +36,20 @@
 			<li>I want to give many thanks to our testers TheBoredGal and smaboo!</li>
 		</additionalNotes>
 
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.39.00/0</li>
+			<li>PatchNoteImages/0.39.00/1</li>
+		</patchNoteImagePaths>
+
+		<!--
+		<linkButtonImagePath>Buttons/DiscordIcon</linkButtonImagePath>
+		-->
+		
+		<patchNoteImageDescriptions>
+			<li>The new Patch note window. The optimal size for new images is 1366x768. It still doesn't look perfect and I don't know why (send help)</li>
+			<li>A patch note def file. It describes the information contained in a patch note and can easily be used by other mods as well. Though atm Empire would have to be active.</li>
+		</patchNoteImageDescriptions>
+		
 		<link>https://discord.gg/f3zFQqA</link>
 		
 		<authors>
@@ -143,6 +164,14 @@
 			<li>Also thanks for Turkler for the art and the community for providing bug reports!</li>
 		</additionalNotes>
 
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.37.09/0</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>Some of Turklers new Icons</li>
+		</patchNoteImageDescriptions>
+
 		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
@@ -186,6 +215,16 @@
 			<li>I want to give many thanks to our testers TheBoredGal and smaboo!</li>
 		</additionalNotes>
 
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.37.06/0</li>
+			<li>PatchNoteImages/0.37.06/1</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>A searchable floatmenu</li>
+			<li>The new event timer</li>
+		</patchNoteImageDescriptions>
+		
 		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
@@ -238,6 +277,16 @@
 			<li>The shuttle port and functionality was suggested by turkler and refined by members of the discord and the modding team!</li>
 		</additionalNotes>
 
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.37.03/0</li>
+			<li>PatchNoteImages/0.37.03/1</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>The new shuttle port building</li>
+			<li>The new settlement information button next to the shuttle port ability buttons.\nThe shuttle port allows you to summon a shuttle to any map with colonists or caravan that you own for transportating. Each port has three charges and a cooldown that resets each tax period.</li>
+		</patchNoteImageDescriptions>
+
 		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
@@ -281,6 +330,16 @@
 			<li>I want to give many thanks to our testers TheBoredGal and smaboo!</li>
 		</additionalNotes>
 
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.37.00/0</li>
+			<li>PatchNoteImages/0.37.00/1</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>A tax caravan</li>
+			<li>The new random event settings slider</li>
+		</patchNoteImageDescriptions>
+
 		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
@@ -315,6 +374,14 @@
 			<li>I want to give many thanks to our testers TheBoredGal and smaboo!</li>
 		</additionalNotes>
 
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.36.09/0</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>The trait spam bug</li>
+		</patchNoteImageDescriptions>
+		
 		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
