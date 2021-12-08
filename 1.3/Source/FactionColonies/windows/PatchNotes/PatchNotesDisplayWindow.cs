@@ -26,6 +26,7 @@ namespace FactionColonies
 		private readonly Rect PatchNotesImageArea = new Rect(675f, 45f, 520f, 545f);
 		private readonly Rect PatchNotesScrollArea = new Rect(5f, 45f, 655f, 545f);
 		private readonly Rect PatchNotesImageRect = new Rect(685f, 55f, 500f, 280f);
+		private readonly Rect PatchNotesImageToolTipRect = new Rect(735f, 55f, 400f, 280f);
 		private readonly Rect LastImageButtonRect = new Rect(685f, 55f, 50f, 280f);
 		private readonly Rect NextImageButtonRect = new Rect(1135f, 55f, 50f, 280f);
 		private readonly Rect ImageDescRect = new Rect(685f, 345f, 500f, 235f);
@@ -90,7 +91,6 @@ namespace FactionColonies
 		private void DrawImageContent()
 		{
 			Widgets.DrawBox(PatchNotesImageArea);
-			Widgets.DrawBox(PatchNotesImageRect);
 			Widgets.DrawLightHighlight(ImageDescRect);
 
 			if (openDef == -1)
@@ -100,7 +100,30 @@ namespace FactionColonies
 			else
             {
 				DrawImageContentOfDef();
+				MakeToolTip();
 			}
+		}
+
+		/// <summary>
+		/// Displays a tooltip instructing the user to click to enlargen an image.
+		/// Automatically scales the area in which the tool tip is displayed based on buttons being displayed.
+		/// </summary>
+		private void MakeToolTip()
+		{
+			Rect tempRect = new Rect(PatchNotesImageToolTipRect);
+
+			if (displayedImage == 0)
+            {
+				tempRect.x -= LastImageButtonRect.width;
+				tempRect.width += LastImageButtonRect.width;
+            }
+
+			if (displayedImage == patchNoteDefs[openDef].PatchNoteImages.Count - 1)
+			{
+				tempRect.width += NextImageButtonRect.width;
+			}
+
+			TooltipHandler.TipRegion(tempRect, "FCPatchNotesImageZoomTooltip".Translate());
 		}
 
 		/// <summary>
@@ -154,16 +177,16 @@ namespace FactionColonies
 		/// <param name="predicate"></param>
 		/// <param name="action"></param>
 		private void DrawImageSelector(Rect buttonRect, string buttonLabel, Func<bool> predicate, Action action)
-        {
+		{
 			GUI.color = prevColor;
 
 			if (predicate())
 			{
 				Color guiColor = Color.black;
 				guiColor.a = 0.8f;
-
 				if (!Mouse.IsOver(buttonRect)) guiColor.a = 0.3f;
 				Widgets.DrawBoxSolid(buttonRect, guiColor);
+
 
 				guiColor = prevColor;
 				if (!Mouse.IsOver(buttonRect)) guiColor.a = 0.3f;
