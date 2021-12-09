@@ -115,7 +115,7 @@ namespace FactionColonies
         /// <summary>
         /// Returns a link as provided by the def
         /// </summary>
-        public List<string> Link => links;
+        public List<string> Links => links;
 
         /// <summary>
         /// Returns the patch notes seperated by new lines

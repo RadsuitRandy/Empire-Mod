@@ -21,23 +21,26 @@ namespace FactionColonies
 	{
 		public override Vector2 InitialSize => new Vector2(1200f + (StandardMargin * 2), 595f + (StandardMargin * 2));
 
-		private readonly Rect PatchNotesWindowTitleRect = new Rect(5f, 0f, 1190f, 30f);
-		private readonly Rect HorizontalLineRect = new Rect(5f, 30f, 1190f, 15f);
-		private readonly Rect PatchNotesImageArea = new Rect(675f, 45f, 520f, 545f);
-		private readonly Rect PatchNotesScrollArea = new Rect(5f, 45f, 655f, 545f);
-		private readonly Rect PatchNotesImageRect = new Rect(685f, 55f, 500f, 280f);
-		private readonly Rect PatchNotesImageToolTipRect = new Rect(735f, 55f, 400f, 280f);
-		private readonly Rect LastImageButtonRect = new Rect(685f, 55f, 50f, 280f);
-		private readonly Rect NextImageButtonRect = new Rect(1135f, 55f, 50f, 280f);
-		private readonly Rect ImageDescRect = new Rect(685f, 345f, 500f, 235f);
-		private readonly Rect VerticalDeviderRect = new Rect(660f, 30f, 15f, 545f);
+		private static readonly Rect PatchNotesWindowTitleRect = new Rect(5f, 0f, 1190f, 30f);
+		private static readonly Rect HorizontalLineRect = new Rect(5f, 30f, 1190f, 15f);
+		private static readonly Rect PatchNotesImageArea = new Rect(675f, 45f, 520f, 545f);
+		private static readonly Rect PatchNotesScrollArea = new Rect(5f, 45f, 655f, 545f);
+		private static readonly Rect PatchNotesImageRect = new Rect(685f, 55f, 500f, 280f);
+		private static readonly Rect PatchNotesImageToolTipRect = new Rect(735f, 55f, 400f, 280f);
+		private static readonly Rect LastImageButtonRect = new Rect(685f, 55f, 50f, 280f);
+		private static readonly Rect NextImageButtonRect = new Rect(1135f, 55f, 50f, 280f);
+		private static readonly Rect ImageDescRect = new Rect(685f, 345f, 500f, 161f);
+		private static readonly Rect LinkButtonsRect = new Rect(685f, 516f, 500f, 64f);
+		private static readonly Rect baseLinkButtonRect = new Rect(0f, 0f, 64f, 64f);
+		private static readonly Rect VerticalDeviderRect = new Rect(660f, 30f, 15f, 545f);
 
-		private readonly float commonMargin = 5f;
+		private static readonly float commonMargin = 5f;
+		private static readonly GameFont prevFont = Text.Font;
+		private static readonly TextAnchor prevAnchor = Text.Anchor;
+		private static readonly Color prevColor = GUI.color;
+		private static readonly List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.ListFullCopy();
+
 		private readonly string title = "FCPatchNotesWindowTitle".Translate();
-		private readonly GameFont prevFont = Text.Font;
-		private readonly TextAnchor prevAnchor = Text.Anchor;
-		private readonly Color prevColor = GUI.color;
-		private readonly List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.ListFullCopy();
 
 		//For the patch note area
 		private bool firstRun = true;
@@ -52,7 +55,8 @@ namespace FactionColonies
 
 		//For the image area
 		private int displayedImage = -1;
-		private Vector2 imageDescScrollPos = new Vector2();
+		private Vector2 imageDescScrollPos = new Vector2(); 
+		Vector2 baseLinkButtonOffset = new Vector2(baseLinkButtonRect.width + commonMargin, 0f);
 		private Color orange = Color.Lerp(Color.yellow, Color.red, 0.5f);
 		private Rect toolTipRect;
 
@@ -122,8 +126,32 @@ namespace FactionColonies
 			else
             {
 				DrawImageContentOfDef();
+				DrawLinkButtons();
 			}
 		}
+
+		/// <summary>
+		/// Draws buttons that open links defined in the defs
+		/// </summary>
+		public void DrawLinkButtons()
+        {
+			PatchNoteDef def = patchNoteDefs[openDef];
+
+			GUI.BeginGroup(LinkButtonsRect);
+
+			for (int i = 0; i < def.Links.Count; i++)
+            {
+				Rect tempButtonRect = baseLinkButtonRect.CopyAndShift(baseLinkButtonOffset * i);
+				TooltipHandler.TipRegion(tempButtonRect, def.LinkButtonToolTips[i]);
+				if (Widgets.ButtonImage(tempButtonRect, def.LinkButtonImages[i]))
+                {
+					SteamUtility.OpenUrl(def.Links[i]);
+					SoundDefOf.Click.PlayOneShotOnCamera();
+				}
+            }
+
+			GUI.EndGroup();
+        }
 
 		/// <summary>
 		/// Displays a tooltip instructing the user to click to enlargen an image.

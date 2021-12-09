@@ -4,6 +4,20 @@
 	<FactionColonies.PatchNoteDef Name="EmpirePatchBase" Abstract="True">
 		<modId>saakra.empire</modId>
 		
+		<links>
+			<li>https://discord.gg/f3zFQqA</li>
+			<li>https://steamcommunity.com/sharedfiles/filedetails/?id=2571437524</li>
+		</links>
+
+		<linkButtonImagePaths>
+			<li>GUI/Buttons/discordlogo</li>
+			<li>GUI/Buttons/nguilogo</li>
+		</linkButtonImagePaths>
+
+		<linkButtonToolTips>
+			<li>Join the Empire discord!</li>
+			<li>The layout of this GUI was made using NesGUI, a tool for modders that helps with creating RimWorld GUI! Click to learn more.</li>
+		</linkButtonToolTips>
 	
 		<authorStringBase>All of the code for this update has been developed by {0}.</authorStringBase>
 		<introStringBase>A new update for {0} has been released: v.{1}. The following changes have occurred:</introStringBase>
