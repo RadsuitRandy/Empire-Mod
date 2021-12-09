@@ -7,16 +7,19 @@
 		<links>
 			<li>https://discord.gg/f3zFQqA</li>
 			<li>https://steamcommunity.com/sharedfiles/filedetails/?id=2571437524</li>
+			<li>https://rimworld.fandom.com/wiki/Empire_Mod</li>
 		</links>
 
 		<linkButtonImagePaths>
 			<li>GUI/Buttons/discordlogo</li>
 			<li>GUI/Buttons/nguilogo</li>
+			<li>GUI/Buttons/wikilogo</li>
 		</linkButtonImagePaths>
 
 		<linkButtonToolTips>
 			<li>Join the Empire discord!</li>
 			<li>The layout of this GUI was made using NesGUI, a tool for modders that helps with creating RimWorld GUI! Click to learn more.</li>
+			<li>Check out the Empire Wiki! (Some of the contents will be outdated)</li>
 		</linkButtonToolTips>
 	
 		<authorStringBase>All of the code for this update has been developed by {0}.</authorStringBase>
