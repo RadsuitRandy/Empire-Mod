@@ -40,6 +40,8 @@ namespace FactionColonies
 		private readonly List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.ListFullCopy();
 
 		//For the patch note area
+		private bool firstRun = true;
+		private bool fixDone = false;
 		private bool shouldRefreshHeight = true;
 		private int openDef = 0;
 		private float scrollViewHeight = 0f;
@@ -79,11 +81,30 @@ namespace FactionColonies
 		/// <param name="inRect"></param>
 		public override void DoWindowContents(Rect inRect)
 		{
+			FixScrollingBug();
 			CalculateScrollViewSize();
 			DrawTitle();
 			DrawDividers();
 			DrawPatchNotes();
 			DrawImageContent();
+		}
+
+		/// <summary>
+		/// Fixes a bug where a note being opened in the first frame causes the scrolling bars to not appear as long as it isn't closed
+		/// </summary>
+		private void FixScrollingBug()
+        {
+			if (fixDone) return;
+
+			if (!firstRun)
+			{
+				shouldRefreshHeight = true;
+				fixDone = true;
+			}
+			else
+			{
+				firstRun = false;
+			}
 		}
 
 		/// <summary>
