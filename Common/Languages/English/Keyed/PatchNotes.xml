@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 	<FCPatchNotesWindowTitle>Patch Notes</FCPatchNotesWindowTitle>
-	<FCPatchNotesAuthorString>All of the code for this update has been developed by {0}.</FCPatchNotesAuthorString>
-	<FCUpdateIntroString>A new update for {0} has been released: v.{1}. The following changes have occurred:</FCUpdateIntroString>
-	<FCPatchNotesModName>Empire</FCPatchNotesModName>
 	<FCSelectPatchNotes>Select patch notes to see images</FCSelectPatchNotes>
 	<FCPatchNotesImagesMissing>No preview available</FCPatchNotesImagesMissing>
 	<FCPatchNotesImageZoomTooltip>Click to enlargen image</FCPatchNotesImageZoomTooltip>

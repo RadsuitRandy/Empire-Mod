@@ -15,18 +15,26 @@ namespace FactionColonies
         private readonly int major = 0;
         private readonly int minor = 0;
         private readonly int patch = 0;
+        private readonly int releaseDay = 01;
+        private readonly int releaseMonth = 01;
+        private readonly int releaseYear = 2000;
         private readonly PatchNoteType patchNoteType = PatchNoteType.Undefined;
         private readonly List<string> patchNoteLines = new List<string>();
         private readonly List<string> additionalNotes = new List<string>();
+        private readonly List<string> linkButtonToolTips = new List<string>();
+        private readonly List<string> patchNoteImageDescriptions = new List<string>();
 
         [NoTranslate]
-        public readonly string ModId = "saakra.empire";
+        public readonly string modId = "";
+        
+        [NoTranslate]
+        private readonly string introStringBase = "";
 
         [NoTranslate]
-        private readonly string link = "";
+        private readonly string authorStringBase = "";
 
         [NoTranslate]
-        private readonly string linkButtonImagePath = "";
+        private readonly List<string> links = new List<string>();
 
         [NoTranslate]
         private readonly List<string> authors = new List<string>();
@@ -35,30 +43,39 @@ namespace FactionColonies
         private readonly List<string> patchNoteImagePaths = new List<string>();
 
         [NoTranslate]
-        private readonly List<string> patchNoteImageDescriptions = new List<string>();
+        private readonly List<string> linkButtonImagePaths = new List<string>();
 
-        [NoTranslate]
-        private readonly string authorStringTranslationKey = "FCPatchNotesAuthorString";
-
-        [NoTranslate]
-        private readonly string introStringTranslationKey = "FCUpdateIntroString";
-
-        [NoTranslate]
-        private readonly string modNameTranslationKey = "FCPatchNotesModName";
-
-        private readonly int releaseDay = 01;
-        private readonly int releaseMonth = 01;
-        private readonly int releaseYear = 2000;
-
-        private bool hasImagesCached = false;
-        private readonly List<Texture2D> imagesCached = new List<Texture2D>();
         private ModContentPack modContentPackCached = null;
-        private Texture2D linkButtonImageCached;
+        private List<Texture2D> imagesCached = new List<Texture2D>();
+        private List<Texture2D> linkButtonImagesCached = new List<Texture2D>();
 
         /// <summary>
         /// The title of the update example: [Empire] Update 0.38.00
         /// </summary>
-        public string Title => $"[{(modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == ModId))).ModMetaData.Name}] {label} {VersionNumber}";
+        public string Title => $"[{ModName}] {label} {VersionNumber}";
+
+        /// <summary>
+        /// Returns the ModContentPack assosiated with the given ModId
+        /// </summary>
+        public ModContentPack ModContentPack
+        {
+            get
+            {
+                modContentPackCached = modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == modId));
+
+                if (modContentPackCached == null)
+                {
+                    Log.ErrorOnce($"Couldn't find mod with ModId: {modId} Please check the spelling in the PatchNoteDef!", releaseDay + releaseMonth + releaseYear);
+                }
+
+                return modContentPackCached;
+            }
+        }
+
+        /// <summary>
+        /// Returns the mod name or an error if the mod wasn't found
+        /// </summary>
+        public string ModName => ModContentPack?.ModMetaData.Name ?? "MissingModContentPack";
 
         /// <summary>
         /// The def description
@@ -98,7 +115,7 @@ namespace FactionColonies
         /// <summary>
         /// Returns a link as provided by the def
         /// </summary>
-        public string Link => link;
+        public List<string> Link => links;
 
         /// <summary>
         /// Returns the patch notes seperated by new lines
@@ -113,7 +130,7 @@ namespace FactionColonies
         /// <summary>
         /// Returns the opening sentence of the patch notes
         /// </summary>
-        public string PatchNotesIntroString => introStringTranslationKey.Translate(modNameTranslationKey.Translate(), VersionNumber);
+        public string PatchNotesIntroString => string.Format(introStringBase, ModName, VersionNumber);
 
         /// <summary>
         /// Returns the list of authors in this format: "name0, name1, name2, ..., nameN-1 and nameN" where N is the amount of authors
@@ -135,12 +152,31 @@ namespace FactionColonies
         /// <summary>
         /// Returns a string that contains the authors in a sentence
         /// </summary>
-        public string AuthorLine => authorStringTranslationKey.Translate(AuthorsFormatted);
+        public string AuthorLine => string.Format(authorStringBase, AuthorsFormatted);
 
         /// <summary>
-        /// Returns the cached image, caches it if not yet cached
+        /// Returns the cached link button images, caches them if not yet cached
         /// </summary>
-        public Texture2D LinkButtonImage => linkButtonImageCached ?? (linkButtonImageCached = ContentFinder<Texture2D>.Get(linkButtonImagePath));
+        public List<Texture2D> LinkButtonImages
+        {
+            get
+            {
+                if (linkButtonImagesCached.NullOrEmpty())
+                {
+                    foreach (string path in linkButtonImagePaths)
+                    {
+                        linkButtonImagesCached.Add(ContentFinder<Texture2D>.Get(path));
+                    }
+                }
+
+                return linkButtonImagesCached;
+            }
+        }
+
+        /// <summary>
+        /// Returns the tool tips for each LinkButton. May include empty strings
+        /// </summary>
+        public List<string> LinkButtonToolTips => linkButtonToolTips;
 
         /// <summary>
         /// Returns the cached patchnote images, caches them if not yet cached
@@ -149,14 +185,12 @@ namespace FactionColonies
         {
             get
             {
-                if (!hasImagesCached)
+                if (imagesCached.NullOrEmpty())
                 {
                     foreach (string path in patchNoteImagePaths)
                     {
                         imagesCached.Add(ContentFinder<Texture2D>.Get(path));
                     }
-
-                    hasImagesCached = true;
                 }
 
                 return imagesCached;
@@ -176,10 +210,9 @@ namespace FactionColonies
         {
             base.ClearCachedData();
 
-            imagesCached.RemoveAll((_) => true);
-            linkButtonImageCached = null;
+            imagesCached = new List<Texture2D>();
+            linkButtonImagesCached = new List<Texture2D>();
             modContentPackCached = null;
-            hasImagesCached = false;
         }
 
         private static string ToVersion(int num) => (num > 10) ? num.ToString() : '0' + num.ToString();

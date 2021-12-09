@@ -1,17 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 	<!-- PatchNoteTypes: Undefined, Hotfix, Patch, Minor, Major -->
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef Name="EmpirePatchBase" Abstract="True">
+		<modId>saakra.empire</modId>
+		
+	
+		<authorStringBase>All of the code for this update has been developed by {0}.</authorStringBase>
+		<introStringBase>A new update for {0} has been released: v.{1}. The following changes have occurred:</introStringBase>
+	</FactionColonies.PatchNoteDef>
+	
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_39_00</defName>
 		<label>Patch note update</label>
 		<description>In this update, we introduce to you our new patch note window!</description>
-		
-		<!--
-		<ModID>saakra.empire</ModID>
-		<authorStringTranslationKey>FCPatchNotesAuthorString</authorStringTranslationKey>
-		<introStringTranslationKey>FCUpdateIntroString</introStringTranslationKey>
-		<modNameTranslationKey>FCPatchNotesModName</modNameTranslationKey>
-		-->
 		
 		<major>0</major>
 		<minor>39</minor>
@@ -40,17 +41,11 @@
 			<li>PatchNoteImages/0.39.00/0</li>
 			<li>PatchNoteImages/0.39.00/1</li>
 		</patchNoteImagePaths>
-
-		<!--
-		<linkButtonImagePath>Buttons/DiscordIcon</linkButtonImagePath>
-		-->
 		
 		<patchNoteImageDescriptions>
 			<li>The new Patch note window. The optimal size for new images is 1366x768. As you can see there are still artifacts making it not look perfect and I don't know why (send help).\nThis entire window took me ~3 days of coding, not sure if that's fast or slow, but the ability to show messages like this was really important to me.\nAlso we can maybe reuse this code to make an ingame Wiki for Empire :P\nI'll probably use this in the future to give details on new features that I wouldn't normally put out there, and added some to older patches here too</li>
-			<li>A patch note def file. It describes the information contained in a patch note and can easily be used by other mods as well. Though atm Empire would have to be active.</li>
+			<li>A patch note def file. It describes the information contained in a patch note and can easily be used by other mods as well. Though atm Empire would have to be active. The screenshot here is not from the final version.</li>
 		</patchNoteImageDescriptions>
-		
-		<link>https://discord.gg/f3zFQqA</link>
 		
 		<authors>
 			<li>Danimineiro</li>
@@ -58,7 +53,7 @@
 		</authors>
 	</FactionColonies.PatchNoteDef>
 
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_38_01</defName>
 		<label>HotFix</label>
 		<description>Small HotFix</description>
@@ -77,14 +72,12 @@
 			<li>- fixed some settlement names causing the new short name feature to break</li>
 		</patchNoteLines>
 
-		<link>https://discord.gg/f3zFQqA</link>
-
 		<authors>
 			<li>Danimineiro</li>
 		</authors>
 	</FactionColonies.PatchNoteDef>
 	
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_38_00</defName>
 		<label>HotFix</label>
 		<description>Small HotFix</description>
@@ -104,14 +97,12 @@
 			<li>- fixed faction icon never updates (you have to restart your game after changing it to apply changes)</li>
 		</patchNoteLines>
 
-		<link>https://discord.gg/f3zFQqA</link>
-
 		<authors>
 			<li>Danimineiro</li>
 		</authors>
 	</FactionColonies.PatchNoteDef>
 
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_37_09</defName>
 		<label>Military deployment rework update</label>
 		<description>A minor update fixing a lot of bugs</description>
@@ -172,15 +163,13 @@
 			<li>Some of Turklers new Icons</li>
 		</patchNoteImageDescriptions>
 
-		<link>https://discord.gg/f3zFQqA</link>
-
 		<authors>
 			<li>Danimineiro</li>
 			<li>Imperitor</li>
 		</authors>
 	</FactionColonies.PatchNoteDef>
 
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_37_06</defName>
 		<label>BugFix update</label>
 		<description>A minor update fixing a lot of bugs</description>
@@ -224,8 +213,6 @@
 			<li>A searchable floatmenu</li>
 			<li>The new event timer</li>
 		</patchNoteImageDescriptions>
-		
-		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
 			<li>Danimineiro</li>
@@ -233,7 +220,7 @@
 		</authors>
 	</FactionColonies.PatchNoteDef>
 	
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_37_03</defName>
 		<label>BugFix update</label>
 		<description>A minor update fixing a lot of bugs</description>
@@ -287,14 +274,12 @@
 			<li>The new settlement information button next to the shuttle port ability buttons.\nThe shuttle port allows you to summon a shuttle to any map with colonists or caravan that you own for transportating. Each port has three charges and a cooldown that resets each tax period.</li>
 		</patchNoteImageDescriptions>
 
-		<link>https://discord.gg/f3zFQqA</link>
-
 		<authors>
 			<li>Danimineiro</li>
 		</authors>
 	</FactionColonies.PatchNoteDef>
 	
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_37_00</defName>
 		<label>BugFix update</label>
 		<description>A minor update fixing a lot of bugs</description>
@@ -340,14 +325,12 @@
 			<li>The new random event settings slider</li>
 		</patchNoteImageDescriptions>
 
-		<link>https://discord.gg/f3zFQqA</link>
-
 		<authors>
 			<li>Danimineiro</li>
 		</authors>
 	</FactionColonies.PatchNoteDef>
 
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_36_09</defName>
 		<label>HotFix</label>
 		<description>A minor update fixing a lot of bugs</description>
@@ -381,15 +364,13 @@
 		<patchNoteImageDescriptions>
 			<li>The trait spam bug</li>
 		</patchNoteImageDescriptions>
-		
-		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
 			<li>Danimineiro</li>
 		</authors>
 	</FactionColonies.PatchNoteDef>
 
-	<FactionColonies.PatchNoteDef>
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_36_00</defName>
 		<label>The 1.3 Release</label>
 		<description>The 1.3 Release</description>
@@ -412,8 +393,6 @@
 			<li>I want to give many thanks to our testers TheBoredGal and smaboo!</li>
 			<li>If someone digs up the patch notes for that I'll put them here</li>
 		</additionalNotes>
-
-		<link>https://discord.gg/f3zFQqA</link>
 
 		<authors>
 			<li>Danimineiro</li>
