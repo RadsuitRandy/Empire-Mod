@@ -429,9 +429,10 @@ namespace FactionColonies
             }
 
             harmony.PatchAll();
-
+            Log.Message($"verifying that {SteamUtility.SteamPersonaName} is using correct SoS2 compatibility branch...");
             if (FactionColonies.checkForMod("kentington.saveourship2"))
             {
+                Log.Message("Starting SoS2 patch...");
                 SoS2HarmonyPatches.Patch(harmony);
             }
 
