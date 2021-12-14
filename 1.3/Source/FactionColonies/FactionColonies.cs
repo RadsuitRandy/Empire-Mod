@@ -20,8 +20,6 @@ namespace FactionColonies
         {
             FactionFC factionFC = Find.World.GetComponent<FactionFC>();
 
-            MilitaryCustomizationUtil util = factionFC.militaryCustomizationUtil;
-
             Log.Message("Updating Empire to Latest Version");
             //NEW PLACE FOR UPDATE VERSIONS
 
