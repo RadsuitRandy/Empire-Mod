@@ -1261,6 +1261,12 @@ namespace FactionColonies
         IntRange minMaxDaysTillMilitaryAction = new IntRange(4, 10);
         IntRange minMaxDaysTillRandomEvent = new IntRange(0, 6);
 
+        private Vector2 scrollVector = new Vector2();
+        private float viewRectHeight = -1f;
+
+        private bool firstRun = true;
+        private bool fixDone = false;
+
         /// <summary>
         /// Creates an option for the list of ForcedTaxDeliveryOptions. Shuttles may not be used if royality is inactive
         /// </summary>
@@ -1309,8 +1315,12 @@ namespace FactionColonies
             minMaxDaysTillMilitaryAction = new IntRange(settings.minDaysTillMilitaryAction, settings.maxDaysTillMilitaryAction);
             minMaxDaysTillRandomEvent = new IntRange(settings.minDaysTillRandomEvent, settings.maxDaysTillRandomEvent);
 
+            viewRectHeight = viewRectHeight == -1f ? float.MaxValue : viewRectHeight;
+            Rect viewRect = new Rect(inRect.x, inRect.y, inRect.width - 17f, viewRectHeight);
+
+            Widgets.BeginScrollView(inRect, ref scrollVector, viewRect);
             Listing_Standard ls = new Listing_Standard();
-            ls.Begin(inRect);
+            ls.Begin(viewRect);
             ls.Label("FCSettingSilverPerResource".Translate());
             ls.IntEntry(ref settings.silverPerResource, ref silverPerResource);
             ls.Label("FCSettingDaysBetweenTax".Translate());
@@ -1340,6 +1350,8 @@ namespace FactionColonies
             settings.minDaysTillRandomEvent = minMaxDaysTillRandomEvent.min;
             settings.maxDaysTillRandomEvent = Math.Max(1, minMaxDaysTillRandomEvent.max);
 
+            if (ls.ButtonText("FCOpenPatchNotes".Translate())) DebugActionsMisc.PatchNotesDisplayWindow();
+
             if (ls.ButtonText("FCSettingResetButton".Translate()))
             {
                 FactionColonies blank = new FactionColonies();
@@ -1360,8 +1372,27 @@ namespace FactionColonies
                 settings.forcedTaxDeliveryMode = blank.forcedTaxDeliveryMode;
             }
 
+            FixScrollingBug(ls);
             ls.End();
+
+            Widgets.EndScrollView();
             base.DoSettingsWindowContents(inRect);
+        }
+
+        private void FixScrollingBug(Listing_Standard ls)
+        {
+            if (fixDone) return;
+
+            if (!firstRun)
+            {
+                viewRectHeight = ls.CurHeight + 5f;
+                fixDone = true;
+            }
+            else
+            {
+                viewRectHeight = float.MaxValue;
+                firstRun = false;
+            }
         }
 
         public override string SettingsCategory()

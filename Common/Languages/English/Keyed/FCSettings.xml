@@ -13,4 +13,5 @@
 	<FCSettingMinMaxMilitaryAction>Min/Max Days Until Military Action (ex. Settlements being attacked)</FCSettingMinMaxMilitaryAction>
 	<FCSettingMinMaxRandomEvent>Min/Max Days Until Random Event</FCSettingMinMaxRandomEvent>
 	<FCSettingResetButton>Reset Settings</FCSettingResetButton>
+	<FCOpenPatchNotes>Open Patch Notes Window</FCOpenPatchNotes>
 </LanguageData>
