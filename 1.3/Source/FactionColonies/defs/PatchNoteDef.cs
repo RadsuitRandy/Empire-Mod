@@ -221,10 +221,17 @@ namespace FactionColonies
         /// Sorts all patchNoteDefs to find the latest one for a mod using it's <paramref name="modId"/>
         /// </summary>
         /// <param name="modId"></param>
-        /// <returns>the newest PatchNoteDef</returns>
+        /// <returns>the newest PatchNoteDef, null if no PatchNoteDefs with the <paramref name="modId"/> exist</returns>
         public static PatchNoteDef GetLatestForMod(string modId)
         {
             List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.Where(def => def.modId == modId).ToList();
+
+            if (patchNoteDefs.NullOrEmpty())
+            {
+                Log.Error($"Could not find any PatchNoteDefs for {modId}!");
+                return null;
+            }
+
             patchNoteDefs.SortBy(def => def.ReleaseDate, def => def.ToOldEmpireVersion);
             return patchNoteDefs[0];
         }
