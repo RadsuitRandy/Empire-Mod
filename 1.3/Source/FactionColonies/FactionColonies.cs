@@ -48,9 +48,7 @@ namespace FactionColonies
 
             if (Settings().updateVersion < 0.370)
             {
-                Find.LetterStack.ReceiveLetter("Manual Settlement Defence is now disabled by default",
-                    "Manual settlement defence has been disabled by default because it has many bugs that can make the game unplayable. The team has decided to completely rework" +
-                    " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning manual settlement defence.", LetterDefOf.NewQuest);
+                Find.LetterStack.ReceiveLetter("FCManualDefenseWarningLabel".Translate(), "FCManualDefenseWarningDesc".Translate(), LetterDefOf.NewQuest);
             }
 
             double newVersion = PatchNoteDef.GetLatestForMod("saakra.empire").ToOldEmpireVersion;
@@ -71,12 +69,12 @@ namespace FactionColonies
             //Check for an invalid capital map
             if (Find.WorldObjects.SettlementAt(factionFC.capitalLocation) == null && factionFC.SoSShipCapital == false)
             {
-                Messages.Message("Please reset your capital location. If you continue to see this after reseting, please report it.", MessageTypeDefOf.NegativeEvent);
+                Messages.Message("FCResetCapitalLocationWarning".Translate(), MessageTypeDefOf.NegativeEvent);
             }
 
             if (factionFC.taxMap == null)
             {
-                Messages.Message("Your tax map has not been set. Please set it using the faction menu.", MessageTypeDefOf.CautionInput);
+                Messages.Message("FCTaxMapNotSetWarning".Translate(), MessageTypeDefOf.CautionInput);
             }
 
             if (factionFC.policies.Count() < 2)
@@ -86,7 +84,7 @@ namespace FactionColonies
 
             if (!Settings().settlementsAutoBattle)
             {
-                Messages.Message("Auto resolve is disabled, this setting can cause map generation errors on settlement defense. If you encounter map generation errors turn it back on!", MessageTypeDefOf.RejectInput);
+                Messages.Message("FCAutoResolveDisabledWarning".Translate(), MessageTypeDefOf.RejectInput);
             }
         }
 
@@ -715,7 +713,7 @@ namespace FactionColonies
         {
             DebugTool tool = null;
             IntVec3 DropPosition;
-            tool = new DebugTool("Select Artillery Position", delegate
+            tool = new DebugTool("FCFireSupportSelectPosition".Translate(), delegate
             {
                 float cost = support.returnTotalCost();
                 if (PaymentUtil.getSilver() > cost)
@@ -731,14 +729,12 @@ namespace FactionColonies
                         projectiles.Count() * 15, 600, support.accuracy, projectiles);
                     Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.fireSupport.Add(fireSupport);
 
-                    Messages.Message(support.name + " will be fired upon shortly on the marked position!",
-                        MessageTypeDefOf.ThreatSmall);
+                    Messages.Message("FCFireSupportNameWillBeFiredOnPosition".Translate(support.name), MessageTypeDefOf.ThreatSmall);
                     settlement.artilleryTimer = Find.TickManager.TicksGame + 60000;
                 }
                 else
                 {
-                    Messages.Message("You do not have enough silver to pay for the strike!",
-                        MessageTypeDefOf.RejectInput);
+                    Messages.Message("FCFireSupportNoSilver".Translate(), MessageTypeDefOf.RejectInput);
                 }
 
 
@@ -747,42 +743,9 @@ namespace FactionColonies
             DebugTools.curTool = tool;
         }
 
-
-        //[DebugAction("Empire", "Call In Artillery", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void ArtilleryStrike()
-        {
-            DebugTool tool = null;
-            IntVec3 DropPosition;
-            tool = new DebugTool("Select Artillery Position", delegate
-            {
-                DropPosition = UI.MouseCell();
-                IntVec3 spawnCenter = DropPosition;
-                Map map = Find.CurrentMap;
-                MilitaryFireSupport fireSupport =
-                    new MilitaryFireSupport("lightArtillery", map, spawnCenter, 600, 600, 20);
-                Find.World.GetComponent<FactionFC>().militaryCustomizationUtil.fireSupport.Add(fireSupport);
-
-                Messages.Message("An artillery strike will be occuring shortly on the marked position!",
-                    MessageTypeDefOf.ThreatSmall);
-
-
-                DebugTools.curTool = null;
-            }, onGUIAction: delegate
-            {
-                //GenUI.RenderMouseoverBracket();
-                //GenDraw.DrawRadiusRing(UI.MouseCell(), 26, Color.yellow, null);
-                //GenDraw.DrawRadiusRing(UI.MouseCell(), 20, Color.red, null);
-                GenDraw.DrawRadiusRing(UI.MouseCell(), 26, Color.yellow);
-                GenDraw.DrawRadiusRing(UI.MouseCell(), 20, Color.red);
-            });
-            DebugTools.curTool = tool;
-        }
-
-
-        public static void TurretDrop()
-        {
-        }
-
+        /// <summary>
+        /// Debug function. Calls in Allied Forces. Doesn't need translations
+        /// </summary>
         private static void CallInAlliedForcesSelect()
         {
             List<FloatMenuOption> list = new List<FloatMenuOption>();
@@ -840,10 +803,7 @@ namespace FactionColonies
 
 
         [DebugAction("Empire", "Call In Allied Forces", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void CallInAlliedForcesDebug()
-        {
-            CallInAlliedForcesSelect();
-        }
+        private static void CallInAlliedForcesDebug() => CallInAlliedForcesSelect();
 
 
         [DebugAction("Empire", "Level Up Faction", allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -1244,7 +1204,7 @@ namespace FactionColonies
         public bool disableRandomEvents;
         public bool disableForcedPausingDuringEvents = true;
         public bool deadPawnsIncreaseMilitaryCooldown;
-        public bool settlementsAutoBattle;
+        public bool settlementsAutoBattle = true;
         public TaxDeliveryMode forcedTaxDeliveryMode;
 
         public int minDaysTillMilitaryAction = 4;
@@ -1349,42 +1309,38 @@ namespace FactionColonies
             minMaxDaysTillMilitaryAction = new IntRange(settings.minDaysTillMilitaryAction, settings.maxDaysTillMilitaryAction);
             minMaxDaysTillRandomEvent = new IntRange(settings.minDaysTillRandomEvent, settings.maxDaysTillRandomEvent);
 
-            Listing_Standard listingStandard = new Listing_Standard();
-            listingStandard.Begin(inRect);
-            listingStandard.Label("Silver amount gained per resource");
-            listingStandard.IntEntry(ref settings.silverPerResource, ref silverPerResource);
-            listingStandard.Label("Days between tax time");
-            listingStandard.IntEntry(ref daysBetweenTaxes, ref timeBetweenTaxes);
+            Listing_Standard ls = new Listing_Standard();
+            ls.Begin(inRect);
+            ls.Label("FCSettingSilverPerResource".Translate());
+            ls.IntEntry(ref settings.silverPerResource, ref silverPerResource);
+            ls.Label("FCSettingDaysBetweenTax".Translate());
+            ls.IntEntry(ref daysBetweenTaxes, ref timeBetweenTaxes);
             settings.timeBetweenTaxes = Math.Max(1, daysBetweenTaxes) * 60000;
-            listingStandard.Label("Production Tithe Modifier");
-            listingStandard.IntEntry(ref settings.productionTitheMod, ref productionTitheMod);
-            listingStandard.Label("Cost Per Worker");
-            listingStandard.IntEntry(ref settings.workerCost, ref workerCost);
-            listingStandard.Label("Max Settlement Level");
-            listingStandard.IntEntry(ref settings.settlementMaxLevel, ref settlementMaxLevel);
-            listingStandard.CheckboxLabeled("MedievalTechOnly".Translate(), ref settings.medievalTechOnly);
-            listingStandard.CheckboxLabeled("Disable Hostile Military Actions",
-                ref settings.disableHostileMilitaryActions);
-            listingStandard.CheckboxLabeled("Disable Random Events", ref settings.disableRandomEvents);
-            listingStandard.CheckboxLabeled("Dead Pawns Increase Military Cooldown",
-                ref settings.deadPawnsIncreaseMilitaryCooldown);
-            listingStandard.CheckboxLabeled("Disable Forced Pausing During Events",
-                ref settings.disableForcedPausingDuringEvents);
-            listingStandard.CheckboxLabeled("Automatically Resolve Battles",
-                ref settings.settlementsAutoBattle);
-            if (listingStandard.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(ForcedTaxDeliveryOptions));
+            ls.Label("FCSettingProductionTitheMod".Translate());
+            ls.IntEntry(ref settings.productionTitheMod, ref productionTitheMod);
+            ls.Label("FCSettingWorkerCost".Translate());
+            ls.IntEntry(ref settings.workerCost, ref workerCost);
+            ls.Label("FCSettingMaxSettlementLevel".Translate());
+            ls.IntEntry(ref settings.settlementMaxLevel, ref settlementMaxLevel);
+            ls.CheckboxLabeled("MedievalTechOnly".Translate(), ref settings.medievalTechOnly);
+            ls.CheckboxLabeled("FCSettingDisableHostileMilActions".Translate(), ref settings.disableHostileMilitaryActions);
+            ls.CheckboxLabeled("FCSettingDisableRandomEvents".Translate(), ref settings.disableRandomEvents);
+            ls.CheckboxLabeled("FCSettingDeadPawnsIncreaseMilCooldown".Translate(), ref settings.deadPawnsIncreaseMilitaryCooldown);
+            ls.CheckboxLabeled("FCSettingForcedPausing".Translate(), ref settings.disableForcedPausingDuringEvents);
+            ls.CheckboxLabeled("FCSettingAutoResolveBattles".Translate(), ref settings.settlementsAutoBattle);
+            if (ls.ButtonText("selectTaxDeliveryModeButton".Translate() + settings.forcedTaxDeliveryMode)) Find.WindowStack.Add(new FloatMenu(ForcedTaxDeliveryOptions));
 
-            listingStandard.Label("Min/Max Days Until Military Action (ex. Settlements being attacked)");
-            listingStandard.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
+            ls.Label("FCSettingMinMaxMilitaryAction".Translate());
+            ls.IntRange(ref minMaxDaysTillMilitaryAction, 1, 20);
             settings.minDaysTillMilitaryAction = minMaxDaysTillMilitaryAction.min;
             settings.maxDaysTillMilitaryAction = Math.Max(1, minMaxDaysTillMilitaryAction.max);
 
-            listingStandard.Label("Min/Max Days Until Random Event");
-            listingStandard.IntRange(ref minMaxDaysTillRandomEvent, 0, 20);
+            ls.Label("FCSettingMinMaxRandomEvent".Translate());
+            ls.IntRange(ref minMaxDaysTillRandomEvent, 0, 20);
             settings.minDaysTillRandomEvent = minMaxDaysTillRandomEvent.min;
             settings.maxDaysTillRandomEvent = Math.Max(1, minMaxDaysTillRandomEvent.max);
 
-            if (listingStandard.ButtonText("Reset Settings"))
+            if (ls.ButtonText("FCSettingResetButton".Translate()))
             {
                 FactionColonies blank = new FactionColonies();
                 settings.silverPerResource = blank.silverPerResource;
@@ -1399,12 +1355,12 @@ namespace FactionColonies
                 settings.maxDaysTillRandomEvent = blank.maxDaysTillRandomEvent;
                 settings.disableRandomEvents = blank.disableRandomEvents;
                 settings.deadPawnsIncreaseMilitaryCooldown = blank.deadPawnsIncreaseMilitaryCooldown;
-                settings.settlementsAutoBattle = true;
+                settings.settlementsAutoBattle = blank.settlementsAutoBattle;
                 settings.disableForcedPausingDuringEvents = blank.disableForcedPausingDuringEvents;
                 settings.forcedTaxDeliveryMode = blank.forcedTaxDeliveryMode;
             }
 
-            listingStandard.End();
+            ls.End();
             base.DoSettingsWindowContents(inRect);
         }
 
