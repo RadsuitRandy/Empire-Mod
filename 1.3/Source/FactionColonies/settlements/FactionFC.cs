@@ -88,7 +88,6 @@ namespace FactionColonies
         public FactionFCDef factionDef = new FactionFCDef();
 
         //Update
-        public double updateVersion;
         public int nextSettlementFCID = 1;
         public int nextMercenarySquadID = 1;
         public int nextMercenaryID = 1;
@@ -253,7 +252,6 @@ namespace FactionColonies
             Scribe_Deep.Look(ref raceFilter, "raceFilter");
 
             //Update
-            Scribe_Values.Look(ref updateVersion, "updateVersion");
             Scribe_Values.Look(ref nextSettlementFCID, "nextSettlementFCID");
 
             //Military Customization Util

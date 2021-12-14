@@ -509,6 +509,8 @@ namespace FactionColonies
 
             Log.Message("Empire - Testing Settlements for null variables");
             foreach (SettlementFC settlement in factionFC.settlements)
+            double newVersion = PatchNoteDef.GetLatestForMod("saakra.empire").ToOldEmpireVersion;
+            if (Settings().updateVersion < newVersion)
             {
                 if (settlement.loadID == -1)
                 {
@@ -533,6 +535,7 @@ namespace FactionColonies
                         }
                     }
                 }
+                Settings().updateVersion = newVersion;
             }
 
             Log.Message("Empire - Testing for traits with no tie");
@@ -570,9 +573,7 @@ namespace FactionColonies
                     " this part of the mod instead of fixing the various issues. As such, enabling settlement defence happens at your own risk. Please do not report issues concerning settlement defence.", LetterDefOf.NewQuest);
             }
 
-            double newVersion = 0.382;
             //Add update letter/checker here!!
-            if (factionFC.updateVersion < newVersion)
             {
                 string updateNotes = string.Join("\n", new string[] 
                 {
@@ -586,7 +587,6 @@ namespace FactionColonies
                     $"- Want to see the full patch notes {SteamUtility.SteamPersonaName}? Join us on Discord! https://discord.gg/f3zFQqA"
                 });
 
-                factionFC.updateVersion = newVersion;
 
                 Find.LetterStack.ReceiveLetter("Empire Mod Update!", updateNotes, LetterDefOf.NewQuest);
                 Settings().settlementsAutoBattle = true;
@@ -1801,6 +1801,7 @@ namespace FactionColonies
             Scribe_Values.Look(ref maxDaysTillMilitaryAction, "maxDaysTillMilitaryAction");
             Scribe_Values.Look(ref minDaysTillRandomEvent, "minDaysTillRandomEvent", 0);
             Scribe_Values.Look(ref maxDaysTillRandomEvent, "maxDaysTillRandomEvent", 6);
+            Scribe_Values.Look(ref updateVersion, "updateVersion");
         }
     }
 
