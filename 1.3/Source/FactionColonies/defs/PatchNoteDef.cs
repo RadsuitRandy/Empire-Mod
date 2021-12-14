@@ -217,6 +217,18 @@ namespace FactionColonies
 
         private static string ToVersion(int num) => (num > 10) ? num.ToString() : '0' + num.ToString();
 
+        /// <summary>
+        /// Sorts all patchNoteDefs to find the latest one for a mod using it's <paramref name="modId"/>
+        /// </summary>
+        /// <param name="modId"></param>
+        /// <returns>the newest PatchNoteDef</returns>
+        public static PatchNoteDef GetLatestForMod(string modId)
+        {
+            List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.Where(def => def.modId == modId).ToList();
+            patchNoteDefs.SortBy(def => def.ReleaseDate, def => def.ToOldEmpireVersion);
+            return patchNoteDefs[0];
+        }
+
         [DefOf]
         public class PatchNoteDefOf
         {
