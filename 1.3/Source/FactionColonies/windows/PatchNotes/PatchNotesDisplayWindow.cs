@@ -299,8 +299,16 @@ namespace FactionColonies
 				Widgets.DrawTextureFitted(expandCollapseIconRect.ContractedBy(11f), i == openDef ? TexButton.Collapse : TexButton.Reveal, 1f);
 				if (Widgets.ButtonInvisible(curPatchNoteRect))
 				{
-					openDef = i == openDef ? -1 : i;
-					SoundDefOf.Click.PlayOneShotOnCamera();
+					if (i == openDef)
+					{
+						openDef = -1;
+						SoundDefOf.TabClose.PlayOneShotOnCamera();
+                    }
+                    else
+                    {
+						openDef = i;
+						SoundDefOf.TabOpen.PlayOneShotOnCamera();
+                    }
 					shouldRefreshHeight = true;
 				}
 			}
