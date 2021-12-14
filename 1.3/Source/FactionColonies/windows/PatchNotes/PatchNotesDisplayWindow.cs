@@ -56,7 +56,7 @@ namespace FactionColonies
 		//For the image area
 		private int displayedImage = -1;
 		private Vector2 imageDescScrollPos = new Vector2(); 
-		Vector2 baseLinkButtonOffset = new Vector2(baseLinkButtonRect.width + commonMargin, 0f);
+		Vector2 baseLinkButtonOffset = new Vector2(baseLinkButtonRect.width + (LinkButtonsRect.width + baseLinkButtonRect.width) / baseLinkButtonRect.width, 0f);
 		private Color orange = Color.Lerp(Color.yellow, Color.red, 0.5f);
 		private Rect toolTipRect;
 
