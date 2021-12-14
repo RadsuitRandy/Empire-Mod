@@ -90,11 +90,6 @@ namespace FactionColonies
             }
         }
 
-        public static void testLogFunction()
-        {
-            Log.Message("Test Successful");
-        }
-
         public static void verifyTraits()
         {
             //make new list for factionfc traits
@@ -141,19 +136,7 @@ namespace FactionColonies
             }
         }
 
-        public static bool checkForMod(string packageID)
-        {
-            foreach (ModContentPack mod in LoadedModManager.RunningModsListForReading)
-            {
-                //Log.Message(mod.PackageIdPlayerFacing);
-                if (mod.PackageIdPlayerFacing == packageID)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        public static bool IsModLoaded(string packageID) => LoadedModManager.RunningModsListForReading.Any(mod => mod.PackageIdPlayerFacing == packageID);
 
         public static Type returnUnknownTypeFromName(string name)
         {
@@ -1077,7 +1060,7 @@ namespace FactionColonies
             //Find.FactionManager.Add(faction);
 
             //check if SoS2 is enabled
-            if (checkForMod("kentington.saveourship2"))
+            if (IsModLoaded("kentington.saveourship2"))
             {
                 Log.Message("SoS2 running - planet changed");
                 //SoS2 is loaded

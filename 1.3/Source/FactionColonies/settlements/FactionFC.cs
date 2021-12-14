@@ -431,12 +431,12 @@ namespace FactionColonies
 
             harmony.PatchAll();
 
-            if (FactionColonies.checkForMod("kentington.saveourship2"))
+            if (FactionColonies.IsModLoaded("kentington.saveourship2"))
             {
                 SoS2HarmonyPatches.Patch(harmony);
             }
 
-            if (FactionColonies.checkForMod("Krkr.AndroidTiers") || FactionColonies.checkForMod("Atlas.AndroidTiers"))
+            if (FactionColonies.IsModLoaded("Krkr.AndroidTiers") || FactionColonies.IsModLoaded("Atlas.AndroidTiers"))
             {
                 //Android_Tiers_Patches.Patch(harmony);
             }
@@ -869,7 +869,7 @@ namespace FactionColonies
                     replacingDef = DefDatabase<FactionDef>.GetNamedSilentFail("OutlanderCivil");
                     break;
                 case TechLevel.Medieval:
-                    if (FactionColonies.checkForMod("OskarPotocki.VanillaFactionsExpanded.MedievalModule"))
+                    if (FactionColonies.IsModLoaded("OskarPotocki.VanillaFactionsExpanded.MedievalModule"))
                     {
                         replacingDef = DefDatabase<FactionDef>.GetNamedSilentFail("VFEM_KingdomCivil");
                     }
