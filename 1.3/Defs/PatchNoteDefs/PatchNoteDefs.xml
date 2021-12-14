@@ -60,7 +60,7 @@
 		</patchNoteImagePaths>
 		
 		<patchNoteImageDescriptions>
-			<li>The new Patch note window. The optimal size for new images is 1366x768. As you can see there are still artifacts making it not look perfect and I don't know why (send help).\nThis entire window took me ~3 days of coding, not sure if that's fast or slow, but the ability to show messages like this was really important to me.\nAlso we can maybe reuse this code to make an ingame Wiki for Empire :P\nI'll probably use this in the future to give details on new features that I wouldn't normally put out there, and added some to older patches here too</li>
+			<li>The new Patch note window. The optimal size for new images is 1366x768. As you can see there are still artifacts making it not look perfect and I don't know why (send help).\nThis entire window took me ~a week of coding, not sure if that's fast or slow, but the ability to show messages like this was really important to me.\nAlso we can maybe reuse this code to make an ingame Wiki for Empire :P\nI'll probably use this in the future to give details on new features that I wouldn't normally put out there, and added some to older patches here too</li>
 			<li>A patch note def file. It describes the information contained in a patch note and can easily be used by other mods as well. Though atm Empire would have to be active. The screenshot here is not from the final version.</li>
 		</patchNoteImageDescriptions>
 		
