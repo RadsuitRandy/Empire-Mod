@@ -24,4 +24,13 @@
         Addition,
         Multiplication
     }
+
+    public enum PatchNoteType
+    {
+        Undefined,
+        Hotfix,
+        Patch,
+        Minor,
+        Major
+    }
 }

@@ -587,7 +587,6 @@ namespace FactionColonies
 
 
             //Prisoners
-            Scribe_Collections.Look(ref prisoners, "prisoners", LookMode.Deep);
             Scribe_Collections.Look(ref prisonerList, "prisonerList", LookMode.Deep);
 
             //Traits
@@ -620,7 +619,6 @@ namespace FactionColonies
         public double prosperity = 100;
         public List<BuildingFCDef> buildings = new List<BuildingFCDef>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
-        public List<Pawn> prisoners = new List<Pawn>();
         public List<FCPrisoner> prisonerList = new List<FCPrisoner>();
 
         public float silverIncome;
@@ -647,8 +645,8 @@ namespace FactionColonies
         public Faction militaryEnemy;
         public bool isUnderAttack;
         public MercenarySquadFC militarySquad;
-        public int artilleryTimer;
-        public bool autoDefend;
+        public int artilleryTimer = 0;
+        public bool autoDefend = false;
 
         //Trait stuff
         public int trait_Egalitarian_TaxBreak_Tick;
@@ -1222,23 +1220,6 @@ namespace FactionColonies
 
             buildings[buildingSlot] = BuildingFCDefOf.Empty;
         }
-
-
-        public void generatePrisonerTable()
-        {
-            if (prisonerList == null)
-            {
-                prisonerList = new List<FCPrisoner>();
-            }
-
-            foreach (Pawn pawn in prisoners)
-            {
-                prisonerList.Add(new FCPrisoner(pawn, this));
-            }
-
-            prisoners = new List<Pawn>();
-        }
-
 
         private int returnMaxWorkersFromPrisoners()
         {

@@ -47,17 +47,17 @@ namespace FactionColonies
         public Map taxMap;
         public TechLevel techLevel = TechLevel.Undefined;
         private bool firstTick = true;
-        public Texture2D factionIcon = TexLoad.factionIcons.ElementAt(0);
-        public string factionIconPath = TexLoad.factionIcons.ElementAt(0).name;
+        public Texture2D factionIcon = TexLoad.factionIcons[0];
+        public string factionIconPath = TexLoad.factionIcons[0].name;
 
 
         //New Types of Productions
-        public float researchPointPool;
+        public float researchPointPool = 0;
         public float powerPool;
         public ThingWithComps powerOutput;
 
         public List<FCEvent> events = new List<FCEvent>();
-        public List<String> settlementCaravansList = new List<string>(); //list of locations caravans already sent to
+        public List<string> settlementCaravansList = new List<string>(); //list of locations caravans already sent to
 
         public List<BillFC> OldBills = new List<BillFC>();
         public List<BillFC> Bills = new List<BillFC>();
@@ -71,24 +71,23 @@ namespace FactionColonies
 
 
         //Faction resources
-        public ResourceFC food = new ResourceFC(1, ResourceType.Food);
-        public ResourceFC weapons = new ResourceFC(1, ResourceType.Weapons);
-        public ResourceFC apparel = new ResourceFC(1, ResourceType.Apparel);
-        public ResourceFC animals = new ResourceFC(1, ResourceType.Animals);
-        public ResourceFC logging = new ResourceFC(1, ResourceType.Logging);
+        public ResourceFC food = new ResourceFC(0, ResourceType.Food);
+        public ResourceFC weapons = new ResourceFC(0, ResourceType.Weapons);
+        public ResourceFC apparel = new ResourceFC(0, ResourceType.Apparel);
+        public ResourceFC animals = new ResourceFC(0, ResourceType.Animals);
+        public ResourceFC logging = new ResourceFC(0, ResourceType.Logging);
 
-        public ResourceFC mining = new ResourceFC(1, ResourceType.Mining);
+        public ResourceFC mining = new ResourceFC(0, ResourceType.Mining);
 
         //public ResourceFC research = new ResourceFC("researching", "Researching", 1, ResourceType.Research);
-        public ResourceFC power = new ResourceFC(1, ResourceType.Power);
-        public ResourceFC medicine = new ResourceFC(1, ResourceType.Medicine);
-        public ResourceFC research = new ResourceFC(1, ResourceType.Research);
+        public ResourceFC power = new ResourceFC(0, ResourceType.Power);
+        public ResourceFC medicine = new ResourceFC(0, ResourceType.Medicine);
+        public ResourceFC research = new ResourceFC(0, ResourceType.Research);
 
         //Faction Def
         public FactionFCDef factionDef = new FactionFCDef();
 
         //Update
-        public double updateVersion;
         public int nextSettlementFCID = 1;
         public int nextMercenarySquadID = 1;
         public int nextMercenaryID = 1;
@@ -131,7 +130,7 @@ namespace FactionColonies
 
         //Settlement Leveling
         public int factionLevel = 1;
-        public float factionXPCurrent;
+        public float factionXPCurrent = 0;
         public float factionXPGoal = 100;
 
         //Random Event
@@ -139,8 +138,11 @@ namespace FactionColonies
 
         public List<FCPolicy> factionTraits = new List<FCPolicy>
         {
-            new FCPolicy(FCPolicyDefOf.empty), new FCPolicy(FCPolicyDefOf.empty), new FCPolicy(FCPolicyDefOf.empty),
-            new FCPolicy(FCPolicyDefOf.empty), new FCPolicy(FCPolicyDefOf.empty)
+            new FCPolicy(FCPolicyDefOf.empty), 
+            new FCPolicy(FCPolicyDefOf.empty), 
+            new FCPolicy(FCPolicyDefOf.empty),
+            new FCPolicy(FCPolicyDefOf.empty), 
+            new FCPolicy(FCPolicyDefOf.empty)
         };
 
         public Map TaxMap
@@ -181,7 +183,7 @@ namespace FactionColonies
         }
 
         //Research Trading
-        public float tradedAmount;
+        public float tradedAmount = 0;
 
         //Call for aid
         //
@@ -253,7 +255,6 @@ namespace FactionColonies
             Scribe_Deep.Look(ref raceFilter, "raceFilter");
 
             //Update
-            Scribe_Values.Look(ref updateVersion, "updateVersion");
             Scribe_Values.Look(ref nextSettlementFCID, "nextSettlementFCID");
 
             //Military Customization Util
@@ -429,14 +430,14 @@ namespace FactionColonies
             }
 
             harmony.PatchAll();
-            Log.Message($"verifying that {SteamUtility.SteamPersonaName} is using correct SoS2 compatibility branch...");
-            if (FactionColonies.checkForMod("kentington.saveourship2"))
+
+            if (FactionColonies.IsModLoaded("kentington.saveourship2"))
             {
                 Log.Message("Starting SoS2 patch...");
                 SoS2HarmonyPatches.Patch(harmony);
             }
 
-            if (FactionColonies.checkForMod("Krkr.AndroidTiers") || FactionColonies.checkForMod("Atlas.AndroidTiers"))
+            if (FactionColonies.IsModLoaded("Krkr.AndroidTiers") || FactionColonies.IsModLoaded("Atlas.AndroidTiers"))
             {
                 //Android_Tiers_Patches.Patch(harmony);
             }
@@ -471,7 +472,7 @@ namespace FactionColonies
             if (firstTick)
             {
                 //Log.Message("First Tick");
-                FactionColonies.updateChanges();
+                FactionColonies.UpdateChanges();
                 if (planetName.NullOrEmpty())
                 {
                     planetName = Find.World.info.name;
@@ -717,20 +718,7 @@ namespace FactionColonies
         }
 
 
-        public void updateFaction()
-        {
-            if (Find.World.GetComponent<FactionFC>().factionDef != null)
-            {
-            }
-            else
-            {
-                Find.World.GetComponent<FactionFC>().factionDef = new FactionFCDef();
-            }
-
-            //load factionfcvalues
-            //FactionColonies.getPlayerColonyFaction().def.techLevel = factionDef.techLevel;
-            //FactionColonies.getPlayerColonyFaction().def.apparelStuffFilter = factionDef.apparelStuffFilter;
-        }
+        public void updateFaction() => Find.World.GetComponent<FactionFC>().factionDef = Find.World.GetComponent<FactionFC>().factionDef ?? new FactionFCDef();
 
         public void updateFactionRaces()
         {
@@ -882,7 +870,7 @@ namespace FactionColonies
                     replacingDef = DefDatabase<FactionDef>.GetNamedSilentFail("OutlanderCivil");
                     break;
                 case TechLevel.Medieval:
-                    if (FactionColonies.checkForMod("OskarPotocki.VanillaFactionsExpanded.MedievalModule"))
+                    if (FactionColonies.IsModLoaded("OskarPotocki.VanillaFactionsExpanded.MedievalModule"))
                     {
                         replacingDef = DefDatabase<FactionDef>.GetNamedSilentFail("VFEM_KingdomCivil");
                     }

@@ -455,7 +455,7 @@ namespace FactionColonies
                     merc.pawn.equipment.AddEquipment(ThingMaker.MakeThing(weapon.def) as ThingWithComps);
                 }
 
-                if (FactionColonies.checkForMod("CETeam.CombatExtended"))
+                if (FactionColonies.IsModLoaded("CETeam.CombatExtended"))
                 {
                     //Log.Message("mod detected");
                     //CE is loaded

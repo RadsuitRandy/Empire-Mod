@@ -574,64 +574,59 @@ namespace FactionColonies
 
 					if (buttons[i] == "Actions".Translate())
 					{
-						List<FloatMenuOption> list = new List<FloatMenuOption>();
-
-						list.Add(new FloatMenuOption("TaxDeliveryMap".Translate(), delegate 
+						List<FloatMenuOption> list = new List<FloatMenuOption>
 						{
-							List<FloatMenuOption> list2 = new List<FloatMenuOption>();
-
-
-							list2.Add(new FloatMenuOption("SetMap".Translate(), delegate
+							new FloatMenuOption("TaxDeliveryMap".Translate(), delegate
 							{
-								List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-								foreach (Map map in Find.Maps)
+								List<FloatMenuOption> list2 = new List<FloatMenuOption> { new FloatMenuOption("SetMap".Translate(), delegate
 								{
-									if (map.IsPlayerHome)
-									{
+									List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
 
-										settlementList.Add(new FloatMenuOption(map.Parent.LabelCap, delegate
+									foreach (Map map in Find.Maps)
+									{
+										if (map.IsPlayerHome)
 										{
-											faction.taxMap = map;
-											Find.LetterStack.ReceiveLetter("Map Set!", "The tax delivery map has been set to the player colony of " + map.Parent.LabelCap + ".\n All taxes and other goods will be delivered there", LetterDefOf.NeutralEvent);
+											settlementList.Add(new FloatMenuOption(map.Parent.LabelCap, delegate
+											{
+												faction.taxMap = map;
+												Find.LetterStack.ReceiveLetter("Map Set!", "The tax delivery map has been set to the player colony of " + map.Parent.LabelCap + ".\n All taxes and other goods will be delivered there", LetterDefOf.NeutralEvent);
+											}
+											));
 										}
-										));
 									}
 
+									if (settlementList.Count == 0)
+									{
+										settlementList.Add(new FloatMenuOption("No valid settlements to use.", null));
+									}
 
-								}
+									FloatMenu floatMenu2 = new FloatMenu(settlementList);
+									Find.WindowStack.Add(floatMenu2);
+								}) };
 
-								if (settlementList.Count == 0)
-								{
-									settlementList.Add(new FloatMenuOption("No valid settlements to use.", null));
-								}
+								FloatMenu floatMenu = new FloatMenu(list2);
+								Find.WindowStack.Add(floatMenu);
+							}),
 
-								FloatMenu floatMenu2 = new FloatMenu(settlementList);
-								floatMenu2.vanishIfMouseDistant = true;
-								Find.WindowStack.Add(floatMenu2);
-							}));
+							new FloatMenuOption("SetCapital".Translate(), delegate
+							{
+								faction.setCapital();
+							}),
 
-							FloatMenu floatMenu = new FloatMenu(list2);
-							floatMenu.vanishIfMouseDistant = true;
-							Find.WindowStack.Add(floatMenu);
-						}));
+							new FloatMenuOption("ActivateResearch".Translate(), delegate
+							{
+								faction.updateDailyResearch();
+							}),
 
-						list.Add(new FloatMenuOption("SetCapital".Translate(), delegate
-						{
-							faction.setCapital();
-						}));
+							new FloatMenuOption("ResearchLevel".Translate(), delegate
+							{
+								Messages.Message("CurrentResearchLevel".Translate(faction.techLevel.ToString(), faction.returnNextTechToLevel()), MessageTypeDefOf.NeutralEvent);
+							}),
 
-						list.Add(new FloatMenuOption("ActivateResearch".Translate(), delegate
-						{
-							faction.updateDailyResearch();
-						}));
+							new FloatMenuOption("FCOpenPatchNotes".Translate(), () => DebugActionsMisc.PatchNotesDisplayWindow())
+                        };
 
-						list.Add(new FloatMenuOption("ResearchLevel".Translate(), delegate
-						{
-							Messages.Message("CurrentResearchLevel".Translate(faction.techLevel.ToString(), faction.returnNextTechToLevel()), MessageTypeDefOf.NeutralEvent);
-						}));
-
-						if (faction.hasPolicy(FCPolicyDefOf.technocratic))
+                        if (faction.hasPolicy(FCPolicyDefOf.technocratic))
 							list.Add(new FloatMenuOption("FCSendResearchItems".Translate(), delegate
 							{
 								if (Find.ColonistBar.GetColonistsInOrder().Count > 0) 
