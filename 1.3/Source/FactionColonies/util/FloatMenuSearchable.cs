@@ -13,8 +13,11 @@ namespace FactionColonies.util
 		private static readonly Vector2 SearchBarOffset = new Vector2(25f, -27f);
 		private readonly char ignoreBeforeChar;
 		private readonly bool useIgnoreBeforeChar;
+		private static bool shouldCloseOnSelect = false;
 
-		private readonly IEnumerable<FloatMenuOption> filteredOptions;
+		private readonly List<FloatMenuOption> filteredOptions;
+
+		public bool ShouldCloseOnSelect => shouldCloseOnSelect;
 
 		private float ColumnWidth
 		{
@@ -43,13 +46,23 @@ namespace FactionColonies.util
 		/// <param name="options"></param>
 		/// <param name="ignoreBeforeChar"></param>
 		/// <param name="useIgnoreBeforeChar"></param>
-		public FloatMenuSearchable(List<FloatMenuOption> options, bool useIgnoreBeforeChar = true, char ignoreBeforeChar = '-') : base(options)
+		public FloatMenuSearchable(List<FloatMenuOption> options, bool useIgnoreBeforeChar = true, char ignoreBeforeChar = '-') : base(AddStayOpenOption(options))
 		{
 			this.useIgnoreBeforeChar = useIgnoreBeforeChar;
 			this.ignoreBeforeChar = ignoreBeforeChar;
+
+			options = AddStayOpenOption(options);
 			filteredOptions = options.ListFullCopy();
+
 			options.Clear();
 		}
+
+		private static List<FloatMenuOption> AddStayOpenOption(List<FloatMenuOption> options)
+        {
+			List<FloatMenuOption> returnOptions = new List<FloatMenuOption> { new FloatMenuOption("Stay Open", () => shouldCloseOnSelect = !shouldCloseOnSelect, shouldCloseOnSelect ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, Color.white) };
+			returnOptions.AddRange(options);
+			return returnOptions;
+        }
 
 		public override void ExtraOnGUI()
 		{
@@ -105,9 +118,9 @@ namespace FactionColonies.util
 			}, false, false, 0f);
 		}
 
-		public override void DoWindowContents(Rect rect)
-		{
-			base.DoWindowContents(rect);
-		}
-	}
+        public override void Close(bool doCloseSound = true)
+        {
+			if (shouldCloseOnSelect) base.Close(doCloseSound);
+        }
+    }
 }
