@@ -29,12 +29,7 @@ namespace FactionColonies
         
 
         public FCPrisoner () 
-        {
-            //this.workload = FCWorkLoad.Light;
-            //this.healthTracker = new Pawn_HealthTracker(pawn);
-            //this.healthTracker = prisoner.health;
-            //HealthUtility.HealNonPermanentInjuriesAndRestoreLegs(this.prisoner);
-            
+        {            
         }
 
         public FCPrisoner (Pawn pawn, SettlementFC settlement)
@@ -47,6 +42,7 @@ namespace FactionColonies
             this.health = (float)Math.Round(this.prisoner.health.summaryHealth.SummaryHealthPercent * 100);
             this.isReturning = false;
             this.loadID = Find.World.GetComponent<FactionFC>().GetNextPrisonerID();
+            pawn.guest.SetGuestStatus(FactionColonies.getPlayerColonyFaction(), GuestStatus.Prisoner);
         }
 
         
