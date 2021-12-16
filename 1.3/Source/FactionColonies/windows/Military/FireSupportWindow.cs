@@ -89,7 +89,7 @@ namespace FactionColonies
                     }));
                 }
 
-                FloatMenu selection = new FloatMenuSearchable(supports);
+                FloatMenu selection = new Searchable_FloatMenu(supports);
                 Find.WindowStack.Add(selection);
             }
 

@@ -3,9 +3,9 @@ using System.Linq;
 using UnityEngine;
 using Verse;
 
-namespace FactionColonies.util
+namespace FactionColonies
 {
-	class FloatMenuSearchable : FloatMenu
+	class Searchable_FloatMenu : FloatMenu
 	{
 		private string searchTerm = "";
 
@@ -46,7 +46,7 @@ namespace FactionColonies.util
 		/// <param name="options"></param>
 		/// <param name="ignoreBeforeChar"></param>
 		/// <param name="useIgnoreBeforeChar"></param>
-		public FloatMenuSearchable(List<FloatMenuOption> options, bool useIgnoreBeforeChar = true, char ignoreBeforeChar = '-') : base(AddStayOpenOption(options))
+		public Searchable_FloatMenu(List<FloatMenuOption> options, bool useIgnoreBeforeChar = true, char ignoreBeforeChar = '-') : base(AddStayOpenOption(options))
 		{
 			this.useIgnoreBeforeChar = useIgnoreBeforeChar;
 			this.ignoreBeforeChar = ignoreBeforeChar;

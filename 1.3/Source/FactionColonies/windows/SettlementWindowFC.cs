@@ -189,6 +189,12 @@ namespace FactionColonies
             }
 
             Find.WindowStack.Add(new FloatMenuSearchable(options));
+
+        private IEnumerable<NamedArgument> ArgGetter(ThingDef thing, ResourceFC resource)
+        {
+            yield return thing.LabelCap;
+            yield return thing.BaseMarketValue;
+            yield return IsAllowedTranslation(resource.filter.Allows(thing));
         }
 
         /// <summary>
@@ -591,7 +597,7 @@ namespace FactionColonies
                                         settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
                                     }
 
-                                    Find.WindowStack.Add(new FloatMenuSearchable(settlementList) { vanishIfMouseDistant = true });
+                                    Find.WindowStack.Add(new Searchable_FloatMenu(settlementList) { vanishIfMouseDistant = true });
 
 
                                     //set to raid settlement here
