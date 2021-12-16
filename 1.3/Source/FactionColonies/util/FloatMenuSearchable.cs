@@ -59,7 +59,7 @@ namespace FactionColonies.util
 
 		private static List<FloatMenuOption> AddStayOpenOption(List<FloatMenuOption> options)
         {
-			List<FloatMenuOption> returnOptions = new List<FloatMenuOption> { new FloatMenuOption("Stay Open", () => shouldCloseOnSelect = !shouldCloseOnSelect, shouldCloseOnSelect ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, Color.white) };
+			List<FloatMenuOption> returnOptions = new List<FloatMenuOption> { new FloatMenuOption("FCFMSStayOpen".Translate(), () => shouldCloseOnSelect = !shouldCloseOnSelect, shouldCloseOnSelect ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, Color.white) };
 			returnOptions.AddRange(options);
 			return returnOptions;
         }
@@ -73,7 +73,6 @@ namespace FactionColonies.util
 
 			Find.WindowStack.ImmediateWindow(6830963, searchRect, WindowLayer.Super, delegate
 			{
-
 				GUI.color = baseColor;
 				Text.Font = GameFont.Small;
 				Text.Anchor = TextAnchor.MiddleLeft;
@@ -109,7 +108,7 @@ namespace FactionColonies.util
 				}
 				else
 				{
-					Widgets.Label(labelRect, " " + "FloatMenuSearchable".Translate());
+					Widgets.Label(labelRect, $" {"FloatMenuSearchable".Translate()}");
 					options = filteredOptions.ToList();
 					vanishIfMouseDistant = true;
 				}
