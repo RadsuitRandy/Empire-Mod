@@ -188,13 +188,7 @@ namespace FactionColonies
                 options.Add(option);
             }
 
-            Find.WindowStack.Add(new FloatMenuSearchable(options));
-
-        private IEnumerable<NamedArgument> ArgGetter(ThingDef thing, ResourceFC resource)
-        {
-            yield return thing.LabelCap;
-            yield return thing.BaseMarketValue;
-            yield return IsAllowedTranslation(resource.filter.Allows(thing));
+            Find.WindowStack.Add(new Searchable_FloatMenu(options));
         }
 
         /// <summary>

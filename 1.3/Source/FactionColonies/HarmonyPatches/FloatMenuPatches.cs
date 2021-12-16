@@ -3,10 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HarmonyLib;
+using Verse;
 
-namespace 1.3.Source.FactionColonies.HarmonyPatches
+namespace FactionColonies
 {
+    [HarmonyPatch(typeof(WindowStack), "TryRemove", typeof(Window), typeof(bool))]
     class FloatMenuPatches
-{
-}
+    {
+        public static bool Prefix(Window window)
+        {
+            if (window is Searchable_FloatMenu searchable && searchable.ShouldCloseOnSelect) return false;
+
+            return true;
+        }
+    }
 }
