@@ -13,7 +13,7 @@ namespace FactionColonies
     {
         public static bool Prefix(Window window)
         {
-            if (window is Searchable_FloatMenu searchable && searchable.ShouldCloseOnSelect) return false;
+            if (window is Searchable_FloatMenu searchable && !searchable.CanBeClosed) return false;
 
             return true;
         }

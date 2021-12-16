@@ -1,25 +1,73 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace FactionColonies
 {
 	class Searchable_FloatMenu : FloatMenu
 	{
-		private string searchTerm = "";
-
-		private Color baseColor = Color.white;
-		private static readonly Vector2 SearchBarOffset = new Vector2(25f, -27f);
+		private readonly List<FloatMenuOption> filteredOptions;
 		private readonly char ignoreBeforeChar;
 		private readonly bool useIgnoreBeforeChar;
-		private static bool shouldCloseOnSelect = false;
+		private readonly bool canBeForcedOpen;
 
-		private readonly List<FloatMenuOption> filteredOptions;
+		private string searchTerm = "";
+		private Color baseColor = Color.white;
+		private int noRemovalOnTick = 0;
 
-		public bool ShouldCloseOnSelect => shouldCloseOnSelect;
+		private readonly Vector2 SearchBarOffset = new Vector2(25f, -27f);
+		private bool canClose = true;
+		private bool stayOpenOptionClicked = false;
 
-		private float ColumnWidth
+		/// <summary>
+		/// Creates a floatmenuoption that allows the player to lock the Floatmenu open
+		/// </summary>
+        private FloatMenuOption ForceOpenOption
+        {
+            get
+            {
+				FloatMenuOption option = new FloatMenuOption("FCSMFForceOpen".Translate(), delegate
+				{
+					canClose = !canClose;
+					stayOpenOptionClicked = true;
+				}, canClose ? Widgets.CheckboxOffTex : Widgets.CheckboxOnTex, Color.white);
+
+				option.SetSizeMode(SizeMode);
+
+				return option;
+            }
+        }
+
+		/// <summary>
+		/// Decides if the window should close
+		/// </summary>
+        public bool CanBeClosed
+        {
+            get
+            {
+				if (noRemovalOnTick == Find.TickManager.TicksGame) return false;
+
+				if (stayOpenOptionClicked)
+                {
+					stayOpenOptionClicked = false;
+					filteredOptions[0] = ForceOpenOption;
+					noRemovalOnTick = Find.TickManager.TicksGame;
+
+					SoundDefOf.Click.PlayOneShotOnCamera();
+					return false;
+				}
+
+                return canClose;
+            }
+        }
+
+		/// <summary>
+		/// Calculates the required Width dynamically
+		/// </summary>
+        private float ColumnWidth
 		{
 			get
 			{
@@ -41,35 +89,67 @@ namespace FactionColonies
 		}
 
 		/// <summary>
-		///		Like a normal <c>FloatMenu</c>, but searchable!
+		///	Like a normal <c>FloatMenu</c>, but searchable!
 		/// </summary>
 		/// <param name="options"></param>
 		/// <param name="ignoreBeforeChar"></param>
 		/// <param name="useIgnoreBeforeChar"></param>
-		public Searchable_FloatMenu(List<FloatMenuOption> options, bool useIgnoreBeforeChar = true, char ignoreBeforeChar = '-') : base(AddStayOpenOption(options))
+		public Searchable_FloatMenu(List<FloatMenuOption> options, bool canBeForcedOpen = false, bool useIgnoreBeforeChar = true, char ignoreBeforeChar = '-') : base(FakeAddStayOpenOption(options, canBeForcedOpen))
 		{
 			this.useIgnoreBeforeChar = useIgnoreBeforeChar;
 			this.ignoreBeforeChar = ignoreBeforeChar;
+			this.canBeForcedOpen = canBeForcedOpen;
 
-			options = AddStayOpenOption(options);
+			options = AddForceOpenOption(options);
 			filteredOptions = options.ListFullCopy();
 
 			options.Clear();
 		}
 
-		private static List<FloatMenuOption> AddStayOpenOption(List<FloatMenuOption> options)
+		/// <summary>
+		/// Adds the ForceOpenOption to the FloatMenu <paramref name="options"/>
+		/// </summary>
+		/// <param name="options"></param>
+		/// <returns></returns>
+		private List<FloatMenuOption> AddForceOpenOption(List<FloatMenuOption> options)
         {
-			List<FloatMenuOption> returnOptions = new List<FloatMenuOption> { new FloatMenuOption("FCFMSStayOpen".Translate(), () => shouldCloseOnSelect = !shouldCloseOnSelect, shouldCloseOnSelect ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, Color.white) };
+			List<FloatMenuOption> returnOptions = new List<FloatMenuOption>();
+
+			if (canBeForcedOpen) returnOptions.Add(ForceOpenOption);
+
 			returnOptions.AddRange(options);
 			return returnOptions;
         }
 
+		/// <summary>
+		/// Adds a fake option to the <paramref name="options"/>, only need this for the base constructor
+		/// </summary>
+		/// <param name="options"></param>
+		/// <returns></returns>
+		private static List<FloatMenuOption> FakeAddStayOpenOption(List<FloatMenuOption> options, bool canBeForcedOpen)
+		{
+			List<FloatMenuOption> returnOptions = new List<FloatMenuOption>();
+			if (canBeForcedOpen) returnOptions.Add(new FloatMenuOption("", null));
+
+			returnOptions.AddRange(options);
+			return returnOptions;
+		}
+
+		/// <summary>
+		/// Adds the search bar and search bar functionality
+		/// </summary>
 		public override void ExtraOnGUI()
 		{
 			base.ExtraOnGUI();
 			Vector2 vector = new Vector2(windowRect.x, windowRect.y);
 			Text.Font = GameFont.Small;
 			Rect searchRect = new Rect(vector.x - SearchBarOffset.x, vector.y + SearchBarOffset.y, ColumnWidth + SearchBarOffset.x, 27f);
+
+			if (stayOpenOptionClicked)
+            {
+				stayOpenOptionClicked = false;
+				options[0] = ForceOpenOption;
+            }
 
 			Find.WindowStack.ImmediateWindow(6830963, searchRect, WindowLayer.Super, delegate
 			{
@@ -110,16 +190,11 @@ namespace FactionColonies
 				{
 					Widgets.Label(labelRect, $" {"FloatMenuSearchable".Translate()}");
 					options = filteredOptions.ToList();
-					vanishIfMouseDistant = true;
+					vanishIfMouseDistant = true && CanBeClosed;
 				}
 
 				Text.Anchor = TextAnchor.UpperLeft;
 			}, false, false, 0f);
 		}
-
-        public override void Close(bool doCloseSound = true)
-        {
-			if (shouldCloseOnSelect) base.Close(doCloseSound);
-        }
     }
 }
