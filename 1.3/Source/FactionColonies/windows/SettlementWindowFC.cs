@@ -180,11 +180,15 @@ namespace FactionColonies
                     continue;
                 }
 
-                FloatMenuOption option = new FloatMenuOption("FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing))), delegate
+                FloatMenuOption option = new FloatMenuOption("FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing))), null, thing);
+
+                option.action = delegate
                 {
                     resource.filter.SetAllow(thing, !resource.filter.Allows(thing));
                     resource.returnLowestCost();
-                }, thing);
+                    option.Label = "FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing)));
+                };
+
                 options.Add(option);
             }
 
