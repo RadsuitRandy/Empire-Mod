@@ -25,7 +25,7 @@ Your colonists will pay taxes, be it in silver, or goods. You can tell them wher
 [img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/incompatibleWith.png[/img]
 [list]
 [*]Real Faction Guest
-[*]Save Our Ships 2 (We have a fix ready and are actively testing it, but somewhat lacking testers for this. If you want access to the SoS2 build, check out out Discord!)
+[*]Save Our Ships 2 (We have a fix ready and are actively testing it, but somewhat lacking testers for this. If you want access to the SoS2 build, check out our Discord!)
 [/list]
 
 [img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/0714e8d3406269c16965ac90042b621eca4f5314/Common/Textures/WorkshopPage/links.png[/img]
