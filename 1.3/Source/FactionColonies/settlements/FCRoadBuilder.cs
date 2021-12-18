@@ -17,7 +17,7 @@ namespace FactionColonies
         public RoadDef roadDef;
 
         public int daysBetweenTicks = 3;
-        public bool roadBuildingEnabled = false;
+        public bool roadBuildingEnabled = true;
         public bool wasRoadBuildingDisabled = true;
         bool roadBuilders;
 
