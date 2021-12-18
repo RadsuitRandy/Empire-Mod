@@ -6,6 +6,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace FactionColonies
 {
@@ -182,11 +183,13 @@ namespace FactionColonies
 
                 FloatMenuOption option = new FloatMenuOption("FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing))), null, thing);
 
+                //Seperated because the label needs to be modified on press
                 option.action = delegate
                 {
                     resource.filter.SetAllow(thing, !resource.filter.Allows(thing));
                     resource.returnLowestCost();
                     option.Label = "FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing)));
+                    SoundDefOf.Click.PlayOneShotOnCamera();
                 };
 
                 options.Add(option);

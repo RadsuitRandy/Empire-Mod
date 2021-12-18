@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using FactionColonies.util;
+using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace FactionColonies
 {
@@ -237,7 +239,11 @@ namespace FactionColonies
                         {
                             thingOptions.Add(new FloatMenuOption(
                                 def.LabelCap + " - " + Math.Round(def.BaseMarketValue * 1.5, 2).ToString(),
-                                delegate { selectedSupport.projectiles.Add(def); }, def));
+                                delegate 
+                                {
+                                    selectedSupport.projectiles.Add(def);
+                                    SoundDefOf.Click.PlayOneShotOnCamera();
+                                }, def));
                         }
 
                         if (!thingOptions.Any())

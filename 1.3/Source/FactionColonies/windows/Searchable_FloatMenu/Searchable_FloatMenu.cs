@@ -33,6 +33,7 @@ namespace FactionColonies
 				{
 					canClose = !canClose;
 					stayOpenOptionClicked = true;
+					SoundDefOf.Click.PlayOneShotOnCamera();
 				}, canClose ? Widgets.CheckboxOffTex : Widgets.CheckboxOnTex, Color.white);
 
 				option.SetSizeMode(SizeMode);
@@ -55,8 +56,6 @@ namespace FactionColonies
 					stayOpenOptionClicked = false;
 					filteredOptions[0] = ForceOpenOption;
 					noRemovalOnTick = Find.TickManager.TicksGame;
-
-					SoundDefOf.Click.PlayOneShotOnCamera();
 					return false;
 				}
 
