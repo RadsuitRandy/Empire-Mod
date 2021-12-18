@@ -246,7 +246,7 @@ namespace FactionColonies
                                 new FloatMenuOption("No available projectiles found", delegate { }));
                         }
 
-                        Find.WindowStack.Add(new FloatMenu(thingOptions));
+                        Find.WindowStack.Add(new Searchable_FloatMenu(thingOptions, true));
                     }
                 }
                 else

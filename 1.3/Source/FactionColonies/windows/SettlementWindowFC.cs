@@ -192,7 +192,7 @@ namespace FactionColonies
                 options.Add(option);
             }
 
-            Find.WindowStack.Add(new Searchable_FloatMenu(options));
+            Find.WindowStack.Add(new Searchable_FloatMenu(options, true));
         }
 
         /// <summary>
