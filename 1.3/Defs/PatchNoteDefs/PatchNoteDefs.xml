@@ -42,7 +42,7 @@
 		<patchNoteType>Minor</patchNoteType>
 
 		<patchNoteLines>
-			<li>- added the option to force open some float menus. (Check the third image for more details!)</li>
+			<li>- added the option to force open some float menus as suggested by LunaW0lve on our Discord server. (Check the third image for more details!)</li>
 			<li>- added translation keys to the settings window</li>
 			<li>- added this window, it opens every patch and you can open it from the settings and the actions menu</li>
 			<li>- patch notes will now only be displayed once per update</li>
