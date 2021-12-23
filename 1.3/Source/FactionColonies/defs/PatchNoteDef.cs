@@ -232,8 +232,9 @@ namespace FactionColonies
                 return null;
             }
 
+            //This way of sorting produces a list: oldest => newest
             patchNoteDefs.SortBy(def => def.ReleaseDate, def => def.ToOldEmpireVersion);
-            return patchNoteDefs[0];
+            return patchNoteDefs.Last();
         }
 
         [DefOf]
