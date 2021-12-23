@@ -9,7 +9,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
-using Verse.AI;
+using FactionColonies.PatchNote;
 using Verse.AI.Group;
 
 namespace FactionColonies
@@ -19,6 +19,7 @@ namespace FactionColonies
         public static void UpdateChanges()
         {
             FactionFC factionFC = Find.World.GetComponent<FactionFC>();
+            PatchNoteSettings patchNoteSettings = LoadedModManager.GetMod<PatchNoteMod>().GetSettings<PatchNoteSettings>();
 
             Log.Message("Updating Empire to Latest Version");
             //NEW PLACE FOR UPDATE VERSIONS
@@ -55,6 +56,10 @@ namespace FactionColonies
             //Add update letter/checker here!!
             if (Settings().updateVersion < newVersion)
             {
+                patchNoteSettings.lastVersion = Settings().updateVersion;
+                patchNoteSettings.curVersion = newVersion;
+                patchNoteSettings.Write();
+
                 DebugActionsMisc.PatchNotesDisplayWindow();
 
                 Settings().updateVersion = newVersion;

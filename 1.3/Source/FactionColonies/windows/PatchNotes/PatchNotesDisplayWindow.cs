@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FactionColonies.PatchNote;
 using FactionColonies.util;
 using RimWorld;
 using UnityEngine;
@@ -41,6 +42,7 @@ namespace FactionColonies
 		private static readonly List<PatchNoteDef> patchNoteDefs = DefDatabase<PatchNoteDef>.AllDefsListForReading.ListFullCopy();
 
 		private readonly string title = "FCPatchNotesWindowTitle".Translate();
+		private readonly PatchNoteSettings patchNoteSettings = LoadedModManager.GetMod<PatchNoteMod>().GetSettings<PatchNoteSettings>();
 
 		//For the patch note area
 		private bool firstRun = true;
@@ -291,10 +293,19 @@ namespace FactionColonies
 				else
 					Widgets.DrawLightHighlight(curPatchNoteRect);
 
+
+				if (patchNoteDefs[i].ToOldEmpireVersion > patchNoteSettings.lastVersion)
+                {
+					GUI.color = Color.red;
+                }
+
+				Widgets.DrawBox(curPatchNoteRect);
+
+				ResetTextAndColor();
+
 				Text.Font = GameFont.Medium;
 				Text.Anchor = TextAnchor.MiddleLeft;
 
-				Widgets.DrawBox(curPatchNoteRect);
 				Widgets.Label(curPatchNoteRect.RightPartPixels(curPatchNoteRect.width - expandCollapseIconRect.width - commonMargin), patchNoteDefs[i].Title);
 				Widgets.DrawTextureFitted(expandCollapseIconRect.ContractedBy(11f), i == openDef ? TexButton.Collapse : TexButton.Reveal, 1f);
 				if (Widgets.ButtonInvisible(curPatchNoteRect))
