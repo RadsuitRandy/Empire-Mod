@@ -6,6 +6,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace FactionColonies
 {
@@ -180,15 +181,21 @@ namespace FactionColonies
                     continue;
                 }
 
-                FloatMenuOption option = new FloatMenuOption("FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing))), delegate
+                FloatMenuOption option = new FloatMenuOption("FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing))), null, thing);
+
+                //Seperated because the label needs to be modified on press
+                option.action = delegate
                 {
                     resource.filter.SetAllow(thing, !resource.filter.Allows(thing));
                     resource.returnLowestCost();
-                }, thing);
+                    option.Label = "FCTitheSingleOption".Translate(thing.LabelCap, thing.BaseMarketValue, IsAllowedTranslation(resource.filter.Allows(thing)));
+                    SoundDefOf.Click.PlayOneShotOnCamera();
+                };
+
                 options.Add(option);
             }
 
-            Find.WindowStack.Add(new FloatMenuSearchable(options));
+            Find.WindowStack.Add(new Searchable_FloatMenu(options, true));
         }
 
         /// <summary>
@@ -591,7 +598,7 @@ namespace FactionColonies
                                         settlementList.Add(new FloatMenuOption("NoValidMilitaries".Translate(), null));
                                     }
 
-                                    Find.WindowStack.Add(new FloatMenuSearchable(settlementList) { vanishIfMouseDistant = true });
+                                    Find.WindowStack.Add(new Searchable_FloatMenu(settlementList) { vanishIfMouseDistant = true });
 
 
                                     //set to raid settlement here

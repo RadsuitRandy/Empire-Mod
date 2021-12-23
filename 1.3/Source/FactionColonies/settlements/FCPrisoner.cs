@@ -29,55 +29,51 @@ namespace FactionColonies
         
 
         public FCPrisoner () 
-        {
-            //this.workload = FCWorkLoad.Light;
-            //this.healthTracker = new Pawn_HealthTracker(pawn);
-            //this.healthTracker = prisoner.health;
-            //HealthUtility.HealNonPermanentInjuriesAndRestoreLegs(this.prisoner);
-            
+        {            
         }
 
         public FCPrisoner (Pawn pawn, SettlementFC settlement)
         {
-            this.prisoner = pawn;
+            prisoner = pawn;
             this.settlement = settlement;
-            this.unrest = 0;
-            this.healthTracker = new Pawn_HealthTracker(pawn);
-            this.healthTracker = pawn.health;
-            this.health = (float)Math.Round(this.prisoner.health.summaryHealth.SummaryHealthPercent * 100);
-            this.isReturning = false;
-            this.loadID = Find.World.GetComponent<FactionFC>().GetNextPrisonerID();
+            unrest = 0;
+            healthTracker = new Pawn_HealthTracker(pawn);
+            healthTracker = pawn.health;
+            health = (float)Math.Round(prisoner.health.summaryHealth.SummaryHealthPercent * 100);
+            isReturning = false;
+            loadID = Find.World.GetComponent<FactionFC>().GetNextPrisonerID();
+            pawn.guest.SetGuestStatus(FactionColonies.getPlayerColonyFaction(), GuestStatus.Prisoner);
         }
 
         
         public void ExposeData()
         {
-            Scribe_Deep.Look<Pawn>(ref prisoner, "prisoner");
-            Scribe_References.Look<SettlementFC>(ref settlement, "settlement");
-            Scribe_Values.Look<float>(ref unrest, "unrest");
-            Scribe_Values.Look<float>(ref health, "healthy");
-            Scribe_Values.Look<bool>(ref isReturning, "isReturning");
-            Scribe_Values.Look<int>(ref loadID, "loadID");
-            Scribe_Values.Look<FCWorkLoad>(ref workload, "workload");
-            Scribe_Deep.Look<Pawn_HealthTracker>(ref healthTracker, "healthTracker", new object[] { this.prisoner });
+            Scribe_Deep.Look(ref prisoner, "prisoner");
+            Scribe_References.Look(ref settlement, "settlement");
+            Scribe_Values.Look(ref unrest, "unrest");
+            Scribe_Values.Look(ref health, "healthy");
+            Scribe_Values.Look(ref isReturning, "isReturning");
+            Scribe_Values.Look(ref loadID, "loadID");
+            Scribe_Values.Look(ref workload, "workload");
+            Scribe_Deep.Look(ref healthTracker, "healthTracker", new object[] { prisoner });
         }
 
 
         public string GetUniqueLoadID()
         {
-            return "FCPrisoner_" + this.loadID;
+            return "FCPrisoner_" + loadID;
         }
 
 
 
         public bool AdjustHealth(int value)
         {
-            this.health += value;
-            if (this.health >= 100)
+            health += value;
+            if (health >= 100)
             {
                 health = 100;
-                if (this.prisoner != null && this.prisoner.health != null)
-                    HealthUtility.HealNonPermanentInjuriesAndRestoreLegs(this.prisoner);
+                if (prisoner != null && prisoner.health != null)
+                    HealthUtility.HealNonPermanentInjuriesAndRestoreLegs(prisoner);
             }
 
             return checkDead();
@@ -85,10 +81,10 @@ namespace FactionColonies
 
         public bool checkDead()
         {
-            if (this.health <= 0)
+            if (health <= 0)
             {
-                this.settlement.prisonerList.Remove(this);
-                Find.LetterStack.ReceiveLetter("PrisonerHasDiedLetter".Translate(), TranslatorFormattedStringExtensions.Translate("PrisonerHasDied", this.prisoner.Name.ToString(), this.settlement.name), LetterDefOf.NeutralEvent);
+                settlement.prisonerList.Remove(this);
+                Find.LetterStack.ReceiveLetter("PrisonerHasDiedLetter".Translate(), "PrisonerHasDied".Translate(prisoner.Name.ToString(), settlement.name), LetterDefOf.NeutralEvent);
                 return true;
             }
             return false;

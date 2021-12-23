@@ -138,7 +138,7 @@ namespace FactionColonies
                         squads.Add(new FloatMenuOption("No Available Squads", null));
                     }
 
-                    FloatMenu selection = new FloatMenuSearchable(squads);
+                    FloatMenu selection = new Searchable_FloatMenu(squads);
                     Find.WindowStack.Add(selection);
                 }
 
@@ -307,7 +307,7 @@ namespace FactionColonies
                         list.Add(new FloatMenuOption("No fire supports currently made. Make one", delegate { }));
                     }
 
-                    FloatMenu menu = new FloatMenuSearchable(list);
+                    FloatMenu menu = new Searchable_FloatMenu(list);
                     Find.WindowStack.Add(menu);
                 }
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using FactionColonies.util;
+using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace FactionColonies
 {
@@ -89,7 +91,7 @@ namespace FactionColonies
                     }));
                 }
 
-                FloatMenu selection = new FloatMenuSearchable(supports);
+                FloatMenu selection = new Searchable_FloatMenu(supports);
                 Find.WindowStack.Add(selection);
             }
 
@@ -237,7 +239,11 @@ namespace FactionColonies
                         {
                             thingOptions.Add(new FloatMenuOption(
                                 def.LabelCap + " - " + Math.Round(def.BaseMarketValue * 1.5, 2).ToString(),
-                                delegate { selectedSupport.projectiles.Add(def); }, def));
+                                delegate 
+                                {
+                                    selectedSupport.projectiles.Add(def);
+                                    SoundDefOf.Click.PlayOneShotOnCamera();
+                                }, def));
                         }
 
                         if (!thingOptions.Any())
@@ -246,7 +252,7 @@ namespace FactionColonies
                                 new FloatMenuOption("No available projectiles found", delegate { }));
                         }
 
-                        Find.WindowStack.Add(new FloatMenu(thingOptions));
+                        Find.WindowStack.Add(new Searchable_FloatMenu(thingOptions, true));
                     }
                 }
                 else

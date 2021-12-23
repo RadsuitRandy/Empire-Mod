@@ -124,7 +124,7 @@ namespace FactionColonies
                     }
                 }
 
-                FloatMenu selection = new FloatMenuSearchable(Units);
+                FloatMenu selection = new Searchable_FloatMenu(Units);
                 Find.WindowStack.Add(selection);
             }
 
@@ -230,7 +230,7 @@ namespace FactionColonies
                 }
 
                 options.Sort(FactionColonies.CompareFloatMenuOption);
-                FloatMenu menu = new FloatMenuSearchable(options);
+                FloatMenu menu = new Searchable_FloatMenu(options);
                 Find.WindowStack.Add(menu);
             }
 
@@ -284,7 +284,7 @@ namespace FactionColonies
                     //unequip here
                     selectedUnit.animal = null;
                 }));
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
                 Find.WindowStack.Add(menu);
             }
 
@@ -313,7 +313,7 @@ namespace FactionColonies
                                     })).ToList();
 
                             stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                            FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                            FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                             Find.WindowStack.Add(stuffWindow);
                         }
                         else
@@ -329,7 +329,7 @@ namespace FactionColonies
 
                 list.Insert(0, new FloatMenuOption("unitActionUnequipThing".Translate(), delegate { selectedUnit.unequipWeapon(); }));
 
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -375,7 +375,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                                        FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -403,7 +403,7 @@ namespace FactionColonies
                     }
                 }));
 
-                FloatMenu menu = new FloatMenuSearchable(headgearList);
+                FloatMenu menu = new Searchable_FloatMenu(headgearList);
 
                 Find.WindowStack.Add(menu);
             }
@@ -450,7 +450,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                                        FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -480,7 +480,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -527,7 +527,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                                        FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -557,7 +557,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -604,7 +604,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                                        FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -635,7 +635,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -681,7 +681,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                                        FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -711,7 +711,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
 
                 Find.WindowStack.Add(menu);
             }
@@ -756,7 +756,7 @@ namespace FactionColonies
                                         }
 
                                         stuffList.Sort(FactionColonies.CompareFloatMenuOption);
-                                        FloatMenu stuffWindow = new FloatMenuSearchable(stuffList);
+                                        FloatMenu stuffWindow = new Searchable_FloatMenu(stuffList);
                                         Find.WindowStack.Add(stuffWindow);
                                     }
                                     else
@@ -795,7 +795,7 @@ namespace FactionColonies
                         }
                     }
                 }));
-                FloatMenu menu = new FloatMenuSearchable(list);
+                FloatMenu menu = new Searchable_FloatMenu(list);
 
                 Find.WindowStack.Add(menu);
             }

@@ -86,7 +86,7 @@ namespace FactionColonies
                     selectedSquad = squad;
                     selectedSquad.updateEquipmentTotalCost();
                 })));
-                FloatMenu selection = new FloatMenuSearchable(squads);
+                FloatMenu selection = new Searchable_FloatMenu(squads);
                 Find.WindowStack.Add(selection);
             }
 
@@ -211,7 +211,7 @@ namespace FactionColonies
                                 selectedSquad.ChangeTick();
                             })));
 
-                        FloatMenu selection = new FloatMenuSearchable(units);
+                        FloatMenu selection = new Searchable_FloatMenu(units);
                         Find.WindowStack.Add(selection);
                     }
 
