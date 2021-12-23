@@ -42,7 +42,7 @@
 		<patchNoteType>Major</patchNoteType>
 
 		<patchNoteLines>
-			<li>!Save Our Ship 2 compatibility has been restored</li>
+			<li>Save Our Ship 2 compatibility has been restored!</li>
 			<li>- It can be added to any existing save (but not easily removed)</li>
 			<li>- It can be loaded before or after Empire</li>
 			<li>- If the space ship is set as the tax delivery map _AND_ tax delivery by drop pod and shuttle is disabled, bad things will probably happen</li>
@@ -60,15 +60,12 @@
 		</additionalNotes>
 
 		<patchNoteImagePaths>
-			<li>PatchNoteImages/0.39.00/0</li>
-			<li>PatchNoteImages/0.39.00/1</li>
-			<li>PatchNoteImages/0.39.00/2</li>
+			<li>PatchNoteImages/0.40.00/space_notes</li>
 		</patchNoteImagePaths>
 
 		<patchNoteImageDescriptions>
-			<li>The new Patch note window. The optimal size for new images is 1366x768. As you can see there are still artifacts making it not look perfect and I don't know why (send help).\nThis entire window took me ~a week of coding, not sure if that's fast or slow, but the ability to show messages like this was really important to me.\nAlso we can maybe reuse this code to make an ingame Wiki for Empire :P\nI'll probably use this in the future to give details on new features that I wouldn't normally put out there, and added some to older patches here too</li>
-			<li>A patch note def file. It describes the information contained in a patch note and can easily be used by other mods as well. Though atm Empire would have to be active. The screenshot here is not from the final version.</li>
-			<li>Pressing the "Force Open" option seen here will lock the window open, allowing you to make multiple changes without having to open it multiple times.</li>
+			<li><b>Rule your empire from a throne beyond the clouds...</b></li>
+			<li>This release marks the reintroduction of compatibility with Save our Ship 2. In an earlier release, we fixed compatibility with Rim War. Both of these offerings add a new dimension of play to Rim World, expanding the scope of the environments in which a player can build and conquer. Haven't tried either of the other mods before? Give them a search from the Steam Workshop!</li>
 		</patchNoteImageDescriptions>
 
 		<authors>
