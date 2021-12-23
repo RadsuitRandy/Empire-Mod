@@ -25,6 +25,57 @@
 		<authorStringBase>All of the code for this update has been developed by {0}.</authorStringBase>
 		<introStringBase>A new update for {0} has been released: v.{1}. The following changes have occurred:</introStringBase>
 	</FactionColonies.PatchNoteDef>
+
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
+		<defName>0_40_00</defName>
+		<label>Save Our Ship 2 Compatibility Update</label>
+		<description>Empire is once again compatible with Save Our Ship 2!</description>
+
+		<major>0</major>
+		<minor>40</minor>
+		<patch>0</patch>
+
+		<releaseDay>24</releaseDay>
+		<releaseMonth>12</releaseMonth>
+		<releaseYear>2021</releaseYear>
+
+		<patchNoteType>Major</patchNoteType>
+
+		<patchNoteLines>
+			<li>!Save Our Ship 2 compatibility has been restored</li>
+			<li>- It can be added to any existing save (but not easily removed)</li>
+			<li>- It can be loaded before or after Empire</li>
+			<li>- If the space ship is set as the tax delivery map _AND_ tax delivery by drop pod and shuttle is disabled, bad things will probably happen</li>
+			<li>- Changing planets may generate red error text. Ignore this! Everything is fine! We're all fine here. How are you?</li>
+			<li>- Returning to a previous planet? The Empire's settlements will still be there, ready to pay taxes!</li>
+			<li>- SoS2 will prompt the player to decide which allied faction to gift their colonies to when changing planets-- this is referring to the player's maps, not Empire settlements.</li>
+			<li>   - If the player chooses the option to give their colonies to their Empire faction, the colonies will be converted to vanilla world settlement objects just like any other vanilla faction</li>
+			<li>   - Upon returning to the planet, the player will find that this converted settlement object belongs to the empire faction, but is not a manageable, taxable colony</li>
+			<li>   - There is no immediate plan to fix this-- just be aware that it will create an extra object on the world map that is not actually a controllab le settlement</li>
+			<li>- This has been tested thoroughly, but as always notify us via Discord (link above) if you encounter any issues.</li>
+		</patchNoteLines>
+
+		<additionalNotes>
+			<li>Happy holidays, and thanks for playing!</li>
+		</additionalNotes>
+
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.39.00/0</li>
+			<li>PatchNoteImages/0.39.00/1</li>
+			<li>PatchNoteImages/0.39.00/2</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>The new Patch note window. The optimal size for new images is 1366x768. As you can see there are still artifacts making it not look perfect and I don't know why (send help).\nThis entire window took me ~a week of coding, not sure if that's fast or slow, but the ability to show messages like this was really important to me.\nAlso we can maybe reuse this code to make an ingame Wiki for Empire :P\nI'll probably use this in the future to give details on new features that I wouldn't normally put out there, and added some to older patches here too</li>
+			<li>A patch note def file. It describes the information contained in a patch note and can easily be used by other mods as well. Though atm Empire would have to be active. The screenshot here is not from the final version.</li>
+			<li>Pressing the "Force Open" option seen here will lock the window open, allowing you to make multiple changes without having to open it multiple times.</li>
+		</patchNoteImageDescriptions>
+
+		<authors>
+			<li>Danimineiro</li>
+			<li>Imperitor</li>
+		</authors>
+	</FactionColonies.PatchNoteDef>
 	
 	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
 		<defName>0_39_00</defName>
