@@ -19,7 +19,7 @@
 		<linkButtonToolTips>
 			<li>Join the Empire discord!</li>
 			<li>The layout of this GUI was made using NesGUI, a tool for modders that helps with creating RimWorld GUI! Click to learn more.</li>
-			<li>Check out the Empire Wiki! (Some of the contents will be outdated)</li>
+			<li>Check out the Empire Wiki! (Recently updated!)</li>
 		</linkButtonToolTips>
 	
 		<authorStringBase>All of the code for this update has been developed by {0}.</authorStringBase>
@@ -55,6 +55,21 @@
 			<li>- This has been tested thoroughly, but as always notify us via Discord (link above) if you encounter any issues.</li>
 		</patchNoteLines>
 
+		<links>
+			<li>https://steamcommunity.com/workshop/filedetails/?id=1909914131</li>
+			<li>https://steamcommunity.com/sharedfiles/filedetails/?id=2222935097</li>
+		</links>
+		
+		<linkButtonImagePaths>
+			<li>PatchNoteImages/0.40.00/SoS2</li>
+			<li>PatchNoteImages/0.40.00/RimWar</li>
+		</linkButtonImagePaths>
+		
+		<linkButtonToolTips>
+			<li>Save Our Ship 2 (Steam Workshop)</li>
+			<li>Rim War (Steam Workshop)</li>
+		</linkButtonToolTips>
+		
 		<additionalNotes>
 			<li>Happy holidays, and thanks for playing!</li>
 		</additionalNotes>
