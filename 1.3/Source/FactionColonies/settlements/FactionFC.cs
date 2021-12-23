@@ -433,6 +433,7 @@ namespace FactionColonies
 
             if (FactionColonies.IsModLoaded("kentington.saveourship2"))
             {
+                Log.Message("Starting SoS2 patch...");
                 SoS2HarmonyPatches.Patch(harmony);
             }
 

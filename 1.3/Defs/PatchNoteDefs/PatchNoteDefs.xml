@@ -19,11 +19,73 @@
 		<linkButtonToolTips>
 			<li>Join the Empire discord!</li>
 			<li>The layout of this GUI was made using NesGUI, a tool for modders that helps with creating RimWorld GUI! Click to learn more.</li>
-			<li>Check out the Empire Wiki! (Some of the contents will be outdated)</li>
+			<li>Check out the Empire Wiki! (Recently updated!)</li>
 		</linkButtonToolTips>
 	
 		<authorStringBase>All of the code for this update has been developed by {0}.</authorStringBase>
 		<introStringBase>A new update for {0} has been released: v.{1}. The following changes have occurred:</introStringBase>
+	</FactionColonies.PatchNoteDef>
+
+	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">
+		<defName>0_40_00</defName>
+		<label>Save Our Ship 2 Compatibility Update</label>
+		<description>Empire is once again compatible with Save Our Ship 2!</description>
+
+		<major>0</major>
+		<minor>40</minor>
+		<patch>0</patch>
+
+		<releaseDay>24</releaseDay>
+		<releaseMonth>12</releaseMonth>
+		<releaseYear>2021</releaseYear>
+
+		<patchNoteType>Major</patchNoteType>
+
+		<patchNoteLines>
+			<li>Save Our Ship 2 compatibility has been restored!</li>
+			<li>- It can be added to any existing save (but not easily removed)</li>
+			<li>- It can be loaded before or after Empire</li>
+			<li>- If the space ship is set as the tax delivery map _AND_ tax delivery by drop pod and shuttle is disabled, bad things will probably happen</li>
+			<li>- Changing planets may generate red error text. Ignore this! Everything is fine! We're all fine here. How are you?</li>
+			<li>- Returning to a previous planet? The Empire's settlements will still be there, ready to pay taxes!</li>
+			<li>- SoS2 will prompt the player to decide which allied faction to gift their colonies to when changing planets-- this is referring to the player's maps, not Empire settlements.</li>
+			<li>   - If the player chooses the option to give their colonies to their Empire faction, the colonies will be converted to vanilla world settlement objects just like any other vanilla faction</li>
+			<li>   - Upon returning to the planet, the player will find that this converted settlement object belongs to the empire faction, but is not a manageable, taxable colony</li>
+			<li>   - There is no immediate plan to fix this-- just be aware that it will create an extra object on the world map that is not actually a controllab le settlement</li>
+			<li>- This has been tested thoroughly, but as always notify us via Discord (link above) if you encounter any issues.</li>
+		</patchNoteLines>
+
+		<links>
+			<li>https://steamcommunity.com/workshop/filedetails/?id=1909914131</li>
+			<li>https://steamcommunity.com/sharedfiles/filedetails/?id=2222935097</li>
+		</links>
+		
+		<linkButtonImagePaths>
+			<li>PatchNoteImages/0.40.00/SoS2</li>
+			<li>PatchNoteImages/0.40.00/RimWar</li>
+		</linkButtonImagePaths>
+		
+		<linkButtonToolTips>
+			<li>Save Our Ship 2 (Steam Workshop)</li>
+			<li>Rim War (Steam Workshop)</li>
+		</linkButtonToolTips>
+		
+		<additionalNotes>
+			<li>Happy holidays, and thanks for playing!</li>
+		</additionalNotes>
+
+		<patchNoteImagePaths>
+			<li>PatchNoteImages/0.40.00/space_notes</li>
+		</patchNoteImagePaths>
+
+		<patchNoteImageDescriptions>
+			<li>This release marks the reintroduction of compatibility with Save our Ship 2. In an earlier release, we fixed compatibility with Rim War. Both of these offerings add a new dimension of play to Rim World, expanding the scope of the environments in which a player can build and conquer. Haven't tried either of the other mods before? Give them a search from the Steam Workshop!</li>
+		</patchNoteImageDescriptions>
+
+		<authors>
+			<li>Danimineiro</li>
+			<li>Imperitor</li>
+		</authors>
 	</FactionColonies.PatchNoteDef>
 	
 	<FactionColonies.PatchNoteDef ParentName="EmpirePatchBase">

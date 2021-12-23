@@ -195,7 +195,7 @@ namespace FactionColonies
 
             MethodInfo originalpre = typ.GetMethod("KillAllColonistsNotInCrypto", BindingFlags.Static | BindingFlags.NonPublic);
             MethodInfo originalpost = typ.GetMethod("DoWorldSwitch", BindingFlags.Static | BindingFlags.NonPublic);
-            MethodInfo originalpost2 = typ2.GetMethod("Replace", BindingFlags.Static | BindingFlags.Public);
+            // MethodInfo originalpost2 = typ2.GetMethod("Replace", BindingFlags.Static | BindingFlags.Public);
 
 
 
@@ -203,8 +203,8 @@ namespace FactionColonies
             var postfix = typeof(SoS2HarmonyPatches).GetMethod("Postfix");
             harmony.Patch(originalpre, prefix: new HarmonyMethod(prefix));
             harmony.Patch(originalpost, postfix: new HarmonyMethod(postfix));
-            harmony.Patch(originalpost2, postfix: new HarmonyMethod(postfix));
-
+            // harmony.Patch(originalpost2, postfix: new HarmonyMethod(postfix));
+            Log.Message("Finished patching Empire and SoS2");
         }
         //
 
@@ -223,7 +223,7 @@ namespace FactionColonies
             }
             // Log.Message(list.Count().ToString());
             Log.Message("Resetting faction leaders");
-            //List<Faction> list = (List<Faction>)mainclass                //mainclass.Field("allFactions", ).GetValue();
+            // List<Faction> list = (List<Faction>)mainclass                //mainclass.Field("allFactions", ).GetValue();
             foreach (Faction faction in list)
             {
                 if (faction.leader == null && faction.def.leaderTitle != null && faction.def.leaderTitle != "")
@@ -236,7 +236,7 @@ namespace FactionColonies
                     {
                         Log.Message("Empire - Error trying to generate leader for " + faction.Name);
                     }
-                    //Log.Message("Generated new leader for " + faction.Name);
+                    // Log.Message("Generated new leader for " + faction.Name);
                 }
 
             }
