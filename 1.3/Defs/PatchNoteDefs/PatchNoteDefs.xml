@@ -48,8 +48,8 @@
 			<li>- If the space ship is set as the tax delivery map _AND_ tax delivery mode is set to caravan, bad things will probably happen</li>
 			<li>- Changing planets may generate red error text. Ignore this! Everything is fine! We're all fine here. How are you?</li>
 			<li>- Returning to a previous planet? The Empire's settlements will still be there, ready to pay taxes!</li>
-			<li>- SoS2 will prompt the player to decide which allied faction to gift their colonies to when changing planets-- this is referring to the player's maps, not Empire settlements.</li>
-			<li>   - If the player chooses the option to give their colonies to their Empire faction, the colonies will be converted to vanilla world settlement objects just like any other vanilla faction</li>
+			<li>- SoS2 will prompt the player to decide which allied faction to gift their colonies to when changing planets-- this is referring to the player's colony maps, not Empire settlements.</li>
+			<li>   - If the player chooses the option to give their player colonies to their Empire faction, the colonies will be converted to vanilla world settlement objects-- just like it will for any other vanilla faction</li>
 			<li>   - Upon returning to the planet, the player will find that this converted settlement object belongs to the empire faction, but is not a manageable, taxable colony</li>
 			<li>   - There is no immediate plan to fix this-- just be aware that it will create an extra object on the world map that is not actually a controllable settlement</li>
 			<li>- This has been tested thoroughly, but as always notify us via Discord (link above) if you encounter any issues.</li>
