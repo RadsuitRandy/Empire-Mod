@@ -61,7 +61,7 @@ namespace FactionColonies
         {
             get
             {
-                modContentPackCached = modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(pack => pack.PackageId == modId));
+                modContentPackCached = modContentPackCached ?? (modContentPackCached = LoadedModManager.RunningModsListForReading.FirstOrFallback(PackHasModId));
 
                 if (modContentPackCached == null)
                 {
@@ -70,6 +70,21 @@ namespace FactionColonies
 
                 return modContentPackCached;
             }
+        }
+
+        /// <summary>
+        /// Checks if a given <paramref name="pack"/> has the saved modId
+        /// </summary>
+        /// <param name="pack"></param>
+        /// <returns>true if it does, false otherwise</returns>
+        private bool PackHasModId(ModContentPack pack)
+        {
+            if (pack.ModMetaData.appendPackageIdSteamPostfix)
+            {
+                return pack.PackageId == modId + ModMetaData.SteamModPostfix;
+            }
+
+            return pack.PackageId == modId;
         }
 
         /// <summary>
