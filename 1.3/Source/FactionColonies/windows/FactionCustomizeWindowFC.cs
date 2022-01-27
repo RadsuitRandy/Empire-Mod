@@ -204,10 +204,7 @@ namespace FactionColonies
                     new FloatMenuOption("Enable All", delegate { faction.resetRaceFilter(); })
                 };
                 List<string> races = new List<string>();
-                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def =>
-                    def?.race?.label != null &&
-                    def.race.race?.intelligence == Intelligence.Humanlike &
-                    races.Contains(def.race.label) == false && def.race.BaseMarketValue != 0))
+                foreach (PawnKindDef def in DefDatabase<PawnKindDef>.AllDefsListForReading.Where(def => def.IsHumanlikeWithLabelRace() && !races.Contains(def.race.label)))
                 {
                     if (def.race.label == "Human" && def.LabelCap != "Colonist") continue;
                     races.Add(def.race.label);
@@ -219,7 +216,7 @@ namespace FactionColonies
                             {
                                 Messages.Message("CannotHaveLessThanOneRace".Translate(), MessageTypeDefOf.RejectInput);
                             }
-                            else if (faction.raceFilter.AllowedThingDefs.Count() > 1)
+                            else if (faction.raceFilter.AllowedThingDefs.Count() > 0)
                             {
                                 if (!faction.raceFilter.SetAllow(def.race, !faction.raceFilter.Allows(def.race)))
                                 {

@@ -76,9 +76,13 @@ namespace FactionColonies
         }
 
         [CanBeNull]
-        public TraderKindDef TraderKind => !BaseTraderKinds.Any()
-            ? null
-            : BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count];
+        public TraderKindDef TraderKind
+        {
+            get
+            {
+                return BaseTraderKinds.Any() ? BaseTraderKinds[Mathf.Abs(settlement.HashOffset()) % BaseTraderKinds.Count] : null;
+            }
+        }
 
         public int RandomPriceFactorSeed => Gen.HashCombineInt(settlement.ID, 1933327354);
 
@@ -96,15 +100,14 @@ namespace FactionColonies
             : (string) "SettlementTrader".Translate((NamedArgument) settlement.LabelCap,
                 (NamedArgument) settlement.Faction.Name);
 
+        private bool HasStockTraderKindWillTrade => stock == null || stock.InnerListForReading.Any(x => TraderKind.WillTrade(x.def));
+
         public virtual bool CanTradeNow
         {
             get
             {
-                if (TraderKind == null)
-                    return false;
-                return stock == null ||
-                       stock.InnerListForReading.Any(x =>
-                           TraderKind.WillTrade(x.def));
+                if (TraderKind == null) return false;
+                return HasStockTraderKindWillTrade;
             }
         }
 

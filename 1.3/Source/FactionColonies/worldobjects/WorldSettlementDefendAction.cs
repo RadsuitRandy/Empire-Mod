@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -20,10 +21,7 @@ namespace FactionColonies
             this.settlement = settlement;
         }
 
-        public override void Arrived(Caravan caravan)
-        {
-            settlement.CaravanDefend(caravan);
-        }
+        public override void Arrived(Caravan caravan) => settlement.startDefence(MilitaryUtilFC.returnMilitaryEventByLocation(settlement.settlement.mapLocation),() => settlement.CaravanDefend(caravan));
         
         public override void ExposeData()
         {

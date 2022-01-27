@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -302,14 +303,14 @@ namespace FactionColonies
 			//list[6] = mapLocation.ToString(); //settlement location
 			//list[7] = ID
 
-			List<String> headerList = new List<String> {"Settlement".Translate(), "Level".Translate(), "FreeWorkers".Translate(), "Unrest".Translate(), "Loyalty".Translate(), "Profit".Translate(), "Location", "ID" };
+			List<string> headerList = new List<string> {"Settlement".Translate(), "Level".Translate(), "FreeWorkers".Translate(), "Unrest".Translate(), "Loyalty".Translate(), "Profit".Translate(), "Location", "ID" };
 			int adjust2 = 0;
 
 			
 			Action method = delegate{ };
 
 			
-			for (int i = 0; i < headerList.Count()-2; i++)  //-2 to exclude location and ID
+			for (int i = 0; i < headerList.Count() - 2; i++)  //-2 to exclude location and ID
 			{
 				int xspacingUpdated;
 				GUIContent varString;
@@ -416,13 +417,10 @@ namespace FactionColonies
 								Find.WindowStack.Add(new SettlementWindowFc(settlement));
 
 							}
-							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), settlement.name);
+							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), settlement.ShortName);
 						}
 						else
 						{
-							
-							
-
 							Widgets.Label(new Rect(2 + adjust, yoffset + i * yspacing + scroll, xspacingUpdated, 30), varString);
 
 							//ist[0] = name;   //settlement name
@@ -484,7 +482,7 @@ namespace FactionColonies
 		private void DrawFactionMiddleMenu(Rect inRect)
 		{
 			DrawFactionStats(inRect, statSize);
-			DrawFactionButtons(inRect, buttonSize);
+			DrawFactionButtons(buttonSize);
 		}
 
 		private void DrawFactionBottomMenu(Rect inRect)
@@ -540,7 +538,7 @@ namespace FactionColonies
 					Widgets.DrawHighlight(new Rect(0, 105 + ((statSize + 15) * i), 125, statSize + 10));
 					if(Widgets.ButtonImage(new Rect(5 - 2, 110 + ((statSize + 15) * i) - 2, statSize + 4, statSize + 4), TexLoad.iconProsperity))
 					{
-						Find.WindowStack.Add(new DescWindowFc("FactionProsperityDesc", "FactionProsperity".Translate()));
+						Find.WindowStack.Add(new DescWindowFc("FactionProsperityDesc".Translate(), "FactionProsperity".Translate()));
 					};
 					Widgets.Label(new Rect(50, 110 + ((statSize + 15) * i), 80, statSize), Convert.ToInt32(faction.averageProsperity) + "%");
 				}
@@ -548,7 +546,7 @@ namespace FactionColonies
 			
 		}
 
-		private void DrawFactionButtons(Rect inRect, int buttonSize) //Used to draw a list of buttons from the 'buttons' list
+		private void DrawFactionButtons(int buttonSize) //Used to draw a list of buttons from the 'buttons' list
 		{
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Text.Font = GameFont.Small;
@@ -557,9 +555,7 @@ namespace FactionColonies
 				if (Widgets.ButtonText(new Rect(140, 110 + ((buttonSize + 5) * i), 170, buttonSize), buttons[i]))
 				{
 					if (buttons[i] == "FCOverview".Translate())
-					{ //if click trade policy button
-					  //Log.Message(buttons[i]);
-						Log.Message("Success");
+					{ 
 						Find.WindowStack.Add(new FCWindow_Overview());
 					}
 				
@@ -572,82 +568,79 @@ namespace FactionColonies
 						}
 						else
 						{
-							Find.WindowStack.Add(new militaryCustomizationWindowFC());
+							Find.WindowStack.Add(new MilitaryCustomizationWindowFc());
 						}
 					}
 
 					if (buttons[i] == "Actions".Translate())
 					{
-						List<FloatMenuOption> list = new List<FloatMenuOption>();
-
-						list.Add(new FloatMenuOption("TaxDeliveryMap".Translate(), delegate 
+						List<FloatMenuOption> list = new List<FloatMenuOption>
 						{
-							List<FloatMenuOption> list2 = new List<FloatMenuOption>();
-
-
-							list2.Add(new FloatMenuOption("SetMap".Translate(), delegate
+							new FloatMenuOption("TaxDeliveryMap".Translate(), delegate
 							{
-								List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
-
-								foreach (Map map in Find.Maps)
+								List<FloatMenuOption> list2 = new List<FloatMenuOption> { new FloatMenuOption("SetMap".Translate(), delegate
 								{
-									if (map.IsPlayerHome)
-									{
+									List<FloatMenuOption> settlementList = new List<FloatMenuOption>();
 
-										settlementList.Add(new FloatMenuOption(map.Parent.LabelCap, delegate
+									foreach (Map map in Find.Maps)
+									{
+										if (map.IsPlayerHome)
 										{
-											faction.taxMap = map;
-											Find.LetterStack.ReceiveLetter("Map Set!", "The tax delivery map has been set to the player colony of " + map.Parent.LabelCap + ".\n All taxes and other goods will be delivered there", LetterDefOf.NeutralEvent);
+											settlementList.Add(new FloatMenuOption(map.Parent.LabelCap, delegate
+											{
+												faction.taxMap = map;
+												Find.LetterStack.ReceiveLetter("Map Set!", "The tax delivery map has been set to the player colony of " + map.Parent.LabelCap + ".\n All taxes and other goods will be delivered there", LetterDefOf.NeutralEvent);
+											}
+											));
 										}
-										));
 									}
 
+									if (settlementList.Count == 0)
+									{
+										settlementList.Add(new FloatMenuOption("No valid settlements to use.", null));
+									}
 
-								}
+									FloatMenu floatMenu2 = new FloatMenu(settlementList);
+									Find.WindowStack.Add(floatMenu2);
+								}) };
 
-								if (settlementList.Count == 0)
-								{
-									settlementList.Add(new FloatMenuOption("No valid settlements to use.", null));
-								}
+								FloatMenu floatMenu = new FloatMenu(list2);
+								Find.WindowStack.Add(floatMenu);
+							}),
 
-								FloatMenu floatMenu2 = new FloatMenu(settlementList);
-								floatMenu2.vanishIfMouseDistant = true;
-								Find.WindowStack.Add(floatMenu2);
-							}));
+							new FloatMenuOption("SetCapital".Translate(), delegate
+							{
+								faction.setCapital();
+							}),
 
-							FloatMenu floatMenu = new FloatMenu(list2);
-							floatMenu.vanishIfMouseDistant = true;
-							Find.WindowStack.Add(floatMenu);
-						}));
+							new FloatMenuOption("ActivateResearch".Translate(), delegate
+							{
+								faction.updateDailyResearch();
+							}),
 
-						list.Add(new FloatMenuOption("SetCapital".Translate(), delegate
-						{
-							faction.setCapital();
-						}));
+							new FloatMenuOption("ResearchLevel".Translate(), delegate
+							{
+								Messages.Message("CurrentResearchLevel".Translate(faction.techLevel.ToString(), faction.returnNextTechToLevel()), MessageTypeDefOf.NeutralEvent);
+							}),
 
-						list.Add(new FloatMenuOption("ActivateResearch".Translate(), delegate
-						{
-							faction.updateDailyResearch();
-						}));
+							new FloatMenuOption("FCOpenPatchNotes".Translate(), () => DebugActionsMisc.PatchNotesDisplayWindow())
+                        };
 
-						list.Add(new FloatMenuOption("ResearchLevel".Translate(), delegate
-						{
-							Messages.Message("CurrentResearchLevel".Translate(faction.techLevel.ToString(), faction.returnNextTechToLevel()), MessageTypeDefOf.NeutralEvent);
-						}));
-
-						if (faction.hasPolicy(FCPolicyDefOf.technocratic))
+                        if (faction.hasPolicy(FCPolicyDefOf.technocratic))
 							list.Add(new FloatMenuOption("FCSendResearchItems".Translate(), delegate
 							{
-								if (Find.ColonistBar.GetColonistsInOrder().Count > 0) {
+								if (Find.ColonistBar.GetColonistsInOrder().Count > 0) 
+								{
 									Pawn playerNegotiator = Find.ColonistBar.GetColonistsInOrder()[0];
 									//Log.Message(playerNegotiator.Name + " Negotiator");
 
 									FCTrader_Research trader = new FCTrader_Research();
 									
 									Find.WindowStack.Add(new Dialog_Trade(playerNegotiator, trader));
-									} else
+								} 
+								else
 								{
-									Log.Message("Where are all the colonists?");
+									Log.Error("Couldn't find any colonists to trade with");
 								}
 							}));
 
@@ -659,62 +652,33 @@ namespace FactionColonies
 
 									faction.traitFeudalBoolCanUseMercenary = false;
 									faction.traitFeudalTickLastUsedMercenary = Find.TickManager.TicksGame;
-									List<PawnKindDef> listKindDef = new List<PawnKindDef>();
-									foreach (ThingDef def in Find.World.GetComponent<FactionFC>().raceFilter.AllowedThingDefs)
-									{
-										listKindDef.Add(def.race.AnyPawnKind);
-									}
-									PawnGroupMaker groupMaker = FactionColonies.getPlayerColonyFaction().def.pawnGroupMakers.RandomElement();
-									PawnGroupMakerParms group = new PawnGroupMakerParms();
-									group.groupKind = groupMaker.kindDef;
-									group.faction = FactionColonies.getPlayerColonyFaction();
-									group.dontUseSingleUseRocketLaunchers = true;
-									group.generateFightersOnly = true;
-									group.points = 2000;
-									
-									group.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
-									
 
-									PawnKindDef pawnkind = new PawnKindDef();
-									PawnKindDef kind = groupMaker.GeneratePawns(group).RandomElement().kindDef;
-									pawnkind = listKindDef.RandomElement();
+                                    PawnGenerationRequest request = FCPawnGenerator.WorkerOrMilitaryRequest();
+									request.ColonistRelationChanceFactor = 20f;
+									Pawn pawn = PawnGenerator.GeneratePawn(request);
 
-									pawnkind.techHediffsTags = kind.techHediffsTags;
-									pawnkind.apparelTags = kind.apparelTags;
-									pawnkind.isFighter = kind.isFighter;
-									pawnkind.combatPower = kind.combatPower;
-									pawnkind.gearHealthRange = kind.gearHealthRange;
-									pawnkind.weaponTags = kind.weaponTags;
-									pawnkind.apparelMoney = kind.apparelMoney;
-									pawnkind.weaponMoney = kind.weaponMoney;
-									pawnkind.apparelAllowHeadgearChance = kind.apparelAllowHeadgearChance;
-									pawnkind.techHediffsMoney = kind.techHediffsMoney;
-									pawnkind.label = kind.label;
-
-									Pawn pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(pawnkind, Find.FactionManager.OfPlayer, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 20f));
-
-
-									IncidentParms parms = new IncidentParms();
-									parms.target = Find.CurrentMap;
-									parms.faction = FactionColonies.getPlayerColonyFaction();
-									parms.points = 999;
-									parms.raidArrivalModeForQuickMilitaryAid = true;
-									parms.raidNeverFleeIndividual = true;
-									parms.raidForceOneIncap = true;
-									parms.raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop;
-									parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;
-									parms.raidArrivalModeForQuickMilitaryAid = true;
+                                    IncidentParms parms = new IncidentParms
+                                    {
+                                        target = Find.CurrentMap,
+                                        faction = FactionColonies.getPlayerColonyFaction(),
+                                        points = 999,
+                                        raidArrivalModeForQuickMilitaryAid = true,
+                                        raidNeverFleeIndividual = true,
+                                        raidForceOneIncap = true,
+                                        raidArrivalMode = PawnsArrivalModeDefOf.CenterDrop,
+                                        raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly
+                                    };
+                                    parms.raidArrivalModeForQuickMilitaryAid = true;
 									PawnsArrivalModeWorker_EdgeWalkIn worker = new PawnsArrivalModeWorker_EdgeWalkIn();
 									worker.TryResolveRaidSpawnCenter(parms);
 									worker.Arrive(new List<Pawn> { pawn }, parms);
 
 									Find.LetterStack.ReceiveLetter("FCMercenaryJoined".Translate(), "FCMercenaryJoinedText".Translate(pawn.NameFullColored), LetterDefOf.PositiveEvent, new LookTargets(pawn));
-
-
+									pawn.SetFaction(Faction.OfPlayer);
 								}
 								else
 								{
-									Messages.Message("FCActionMercenaryOnCooldown".Translate(((faction.traitFeudalTickLastUsedMercenary + GenDate.TicksPerSeason) - Find.TickManager.TicksGame).ToStringTicksToDays()), MessageTypeDefOf.RejectInput);
+									Messages.Message("FCActionMercenaryOnCooldown".Translate(((faction.traitFeudalTickLastUsedMercenary + GenDate.TicksPerSeason) - Find.TickManager.TicksGame).ToTimeString()), MessageTypeDefOf.RejectInput);
 								}
 							}));
 
@@ -761,7 +725,7 @@ namespace FactionColonies
 			Widgets.Label(new Rect(195, 300, 115, 20), Convert.ToInt32(faction.profit) + " " + "Silver".Translate().ToLower());
 
 			Widgets.Label(new Rect(195, 315, 115, 30), "TimeTillTax".Translate() + ":");
-			Widgets.Label(new Rect(195, 340, 115, 20), (faction.taxTimeDue-Find.TickManager.TicksGame).ToStringTicksToDays());
+			Widgets.Label(new Rect(195, 340, 115, 20), Math.Max(0, faction.taxTimeDue-Find.TickManager.TicksGame).ToTimeString());
 		}
 	
 		private void scrollWindow(float num)

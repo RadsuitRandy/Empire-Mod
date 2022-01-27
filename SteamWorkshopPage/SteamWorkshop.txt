@@ -1,0 +1,69 @@
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/attention.png[/img]
+This mod is now being run by the community rather than myself as an individual. I am not the one producing updates for Empire. For all technical support, go to the [url=https://discord.gg/f3zFQqA]The Empire Discord[/url] and post in #bug-reports
+
+Known bugs may be documented in our Discord, the Wiki below, or in the [url=https://steamcommunity.com/workshop/filedetails/discussion/2006535182/5965578747673614327/]known bugs[/url] discussion.
+[url=https://rimworld-empire-mod.fandom.com/wiki/Rimworld-_Empire_Mod_Wiki]Visit the Wiki![/url]
+
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/description.png[/img]
+Spread your rule across the Rimworld with self governing colonies that are loyal to you and you alone. Command them to fight in your name, and destroy your enemies. But politics is always a deadly game.
+Events will periodically influence your colonies, or your faction as a whole. You must decide how best to respond to these situations. And beware, a poor guiding hand will have consequences,  your faction may lose faith in your leadership entirely, and take their destiny into their own hands.
+Your colonists will pay taxes, be it in silver, or goods. You can tell them where you want your taxes, and they will dutifully pay them. A fully customizable faction name and title allows you to put your own spin on your subjects. They can be feudal vassals, a megacorporation’s branch offices, or even a shining beacon of truth and liberty. It is all part of the greater story.
+
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/compatibility.png[/img]
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/compatibleWith.png[/img]
+[list]
+[*]Alpha Animals
+[*]Combat Extended
+[*]Genetic Rim
+[*]Witcher Monster Hunt
+[*]RimWar
+[/list]
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/incompatibleWith.png[/img]
+[list]
+[*]Real Faction Guest
+[*]Save Our Ships 2 (We have a fix ready and are actively testing it, but somewhat lacking testers for this. If you want access to the SoS2 build, check out our Discord!)
+[/list]
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/0714e8d3406269c16965ac90042b621eca4f5314/Common/Textures/WorkshopPage/links.png[/img]
+[list]
+[*][url=https://trello.com/b/XavnD7kr/empire]Roadmap (Outdated, visit the Discord for more information)[/url]
+[*][url=https://discord.gg/f3zFQqA]The Empire Discord[/url]
+[*][url=https://youtu.be/lvWb1rMMsq8]Saakra's YouTube[/url]
+[/list]
+
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/contributers.png[/img]
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/loyalCustomerSupport.png[/img]
+[list]
+[*]Your Local Customer Support [i]As stated above![/i]
+[/list]
+
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/writers.png[/img]
+[list]
+[*]Shalax - Wrote the top description as well as the settlement's in-game descriptions
+[/list]
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/teamMembers.png[/img]
+[list]
+[*]Allan
+[*]Danimineiro
+[*]Emp
+[*]Imperitor
+[*]MaoDetector
+[/list]
+
+[img]https://raw.githubusercontent.com/Danimineiro/Empire-Mod/894b2df754893635a1bb88c2b1c5fb0124b545e3/Common/Textures/WorkshopPage/artists.png[/img]
+[list]
+[*]Oskar Potocki - Made all of the building art, new production icons, stat icons! Completely overhauled the Empire UI!
+[*]Erok031 - Made the faction trait icons as well as some of the flags!
+[*]Helixien - Made the awesome Banner and Art! - [url=https://steamcommunity.com/id/Helixien/myworkshopfiles/?appid=294100]Helixien's Workshop[/url]
+[*]MaoDetector - Has made a good bit of faction flags!
+[*]Mitz - Helped make some of the early development art!
+[*]Turkler - Updated the building icons
+[/list]

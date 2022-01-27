@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FactionColonies.util;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -49,24 +50,12 @@ namespace FactionColonies
 
                 //letter
 
-                string settlementString = "";
-                foreach (SettlementFC loc in tempEvent.settlementTraitLocations)
-                {
-                    if (settlementString == "")
-                    {
-                        settlementString = settlementString + loc.name;
-                    }
-                    else
-                    {
-                        settlementString = settlementString + ", " + loc.name;
-                    }
-                }
 
-                if (settlementString != "")
+                string settlementString = tempEvent.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
+
+                if (!settlementString.NullOrEmpty())
                 {
-                    Find.LetterStack.ReceiveLetter(tempEvent.def.label,
-                        tempEvent.def.desc + "\n This event is affecting the following settlements: " +
-                        settlementString, LetterDefOf.NeutralEvent);
+                    Find.LetterStack.ReceiveLetter(tempEvent.def.label, $"{tempEvent.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}", LetterDefOf.NeutralEvent);
                 }
                 else
                 {
@@ -202,11 +191,13 @@ namespace FactionColonies
 
         public static FCEvent MakeRandomEvent(FCEventDef def, List<SettlementFC> SettlementTraitLocations)
         {
-            FCEvent tempEvent = new FCEvent(true);
-            tempEvent.def = def;
-            tempEvent.timeTillTrigger = def.timeTillTrigger + Find.TickManager.TicksGame;
-            tempEvent.traits = def.traits;
-            tempEvent.settlementTraitLocations = new List<SettlementFC>();
+            FCEvent tempEvent = new FCEvent(true)
+            {
+                def = def,
+                timeTillTrigger = def.timeTillTrigger + Find.TickManager.TicksGame,
+                traits = def.traits,
+                settlementTraitLocations = new List<SettlementFC>()
+            };
 
 
             //if affects specific settlement(s) then get settlements.
@@ -296,72 +287,61 @@ namespace FactionColonies
                 if (events[i].timeTillTrigger > Find.TickManager.TicksGame) continue;
                 //Make custom event functions here
 
-                FCEvent temp = new FCEvent(true);
-                if (temp.def.defName == "settlementBeingAttacked")
-                {
-                    Log.Message("Found attacked FCEvent");
-                }
+                FCEvent evt = new FCEvent(true);
 
-                temp = events[i];
+                evt = events[i];
                 //remove event (stop spam?)
                 faction.events.RemoveAt(i);
 
-                switch (temp.def.defName)
+                switch (evt.def.defName)
                 {
                     case "settleNewColony":
                     {
                         //Settle new colony event
                         //Log.Message(events[i].def.defName + " event triggered" + Find.TickManager.TicksGame)
                         faction.addExperienceToFactionLevel(10f);
-                        if (Find.World.info.name == temp.planetName)
+                        if (Find.World.info.name == evt.planetName)
                         {
-                            FactionColonies.createPlayerColonySettlement(temp.location, true, temp.planetName);
+                            FactionColonies.createPlayerColonySettlement(evt.location, true, evt.planetName);
                         }
                         else
                         {
-                            FactionColonies.createPlayerColonySettlement(temp.location, false, temp.planetName);
-                            faction.createSettlementQueue.Add(new SettlementSoS2Info(temp.planetName, temp.location));
+                            FactionColonies.createPlayerColonySettlement(evt.location, false, evt.planetName);
+                            faction.createSettlementQueue.Add(new SettlementSoS2Info(evt.planetName, evt.location));
                         }
 
-                        faction.settlementCaravansList.Remove(temp.location.ToString());
+                        faction.settlementCaravansList.Remove(evt.location.ToString());
                         break;
                     }
-                    case "taxColony" when faction.returnSettlementFCIDByLocation(temp.source, temp.planetName) == -1:
+                    case "taxColony" when faction.returnSettlementFCIDByLocation(evt.source, evt.planetName) == -1:
                         continue;
                     case "taxColony":
-                    {
-                        Messages.Message(
-                            "TaxesFrom".Translate() + " " + faction.getSettlementName(temp.source, temp.planetName) +
-                            " " + "HaveBeenDelivered".Translate() + "!", MessageTypeDefOf.PositiveEvent);
-                        string str = "TaxesFrom".Translate() + " " +
-                                     faction.getSettlementName(temp.source, temp.planetName) + " " +
-                                     "HaveBeenDelivered".Translate() + "!";
-
-                        foreach (Thing thing in temp.goods)
                         {
-                            str = str + "\n" + thing.LabelCap;
-                        }
+                            string str = "TaxesFrom".Translate() + " " +
+                                            faction.getSettlementName(evt.source, evt.planetName) + " " +
+                                            "HaveBeenDelivered".Translate() + "!";
 
-                        Find.LetterStack.ReceiveLetter("TaxesHaveArrived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(temp);
-                        break;
-                    }
+                            Message msg = new Message(str, MessageTypeDefOf.PositiveEvent);
+
+                            PaymentUtil.deliverThings(evt, LetterMaker.MakeLetter("TaxesHaveArrived".Translate(), str + "\n" + evt.goods.ToLetterString(), LetterDefOf.PositiveEvent), msg);
+                            break;
+                        }
                     case "constructBuilding":
                         //Create building
-                        faction.settlements[faction.returnSettlementFCIDByLocation(temp.source, temp.planetName)]
-                            .constructBuilding(temp.building, temp.buildingSlot);
+                        faction.settlements[faction.returnSettlementFCIDByLocation(evt.source, evt.planetName)]
+                            .constructBuilding(evt.building, evt.buildingSlot);
                         Messages.Message(
-                            temp.building.label + " " + "HasBeenConstructedAt".Translate() + " " +
-                            faction.settlements[faction.returnSettlementFCIDByLocation(temp.source, temp.planetName)]
+                            evt.building.label + " " + "HasBeenConstructedAt".Translate() + " " +
+                            faction.settlements[faction.returnSettlementFCIDByLocation(evt.source, evt.planetName)]
                                 .name + "!", MessageTypeDefOf.PositiveEvent);
                         break;
                     case "upgradeSettlement":
                     {
-                        if (faction.returnSettlementByLocation(temp.location, temp.planetName) != null)
+                        if (faction.returnSettlementByLocation(evt.location, evt.planetName) != null)
                         {
                             //if settlement is not null
                             SettlementFC settlement =
-                                faction.returnSettlementByLocation(temp.location, temp.planetName);
+                                faction.returnSettlementByLocation(evt.location, evt.planetName);
                             settlement.upgradeSettlement();
                             Find.LetterStack.ReceiveLetter("Settlement Upgrade",
                                 settlement.name + " " + "HasBeenUpgraded".Translate() + " " +
@@ -374,12 +354,12 @@ namespace FactionColonies
                     case "raidEnemySettlement":
                     case "enslaveEnemySettlement":
                         //Process military event
-                        faction.returnSettlementByLocation(temp.location, temp.planetName).processMilitaryEvent();
+                        faction.returnSettlementByLocation(evt.location, evt.planetName).processMilitaryEvent();
                         break;
                     case "cooldownMilitary":
                     {
                         //Process military event
-                        if (temp.planetName == null)
+                        if (evt.planetName == null)
                         {
                             Log.Message(
                                 "temp.planetName null in FCEvent.ProcessEvents. Please report to Empire Mod with what you used this settlement for.");
@@ -388,83 +368,76 @@ namespace FactionColonies
                                 MessageTypeDefOf.NegativeEvent);
                         }
 
-                        faction.returnSettlementByLocation(temp.location, temp.planetName).returnMilitary(true);
+                        faction.returnSettlementByLocation(evt.location, evt.planetName).returnMilitary(true);
                         break;
                     }
                 }
 
-                if (temp.def.defName == "settlementBeingAttacked")
+                if (evt.def.defName == "settlementBeingAttacked")
                 {
 
-                    WorldSettlementFC worldSettlement = temp.settlementFCDefending.worldSettlement;
+                    WorldSettlementFC worldSettlement = evt.settlementFCDefending.worldSettlement;
 
-                    worldSettlement.startDefense(temp, () => setupAttack(worldSettlement, temp));
+                    worldSettlement.startDefence(evt, () => setupAttack(worldSettlement, evt));
                 }
                 else //if undefined event
                 {
-                    if (temp.def.goods.Count > 0)
-                    {
-                        PaymentUtil.deliverThings(temp);
-                    }
-
                     // Log.Message(temp.def.label + " " + temp.def.randomThingValue + " value:thing " + temp.def.randomThingType);
-                    if (temp.def.randomThingValue > 0 && temp.def.randomThingType != "")
+                    if (evt.def.randomThingValue > 0 && evt.def.randomThingType != "")
                     {
-                        List<Thing> list =
-                            PaymentUtil.generateThing(temp.def.randomThingValue, temp.def.randomThingType);
+                        List<Thing> list = PaymentUtil.generateThing(evt.def.randomThingValue, evt.def.randomThingType);
 
-                        string str;
-                        str = "GoodsReceivedFollowing".Translate(temp.def.label);
-                        foreach (Thing thing in list)
-                        {
-                            str = str + "\n" + thing.LabelCap;
-                        }
+                        string str = "GoodsReceivedFollowing".Translate(evt.def.label);
 
-                        Find.LetterStack.ReceiveLetter("GoodsReceived".Translate(), str, LetterDefOf.PositiveEvent);
-                        PaymentUtil.deliverThings(list);
+                        str = list.Aggregate(str, (before, after) => before + "\n" + after.LabelCap);
+
+                        evt.goods.AddRange(list);
+
+                        evt.let = LetterMaker.MakeLetter("GoodsReceived".Translate(), str, LetterDefOf.PositiveEvent);
+                        if (list.Count > 0) DeliveryEvent.CreateDeliveryEvent(evt);
                     }
                 }
 
                 //If has loot to give
-                if (temp.def.loot.Any())
+                if (evt.def.loot.Any())
                 {
-                    List<Thing> list = temp.def.loot.Select(thing => ThingMaker.MakeThing(thing)).ToList();
+                    List<Thing> list = evt.def.loot.Select(thing => ThingMaker.MakeThing(thing)).ToList();
 
-                    PaymentUtil.deliverThings(list);
+                    PaymentUtil.deliverThings(list, evt.source);
                 }
 
-                if (temp.loot.Any())
+                if (evt.loot.Any())
                 {
                     List<Thing> list = new List<Thing>();
 
-                    foreach (ThingDef thing in temp.loot)
+                    foreach (ThingDef thing in evt.loot)
                     {
                         //list.Add(ThingMaker.MakeThing(thing));
                     }
 
-                    PaymentUtil.deliverThings(list);
+                    PaymentUtil.deliverThings(list, evt.source);
                 }
 
 
                 //check if event has a location, if does, add traits to that specific location;
-                if (temp.settlementTraitLocations.Any()) //if has specific locations
+                if (evt.settlementTraitLocations.Any()) //if has specific locations
                 {
                     //Remove null settlements
                     ResetClear:
-                    foreach (SettlementFC settlement in temp.settlementTraitLocations)
+                    foreach (SettlementFC settlement in evt.settlementTraitLocations)
                     {
                         if (settlement == null)
                         {
-                            temp.settlementTraitLocations.Remove(settlement);
+                            evt.settlementTraitLocations.Remove(settlement);
                             goto ResetClear;
                         }
                     }
 
-                    foreach (SettlementFC location in temp.settlementTraitLocations)
+                    foreach (SettlementFC location in evt.settlementTraitLocations)
                     {
                         if (location != null)
                         {
-                            foreach (FCTraitEffectDef trait in temp.traits)
+                            foreach (FCTraitEffectDef trait in evt.traits)
                             {
                                 //Log.Message(trait.label);
                                 while (location.traits.Contains(trait))
@@ -474,7 +447,7 @@ namespace FactionColonies
                             }
 
                             //prosperity loss calculation
-                            location.prosperity -= temp.prosperityLost;
+                            location.prosperity -= evt.prosperityLost;
                         }
                     }
                 }
@@ -482,7 +455,7 @@ namespace FactionColonies
                 {
                     //if no specific location then faction wide
 
-                    foreach (FCTraitEffectDef trait in temp.traits)
+                    foreach (FCTraitEffectDef trait in evt.traits)
                     {
                         while (faction.traits.Contains(trait))
                         {
@@ -492,38 +465,38 @@ namespace FactionColonies
 
                     foreach (SettlementFC settlement in faction.settlements)
                     {
-                        settlement.prosperity -= temp.prosperityLost;
+                        settlement.prosperity -= evt.prosperityLost;
                     }
                 }
 
                 //if have options
-                if (temp.def != null && temp.def.options.Count > 0 && temp.def.activateAtStart == false)
+                if (evt.def != null && evt.def.options.Count > 0 && evt.def.activateAtStart == false)
                 {
-                    Find.WindowStack.Add(new FCOptionWindow(temp.def, temp));
+                    Find.WindowStack.Add(new FCOptionWindow(evt.def, evt));
                 }
 
                 //if has following event
-                if (temp.def.eventFollows)
+                if (evt.def.eventFollows)
                 {
                     FCEvent tempEvent = new FCEvent(true);
-                    if (temp.def.splitEventFollows) //if a split event
+                    if (evt.def.splitEventFollows) //if a split event
                     {
                         //remove null settlement references
-                        float baseChance = temp.def.splitEventChance;
+                        float baseChance = evt.def.splitEventChance;
                         int roll = Rand.Range(1, 100);
-                        if (temp.def.settlementsCarryOver)
+                        if (evt.def.settlementsCarryOver)
                         {
                             //if settlements carry
                             if (roll <= baseChance)
                             {
                                 //first event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent, temp.settlementTraitLocations);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent, evt.settlementTraitLocations);
                             }
                             else
                             {
                                 //if second event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent2,
-                                    temp.settlementTraitLocations);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent2,
+                                    evt.settlementTraitLocations);
                             }
                         }
                         else
@@ -531,25 +504,25 @@ namespace FactionColonies
                             if (roll <= baseChance)
                             {
                                 //first event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent, null);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent, null);
                             }
                             else
                             {
                                 //if second event
-                                tempEvent = MakeRandomEvent(temp.def.followingEvent2, null);
+                                tempEvent = MakeRandomEvent(evt.def.followingEvent2, null);
                             }
                         }
                     }
                     else
                     {
-                        if (temp.def.settlementsCarryOver)
+                        if (evt.def.settlementsCarryOver)
                         {
                             //if settlements carry
-                            tempEvent = MakeRandomEvent(temp.def.followingEvent, temp.settlementTraitLocations);
+                            tempEvent = MakeRandomEvent(evt.def.followingEvent, evt.settlementTraitLocations);
                         }
                         else
                         {
-                            tempEvent = MakeRandomEvent(temp.def.followingEvent, null);
+                            tempEvent = MakeRandomEvent(evt.def.followingEvent, null);
                         }
                     }
 
@@ -558,28 +531,11 @@ namespace FactionColonies
                     {
                         faction.addEvent(tempEvent);
 
+                        string settlementString = tempEvent.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
 
-                        //letter
-
-                        string settlementString = "";
-                        foreach (SettlementFC loc in tempEvent.settlementTraitLocations)
+                        if (!settlementString.NullOrEmpty())
                         {
-                            //Log.Message(loc.ToString());
-                            if (settlementString == "")
-                            {
-                                settlementString = settlementString + " " + loc.name;
-                            }
-                            else
-                            {
-                                settlementString = settlementString + ", " + loc.name;
-                            }
-                        }
-
-                        if (settlementString != "")
-                        {
-                            Find.LetterStack.ReceiveLetter(tempEvent.def.label,
-                                tempEvent.def.desc + "\n" + "EventAffectingSettlements".Translate() +
-                                settlementString, LetterDefOf.NeutralEvent);
+                            Find.LetterStack.ReceiveLetter(tempEvent.def.label, $"{tempEvent.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}", LetterDefOf.NeutralEvent);
                         }
                         else
                         {
@@ -589,7 +545,7 @@ namespace FactionColonies
                     }
                 }
 
-                temp.runAction();
+                evt.runAction();
             }
         }
 
@@ -658,8 +614,7 @@ namespace FactionColonies
             }
 
             tmp.location = faction.capitalLocation;
-            tmp.timeTillTrigger = Find.TickManager.TicksGame +
-                                  FactionColonies.ReturnTicksToArrive(tmp.source, tmp.location);
+            tmp.timeTillTrigger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(tmp.source, tmp.location);
             tmp.hasCustomDescription = true;
             //add tithe
             tmp.goods = bill.taxes.itemTithes;
@@ -715,6 +670,20 @@ namespace FactionColonies
         public FCEvent(bool New)
         {
             loadID = Find.World.GetComponent<FactionFC>().GetNextEventID();
+        }
+        
+        /// <summary>
+        /// Defines parameters of event with custom description
+        /// </summary>
+        /// <param name="f">FactionFC object</param>
+        /// <param name="mapLocation">Location of the event object</param>
+        /// <param name="timeToFinish">Time of event's completion</param>
+        public void DefineEvent(FactionFC f, int mapLocation, int timeToFinish) {
+            this.hasCustomDescription = true;
+            this.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
+            this.location = mapLocation;
+            this.planetName = Find.World.info.name;
+            f.addEvent(this);
         }
 
         public void ExposeData()
@@ -773,6 +742,9 @@ namespace FactionColonies
             Scribe_Values.Look(ref classToRun, "classToRun");
             Scribe_Values.Look(ref classMethodToRun, "classMethodToRun");
             Scribe_Values.Look(ref passEventToClassMethodToRun, "passEventToClassMethodToRun");
+            Scribe_Deep.Look(ref msg, "msg");
+            Scribe_Deep.Look(ref let, "let");
+            Scribe_Values.Look(ref isDelayed, "isDelayed", false);
 
             //Military stuff
             Scribe_Deep.Look(ref militaryForceAttacking, "militaryForceAttacking");
@@ -798,6 +770,10 @@ namespace FactionColonies
         public bool hasCustomDescription;
         public string customDescription = "";
 
+        //Delivery things
+        public Message msg = null;
+        public Letter let = null;
+        public bool isDelayed = false;
 
         //Random Event Information
         public bool isRandomEvent;
@@ -951,6 +927,7 @@ namespace FactionColonies
         public static FCEventDef captureEnemySettlement;
         public static FCEventDef cooldownMilitary;
         public static FCEventDef settlementBeingAttacked;
+        public static FCEventDef deliveryArrival;
 
         static FCEventDefOf()
         {

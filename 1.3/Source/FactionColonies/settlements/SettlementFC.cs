@@ -4,19 +4,27 @@ using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
+using FactionColonies.util;
 
 namespace FactionColonies
 {
     public class SettlementFC : IExposable, ILoadReferenceable
     {
+        /// <summary>
+        /// Used by other mods to get to our world object through the list of SettlementFC. Rename at your own risk.
+        /// </summary>
         public WorldSettlementFC worldSettlement;
 
         public string GetUniqueLoadID()
         {
             return "SettlementFC_" + loadID;
         }
-        
-        //Required for saving/loading
+
+        public bool IsBeingUpgraded => Find.World.GetComponent<FactionFC>().events.Any(evt => evt.def == FCEventDefOf.upgradeSettlement && evt.location == mapLocation);
+
+        /// <summary>
+        /// Required for saving/loading
+        /// </summary>
         public SettlementFC()
         {
         }
@@ -83,16 +91,17 @@ namespace FactionColonies
 
         public int NumberBuildings => 3 + (int) Math.Floor(settlementLevel / 2f);
 
-        public void upgradeSettlement()
+        public void upgradeSettlement(int times = 1)
         {
-            settlementLevel += 1;
+            settlementLevel += times;
+            if (settlementLevel > 10) settlementLevel = 10;
+            if (settlementLevel < 0) settlementLevel = 0;
             updateStats();
         }
 
-        public void delevelSettlement()
+        public void delevelSettlement(int times = -1)
         {
-            settlementLevel -= 1;
-            updateStats();
+            upgradeSettlement(times);
         }
 
         public void tickSpecialActions(int tick)
@@ -100,6 +109,14 @@ namespace FactionColonies
             if (trait_Egalitarian_TaxBreak_Enabled &&
                 tick >= trait_Egalitarian_TaxBreak_Tick + GenDate.TicksPerDay * 10)
                 trait_Egalitarian_TaxBreak_Enabled = false;
+
+            if (lastShuttleUsesTick < (tick - GenDate.TicksPerDay * 5))
+            {
+                int temp = 0;
+                buildings.ForEach(building => temp += building.shuttleUses);
+                worldSettlement.shuttleUsesRemaining = temp;
+                lastShuttleUsesTick = tick;
+            }
         }
 
         public void initBaseProduction()
@@ -113,6 +130,17 @@ namespace FactionColonies
                                           + hillinessDef.BaseProductionMultiplicative[(int) titheType];
                 resource.settlement = this;
             }
+        }
+
+        internal void GainUnrestWithReason(Message message, double amount)
+        {
+            Messages.Message(message);
+            unrest += amount * TraitUtilsFC.cycleTraits("unrestGainedMultiplier", traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("unrestGainedMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication);
+        }
+
+        internal void GainHappiness(double amount)
+        {
+            happiness -= 10 * TraitUtilsFC.cycleTraits("happinessLostMultiplier", traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("happinessLostMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication);
         }
 
         public void updateProfitAndProduction() //updates both profit and production
@@ -130,20 +158,20 @@ namespace FactionColonies
             if (factionFc.hasPolicy(FCPolicyDefOf.isolationist))
                 isolationistExtraWorkers += 3;
             //Military Settlement Level
-            settlementMilitaryLevel = (settlementLevel - 1) + Convert.ToInt32(
-                TraitUtilsFC.cycleTraits(new double(), "militaryBaseLevel", traits, "add") +
-                TraitUtilsFC.cycleTraits(new double(), "militaryBaseLevel", Find.World.GetComponent<FactionFC>().traits,
-                    "add"));
+            settlementMilitaryLevel = settlementLevel - 1 + Convert.ToInt32(
+                TraitUtilsFC.cycleTraits("militaryBaseLevel", traits, Operation.Addition) +
+                TraitUtilsFC.cycleTraits("militaryBaseLevel", Find.World.GetComponent<FactionFC>().traits,
+                    Operation.Addition));
 
             //Worker Stats
             workersMax = (settlementLevel * (3 + isolationistExtraWorkers)) +
-                         (TraitUtilsFC.cycleTraits(new double(), "workerBaseMax", traits, "add") +
-                          TraitUtilsFC.cycleTraits(new double(), "workerBaseMax",
-                              Find.World.GetComponent<FactionFC>().traits, "add")) + returnMaxWorkersFromPrisoners();
+                         (TraitUtilsFC.cycleTraits("workerBaseMax", traits, Operation.Addition) +
+                          TraitUtilsFC.cycleTraits("workerBaseMax",
+                              Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) + returnMaxWorkersFromPrisoners();
             workersUltraMax = (workersMax + 5 +
-                               (TraitUtilsFC.cycleTraits(new double(), "workerBaseOverMax", traits, "add") +
-                                TraitUtilsFC.cycleTraits(new double(), "workerBaseOverMax",
-                                    Find.World.GetComponent<FactionFC>().traits, "add")) +
+                               (TraitUtilsFC.cycleTraits("workerBaseOverMax", traits, Operation.Addition) +
+                                TraitUtilsFC.cycleTraits("workerBaseOverMax",
+                                    Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) +
                                returnOverMaxWorkersFromPrisoners());
         }
 
@@ -160,13 +188,13 @@ namespace FactionColonies
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
             double happinessGainMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "happinessGainedMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "happinessGainedMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                 TraitUtilsFC.cycleTraits("happinessGainedMultiplier", traits, Operation.Multiplication) *
+                 TraitUtilsFC.cycleTraits("happinessGainedMultiplier",
+                     Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication);
             double happinessLostMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "happinessLostMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                 TraitUtilsFC.cycleTraits("happinessLostMultiplier", traits, Operation.Multiplication) *
+                 TraitUtilsFC.cycleTraits("happinessLostMultiplier",
+                     Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication);
 
             double policyIncrease = 0;
             if (factionfc.hasPolicy(FCPolicyDefOf.egalitarian) && trait_Egalitarian_TaxBreak_Enabled)
@@ -174,16 +202,15 @@ namespace FactionColonies
 
 
             happiness += happinessGainMultiplier * (policyIncrease + FactionColonies.happinessBaseGain +
-                                                    TraitUtilsFC.cycleTraits(new double(), "happinessGainedBase",
-                                                        traits, "add") +
-                                                    TraitUtilsFC.cycleTraits(new double(), "happinessGainedBase",
-                                                        Find.World.GetComponent<FactionFC>().traits, "add")
+                                                    TraitUtilsFC.cycleTraits("happinessGainedBase",
+                                                        traits, Operation.Addition) +
+                                                    TraitUtilsFC.cycleTraits("happinessGainedBase",
+                                                        Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add happiness where needed
             happiness -= happinessLostMultiplier * (FactionColonies.happinessBaseLost +
-                                                    TraitUtilsFC.cycleTraits(new double(), "happinessLostBase", traits,
-                                                        "add") + TraitUtilsFC.cycleTraits(new double(),
-                                                        "happinessLostBase",
-                                                        Find.World.GetComponent<FactionFC>().traits, "add")
+                                                    TraitUtilsFC.cycleTraits("happinessLostBase", traits,
+                                                        Operation.Addition) + TraitUtilsFC.cycleTraits("happinessLostBase",
+                                                        Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and remove happiness where needed
 
             happiness = Math.Round(happiness, 1);
@@ -202,23 +229,13 @@ namespace FactionColonies
         public void updateLoyalty()
         {
             double loyaltyGainMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits("loyaltyGainedMultiplier", traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("loyaltyGainedMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication));
             double loyaltyLostMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "loyaltyLostMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits("loyaltyLostMultiplier", traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("loyaltyLostMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication));
 
-            loyalty += loyaltyGainMultiplier * (FactionColonies.loyaltyBaseGain +
-                                                TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedBase", traits,
-                                                    "add") + TraitUtilsFC.cycleTraits(new double(), "loyaltyGainedBase",
-                                                    Find.World.GetComponent<FactionFC>().traits, "add")
+            loyalty += loyaltyGainMultiplier * (FactionColonies.loyaltyBaseGain + TraitUtilsFC.cycleTraits("loyaltyGainedBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("loyaltyGainedBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add loyalty where needed
-            loyalty -= loyaltyLostMultiplier * (FactionColonies.loyaltyBaseLost +
-                                                TraitUtilsFC.cycleTraits(new double(), "loyaltyLostBase", traits,
-                                                    "add") + TraitUtilsFC.cycleTraits(new double(), "loyaltyLostBase",
-                                                    Find.World.GetComponent<FactionFC>().traits, "add")
+            loyalty -= loyaltyLostMultiplier * (FactionColonies.loyaltyBaseLost + TraitUtilsFC.cycleTraits("loyaltyLostBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("loyaltyLostBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and remove loyalty where needed
 
             loyalty = Math.Round(loyalty, 1);
@@ -241,10 +258,7 @@ namespace FactionColonies
             if (factionfc.hasPolicy(FCPolicyDefOf.egalitarian) && trait_Egalitarian_TaxBreak_Enabled)
                 policyIncrease = 2;
 
-            prosperity += (policyIncrease + FactionColonies.prosperityBaseRecovery +
-                           TraitUtilsFC.cycleTraits(new double(), "prosperityBaseRecovery", traits, "add") +
-                           TraitUtilsFC.cycleTraits(new double(), "prosperityBaseRecovery",
-                               Find.World.GetComponent<FactionFC>().traits, "add")
+            prosperity += (policyIncrease + FactionColonies.prosperityBaseRecovery + TraitUtilsFC.cycleTraits("prosperityBaseRecovery", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("prosperityBaseRecovery", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add prosperity where needed
 
             prosperity = Math.Round(prosperity, 1);
@@ -263,23 +277,13 @@ namespace FactionColonies
         public void updateUnrest()
         {
             double unrestGainMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "unrestGainedMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits("unrestGainedMultiplier", traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("unrestGainedMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication));
             double unrestLostMultiplier =
-                (TraitUtilsFC.cycleTraits(new double(), "unrestLostMultiplier", traits, "multiply") *
-                 TraitUtilsFC.cycleTraits(new double(), "unrestLostMultiplier",
-                     Find.World.GetComponent<FactionFC>().traits, "multiply"));
+                (TraitUtilsFC.cycleTraits("unrestLostMultiplier", traits, Operation.Multiplication) * TraitUtilsFC.cycleTraits("unrestLostMultiplier", Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication));
 
-            unrest += unrestGainMultiplier * (FactionColonies.unrestBaseGain +
-                                              TraitUtilsFC.cycleTraits(new double(), "unrestGainedBase", traits,
-                                                  "add") + TraitUtilsFC.cycleTraits(new double(), "unrestGainedBase",
-                                                  Find.World.GetComponent<FactionFC>().traits, "add")
+            unrest += unrestGainMultiplier * (FactionColonies.unrestBaseGain + TraitUtilsFC.cycleTraits("unrestGainedBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("unrestGainedBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and add unrest where needed
-            unrest -= unrestLostMultiplier * (FactionColonies.unrestBaseLost +
-                                              TraitUtilsFC.cycleTraits(new double(), "unrestLostBase", traits, "add") +
-                                              TraitUtilsFC.cycleTraits(new double(), "unrestLostBase",
-                                                  Find.World.GetComponent<FactionFC>().traits, "add")
+            unrest -= unrestLostMultiplier * (FactionColonies.unrestBaseLost + TraitUtilsFC.cycleTraits("unrestLostBase", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("unrestLostBase", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)
                 ); //Go through traits and remove unrest where needed
 
             unrest = Math.Round(unrest, 1);
@@ -324,18 +328,14 @@ namespace FactionColonies
 
                 resource.baseProduction = biomeDef.BaseProductionAdditive[(int) resourceType] +
                                           hillinessDef.BaseProductionAdditive[(int) resourceType] +
-                                          TraitUtilsFC.cycleTraits(new double(), "productionBase" +
-                                              resourceType, traits, "add") +
-                                          TraitUtilsFC.cycleTraits(new double(), "productionBase" +
-                                              resourceType, Find.World.GetComponent<FactionFC>().traits, "add");
+                                          TraitUtilsFC.cycleTraits("productionBase" +
+                                                                   resourceType, traits, Operation.Addition) +
+                                          TraitUtilsFC.cycleTraits("productionBase" +
+                                                                   resourceType, Find.World.GetComponent<FactionFC>().traits, Operation.Addition);
                 resource.baseProductionMultiplier = resourceMultiplier *
                                                     biomeDef.BaseProductionMultiplicative[(int) resourceType] *
                                                     hillinessDef.BaseProductionMultiplicative[(int) resourceType] *
-                                                    ((100 + egalitarianTaxBoost + isolationistTaxBoost +
-                                                      TraitUtilsFC.cycleTraits(new double(), "taxBasePercentage",
-                                                          traits, "add") + TraitUtilsFC.cycleTraits(
-                                                          new double(), "taxBasePercentage",
-                                                          Find.World.GetComponent<FactionFC>().traits, "add")) / 100);
+                                                    ((100 + egalitarianTaxBoost + isolationistTaxBoost + TraitUtilsFC.cycleTraits("taxBasePercentage", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("taxBasePercentage", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) / 100);
 
 
                 //add up additive variables
@@ -365,12 +365,10 @@ namespace FactionColonies
                 //calculate end multiplier + endproduction and update to resource
                 resource.endProductionMultiplier = resource.baseProductionMultiplier * (prosperity / 100) *
                                                    tempMultiplier *
-                                                   TraitUtilsFC.cycleTraits(new double(),
-                                                       "productionMultiplier" + resourceType,
-                                                       traits, "multiply") *
-                                                   TraitUtilsFC.cycleTraits(new double(),
-                                                       "productionMultiplier" + resourceType,
-                                                       Find.World.GetComponent<FactionFC>().traits, "multiply");
+                                                   TraitUtilsFC.cycleTraits("productionMultiplier" + resourceType,
+                                                       traits, Operation.Multiplication) *
+                                                   TraitUtilsFC.cycleTraits("productionMultiplier" + resourceType,
+                                                       Find.World.GetComponent<FactionFC>().traits, Operation.Multiplication);
                 resource.endProduction = resource.endProductionMultiplier *
                                          ((resource.baseProduction + tempAdditive) *
                                           resource.assignedWorkers);
@@ -422,8 +420,11 @@ namespace FactionColonies
             return totalWorkers;
         }
 
+        private bool CanStillModify(ResourceType? resourceType, int singleMod) => workers + singleMod <= workersUltraMax && workers + singleMod >= 0 && getResource(resourceType.Value).assignedWorkers + singleMod <= workersUltraMax && getResource(resourceType.Value).assignedWorkers + singleMod >= 0;
+
         public bool increaseWorkers(ResourceType? resourceType, int numWorkers)
         {
+            int singleMod = (numWorkers > 0) ?  1 : -1;
             if (resourceType == null)
             {
                 if (numWorkers >= 0 && workers <= workersUltraMax)
@@ -442,15 +443,14 @@ namespace FactionColonies
                     }
                 }
             }
-            else if (workers + numWorkers <= workersUltraMax && workers + numWorkers >= 0 &&
-                     getResource(resourceType.Value).assignedWorkers + numWorkers <= workersUltraMax &&
-                     getResource(resourceType.Value).assignedWorkers + numWorkers >= 0)
+            else while(CanStillModify(resourceType, singleMod))
             {
-                workers += numWorkers;
-                getResource(resourceType.Value).assignedWorkers += numWorkers;
+                workers += singleMod;
+                getResource(resourceType.Value).assignedWorkers += singleMod;
+                numWorkers -= singleMod;
                 updateProfitAndProduction();
                 Find.World.GetComponent<FactionFC>().updateTotalProfit();
-                return true;
+                if (numWorkers == 0) return true;
             }
 
             return false;
@@ -459,9 +459,9 @@ namespace FactionColonies
         public double getBaseWorkerCost()
         {
             return (LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>().workerCost +
-                    (TraitUtilsFC.cycleTraits(new double(), "workerBaseCost", traits, "add") +
-                     TraitUtilsFC.cycleTraits(new double(), "workerBaseCost",
-                         Find.World.GetComponent<FactionFC>().traits, "add")));
+                    (TraitUtilsFC.cycleTraits("workerBaseCost", traits, Operation.Addition) +
+                     TraitUtilsFC.cycleTraits("workerBaseCost",
+                         Find.World.GetComponent<FactionFC>().traits, Operation.Addition)));
             //add building/faction modifierse
         }
 
@@ -526,6 +526,8 @@ namespace FactionColonies
             Scribe_Values.Look(ref mapLocation, "mapLocation");
             Scribe_Values.Look(ref planetName, "planetName");
             Scribe_Values.Look(ref name, "name");
+            Scribe_Values.Look(ref nameShort, "nameShort", ShortName);
+            Scribe_Values.Look(ref nameOriginal, "nameOriginal", OriginalName);
             Scribe_Values.Look(ref loadID, "loadID", -1);
             Scribe_Values.Look(ref title, "title");
             Scribe_Values.Look(ref description, "description");
@@ -585,21 +587,25 @@ namespace FactionColonies
 
 
             //Prisoners
-            Scribe_Collections.Look(ref prisoners, "prisoners", LookMode.Deep);
             Scribe_Collections.Look(ref prisonerList, "prisonerList", LookMode.Deep);
 
             //Traits
             Scribe_Values.Look(ref trait_Egalitarian_TaxBreak_Tick, "trait_Egalitarian_TaxBreak_Tick");
             Scribe_Values.Look(ref trait_Egalitarian_TaxBreak_Enabled, "trait_Egalitarian_TaxBreak_Enabled");
+
+            //Shuttles
+            Scribe_Values.Look(ref lastShuttleUsesTick, "lastShuttleUsesTick");
         }
 
         //Settlement Base Info
         public int mapLocation;
         public string planetName;
         public string name;
+        private string nameShort;
+        private string nameOriginal;
         public int loadID;
         public string title = "Hamlet".Translate();
-        public string description = "What are you doing here? Get out of me!";
+        public string description = "FCGenericError".Translate();
         public double workers;
         public double workersMax;
         public double workersUltraMax;
@@ -613,14 +619,11 @@ namespace FactionColonies
         public double prosperity = 100;
         public List<BuildingFCDef> buildings = new List<BuildingFCDef>();
         public List<FCTraitEffectDef> traits = new List<FCTraitEffectDef>();
-        public List<Pawn> prisoners = new List<Pawn>();
         public List<FCPrisoner> prisonerList = new List<FCPrisoner>();
-
 
         public float silverIncome;
         public List<Thing> tithe = new List<Thing>();
         public int titheEstimatedIncome;
-
 
         public string hilliness;
         public string biome;
@@ -638,16 +641,19 @@ namespace FactionColonies
         public bool militaryBusy;
         public int militaryLocation = -1;
         public string militaryLocationPlanet;
-        public string militaryJob = "";
+        public MilitaryJob militaryJob = MilitaryJob.Undefined;
         public Faction militaryEnemy;
         public bool isUnderAttack;
         public MercenarySquadFC militarySquad;
-        public int artilleryTimer;
-        public bool autoDefend;
+        public int artilleryTimer = 0;
+        public bool autoDefend = false;
 
         //Trait stuff
         public int trait_Egalitarian_TaxBreak_Tick;
         public bool trait_Egalitarian_TaxBreak_Enabled;
+
+        //shuttle stuff
+        public int lastShuttleUsesTick = 0;
 
 
         //public static Biome biome;
@@ -655,9 +661,28 @@ namespace FactionColonies
         //Settlement Production Information
         public double productionEfficiency; //Between 0.1 - 1
 
-        public bool isMilitaryBusy()
+        public string ShortName
         {
-            if (militaryBusy)
+            get
+            {
+                if (!nameShort.NullOrEmpty()) return nameShort;
+
+                nameShort = TextGen.ToShortName(name);
+
+                return nameShort;
+            }
+            set => nameShort = value.NullOrEmpty() ? name : value;
+        }
+
+        public string OriginalName
+        {
+            get => nameOriginal;
+            private set => nameOriginal = value;
+        }
+
+        public bool isMilitaryBusy(bool silent = false)
+        {
+            if (militaryBusy && !silent)
             {
                 Messages.Message("militaryAlreadyAssigned".Translate(), MessageTypeDefOf.RejectInput);
             }
@@ -704,7 +729,13 @@ namespace FactionColonies
         {
             return militaryBusy;
         }
-
+        /// <summary>
+        /// Compatibility focused: this object should only be destroyed very deliberately, else another object is likely trying to handle negative combat resolution against this settlement.
+        /// </summary>
+        public void PrepareDestroyWorldObject()
+        {
+            worldSettlement.PrepareDestroy();
+        }
 
         public bool isMilitaryValid()
         {
@@ -748,84 +779,46 @@ namespace FactionColonies
             get { return (float) Math.Round(prosperity, 1); }
         }
 
-        public void sendMilitary(int location, string planet, string job, int timeToFinish, Faction enemy)
+        public void SendMilitary(int location, string planet, MilitaryJob job, int timeToFinish, Faction enemy)
         {
             FactionFC factionfc = Find.World.GetComponent<FactionFC>();
             if (isMilitaryBusy() || isTargetOccupied(location)) return;
-            //if military is not busy
+           
             militaryBusy = true;
             militaryJob = job;
             militaryLocationPlanet = planet;
             militaryLocation = location;
-            if (enemy != null)
+
+            if (enemy != null) militaryEnemy = enemy;
+            if (job != MilitaryJob.Deploy) Find.World.GetComponent<FactionFC>().militaryTargets.Add(location);
+
+            FCEvent evt;
+            switch (militaryJob)
             {
-                militaryEnemy = enemy;
+                case MilitaryJob.RaidEnemySettlement:
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.raidEnemySettlement);
+                    evt.customDescription = "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    evt.DefineEvent(factionfc, mapLocation, timeToFinish);
+                    break;
+
+                case MilitaryJob.EnslaveEnemySettlement:
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.enslaveEnemySettlement);
+                    evt.customDescription ="settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    evt.DefineEvent(factionfc, mapLocation, timeToFinish);
+                    break;
+
+                case MilitaryJob.CaptureEnemySettlement:
+                    evt = FCEventMaker.MakeEvent(FCEventDefOf.captureEnemySettlement);
+                    evt.customDescription ="settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label);
+                    Find.LetterStack.ReceiveLetter("FCMilitaryAction".Translate(), "FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)), LetterDefOf.NeutralEvent);
+                    evt.DefineEvent(factionfc, mapLocation, timeToFinish);
+                    break;
+
+                default:
+                    break;
             }
-
-            if (job != "Deploy")
-            {
-                Find.World.GetComponent<FactionFC>().militaryTargets.Add(location);
-            }
-
-
-            if (militaryJob == "raidEnemySettlement")
-            {
-                FCEvent tmp = FCEventMaker.MakeEvent(FCEventDefOf.raidEnemySettlement);
-                tmp.hasCustomDescription = true;
-                tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
-                tmp.location = mapLocation;
-                tmp.planetName = Find.World.info.name;
-                tmp.customDescription =
-                    "settlementMilitaryForcesRaiding".Translate(name, returnMilitaryTarget().Label); // + 
-                factionfc.addEvent(tmp);
-                Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentRaid".Translate(name, Find.WorldObjects.SettlementAt(location)),
-                    LetterDefOf.NeutralEvent);
-            }
-
-            if (militaryJob == "enslaveEnemySettlement")
-            {
-                FCEvent tmp = FCEventMaker.MakeEvent(FCEventDefOf.enslaveEnemySettlement);
-                tmp.hasCustomDescription = true;
-                tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
-                tmp.location = mapLocation;
-                tmp.planetName = Find.World.info.name;
-                tmp.customDescription =
-                    "settlementMilitaryForcesEnslave".Translate(name, returnMilitaryTarget().Label); // + 
-                factionfc.addEvent(tmp);
-                Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentEnslave".Translate(name, Find.WorldObjects.SettlementAt(location)),
-                    LetterDefOf.NeutralEvent);
-            }
-
-            if (militaryJob == "captureEnemySettlement")
-            {
-                FCEvent tmp = FCEventMaker.MakeEvent(FCEventDefOf.captureEnemySettlement);
-                tmp.hasCustomDescription = true;
-                tmp.timeTillTrigger = Find.TickManager.TicksGame + timeToFinish;
-                tmp.location = mapLocation;
-                tmp.planetName = Find.World.info.name;
-                tmp.customDescription =
-                    "settlementMilitaryForcesCapturing".Translate(name, returnMilitaryTarget().Label); // + 
-                factionfc.addEvent(tmp);
-                Find.LetterStack.ReceiveLetter("Military Action",
-                    "FCMilitarySentCapture".Translate(name, Find.WorldObjects.SettlementAt(location)),
-                    LetterDefOf.NeutralEvent);
-            }
-
-            if (militaryJob == "defendFriendlySettlement")
-            {
-                //no event needed here
-                //
-                //Find.LetterStack.ReceiveLetter("militarySent".Translate(), TranslatorFormattedStringExtensions.Translate("militarySentToDefend", name, factionfc.returnSettlementByLocation(location, this.planetName).name), LetterDefOf.NeutralEvent);
-            }
-
-            if (militaryJob == "Deploy")
-            {
-                //Find.LetterStack.ReceiveLetter("Military Deployed", "The Military forces of " + name + " have been deployed to " + Find.Maps[militaryLocation].Parent.LabelCap,  LetterDefOf.NeutralEvent);
-            }
-
-            //Find.World.GetComponent<FactionFC>().addEvent(tmp);
         }
 
         public Settlement returnMilitaryTarget()
@@ -860,7 +853,7 @@ namespace FactionColonies
 
             switch (militaryJob)
             {
-                case "raidEnemySettlement":
+                case MilitaryJob.RaidEnemySettlement:
                 {
                     int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
                         militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
@@ -901,9 +894,8 @@ namespace FactionColonies
 
                         List<Thing> loot = PaymentUtil.generateRaidLoot(lootLevel, tech);
 
-                        string text = "settlementDeliveredLoot".Translate();
-                        text = loot.Aggregate(text, 
-                            (current, thing) => current + thing.LabelCap + " x" + thing.stackCount + "\n ");
+                        string text = "settlementDeliveringLoot".Translate();
+                        text = loot.Aggregate(text, (current, thing) => current + thing.LabelCap + " " + thing.stackCount + "x\n ");
 
                         int num = new IntRange(0, 10).RandomInRange;
                         if (num <= 4 && getSlaves)
@@ -918,8 +910,19 @@ namespace FactionColonies
                                 Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
                             LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
 
-                        //deliver
-                        PaymentUtil.deliverThings(loot);
+                            //deliver
+
+                            FCEvent eventParams = new FCEvent()
+                            {
+                                location = Find.AnyPlayerHomeMap.Tile,
+                                source = mapLocation,
+                                planetName = planetName,
+                                goods = loot,
+                                customDescription = text,
+                                timeTillTrigger = Find.TickManager.TicksGame + FactionColonies.ReturnTicksToArrive(mapLocation, Find.AnyPlayerHomeMap.Tile)
+                            };
+
+                            DeliveryEvent.CreateDeliveryEvent(eventParams);
                     }
                     else
                     {
@@ -932,7 +935,7 @@ namespace FactionColonies
 
                     break;
                 }
-                case "enslaveEnemySettlement":
+                case MilitaryJob.EnslaveEnemySettlement:
                 {
                     int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
                         militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
@@ -940,15 +943,14 @@ namespace FactionColonies
                     {
                         //if won
                         faction.addExperienceToFactionLevel(5f);
-                        List<Thing> loot = new List<Thing>();
 
-                        string text = "settlementDeliveredLoot".Translate();
+                        string text = "";
 
                         int num = new IntRange(1, 3).RandomInRange;
                         for (int i = 0; i <= num; i++)
                         {
                             Pawn prisoner = PaymentUtil.generatePrisoner(militaryEnemy);
-                            text = text + "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name) + "\n";
+                            text += "PrisonerCaptureInfo".Translate(prisoner.Name.ToString(), name) + "\n";
                             addPrisoner(prisoner);
                         }
 
@@ -956,10 +958,7 @@ namespace FactionColonies
                             "RaidEnemySettlementSuccess".Translate(
                                 Find.WorldObjects.SettlementAt(militaryLocation).LabelCap) + "\n" + text,
                             LetterDefOf.PositiveEvent, new LookTargets(Find.WorldObjects.SettlementAt(militaryLocation)));
-
-                        //deliver
-                        PaymentUtil.deliverThings(loot);
-                    }
+                        }
                     else if (winner == 1)
                     {
                         //if lost
@@ -971,7 +970,7 @@ namespace FactionColonies
 
                     break;
                 }
-                case "captureEnemySettlement":
+                case MilitaryJob.CaptureEnemySettlement:
                 {
                     int winner = SimulateBattleFc.FightBattle(militaryForce.createMilitaryForceFromSettlement(this, true),
                         militaryForce.createMilitaryForceFromFaction(militaryEnemy, false));
@@ -1019,11 +1018,8 @@ namespace FactionColonies
                                 upgradeTimes = 0;
                                 break;
                         }
-
-                        for (int i = 1; i < upgradeTimes; i++)
-                        {
-                            settlementFc.upgradeSettlement();
-                        }
+                        
+                        settlementFc.upgradeSettlement(upgradeTimes);
 
                         settlementFc.loyalty = 15;
                         settlementFc.happiness = 25;
@@ -1062,7 +1058,7 @@ namespace FactionColonies
         public void returnMilitary(bool alert)
         {
             militaryBusy = false;
-            militaryJob = "";
+            militaryJob = MilitaryJob.Undefined;
             militaryLocation = -1;
             militaryEnemy = null;
 
@@ -1078,29 +1074,23 @@ namespace FactionColonies
             FactionFC faction = Find.World.GetComponent<FactionFC>();
 
             int cooldownReduction = 0;
-            if (faction.hasTrait(FCPolicyDefOf.raiders) &&
-                (militaryJob == "raidEnemySettlement" || militaryJob == "enslaveEnemySettlement"))
+            if (faction.hasTrait(FCPolicyDefOf.raiders) && (militaryJob == MilitaryJob.RaidEnemySettlement || militaryJob == MilitaryJob.EnslaveEnemySettlement))
             {
                 cooldownReduction += 60000;
             }
-            else if (militaryJob == "Deploy" &&
-                     FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
+            else if (militaryJob == MilitaryJob.Deploy && FactionColonies.Settings().deadPawnsIncreaseMilitaryCooldown)
             {
-                List<String> policies = faction.policies.ConvertAll(policy => policy.def.defName);
+                List<string> policies = faction.policies.ConvertAll(policy => policy.def.defName);
                 bool militarist = policies.Contains("militaristic");
                 bool authoritarian = policies.Contains("authoritarian");
                 bool pacifist = policies.Contains("pacifist");
 
-                int deadMultiplier = militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000;
-                if (pacifist)
-                {
-                    deadMultiplier += 2000;
-                }
+                int deadMultiplier = (militarist || authoritarian ? militarist && authoritarian ? 7000 : 8000 : 10000) + (pacifist ? 2000 : 0);
 
                 cooldownReduction -= militarySquad.dead * deadMultiplier;
             }
 
-            militaryJob = "cooldown";
+            militaryJob = MilitaryJob.Cooldown;
             militaryBusy = true;
             militaryLocation = mapLocation;
             militaryEnemy = null;
@@ -1230,23 +1220,6 @@ namespace FactionColonies
 
             buildings[buildingSlot] = BuildingFCDefOf.Empty;
         }
-
-
-        public void generatePrisonerTable()
-        {
-            if (prisonerList == null)
-            {
-                prisonerList = new List<FCPrisoner>();
-            }
-
-            foreach (Pawn pawn in prisoners)
-            {
-                prisonerList.Add(new FCPrisoner(pawn, this));
-            }
-
-            prisoners = new List<Pawn>();
-        }
-
 
         private int returnMaxWorkersFromPrisoners()
         {
@@ -1619,13 +1592,7 @@ namespace FactionColonies
                     List<Thing> tmpList;
 
                     double production = resource.endProduction;
-                    production *= industriousTaxPercentageBoost * ((100 +
-                                                                    TraitUtilsFC.cycleTraits(new double(),
-                                                                        "taxBasePercentage", traits, "add") +
-                                                                    TraitUtilsFC.cycleTraits(new double(),
-                                                                        "taxBasePercentage",
-                                                                        Find.World.GetComponent<FactionFC>()
-                                                                            .traits, "add")) / 100);
+                    production *= industriousTaxPercentageBoost * ((100 + TraitUtilsFC.cycleTraits("taxBasePercentage", traits, Operation.Addition) + TraitUtilsFC.cycleTraits("taxBasePercentage", Find.World.GetComponent<FactionFC>().traits, Operation.Addition)) / 100);
                     int assignedWorkers = resource.assignedWorkers;
 
                     //Create Temp Value
@@ -1640,9 +1607,9 @@ namespace FactionColonies
                         tmpList = PaymentUtil.generateTithe(resource.taxStock,
                             LoadedModManager.GetMod<FactionColoniesMod>().GetSettings<FactionColonies>()
                                 .productionTitheMod, assignedWorkers, resourceType,
-                            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier",
-                                Find.World.GetComponent<FactionFC>().traits, "add") +
-                            TraitUtilsFC.cycleTraits(0.0, "taxBaseRandomModifier", traits, "add"), this);
+                            TraitUtilsFC.cycleTraits("taxBaseRandomModifier",
+                                Find.World.GetComponent<FactionFC>().traits, Operation.Addition) +
+                            TraitUtilsFC.cycleTraits("taxBaseRandomModifier", traits, Operation.Addition), this);
 
                         foreach (Thing thing in tmpList)
                         {

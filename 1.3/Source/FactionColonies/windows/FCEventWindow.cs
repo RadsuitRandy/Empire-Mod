@@ -7,6 +7,8 @@ using UnityEngine;
 using RimWorld;
 using Verse;
 using RimWorld.Planet;
+using FactionColonies.util;
+using HarmonyLib;
 
 namespace FactionColonies
 {
@@ -134,28 +136,16 @@ namespace FactionColonies
                     if (evt.hasCustomDescription == false)
                     {
                         //If desc button clicked
-                        string settlementString = "";
-                        foreach (SettlementFC loc in evt.settlementTraitLocations)
+                        
+                        string settlementString = evt.settlementTraitLocations.Join((settlement) => $" {settlement.name}", "\n");
+                        if (!settlementString.NullOrEmpty())
                         {
-                            if (loc != null)
-                            {
-                                if (settlementString == "")
-                                {
-                                    settlementString = settlementString + loc.name;
-                                }
-                                else
-                                {
-                                    settlementString = settlementString + ", " + loc.name;
-                                }
-                            }
-                        }
-                        if (settlementString != "")
-                        {
-                            Find.WindowStack.Add(new DescWindowFc(evt.def.description + "\n This event is affecting the following settlements: " + settlementString));
+                            Log.Message(evt.settlementTraitLocations.Count + "");
+                            Find.WindowStack.Add(new DescWindowFc($"{evt.def.desc}\n{"EventAffectingSettlements".Translate()}\n{settlementString}"));
                         }
                         else
                         {
-                            Find.WindowStack.Add(new DescWindowFc(evt.def.description));
+                            Find.WindowStack.Add(new DescWindowFc(evt.def.desc));
                         }
                     } else
                     {
@@ -194,10 +184,7 @@ namespace FactionColonies
                         }
                     }
                 }
-                //
-                Widgets.Label(time, GenDate.ToStringTicksToDays(evt.timeTillTrigger - Find.TickManager.TicksGame));
-
-
+                Widgets.Label(time, (evt.timeTillTrigger - Find.TickManager.TicksGame).ToTimeString());
             }
 
 
